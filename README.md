@@ -1,4 +1,4 @@
-# @auth0/auth0-react
+# @transform-data/transform-react
 
 React components and hooks for querying Transform's MQL Server
 
