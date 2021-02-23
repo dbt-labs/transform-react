@@ -1,0 +1,15 @@
+{
+  "name": "transform-react",
+  "version": "1.0.0",
+  "description": "React components and hooks for querying Transform's MQL Server ",
+  "main": "index.js",
+  "repository": "https://github.com/transform-data/transform-react",
+  "license": "MIT",
+  "dependencies": {
+    "graphql": "^15.5.0",
+    "node-fetch": "^2.6.1"
+  },
+  "scripts": {
+    "schema:mql": "node scripts/schemaMql.js"
+  }
+}

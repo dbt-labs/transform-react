@@ -1,0 +1,250 @@
+"""
+Base Query object exposed by GraphQL for the MQL Server
+
+Each field defined below is accessible by the API, by calling the equivalent resolver.
+"""
+type Query {
+  version: String
+  mqlQuery(id: ID!): MqlQuery
+  metrics(modelKey: ModelKeyArgument): [Metric!]
+  metricByName(modelKey: ModelKeyArgument, name: String!): Metric
+  measures(modelKey: ModelKeyArgument): [Measure!]
+  measureByName(modelKey: ModelKeyArgument, name: String!): Measure
+  dimensionNamesForMetrics(modelKey: ModelKeyArgument, metricNames: [String]): [String]
+  queries(activeOnly: Boolean, limit: Int): [MqlQuery]
+  healthReport: [MqlServerHealthItem]
+}
+
+"""
+The MQL Query class is used to access the output of an MQL Query.
+
+Since queries are processed asynchronously, the status field indicates whether results are available.
+Once complete, the results are available either in a strongly typed format, `result`, or
+a generic, tabular format suitable for constructing a Pandas DataFrame.
+"""
+type MqlQuery {
+  """
+  Query IDs are disposable, as query results expire in a short period of time. It is expected that queries are created, and then results are retrieved immediately upon query completion.
+  """
+  id: ID
+
+  """The model key used when creating the query"""
+  modelKey: ModelKey
+  metrics: [String!]
+  dimensions: [String!]
+
+  """The status of the requested query"""
+  status: MqlQueryStatus
+  result: [MqlQueryResultSeries!]
+
+  """
+  The Tabular Results are Base 64-encoded JSON of a subset of rows from the query results Data Frame.
+  """
+  resultTabular(cursor: Int, orient: PandasJsonOrient): MqlQueryTabularResult
+  logs: String
+  logsByLine(fromLine: Int, maxLines: Int): String
+}
+
+"""A Model Key is unsed to uniquely identify a model at a specific commit"""
+type ModelKey {
+  organization: String!
+  repo: String!
+  branch: String!
+  commit: String!
+}
+
+"""
+The status of queries submitted for execution in the query manager.
+
+Note: Obviously we need to link this from the version in query_manager.
+"""
+enum MqlQueryStatus {
+  PENDING
+  RUNNING
+  SUCCESSFUL
+  FAILED
+  UNHANDLED_EXCEPTION
+  UNKNOWN
+}
+
+"""This is the canonical shape for chart-ready data."""
+type MqlQueryResultSeries {
+  """
+  For queries without dimensional cuts, series_value will be `ALL`. For queries with dimensional cuts, one of these Result will be returned per dimension
+  """
+  seriesValue: String
+  data: [ResultDatum!]
+}
+
+"""This interface is used to describe any type of MQL Query result data"""
+interface ResultDatum {
+  y: Float!
+}
+
+"""Object type for Tabular data used to populate Pandas DataFrames"""
+type MqlQueryTabularResult {
+  """
+  Base-64 encoded Pandas DataFrame dumped to JSON using the specified orient.
+  """
+  data: String
+
+  """
+  If present, the cursor indicates the value to pass for the next batch of records. If null, all results have been transferred.
+  """
+  nextCursor: String
+}
+
+"""
+Determines the format of the JSON output for the DataFrame
+
+See https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.to_json.html
+"""
+enum PandasJsonOrient {
+  SPLIT
+  RECORDS
+  INDEX
+  COLUMNS
+  VALUES
+  TABLE
+}
+
+type Metric {
+  name: String!
+  measures: [String!]
+  dimensions: [String!]
+  dimensionValues(modelKey: ModelKeyArgument, dimensionName: String): [String!]
+}
+
+"""Directly mirrors ModelKey in models as an input argument"""
+input ModelKeyArgument {
+  organization: String
+  repo: String
+  branch: String
+  commit: String
+}
+
+type Measure {
+  name: String!
+  dataSources: [String!]
+}
+
+type MqlServerHealthItem {
+  name: String!
+  status: String!
+  errorMessage: String
+}
+
+"""Base mutation object exposed by GraphQL."""
+type Mutation {
+  """
+  This mutation is used to initiate an MQL Query, but the results are fetched separately.
+  
+  The return value is a queryId that can be used to fetch the query status, errors, and results.
+  """
+  createMqlQuery(input: CreateMqlQueryInput!): CreateMqlQueryPayload
+  materialize(asTable: String, cacheMode: CacheMode, groupBy: [String!], metrics: [String!], modelKey: ModelKeyInput, where: ConstraintInput): Materialize
+
+  """
+  Drop the MQL dynamic cache. Please avoid doing this unless there's a cache corruption issue.
+  """
+  dropCache(confirm: String): DropCache
+}
+
+"""
+This mutation is used to initiate an MQL Query, but the results are fetched separately.
+
+The return value is a queryId that can be used to fetch the query status, errors, and results.
+"""
+type CreateMqlQueryPayload {
+  id: ID
+  clientMutationId: String
+}
+
+input CreateMqlQueryInput {
+  modelKey: ModelKeyInput
+  metrics: [String!]
+  groupBy: [String!]
+  where: ConstraintInput
+  order: [String!]
+  limit: Int
+
+  """
+  Set to True if you want to automatically add a default Time Series dimension to the query. This is useful for plotting the metric in time series without needing to know the time dimension up front.
+  """
+  addTimeSeries: Boolean
+
+  """
+  Optionally, provide a cache mode to instruct the query engine how/whether to check the cache for data.
+  """
+  cacheMode: CacheMode
+  postProcessor: String
+  postProcessors: [String!]
+  clientMutationId: String
+}
+
+"""Directly mirrors ModelKey in models"""
+input ModelKeyInput {
+  organization: String
+  repo: String
+  branch: String
+  commit: String
+}
+
+"""
+Container class for inputs to allow for and/or wrappers on the `where` clause
+"""
+input ConstraintInput {
+  And: [SingleConstraintInput!]
+  Or: [SingleConstraintInput!]
+  constraint: SingleConstraintInput
+}
+
+"""Actual `where` clauses to be applied"""
+input SingleConstraintInput {
+  constraintType: AtomicConstraintType
+  dimensionName: String
+  values: [String!]
+  start: String
+  stop: String
+}
+
+"""Current possible values for constraints"""
+enum AtomicConstraintType {
+  SET
+  RANGE
+}
+
+"""An enumeration."""
+enum CacheMode {
+  READ
+  READWRITE
+  WRITE
+  IGNORE
+}
+
+type Materialize {
+  schema: String
+  table: String
+}
+
+"""
+Drop the MQL dynamic cache. Please avoid doing this unless there's a cache corruption issue.
+"""
+type DropCache {
+  success: Boolean
+}
+
+"""
+MQL Query Result Data are expected to be plotted on a time series so this is the most common result type
+"""
+type TimeSeriesDatum implements ResultDatum {
+  y: Float!
+  xDate: DateTime!
+}
+
+"""
+The `DateTime` scalar type represents a DateTime
+value as specified by
+[iso8601](https://en.wikipedia.org/wiki/ISO_8601).
+"""
+scalar DateTime
