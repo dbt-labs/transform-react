@@ -1,9 +1,12 @@
 {
-  "name": "transform-react",
+  "name": "@transform/transform-react",
   "version": "1.0.0",
-  "description": "React components and hooks for querying Transform's MQL Server ",
+  "description": "React components and hooks for querying Transform's MQL Server",
   "main": "index.js",
-  "repository": "https://github.com/transform-data/transform-react",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/transform-data/transform-react.git"
+  },
   "license": "MIT",
   "dependencies": {
     "graphql": "^15.5.0",
@@ -11,5 +14,11 @@
   },
   "scripts": {
     "schema:mql": "node scripts/schemaMql.js"
-  }
+  },
+  "bugs": {
+    "url": "https://github.com/transform-data/transform-react/issues"
+  },
+  "homepage": "https://github.com/transform-data/transform-react#readme",
+  "devDependencies": {},
+  "author": ""
 }
