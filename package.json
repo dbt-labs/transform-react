@@ -1,5 +1,5 @@
 {
-  "name": "@transform/transform-react",
+  "name": "@transform-data/transform-react",
   "version": "1.0.0",
   "description": "React components and hooks for querying Transform's MQL Server",
   "main": "index.js",
