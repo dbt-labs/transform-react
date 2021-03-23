@@ -459,7 +459,7 @@ export type FetchMqlTimeSeriesQuery = (
   { __typename?: 'Query' }
   & { mqlQuery?: Maybe<(
     { __typename?: 'MqlQuery' }
-    & Pick<MqlQuery, 'id' | 'status'>
+    & Pick<MqlQuery, 'id' | 'status' | 'metrics'>
     & { result?: Maybe<Array<(
       { __typename?: 'MqlQueryResultSeries' }
       & Pick<MqlQueryResultSeries, 'seriesValue'>

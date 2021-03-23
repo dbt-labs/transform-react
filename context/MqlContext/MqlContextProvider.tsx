@@ -1,14 +1,15 @@
 import { useEffect, useState, ReactNode, useCallback } from "react";
-import { useQuery, useMutation, gql, CombinedError, Provider } from "urql";
+import { useQuery, useMutation, CombinedError, Provider } from "urql";
 
-import buildMqlUrqlClient from "../../utils/builMqlUrqlClient";
-import buildApiUrqlClient from "utils/buildApiUrqlClient";
-import MqlContext, { MqlContextType, CORE_API_URL } from "./MqlContext";
-import { MqlServerUrlQuery } from "./__generated__/MqlServerUrlQuery";
+import buildMqlUrqlClient from "utils/builMqlUrqlClient";
+import MqlServerUrlQuery from "queries/core/MqlServerUrlQuery";
+import { MqlServerUrlQuery as MqlServerUrlQueryType } from "queries/core/CoreApiQueryTypes";
+import SetMqlServerUrlMutation from "mutations/core/SetMqlServerUrl";
 import {
-  SetMqlServerUrl,
-  SetMqlServerUrlVariables,
-} from "./__generated__/SetMqlServerUrl";
+  SetMqlServerUrlMutation as SetMqlServerUrlMutationType,
+  SetMqlServerUrlMutationVariables,
+} from "mutations/core/CoreApiMutationTypes";
+import MqlContext, { MqlContextType, CORE_API_URL } from "./MqlContext";
 
 type Props = {
   getToken: () => Promise<string>;
@@ -27,7 +28,7 @@ function MqlContextProvider({
   isAuthenticated,
   captureException,
 }: Props) {
-  const coreApiClient = buildApiUrqlClient(getToken, CORE_API_URL);
+  const coreApiClient = buildMqlUrqlClient(getToken, CORE_API_URL);
   return (
     <Provider value={coreApiClient}>
       <MqlContextProviderInternal
@@ -48,7 +49,7 @@ function MqlContextProviderInternal({
   captureException,
 }: Props) {
   // We do this because we want to allow the parent to provide a bespoke error handling function.
-  const throwCarefully = useCallback(
+  const handleCombinedError = useCallback(
     (e: CombinedError) => {
       const errFunction = captureException || console.error;
       if (e.message) {
@@ -77,44 +78,19 @@ function MqlContextProviderInternal({
   const [
     { data: mqlServerUrlData, error: mqlServerUrlError },
     refetchMqlServerUrl,
-  ] = useQuery<MqlServerUrlQuery>({
-    query: gql`
-      query MqlServerUrlQuery {
-        mqlServerUrl
-      }
-    `,
+  ] = useQuery<MqlServerUrlQueryType>({
+    query: MqlServerUrlQuery,
     pause: !isAuthenticated,
     context: {
       url: CORE_API_URL,
     },
   });
-  if (mqlServerUrlError) throwCarefully(mqlServerUrlError);
+  if (mqlServerUrlError) handleCombinedError(mqlServerUrlError);
 
   const [{ fetching }, setMqlServerUrl] = useMutation<
-    SetMqlServerUrl,
-    SetMqlServerUrlVariables
-  >(
-    gql`
-      mutation SetMqlServerUrl($newServerIdAsString: String!) {
-        createUserPreference(
-          object: {
-            prefKey: "mql_server_override_id"
-            prefValue: $newServerIdAsString
-          }
-          on_conflict: {
-            constraint: user_prefs_user_id_pref_key_key
-            update_columns: prefValue
-          }
-        ) {
-          id
-          prefKey
-          prefValue
-          userId
-          createdAt
-        }
-      }
-    `
-  );
+    SetMqlServerUrlMutationType,
+    SetMqlServerUrlMutationVariables
+  >(SetMqlServerUrlMutation);
 
   const setMqlServerUrlThenRefetch = useCallback(
     (newServerId: number) =>
@@ -145,6 +121,7 @@ function MqlContextProviderInternal({
     getToken,
     useQuery,
     useMutation,
+    handleCombinedError,
   });
 
   useEffect(() => {

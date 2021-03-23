@@ -1,4 +1,4 @@
-import { Client, useQuery, useMutation } from "urql";
+import { Client, useQuery, useMutation, CombinedError } from "urql";
 import { createContext } from "react";
 import buildMqlUrqlClient from "../../utils/builMqlUrqlClient";
 
@@ -59,6 +59,7 @@ export type MqlContextType = {
   getToken: () => Promise<string>;
   useQuery: typeof useQuery;
   useMutation: typeof useMutation;
+  handleCombinedError: (e: CombinedError) => void;
 };
 
 export const MqlContextInitialState = {
@@ -73,6 +74,9 @@ export const MqlContextInitialState = {
   getToken: () => Promise.resolve(""),
   useQuery,
   useMutation,
+  handleCombinedError: (e: CombinedError) => {
+    throw new Error(e.message);
+  },
 };
 
 export default createContext<MqlContextType>(MqlContextInitialState);

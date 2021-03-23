@@ -1,7 +1,7 @@
 import { gql } from "urql";
 
 const query = gql`
-  query MqlServerUrlQuery {
+  query MqlServerUrl {
     mqlServerUrl
   }
 `;

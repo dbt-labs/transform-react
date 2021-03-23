@@ -29280,10 +29280,10 @@ export type Users_Variance_Order_By = {
 };
 
 
-export type MqlServerUrlQueryQueryVariables = Exact<{ [key: string]: never; }>;
+export type MqlServerUrlQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MqlServerUrlQueryQuery = (
+export type MqlServerUrlQuery = (
   { __typename?: 'query_root' }
   & Pick<Query_Root, 'mqlServerUrl'>
 );

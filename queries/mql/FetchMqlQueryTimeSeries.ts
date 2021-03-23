@@ -5,6 +5,7 @@ const query = gql`
     mqlQuery(id: $queryId) {
       id
       status
+      metrics
       result {
         seriesValue
         data {
