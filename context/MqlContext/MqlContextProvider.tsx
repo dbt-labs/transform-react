@@ -3,7 +3,7 @@ import { useQuery, useMutation, gql, CombinedError, Provider } from "urql";
 
 import buildMqlUrqlClient from "../../utils/builMqlUrqlClient";
 import buildApiUrqlClient from "utils/buildApiUrqlClient";
-import MqlContext, { MqlContextType } from "./MqlContext";
+import MqlContext, { MqlContextType, CORE_API_URL } from "./MqlContext";
 import { MqlServerUrlQuery } from "./__generated__/MqlServerUrlQuery";
 import {
   SetMqlServerUrl,
@@ -12,18 +12,26 @@ import {
 
 type Props = {
   getToken: () => Promise<string>;
+  isAuthenticated: boolean;
   captureException?: (e: CombinedError) => void;
   children: ReactNode;
 };
 
 /*
-  This thin wrapper allows us to use an urql Provider to provide access to our API
+  This thin wrapper allows us to use an urql Provider to provide access to our Core API
   for the sake of interacting with MQL Server and Model Key selection
 */
-function MqlContextProvider({ getToken, children, captureException }: Props) {
+function MqlContextProvider({
+  getToken,
+  children,
+  isAuthenticated,
+  captureException,
+}: Props) {
+  const coreApiClient = buildApiUrqlClient(getToken, CORE_API_URL);
   return (
-    <Provider value={buildApiUrqlClient(getToken)}>
+    <Provider value={coreApiClient}>
       <MqlContextProviderInternal
+        isAuthenticated={isAuthenticated}
         getToken={getToken}
         captureException={captureException}
       >
@@ -35,16 +43,19 @@ function MqlContextProvider({ getToken, children, captureException }: Props) {
 
 function MqlContextProviderInternal({
   getToken,
+  isAuthenticated,
   children,
   captureException,
 }: Props) {
   // We do this because we want to allow the parent to provide a bespoke error handling function.
   const throwCarefully = useCallback(
     (e: CombinedError) => {
-      if (captureException) {
-        captureException(e);
-      } else {
-        console.error(e.message);
+      const errFunction = captureException || console.error;
+      if (e.message) {
+        errFunction(e.message);
+      }
+      if (e.networkError) {
+        errFunction(e.networkError);
       }
     },
     [captureException]
@@ -64,11 +75,7 @@ function MqlContextProviderInternal({
     for MqlServerUrl.
   */
   const [
-    {
-      data: mqlServerUrlData,
-      error: mqlServerUrlError,
-      fetching: mqlServerUrlfetching,
-    },
+    { data: mqlServerUrlData, error: mqlServerUrlError },
     refetchMqlServerUrl,
   ] = useQuery<MqlServerUrlQuery>({
     query: gql`
@@ -76,6 +83,10 @@ function MqlContextProviderInternal({
         mqlServerUrl
       }
     `,
+    pause: !isAuthenticated,
+    context: {
+      url: CORE_API_URL,
+    },
   });
   if (mqlServerUrlError) throwCarefully(mqlServerUrlError);
 
@@ -105,38 +116,50 @@ function MqlContextProviderInternal({
     `
   );
 
-  const mqlClient =
-    getToken && mqlServerUrlData?.mqlServerUrl
-      ? buildMqlUrqlClient(getToken, mqlServerUrlData.mqlServerUrl)
-      : null;
-  [];
-
-  const [mqlContext, setMqlContext] = useState<MqlContextType>({
-    setMqlServerUrl: (newServerId: number) =>
+  const setMqlServerUrlThenRefetch = useCallback(
+    (newServerId: number) =>
       // Note: newServerid is cast as a string because it is stored on the backend
       // as a User Preference, whose values are all strings.
       setMqlServerUrl({ newServerIdAsString: `${newServerId}` }).then(
         refetchMqlServerUrl
       ),
-    mqlServerOverrideLoading: fetching,
-    mqlClient,
-    mqlServerUrl: mqlServerUrlData?.mqlServerUrl,
+    [setMqlServerUrl, refetchMqlServerUrl]
+  );
+
+  // Note: Before the mqlServerUrl is available, an urql client will be constructed with the url set to an empty string.
+  // Naturally, this is invalid, so we must check with the mqlServerUrl is present before initiating MQL Queries.
+  const mqlClient = buildMqlUrqlClient(
     getToken,
+    mqlServerUrlData?.mqlServerUrl || ""
+  );
+
+  const [mqlContext, setMqlContext] = useState<MqlContextType>({
+    coreApiUrl: CORE_API_URL,
+    mqlServerUrl: mqlServerUrlData?.mqlServerUrl,
+    setMqlServerUrl: setMqlServerUrlThenRefetch,
+    mqlServerOverrideLoading: fetching,
+    modelKey: null,
+    setModelKey: () => Promise.resolve(),
+    modalKeyOverrideLoading: false,
+    mqlClient,
+    getToken,
+    useQuery,
+    useMutation,
   });
 
   useEffect(() => {
-    const stateToUpdate: MqlContextType = {};
+    const stateToUpdate: any = {};
     if (mqlServerUrlData?.mqlServerUrl !== mqlContext.mqlServerUrl) {
       stateToUpdate.mqlServerUrl = mqlServerUrlData?.mqlServerUrl;
     }
     if (
-      (mqlServerUrlData?.mqlServerUrl &&
-        mqlServerUrlData?.mqlServerUrl !== mqlContext.mqlServerUrl) ||
-      getToken !== mqlContext.getToken
+      mqlServerUrlData?.mqlServerUrl &&
+      (mqlServerUrlData?.mqlServerUrl !== mqlContext.mqlServerUrl ||
+        getToken !== mqlContext.getToken)
     ) {
       stateToUpdate.mqlClient = buildMqlUrqlClient(
         getToken,
-        mqlServerUrlData.mqlServerUrl
+        mqlServerUrlData?.mqlServerUrl
       );
     }
     if (Object.keys(stateToUpdate).length > 0) {
@@ -148,7 +171,9 @@ function MqlContextProviderInternal({
   }, [mqlServerUrlData, getToken, mqlContext]);
 
   return (
-    <MqlContext.Provider value={mqlContext}>{children}</MqlContext.Provider>
+    <Provider value={mqlContext.mqlClient}>
+      <MqlContext.Provider value={mqlContext}>{children}</MqlContext.Provider>
+    </Provider>
   );
 }
 

@@ -1,8 +1,12 @@
-import { makeOperation } from "urql";
+import { makeOperation, Operation } from "urql";
 import { authExchange } from "@urql/exchange-auth";
 
+type AuthState = {
+  token: string;
+} | null;
+
 function buildGetAuth(getToken: () => Promise<string>) {
-  const getAuth = async ({ authState }) => {
+  const getAuth = async ({ authState }: { authState: AuthState }) => {
     // TODO: We could start parsing and evaluating this token to avoid having to fetch it each time
     const token = await getToken();
 
@@ -17,7 +21,13 @@ function buildGetAuth(getToken: () => Promise<string>) {
   return getAuth;
 }
 
-function addAuthToOperation({ authState, operation }) {
+function addAuthToOperation({
+  authState,
+  operation,
+}: {
+  authState: AuthState;
+  operation: Operation;
+}) {
   if (!authState || !authState.token) {
     return operation;
   }
