@@ -1,0 +1,8 @@
+overwrite: true
+schema: 'schemas/core/core.graphql'
+documents: 'queries/core/**'
+generates:
+  queries/core/CoreApiQueryTypes.ts:
+    plugins:
+      - 'typescript'
+      - 'typescript-operations'

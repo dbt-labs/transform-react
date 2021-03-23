@@ -1,0 +1,8 @@
+overwrite: true
+schema: 'schemas/core/core.graphql'
+documents: 'mutations/core/**'
+generates:
+  mutations/core/CoreApiMutationTypes.ts:
+    plugins:
+      - 'typescript'
+      - 'typescript-operations'

@@ -11,7 +11,7 @@ type Query {
   measures(modelKey: ModelKeyArgument): [Measure!]
   measureByName(modelKey: ModelKeyArgument, name: String!): Measure
   dimensionNamesForMetrics(modelKey: ModelKeyArgument, metricNames: [String]): [String]
-  queries(activeOnly: Boolean, limit: Int): [MqlQuery]
+  queries(activeOnly: Boolean, limit: Int, offset: Int): [MqlQuery]
   healthReport: [MqlServerHealthItem]
 }
 
@@ -41,6 +41,19 @@ type MqlQuery {
   The Tabular Results are Base 64-encoded JSON of a subset of rows from the query results Data Frame.
   """
   resultTabular(cursor: Int, orient: PandasJsonOrient): MqlQueryTabularResult
+
+  """
+  The completion time for the query result. If using the MQL result cache, helps check when the latest cache fill occurred.
+  """
+  completedAt: DateTime
+  resultTableSchema: String
+  resultTableName: String
+
+  """Time this query was submitted to the MQL server"""
+  createdAt: DateTime
+
+  """Time the MQL Server start query execution"""
+  startedAt: DateTime
   logs: String
   logsByLine(fromLine: Int, maxLines: Int): String
 }
@@ -108,6 +121,13 @@ enum PandasJsonOrient {
   TABLE
 }
 
+"""
+The `DateTime` scalar type represents a DateTime
+value as specified by
+[iso8601](https://en.wikipedia.org/wiki/ISO_8601).
+"""
+scalar DateTime
+
 type Metric {
   name: String!
   measures: [String!]
@@ -136,49 +156,40 @@ type MqlServerHealthItem {
 
 """Base mutation object exposed by GraphQL."""
 type Mutation {
+  createMqlMaterialization(input: CreateMqlMaterializationInput!): CreateMqlMaterializationPayload
+
   """
   This mutation is used to initiate an MQL Query, but the results are fetched separately.
   
   The return value is a queryId that can be used to fetch the query status, errors, and results.
   """
   createMqlQuery(input: CreateMqlQueryInput!): CreateMqlQueryPayload
-  materialize(asTable: String, cacheMode: CacheMode, groupBy: [String!], metrics: [String!], modelKey: ModelKeyInput, where: ConstraintInput): Materialize
+  materialize(asTable: String, cacheMode: CacheMode, groupBy: [String!], metrics: [String!], modelKey: ModelKeyInput, where: ConstraintInput): Materialize @deprecated(reason: "Moving to async implementation (CreateMqlMaterialization)")
 
   """
   Drop the MQL dynamic cache. Please avoid doing this unless there's a cache corruption issue.
   """
   dropCache(confirm: String): DropCache
+
+  """Stores hosted MQL Server config using AWS Secrets Manager."""
+  updateMqlServerConfig(dwPassword: String, mqlServerId: Int, tfdApiKey: String): UpdateMqlServerConfig
+
+  """Removes hosted MQL Server config using AWS Secrets Manager."""
+  revokeMqlServerConfig(mqlServerId: Int): RevokeMqlServerConfig
 }
 
-"""
-This mutation is used to initiate an MQL Query, but the results are fetched separately.
-
-The return value is a queryId that can be used to fetch the query status, errors, and results.
-"""
-type CreateMqlQueryPayload {
+type CreateMqlMaterializationPayload {
   id: ID
   clientMutationId: String
 }
 
-input CreateMqlQueryInput {
+input CreateMqlMaterializationInput {
   modelKey: ModelKeyInput
+  asTable: String
   metrics: [String!]
   groupBy: [String!]
   where: ConstraintInput
-  order: [String!]
-  limit: Int
-
-  """
-  Set to True if you want to automatically add a default Time Series dimension to the query. This is useful for plotting the metric in time series without needing to know the time dimension up front.
-  """
-  addTimeSeries: Boolean
-
-  """
-  Optionally, provide a cache mode to instruct the query engine how/whether to check the cache for data.
-  """
   cacheMode: CacheMode
-  postProcessor: String
-  postProcessors: [String!]
   clientMutationId: String
 }
 
@@ -222,6 +233,39 @@ enum CacheMode {
   IGNORE
 }
 
+"""
+This mutation is used to initiate an MQL Query, but the results are fetched separately.
+
+The return value is a queryId that can be used to fetch the query status, errors, and results.
+"""
+type CreateMqlQueryPayload {
+  id: ID
+  clientMutationId: String
+}
+
+input CreateMqlQueryInput {
+  modelKey: ModelKeyInput
+  metrics: [String!]
+  groupBy: [String!]
+  where: ConstraintInput
+  order: [String!]
+  limit: Int
+
+  """
+  Set to True if you want to automatically add a default Time Series dimension to the query. This is useful for plotting the metric in time series without needing to know the time dimension up front.
+  """
+  addTimeSeries: Boolean
+
+  """
+  Optionally, provide a cache mode to instruct the query engine how/whether to check the cache for data.
+  """
+  cacheMode: CacheMode
+  useResultCache: Boolean
+  postProcessor: String
+  postProcessors: [String!]
+  clientMutationId: String
+}
+
 type Materialize {
   schema: String
   table: String
@@ -234,6 +278,32 @@ type DropCache {
   success: Boolean
 }
 
+"""Stores hosted MQL Server config using AWS Secrets Manager."""
+type UpdateMqlServerConfig {
+  config: MqlServerConfig
+}
+
+"""MQL Server configuration for hosted MQL Servers"""
+type MqlServerConfig {
+  """MQL Server ID as stored in the Backend"""
+  mqlServerId: Int
+
+  """
+  Transform Data API Key. _Note:_ Stored securely using AWS Secrets Manager.
+  """
+  tfdApiKey: String
+
+  """
+  Password used to access the Data Warehouse. _Note:_ Stored securely using AWS Secrets Manager.
+  """
+  dwPassword: String
+}
+
+"""Removes hosted MQL Server config using AWS Secrets Manager."""
+type RevokeMqlServerConfig {
+  success: Boolean
+}
+
 """
 MQL Query Result Data are expected to be plotted on a time series so this is the most common result type
 """
@@ -241,10 +311,3 @@ type TimeSeriesDatum implements ResultDatum {
   y: Float!
   xDate: DateTime!
 }
-
-"""
-The `DateTime` scalar type represents a DateTime
-value as specified by
-[iso8601](https://en.wikipedia.org/wiki/ISO_8601).
-"""
-scalar DateTime
