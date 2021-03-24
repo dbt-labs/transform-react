@@ -2,8 +2,12 @@ import { useContext } from "react";
 import Head from "next/head";
 import MqlServerHealth from "../queries/mql/MqlServerHealth";
 import { MqlServerHealthCheckQuery } from "../queries/mql/MqlQueryTypes";
+import useMqlQuery from "../hooks/useMqlQuery";
 import styles from "../styles/Home.module.css";
 import MqlContext from "../context/MqlContext/MqlContext";
+
+// Per our notes in useMqlQuery, queryInput must be stable.
+const queryInput = {};
 
 export default function MqlContextDemo() {
   // Here is a simple way to access the MQL Server URL directly,
@@ -16,6 +20,14 @@ export default function MqlContextDemo() {
     pause: !mqlServerUrl,
   });
 
+  // Here is a simple example of the useMqlQuery hook to fetch data to be plotted in a chart
+  const query = useMqlQuery({
+    queryInput,
+    metricName: "question_replies",
+    limit: 365,
+  });
+  const { chartData, queryStatus, isTakingForever, errorMessage } = query;
+  console.log({ query });
   return (
     <div className={styles.container}>
       <Head>

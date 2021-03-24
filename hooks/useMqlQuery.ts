@@ -97,6 +97,15 @@ type Action =
       handleCombinedError: (e: CombinedError) => void;
     };
 
+/*
+    At first glance, it is counter-intuitive that we should have a mix of the Reducer pattern 
+    and the Hook pattern. The explanation for this complexity is that we have several fetches
+    that require coordination.
+      1. We post a mutation to create a query
+      2. We use the query ID to poll for results
+      3. None of this can take place until an MQL Server URL is supplied
+    This reducer abstracts all this complexity.
+*/
 function mqlQueryReducer(state: State, action: Action): State {
   switch (action.type) {
     case "postQueryStart": {
@@ -216,7 +225,12 @@ export default function useMqlQuery({
   metricName,
   limit,
 }: UseMqlQueryParams) {
-  const { useQuery, useMutation, handleCombinedError } = useContext(MqlContext);
+  const {
+    useQuery,
+    useMutation,
+    handleCombinedError,
+    mqlServerUrl,
+  } = useContext(MqlContext);
   const [state, dispatch] = useReducer(mqlQueryReducer, initialState);
 
   const [{}, createMqlQuery] = useMutation<
@@ -225,7 +239,7 @@ export default function useMqlQuery({
   >(CreateMqlQuery);
 
   useEffect(() => {
-    if (!metricName) {
+    if (!metricName || !mqlServerUrl) {
       return;
     }
     let formState: CreateMqlQueryMutationVariables = {};
@@ -254,7 +268,7 @@ export default function useMqlQuery({
         handleCombinedError(error);
       }
     });
-  }, [queryInput, metricName]);
+  }, [queryInput, metricName, mqlServerUrl]);
 
   const [{ data, error }, refetchMqlQuery] = useQuery<
     FetchMqlTimeSeriesQuery,
