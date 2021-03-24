@@ -26,8 +26,7 @@ export default function MqlContextDemo() {
     metricName: "question_replies",
     limit: 365,
   });
-  const { chartData, queryStatus, isTakingForever, errorMessage } = query;
-  console.log({ query });
+  const { data, queryStatus, queryId } = query;
   return (
     <div className={styles.container}>
       <Head>
@@ -48,6 +47,21 @@ export default function MqlContextDemo() {
           <code className={styles.code}>
             {JSON.stringify((healthCheckData?.healthReport || [])[0])}
           </code>
+        </p>
+
+        <p className={styles.description}>
+          MQL Query ID:
+          <code className={styles.code}>{queryId}</code>
+        </p>
+
+        <p className={styles.description}>
+          MQL Query Status:
+          <code className={styles.code}>{queryStatus}</code>
+        </p>
+
+        <p className={styles.description}>
+          MQL Query Chart:
+          <code className={styles.code}>{JSON.stringify(data?.result)}</code>
         </p>
       </main>
 

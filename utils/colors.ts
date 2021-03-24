@@ -1,3 +1,7 @@
+/*
+  Note: These color utilities are only used for the demo site.
+  They are not needed for useMqlQuery
+*/
 export const defaultColor = "#3700b3";
 const colors = ["#c862e8", "#7d3Ac1", "#bc5090", "#ea7369", "#f3a533"];
 

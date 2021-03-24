@@ -1,3 +1,7 @@
+/*
+  Note: This data formatting utility is only used for the demo site.
+  It is not needed for useMqlQuery
+*/
 import { FetchMqlTimeSeriesQuery } from "queries/mql/MqlQueryTypes";
 import { defaultColor, generatedColors } from "./colors";
 import moment from "moment";
@@ -22,17 +26,8 @@ export default function formatChartData(
         ? defaultColor
         : generatedColors[idx % generatedColors.length],
     data: (d.data || [])
-      // TODO: Migrate to server
-      // https://app.asana.com/0/1161293048858925/1200102125224770
       .sort((a, b) => (a.xDate < b.xDate ? -1 : 1))
-
-      // Note: For now we need to limit the volume of data being rendered in the chart
-      // TODO: Migrate to server
-      // https://app.asana.com/0/1161293048858925/1200102125224772
       .slice(limit ? -limit : undefined)
-
-      // TODO: We should be able to manage this formatting on the server, also
-      // https://app.asana.com/0/1161293048858925/1200102125224774
       .map(({ xDate, y }) => {
         if (xDate === "NaT") {
           throw new Error(

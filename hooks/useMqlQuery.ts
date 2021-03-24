@@ -1,5 +1,4 @@
-import { useEffect, useReducer, useCallback, useContext } from "react";
-import Serie from "types/Serie";
+import { useEffect, useReducer, useContext } from "react";
 
 import MqlContext from "context/MqlContext/MqlContext";
 
@@ -16,7 +15,6 @@ import {
   MqlQueryStatus,
 } from "queries/mql/MqlQueryTypes";
 import { CombinedError } from "@urql/core";
-import formatChartData from "utils/formatChartData";
 
 // This is the delay between the _response_ from the last query and the _start_ of the new query
 const QUERY_POLLING_MS = 200;
@@ -59,7 +57,7 @@ type State = {
   queryStatus: MqlQueryStatus;
 
   // This is the formatted chart data ready for rendering by the chart
-  chartData: Serie[] | null;
+  data?: FetchMqlTimeSeriesQuery["mqlQuery"] | null;
 
   // As we have subsequent queries triggered by changes in the UI, this allows us to keep track of previous requests to avoid race conditions
   // We cap the list at 10. It's only intended to handle scenarios where the user makes a series of requests while a series of requests is
@@ -78,7 +76,7 @@ type State = {
 const initialState: State = {
   queryId: null,
   queryStatus: MqlQueryStatus.Pending,
-  chartData: null,
+  data: null,
   cancelledQueries: [],
   fetchStartTime: null,
   isTakingForever: false,
@@ -119,7 +117,7 @@ function mqlQueryReducer(state: State, action: Action): State {
             state.queryId,
             ...state.cancelledQueries.slice(CANCELLED_QUERY_LIST_LENGTH - 1),
           ],
-          chartData: null,
+          data: null,
           fetchStartTime: Date.now(),
           isTakingForever: false,
           errorMessage: undefined,
@@ -130,7 +128,7 @@ function mqlQueryReducer(state: State, action: Action): State {
         queryStatus: MqlQueryStatus.Running,
         fetchStartTime: Date.now(),
         isTakingForever: false,
-        chartData: null,
+        data: null,
         errorMessage: undefined,
       };
     }
@@ -171,22 +169,10 @@ function mqlQueryReducer(state: State, action: Action): State {
     }
 
     case "fetchResultsSuccess": {
-      let chartData: Serie[];
-      try {
-        chartData = formatChartData(action.data.mqlQuery, action.limit);
-      } catch (e) {
-        action.handleCombinedError(e);
-        return {
-          ...state,
-          queryStatus: MqlQueryStatus.Failed,
-          errorMessage: e?.message,
-          isTakingForever: false,
-        };
-      }
       return {
         ...state,
         queryStatus: MqlQueryStatus.Successful,
-        chartData,
+        data: action.data?.mqlQuery,
         fetchStartTime: null,
         isTakingForever: false,
         errorMessage: undefined,
