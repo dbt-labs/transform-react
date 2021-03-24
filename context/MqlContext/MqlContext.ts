@@ -70,7 +70,7 @@ export const MqlContextInitialState = {
   modelKey: null,
   setModelKey: () => Promise.resolve(),
   modalKeyOverrideLoading: false,
-  mqlClient: buildMqlUrqlClient(() => Promise.resolve(""), ""),
+  mqlClient: buildMqlUrqlClient(() => Promise.resolve(""), CORE_API_URL),
   getToken: () => Promise.resolve(""),
   useQuery,
   useMutation,

@@ -470,3 +470,14 @@ export type FetchMqlTimeSeriesQuery = (
     )>> }
   )> }
 );
+
+export type MqlServerHealthCheckQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MqlServerHealthCheckQuery = (
+  { __typename?: 'Query' }
+  & { healthReport?: Maybe<Array<Maybe<(
+    { __typename?: 'MqlServerHealthItem' }
+    & Pick<MqlServerHealthItem, 'name' | 'status' | 'errorMessage'>
+  )>>> }
+);

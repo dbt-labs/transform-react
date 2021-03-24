@@ -81,9 +81,6 @@ function MqlContextProviderInternal({
   ] = useQuery<MqlServerUrlQueryType>({
     query: MqlServerUrlQuery,
     pause: !isAuthenticated,
-    context: {
-      url: CORE_API_URL,
-    },
   });
   if (mqlServerUrlError) handleCombinedError(mqlServerUrlError);
 
@@ -102,11 +99,14 @@ function MqlContextProviderInternal({
     [setMqlServerUrl, refetchMqlServerUrl]
   );
 
-  // Note: Before the mqlServerUrl is available, an urql client will be constructed with the url set to an empty string.
-  // Naturally, this is invalid, so we must check with the mqlServerUrl is present before initiating MQL Queries.
+  /* 
+    Note: Before the mqlServerUrl is available, an urql client will be constructed with the url set to the CORE_API_URL.
+    This is because it throws an error to build an urql client without a URL.
+    Naturally, this is invalid, so we must check with the mqlServerUrl is present before initiating MQL Queries.
+  */
   const mqlClient = buildMqlUrqlClient(
     getToken,
-    mqlServerUrlData?.mqlServerUrl || ""
+    mqlServerUrlData?.mqlServerUrl || CORE_API_URL
   );
 
   const [mqlContext, setMqlContext] = useState<MqlContextType>({

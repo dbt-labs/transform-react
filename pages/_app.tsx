@@ -9,10 +9,7 @@ function getToken() {
 
 export default function TransformReactDemo({ Component, pageProps }) {
   return (
-    <MqlContextProvider
-      mqlServerUrl={process.env.NEXT_PUBLIC_MQL_SERVER_URL}
-      getToken={getToken}
-    >
+    <MqlContextProvider getToken={getToken} isAuthenticated>
       <Component {...pageProps} />
     </MqlContextProvider>
   );

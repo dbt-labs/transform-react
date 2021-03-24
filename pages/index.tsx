@@ -1,11 +1,21 @@
 import { useContext } from "react";
 import Head from "next/head";
+import MqlServerHealth from "../queries/mql/MqlServerHealth";
+import { MqlServerHealthCheckQuery } from "../queries/mql/MqlQueryTypes";
 import styles from "../styles/Home.module.css";
-
 import MqlContext from "../context/MqlContext/MqlContext";
 
 export default function MqlContextDemo() {
-  const { mqlServerUrl, environment } = useContext(MqlContext);
+  // Here is a simple way to access the MQL Server URL directly,
+  // as well as a useQuery hook for custom queries
+  const { mqlServerUrl, useQuery } = useContext(MqlContext);
+
+  // Here is a simple way to run a custom graphql query against the MQL Server
+  const [{ data: healthCheckData }] = useQuery<MqlServerHealthCheckQuery>({
+    query: MqlServerHealth,
+    pause: !mqlServerUrl,
+  });
+
   return (
     <div className={styles.container}>
       <Head>
@@ -19,6 +29,13 @@ export default function MqlContextDemo() {
         <p className={styles.description}>
           MQL Server URL:
           <code className={styles.code}>{mqlServerUrl}</code>
+        </p>
+
+        <p className={styles.description}>
+          MQL Server Health Check:
+          <code className={styles.code}>
+            {JSON.stringify((healthCheckData?.healthReport || [])[0])}
+          </code>
         </p>
       </main>
 
