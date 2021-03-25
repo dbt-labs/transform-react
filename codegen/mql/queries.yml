@@ -1,0 +1,8 @@
+overwrite: true
+schema: 'schemas/mql/mql.graphql'
+documents: 'queries/mql/**'
+generates:
+  queries/mql/MqlQueryTypes.ts:
+    plugins:
+      - 'typescript'
+      - 'typescript-operations'

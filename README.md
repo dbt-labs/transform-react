@@ -48,4 +48,4 @@ Please do not report security vulnerabilities on the public GitHub issue tracker
 
 ## License
 
-This project is licensed under the MIT license. See the [LICENSE](https://github.com/auth0/auth0-react/blob/master/LICENSE) file for more info.
+This project is licensed under the MIT license.

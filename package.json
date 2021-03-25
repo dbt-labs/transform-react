@@ -1,17 +1,19 @@
 {
   "name": "@transform-data/transform-react",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "React components and hooks for querying Transform's MQL Server",
-  "main": "index.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/transform-data/transform-react.git"
   },
   "license": "MIT",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "dependencies": {
     "@urql/exchange-auth": "^0.1.2",
     "graphql": "^15.5.0",
     "lodash.isequal": "^4.5.0",
+    "moment": "^2.29.1",
     "next": "10.0.7",
     "node-fetch": "^2.6.1",
     "react": "17.0.1",
@@ -19,18 +21,34 @@
     "urql": "^2.0.1"
   },
   "scripts": {
-    "dev": "next dev",
     "build": "next build",
+    "codegen:mql:mutations": "graphql-codegen --config codegen/mql/mutations.yml",
+    "codegen:mql:queries": "graphql-codegen --config codegen/mql/queries.yml",
+    "codegen:core:mutations": "graphql-codegen --config codegen/core/mutations.yml",
+    "codegen:core:queries": "graphql-codegen --config codegen/core/queries.yml",
+    "codegen": "yarn run codegen:mql:mutations && yarn run codegen:mql:queries && yarn run codegen:core:mutations && yarn run codegen:core:queries",
+    "dev": "next dev",
+    "tsc": "tsc",
     "start": "next start",
-    "schema:mql": "node scripts/schemaMql.js"
+    "schema:mql": "node scripts/schemaMql.js",
+    "schema:core": "node scripts/schemaCore.js",
+    "schema": "yarn run schema:mql && yarn run schema:core"
   },
   "bugs": {
     "url": "https://github.com/transform-data/transform-react/issues"
   },
   "homepage": "https://github.com/transform-data/transform-react#readme",
   "devDependencies": {
+    "@graphql-codegen/cli": "^1.21.3",
+    "@graphql-codegen/introspection": "1.18.1",
+    "@graphql-codegen/typescript": "1.21.1",
+    "@graphql-codegen/typescript-operations": "1.17.15",
+    "@graphql-codegen/typescript-react-apollo": "2.2.3",
+    "@graphql-codegen/typescript-urql": "^2.0.5",
+    "@graphql-codegen/urql-introspection": "1.0.0",
     "@types/node": "^14.14.31",
     "@types/react": "^17.0.1",
+    "dotenv-expand": "^5.1.0",
     "typescript": "^4.2.3"
   },
   "author": ""
