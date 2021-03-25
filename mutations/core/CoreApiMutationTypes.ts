@@ -29280,12 +29280,12 @@ export type Users_Variance_Order_By = {
 };
 
 
-export type SetMqlServerUrlMutationVariables = Exact<{
+export type SetMqlServerMutationVariables = Exact<{
   newServerIdAsString: Scalars['String'];
 }>;
 
 
-export type SetMqlServerUrlMutation = (
+export type SetMqlServerMutation = (
   { __typename?: 'mutation_root' }
   & { createUserPreference?: Maybe<(
     { __typename?: 'user_prefs' }

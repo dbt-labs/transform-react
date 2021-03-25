@@ -4,10 +4,10 @@ import { useQuery, useMutation, CombinedError, Provider } from "urql";
 import buildMqlUrqlClient from "utils/builMqlUrqlClient";
 import MqlServerUrlQuery from "queries/core/MqlServerUrlQuery";
 import { MqlServerUrlQuery as MqlServerUrlQueryType } from "queries/core/CoreApiQueryTypes";
-import SetMqlServerUrlMutation from "mutations/core/SetMqlServerUrl";
+import SetMqlServerMutation from "mutations/core/SetMqlServer";
 import {
-  SetMqlServerUrlMutation as SetMqlServerUrlMutationType,
-  SetMqlServerUrlMutationVariables,
+  SetMqlServerMutation as SetMqlServerMutationType,
+  SetMqlServerMutationVariables,
 } from "mutations/core/CoreApiMutationTypes";
 import MqlContext, { MqlContextType, CORE_API_URL } from "./MqlContext";
 
@@ -84,19 +84,19 @@ function MqlContextProviderInternal({
   });
   if (mqlServerUrlError) handleCombinedError(mqlServerUrlError);
 
-  const [{ fetching }, setMqlServerUrl] = useMutation<
-    SetMqlServerUrlMutationType,
-    SetMqlServerUrlMutationVariables
-  >(SetMqlServerUrlMutation);
+  const [{ fetching }, setMqlServer] = useMutation<
+    SetMqlServerMutationType,
+    SetMqlServerMutationVariables
+  >(SetMqlServerMutation);
 
-  const setMqlServerUrlThenRefetch = useCallback(
+  const setMqlServerThenRefetch = useCallback(
     (newServerId: number) =>
       // Note: newServerid is cast as a string because it is stored on the backend
       // as a User Preference, whose values are all strings.
-      setMqlServerUrl({ newServerIdAsString: `${newServerId}` }).then(
+      setMqlServer({ newServerIdAsString: `${newServerId}` }).then(
         refetchMqlServerUrl
       ),
-    [setMqlServerUrl, refetchMqlServerUrl]
+    [setMqlServer, refetchMqlServerUrl]
   );
 
   /* 
@@ -112,7 +112,7 @@ function MqlContextProviderInternal({
   const [mqlContext, setMqlContext] = useState<MqlContextType>({
     coreApiUrl: CORE_API_URL,
     mqlServerUrl: mqlServerUrlData?.mqlServerUrl,
-    setMqlServerUrl: setMqlServerUrlThenRefetch,
+    setMqlServer: setMqlServerThenRefetch,
     mqlServerOverrideLoading: fetching,
     modelKey: null,
     setModelKey: () => Promise.resolve(),

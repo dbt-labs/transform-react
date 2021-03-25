@@ -23,7 +23,7 @@ export type MqlContextType = {
     This function is used to set the MQL Server URL override to a value available for
     the user's organization.
   */
-  setMqlServerUrl: (newServerId: number) => Promise<any>;
+  setMqlServer: (newServerId: number) => Promise<any>;
 
   /*
     This boolean indicates if the MQL Server URL is currently being set. 
@@ -65,7 +65,7 @@ export type MqlContextType = {
 export const MqlContextInitialState = {
   coreApiUrl: CORE_API_URL,
   mqlServerUrl: null,
-  setMqlServerUrl: () => Promise.resolve(),
+  setMqlServer: () => Promise.resolve(),
   mqlServerOverrideLoading: false,
   modelKey: null,
   setModelKey: () => Promise.resolve(),
