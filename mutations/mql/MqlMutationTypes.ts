@@ -466,3 +466,21 @@ export type CreateMqlQueryMutation = (
     & Pick<CreateMqlQueryPayload, 'id'>
   )> }
 );
+
+export type UpdateMqlServerConfigMutationVariables = Exact<{
+  mqlServerId: Scalars['Int'];
+  dwPassword: Scalars['String'];
+  tfdApiKey: Scalars['String'];
+}>;
+
+
+export type UpdateMqlServerConfigMutation = (
+  { __typename?: 'Mutation' }
+  & { updateMqlServerConfig?: Maybe<(
+    { __typename?: 'UpdateMqlServerConfig' }
+    & { config?: Maybe<(
+      { __typename?: 'MqlServerConfig' }
+      & Pick<MqlServerConfig, 'mqlServerId'>
+    )> }
+  )> }
+);

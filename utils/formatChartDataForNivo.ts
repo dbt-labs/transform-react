@@ -3,8 +3,9 @@
   It is not needed for useMqlQuery
 */
 import { FetchMqlTimeSeriesQuery } from "queries/mql/MqlQueryTypes";
-import { defaultColor, generatedColors } from "./colors";
 import moment from "moment";
+
+import { defaultColor, generatedColors } from "./colors";
 
 export default function formatChartData(
   mqlQueryResult: FetchMqlTimeSeriesQuery["mqlQuery"],
