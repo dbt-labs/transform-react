@@ -1,14 +1,14 @@
-import { useEffect, useState, ReactNode, useCallback } from "react";
+import React, { useEffect, useState, ReactNode, useCallback } from "react";
 import { useQuery, useMutation, CombinedError, Provider } from "urql";
 
-import buildMqlUrqlClient from "utils/builMqlUrqlClient";
-import MqlServerUrlQuery from "queries/core/MqlServerUrlQuery";
-import { MqlServerUrlQuery as MqlServerUrlQueryType } from "queries/core/CoreApiQueryTypes";
-import SetMqlServerMutation from "mutations/core/SetMqlServer";
+import buildMqlUrqlClient from "../../utils/builMqlUrqlClient";
+import MqlServerUrlQuery from "../../queries/core/MqlServerUrlQuery";
+import { MqlServerUrlQuery as MqlServerUrlQueryType } from "../../queries/core/CoreApiQueryTypes";
+import SetMqlServerMutation from "../../mutations/core/SetMqlServer";
 import {
   SetMqlServerMutation as SetMqlServerMutationType,
   SetMqlServerMutationVariables,
-} from "mutations/core/CoreApiMutationTypes";
+} from "../../mutations/core/CoreApiMutationTypes";
 import MqlContext, { MqlContextType, CORE_API_URL } from "./MqlContext";
 
 type Props = {

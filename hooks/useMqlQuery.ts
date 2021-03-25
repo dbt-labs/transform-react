@@ -1,20 +1,19 @@
 import { useEffect, useReducer, useContext } from "react";
+import { CombinedError } from "@urql/core";
 
-import MqlContext from "context/MqlContext/MqlContext";
-
-import CreateMqlQuery from "mutations/mql/CreateMqlQuery";
+import MqlContext from "../context/MqlContext/MqlContext";
+import CreateMqlQuery from "../mutations/mql/CreateMqlQuery";
 import {
   CreateMqlQueryMutation,
   CreateMqlQueryMutationVariables,
   ConstraintInput,
-} from "mutations/mql/MqlMutationTypes";
-import FetchMqlQueryTimeSeries from "queries/mql/FetchMqlQueryTimeSeries";
+} from "../mutations/mql/MqlMutationTypes";
+import FetchMqlQueryTimeSeries from "../queries/mql/FetchMqlQueryTimeSeries";
 import {
   FetchMqlTimeSeriesQuery,
   FetchMqlTimeSeriesQueryVariables,
   MqlQueryStatus,
-} from "queries/mql/MqlQueryTypes";
-import { CombinedError } from "@urql/core";
+} from "../queries/mql/MqlQueryTypes";
 
 // This is the delay between the _response_ from the last query and the _start_ of the new query
 const QUERY_POLLING_MS = 200;
