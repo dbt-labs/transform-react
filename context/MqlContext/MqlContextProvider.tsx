@@ -125,7 +125,7 @@ function MqlContextProviderInternal({
   });
 
   useEffect(() => {
-    const stateToUpdate: any = {};
+    const stateToUpdate: Partial<MqlContextType> = {};
     if (mqlServerUrlData?.mqlServerUrl !== mqlContext.mqlServerUrl) {
       stateToUpdate.mqlServerUrl = mqlServerUrlData?.mqlServerUrl;
     }
@@ -139,6 +139,11 @@ function MqlContextProviderInternal({
         mqlServerUrlData?.mqlServerUrl
       );
     }
+
+    /*
+      FUTURE: Add check for Model Key.
+    */
+
     if (Object.keys(stateToUpdate).length > 0) {
       setMqlContext({
         ...mqlContext,
