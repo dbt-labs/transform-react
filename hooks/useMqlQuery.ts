@@ -1,5 +1,5 @@
-import { useEffect, useReducer, useContext } from "react";
-import { CombinedError } from "@urql/core";
+import { useEffect, useReducer, useContext, useCallback } from "react";
+import { CombinedError } from "urql";
 
 import MqlContext from "../context/MqlContext/MqlContext";
 import CreateMqlQuery from "../mutations/mql/CreateMqlQuery";
@@ -85,6 +85,7 @@ type Action =
   | { type: "postQueryStart" }
   | { type: "postQueryFail"; errorMessage: string }
   | { type: "postQuerySuccess"; queryId: string }
+  | { type: "fetchResultsStart" }
   | { type: "fetchResultsFail"; errorMessage: string }
   | { type: "fetchResultsRunning" }
   | {
@@ -148,6 +149,12 @@ function mqlQueryReducer(state: State, action: Action): State {
       };
     }
 
+    case "fetchResultsStart": {
+      return {
+        ...state,
+      };
+    }
+
     case "fetchResultsRunning": {
       const now = Date.now();
       const diff = now - (state.fetchStartTime || 0);
@@ -200,6 +207,7 @@ type UseMqlQueryParams = {
   metricName: string;
   limit?: number;
   queryInput?: CreateMqlQueryMutationVariables;
+  skip?: boolean;
 };
 
 // This custom hook consists of one useCallback and two useHooks that should asynchronously handle all scenarios for this chained
@@ -209,9 +217,10 @@ export default function useMqlQuery({
   queryInput,
   metricName,
   limit,
+  skip,
 }: UseMqlQueryParams) {
   const {
-    useQuery,
+    mqlClient,
     useMutation,
     handleCombinedError,
     mqlServerUrl,
@@ -224,7 +233,7 @@ export default function useMqlQuery({
   >(CreateMqlQuery);
 
   useEffect(() => {
-    if (!metricName || !mqlServerUrl) {
+    if (!metricName || !mqlServerUrl || skip) {
       return;
     }
     let formState: CreateMqlQueryMutationVariables = {};
@@ -253,52 +262,64 @@ export default function useMqlQuery({
         handleCombinedError(error);
       }
     });
-  }, [queryInput, metricName, mqlServerUrl]);
+  }, [queryInput, metricName, mqlServerUrl, skip]);
 
-  const [{ data, error }, refetchMqlQuery] = useQuery<
-    FetchMqlTimeSeriesQuery,
-    FetchMqlTimeSeriesQueryVariables
-  >({
-    query: FetchMqlQueryTimeSeries,
-    variables: {
-      queryId: state.queryId || "",
-    },
-    pause: !state.queryId || state.cancelledQueries.includes(state.queryId),
-  });
+  // Note: Extensive effort has gone into using useQuery here rather than an imperative fetch,
+  // but we have not managed to avoid an infinite loop.
+  const fetchResults = useCallback(() => {
+    dispatch({ type: "fetchResultsStart" });
+    return mqlClient
+      .query<FetchMqlTimeSeriesQuery, FetchMqlTimeSeriesQueryVariables>(
+        FetchMqlQueryTimeSeries,
+        {
+          queryId: state.queryId || "",
+        }
+      )
+      .toPromise()
+      .then(({ data, error }) => {
+        if (error) {
+          dispatch({
+            type: "fetchResultsFail",
+            errorMessage: getErrorMessage(error),
+          });
+          handleCombinedError(error);
+        }
+        if (!data?.mqlQuery) {
+          return;
+        }
+        const { status, id, result } = data.mqlQuery;
 
-  // I am creating this!
+        if (id && state.cancelledQueries.includes(id)) {
+          return;
+        }
+
+        if (status === MqlQueryStatus.Successful) {
+          dispatch({
+            type: "fetchResultsSuccess",
+            data,
+            limit,
+            handleCombinedError,
+          });
+        }
+        if (status === MqlQueryStatus.Running) {
+          window.setTimeout(() => {
+            dispatch({ type: "fetchResultsRunning" });
+            fetchResults();
+          }, QUERY_POLLING_MS);
+        }
+      });
+  }, [state.cancelledQueries, limit, state.queryId]);
+
   useEffect(() => {
-    if (error) {
-      dispatch({
-        type: "fetchResultsFail",
-        errorMessage: getErrorMessage(error),
-      });
-      handleCombinedError(error);
-    }
-    if (!data?.mqlQuery) {
+    if (
+      skip ||
+      !state.queryId ||
+      state.cancelledQueries.includes(state.queryId)
+    ) {
       return;
     }
-    const { status, id, result } = data.mqlQuery;
-
-    if (id && state.cancelledQueries.includes(id)) {
-      return;
-    }
-
-    if (status === MqlQueryStatus.Successful) {
-      dispatch({
-        type: "fetchResultsSuccess",
-        data,
-        limit,
-        handleCombinedError,
-      });
-    }
-    if (status === MqlQueryStatus.Running) {
-      window.setTimeout(() => {
-        dispatch({ type: "fetchResultsRunning" });
-        refetchMqlQuery();
-      }, QUERY_POLLING_MS);
-    }
-  }, [data, error, state.cancelledQueries]);
+    fetchResults();
+  }, [skip, state.queryId, state.cancelledQueries]);
 
   return state;
 }

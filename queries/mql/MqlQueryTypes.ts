@@ -450,6 +450,30 @@ export type TimeSeriesDatum = ResultDatum & {
   xDate: Scalars['DateTime'];
 };
 
+export type FetchDimensionNamesQueryVariables = Exact<{
+  metricNames: Array<Scalars['String']> | Scalars['String'];
+}>;
+
+
+export type FetchDimensionNamesQuery = (
+  { __typename?: 'Query' }
+  & Pick<Query, 'dimensionNamesForMetrics'>
+);
+
+export type FetchDimensionValuesQueryVariables = Exact<{
+  metricName: Scalars['String'];
+  dimensionName: Scalars['String'];
+}>;
+
+
+export type FetchDimensionValuesQuery = (
+  { __typename?: 'Query' }
+  & { metricByName?: Maybe<(
+    { __typename?: 'Metric' }
+    & Pick<Metric, 'dimensionValues'>
+  )> }
+);
+
 export type FetchMqlTimeSeriesQueryVariables = Exact<{
   queryId: Scalars['ID'];
 }>;
