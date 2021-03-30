@@ -85,7 +85,6 @@ type Action =
   | { type: "postQueryStart" }
   | { type: "postQueryFail"; errorMessage: string }
   | { type: "postQuerySuccess"; queryId: string }
-  | { type: "fetchResultsStart" }
   | { type: "fetchResultsFail"; errorMessage: string }
   | { type: "fetchResultsRunning" }
   | {
@@ -146,12 +145,6 @@ function mqlQueryReducer(state: State, action: Action): State {
         ...state,
         queryId: action.queryId,
         errorMessage: undefined,
-      };
-    }
-
-    case "fetchResultsStart": {
-      return {
-        ...state,
       };
     }
 
@@ -220,7 +213,7 @@ export default function useMqlQuery({
   skip,
 }: UseMqlQueryParams) {
   const {
-    mqlClient,
+    useQuery,
     useMutation,
     handleCombinedError,
     mqlServerUrl,
@@ -264,62 +257,53 @@ export default function useMqlQuery({
     });
   }, [queryInput, metricName, mqlServerUrl, skip]);
 
-  // Note: Extensive effort has gone into using useQuery here rather than an imperative fetch,
-  // but we have not managed to avoid an infinite loop.
-  const fetchResults = useCallback(() => {
-    dispatch({ type: "fetchResultsStart" });
-    return mqlClient
-      .query<FetchMqlTimeSeriesQuery, FetchMqlTimeSeriesQueryVariables>(
-        FetchMqlQueryTimeSeries,
-        {
-          queryId: state.queryId || "",
-        }
-      )
-      .toPromise()
-      .then(({ data, error }) => {
-        if (error) {
-          dispatch({
-            type: "fetchResultsFail",
-            errorMessage: getErrorMessage(error),
-          });
-          handleCombinedError(error);
-        }
-        if (!data?.mqlQuery) {
-          return;
-        }
-        const { status, id, result } = data.mqlQuery;
-
-        if (id && state.cancelledQueries.includes(id)) {
-          return;
-        }
-
-        if (status === MqlQueryStatus.Successful) {
-          dispatch({
-            type: "fetchResultsSuccess",
-            data,
-            limit,
-            handleCombinedError,
-          });
-        }
-        if (status === MqlQueryStatus.Running) {
-          window.setTimeout(() => {
-            dispatch({ type: "fetchResultsRunning" });
-            fetchResults();
-          }, QUERY_POLLING_MS);
-        }
-      });
-  }, [state.cancelledQueries, limit, state.queryId]);
+  const [{ data, error }, refetchMqlQuery] = useQuery<
+    FetchMqlTimeSeriesQuery,
+    FetchMqlTimeSeriesQueryVariables
+  >({
+    query: FetchMqlQueryTimeSeries,
+    variables: {
+      queryId: state.queryId || "",
+    },
+    pause:
+      skip || !state.queryId || state.cancelledQueries.includes(state.queryId),
+  });
 
   useEffect(() => {
-    if (
-      skip ||
-      !state.queryId ||
-      state.cancelledQueries.includes(state.queryId)
-    ) {
+    if (error) {
+      dispatch({
+        type: "fetchResultsFail",
+        errorMessage: getErrorMessage(error),
+      });
+      handleCombinedError(error);
       return;
     }
-    fetchResults();
-  }, [skip, state.queryId, state.cancelledQueries]);
+
+    if (!data?.mqlQuery) {
+      return;
+    }
+
+    const { status, id } = data.mqlQuery;
+    if (id && state.cancelledQueries.includes(id)) {
+      return;
+    }
+
+    if (status === MqlQueryStatus.Successful) {
+      dispatch({
+        type: "fetchResultsSuccess",
+        data,
+        limit,
+        handleCombinedError,
+      });
+    }
+
+    if (status === MqlQueryStatus.Running) {
+      window.setTimeout(() => {
+        dispatch({ type: "fetchResultsRunning" });
+        refetchMqlQuery();
+      }, QUERY_POLLING_MS);
+    }
+  }, [data, error, state.cancelledQueries, limit, handleCombinedError]);
 
   return state;
 }
