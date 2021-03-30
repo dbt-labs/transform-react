@@ -1,5 +1,5 @@
-import { useEffect, useReducer, useContext } from "react";
-import { CombinedError } from "@urql/core";
+import { useEffect, useReducer, useContext, useCallback } from "react";
+import { CombinedError } from "urql";
 
 import MqlContext from "../context/MqlContext/MqlContext";
 import CreateMqlQuery from "../mutations/mql/CreateMqlQuery";
@@ -200,6 +200,7 @@ type UseMqlQueryParams = {
   metricName: string;
   limit?: number;
   queryInput?: CreateMqlQueryMutationVariables;
+  skip?: boolean;
 };
 
 // This custom hook consists of one useCallback and two useHooks that should asynchronously handle all scenarios for this chained
@@ -209,6 +210,7 @@ export default function useMqlQuery({
   queryInput,
   metricName,
   limit,
+  skip,
 }: UseMqlQueryParams) {
   const {
     useQuery,
@@ -224,7 +226,7 @@ export default function useMqlQuery({
   >(CreateMqlQuery);
 
   useEffect(() => {
-    if (!metricName || !mqlServerUrl) {
+    if (!metricName || !mqlServerUrl || skip) {
       return;
     }
     let formState: CreateMqlQueryMutationVariables = {};
@@ -253,7 +255,7 @@ export default function useMqlQuery({
         handleCombinedError(error);
       }
     });
-  }, [queryInput, metricName, mqlServerUrl]);
+  }, [queryInput, metricName, mqlServerUrl, skip]);
 
   const [{ data, error }, refetchMqlQuery] = useQuery<
     FetchMqlTimeSeriesQuery,
@@ -263,10 +265,10 @@ export default function useMqlQuery({
     variables: {
       queryId: state.queryId || "",
     },
-    pause: !state.queryId || state.cancelledQueries.includes(state.queryId),
+    pause:
+      skip || !state.queryId || state.cancelledQueries.includes(state.queryId),
   });
 
-  // I am creating this!
   useEffect(() => {
     if (error) {
       dispatch({
@@ -274,12 +276,14 @@ export default function useMqlQuery({
         errorMessage: getErrorMessage(error),
       });
       handleCombinedError(error);
+      return;
     }
+
     if (!data?.mqlQuery) {
       return;
     }
-    const { status, id, result } = data.mqlQuery;
 
+    const { status, id } = data.mqlQuery;
     if (id && state.cancelledQueries.includes(id)) {
       return;
     }
@@ -292,13 +296,14 @@ export default function useMqlQuery({
         handleCombinedError,
       });
     }
+
     if (status === MqlQueryStatus.Running) {
       window.setTimeout(() => {
         dispatch({ type: "fetchResultsRunning" });
         refetchMqlQuery();
       }, QUERY_POLLING_MS);
     }
-  }, [data, error, state.cancelledQueries]);
+  }, [data, error, state.cancelledQueries, limit, handleCombinedError]);
 
   return state;
 }

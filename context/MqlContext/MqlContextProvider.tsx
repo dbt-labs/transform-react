@@ -131,8 +131,7 @@ function MqlContextProviderInternal({
     }
     if (
       mqlServerUrlData?.mqlServerUrl &&
-      (mqlServerUrlData?.mqlServerUrl !== mqlContext.mqlServerUrl ||
-        getToken !== mqlContext.getToken)
+      mqlServerUrlData?.mqlServerUrl !== mqlContext.mqlServerUrl
     ) {
       stateToUpdate.mqlClient = buildMqlUrqlClient(
         getToken,
