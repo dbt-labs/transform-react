@@ -19,12 +19,11 @@ async function main() {
   let response;
   let data;
   try {
-    response = await fetch("https://transform-staging.hasura.app/v1/graphql", {
+    response = await fetch("https://gateway.transformdata.io/graphql", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: process.env.API_TOKEN,
-        "X-Hasura-Role": "admin",
       },
       body: JSON.stringify({ query: getIntrospectionQuery() }),
     });

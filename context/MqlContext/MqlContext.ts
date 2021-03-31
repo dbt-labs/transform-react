@@ -3,7 +3,7 @@ import { createContext } from "react";
 import buildMqlUrqlClient from "../../utils/builMqlUrqlClient";
 
 // TODO: Make this configurable when needed
-export const CORE_API_URL = "https://transform-staging.hasura.app/v1/graphql";
+export const CORE_API_URL = "https://gateway.transformdata.io/graphql";
 
 export type MqlContextType = {
   /*

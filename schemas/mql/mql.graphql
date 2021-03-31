@@ -122,9 +122,7 @@ enum PandasJsonOrient {
 }
 
 """
-The `DateTime` scalar type represents a DateTime
-value as specified by
-[iso8601](https://en.wikipedia.org/wiki/ISO_8601).
+Wrapper around Graphene DateTime that is capable of handling string dates
 """
 scalar DateTime
 
@@ -189,6 +187,9 @@ input CreateMqlMaterializationInput {
   metrics: [String!]
   groupBy: [String!]
   where: ConstraintInput
+
+  """String-based constraint input field using SQL syntax"""
+  constraint: String
   cacheMode: CacheMode
   clientMutationId: String
 }
@@ -247,7 +248,12 @@ input CreateMqlQueryInput {
   modelKey: ModelKeyInput
   metrics: [String!]
   groupBy: [String!]
+
+  """Dict-based constraint input field"""
   where: ConstraintInput
+
+  """String-based constraint input field using SQL syntax"""
+  constraint: String
   order: [String!]
   limit: Int
 
