@@ -153,7 +153,7 @@ function mqlQueryReducer(state: State, action: Action): State {
     case "fetchResultsRunning": {
       const now = Date.now();
       const diff = now - (state.fetchStartTime || 0);
-      console.log("diff", diff);
+
       return {
         ...state,
         isTakingForever: diff >= LONG_FETCH_QUERY_ATTEMPT_MAX,
