@@ -95,7 +95,7 @@ type Action =
     };
 
 /*
-    At first glance, it is counter-intuitive that we should have a mix of the Reducer pattern 
+    At first glance, it is counter-intuitive that we should have a mix of the Reducer pattern
     and the Hook pattern. The explanation for this complexity is that we have several fetches
     that require coordination.
       1. We post a mutation to create a query
@@ -137,6 +137,8 @@ function mqlQueryReducer(state: State, action: Action): State {
         ...state,
         queryStatus: MqlQueryStatus.Failed,
         errorMessage: action.errorMessage,
+        isTakingForever: false,
+        fetchStartTime: null,
       };
     }
 
@@ -151,6 +153,7 @@ function mqlQueryReducer(state: State, action: Action): State {
     case "fetchResultsRunning": {
       const now = Date.now();
       const diff = now - (state.fetchStartTime || 0);
+      console.log("diff", diff);
       return {
         ...state,
         isTakingForever: diff >= LONG_FETCH_QUERY_ATTEMPT_MAX,
@@ -163,6 +166,7 @@ function mqlQueryReducer(state: State, action: Action): State {
         ...state,
         queryStatus: MqlQueryStatus.Failed,
         isTakingForever: false,
+        fetchStartTime: null,
         errorMessage: action.errorMessage,
       };
     }
