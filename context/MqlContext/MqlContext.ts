@@ -1,7 +1,10 @@
 import { Client, useQuery, useMutation, CombinedError } from "urql";
 import { createContext } from "react";
 import buildMqlUrqlClient from "../../utils/builMqlUrqlClient";
-
+import {
+  SetMqlServerMutation,
+  SetMqlServerMutationVariables,
+} from "../../mutations/core/CoreApiMutationTypes";
 // TODO: Make this configurable when needed
 export const CORE_API_URL = "https://gateway.transformdata.io/graphql";
 
@@ -14,7 +17,7 @@ export type MqlContextType = {
 
   /*
     The MQL Server URL can be overridden by a user in order to access a development
-    server or a test server as needed. This value represents the currently selected 
+    server or a test server as needed. This value represents the currently selected
     URL for the user and is not optional.
   */
   mqlServerUrl?: string | null;
@@ -26,8 +29,8 @@ export type MqlContextType = {
   setMqlServer: (newServerId: number) => Promise<any>;
 
   /*
-    This boolean indicates if the MQL Server URL is currently being set. 
-    It can be used in the UI to provide the user feedback during the mutation. 
+    This boolean indicates if the MQL Server URL is currently being set.
+    It can be used in the UI to provide the user feedback during the mutation.
   */
   mqlServerOverrideLoading: boolean;
 
@@ -50,8 +53,8 @@ export type MqlContextType = {
   setModelKey: (newModelId: number) => Promise<any>;
 
   /*
-    This boolean indicates if the Model Key is currently being set. 
-    It can be used in the UI to provide the user feedback during the mutation. 
+    This boolean indicates if the Model Key is currently being set.
+    It can be used in the UI to provide the user feedback during the mutation.
   */
   modalKeyOverrideLoading: boolean;
 

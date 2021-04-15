@@ -9,11 +9,7 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
-  /**
-   * The `DateTime` scalar type represents a DateTime
-   * value as specified by
-   * [iso8601](https://en.wikipedia.org/wiki/ISO_8601).
-   */
+  /** Wrapper around Graphene DateTime that is capable of handling string dates */
   DateTime: any;
 };
 
@@ -338,6 +334,8 @@ export type CreateMqlMaterializationInput = {
   metrics?: Maybe<Array<Scalars['String']>>;
   groupBy?: Maybe<Array<Scalars['String']>>;
   where?: Maybe<ConstraintInput>;
+  /** String-based constraint input field using SQL syntax */
+  constraint?: Maybe<Scalars['String']>;
   cacheMode?: Maybe<CacheMode>;
   clientMutationId?: Maybe<Scalars['String']>;
 };
@@ -395,7 +393,10 @@ export type CreateMqlQueryInput = {
   modelKey?: Maybe<ModelKeyInput>;
   metrics?: Maybe<Array<Scalars['String']>>;
   groupBy?: Maybe<Array<Scalars['String']>>;
+  /** Dict-based constraint input field */
   where?: Maybe<ConstraintInput>;
+  /** String-based constraint input field using SQL syntax */
+  constraint?: Maybe<Scalars['String']>;
   order?: Maybe<Array<Scalars['String']>>;
   limit?: Maybe<Scalars['Int']>;
   /** Set to True if you want to automatically add a default Time Series dimension to the query. This is useful for plotting the metric in time series without needing to know the time dimension up front. */
@@ -472,6 +473,19 @@ export type FetchDimensionValuesQuery = (
     { __typename?: 'Metric' }
     & Pick<Metric, 'dimensionValues'>
   )> }
+);
+
+export type FetchMqlQueryLogsQueryVariables = Exact<{
+  activeOnly: Scalars['Boolean'];
+}>;
+
+
+export type FetchMqlQueryLogsQuery = (
+  { __typename?: 'Query' }
+  & { queries?: Maybe<Array<Maybe<(
+    { __typename?: 'MqlQuery' }
+    & Pick<MqlQuery, 'id' | 'status' | 'completedAt' | 'startedAt' | 'metrics' | 'logsByLine'>
+  )>>> }
 );
 
 export type FetchMqlTimeSeriesQueryVariables = Exact<{
