@@ -91,7 +91,7 @@ type Action =
   | { type: "postQuerySuccess"; queryId: string }
   | { type: "fetchResultsFail"; errorMessage: string }
   | { type: "fetchResultsRunning" }
-  | { type: "retryFetch" }
+  | { type: "retryFetchResults" }
   | {
       type: "fetchResultsSuccess";
       data: FetchMqlTimeSeriesQuery;
@@ -166,7 +166,7 @@ function mqlQueryReducer(state: State, action: Action): State {
       };
     }
 
-    case "retryFetch": {
+    case "retryFetchResults": {
       const now = Date.now();
       const diff = now - (state.fetchStartTime || 0);
 
@@ -295,7 +295,7 @@ export default function useMqlQuery({
   useEffect(() => {
     if (error) {
       if (retries > 0 && state.retries !== retries) {
-        dispatch({ type: "retryFetch" });
+        dispatch({ type: "retryFetchResults" });
         refetchMqlQuery();
       } else {
         dispatch({
@@ -335,7 +335,7 @@ export default function useMqlQuery({
 
     if (status === MqlQueryStatus.Failed) {
       if (retries > 0 && state.retries !== retries) {
-        dispatch({ type: "retryFetch" });
+        dispatch({ type: "retryFetchResults" });
         refetchMqlQuery();
       } else {
         const errorMessage = `This query failed for an unknown reason.\n\nQueryId: ${
