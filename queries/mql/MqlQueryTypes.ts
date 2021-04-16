@@ -475,6 +475,19 @@ export type FetchDimensionValuesQuery = (
   )> }
 );
 
+export type FetchMqlQueryLogQueryVariables = Exact<{
+  queryId: Scalars['ID'];
+}>;
+
+
+export type FetchMqlQueryLogQuery = (
+  { __typename?: 'Query' }
+  & { mqlQuery?: Maybe<(
+    { __typename?: 'MqlQuery' }
+    & Pick<MqlQuery, 'id' | 'status' | 'completedAt' | 'startedAt' | 'metrics' | 'logs'>
+  )> }
+);
+
 export type FetchMqlQueryLogsQueryVariables = Exact<{
   activeOnly: Scalars['Boolean'];
 }>;
@@ -484,7 +497,7 @@ export type FetchMqlQueryLogsQuery = (
   { __typename?: 'Query' }
   & { queries?: Maybe<Array<Maybe<(
     { __typename?: 'MqlQuery' }
-    & Pick<MqlQuery, 'id' | 'status' | 'completedAt' | 'startedAt' | 'metrics' | 'logsByLine'>
+    & Pick<MqlQuery, 'id' | 'status' | 'completedAt' | 'startedAt' | 'metrics'>
   )>>> }
 );
 

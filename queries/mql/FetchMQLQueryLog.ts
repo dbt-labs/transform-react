@@ -5,9 +5,8 @@ const query = gql`
     mqlQuery(id: $queryId) {
       id
       status
-      completedAt
-      startedAt
       metrics
+      dimensions
       logs
     }
   }
