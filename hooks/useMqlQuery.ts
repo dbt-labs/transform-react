@@ -215,6 +215,7 @@ export default function useMqlQuery({
   metricName,
   limit,
   skip,
+  retries = 0,
 }: UseMqlQueryParams) {
   const {
     useQuery,
@@ -306,6 +307,30 @@ export default function useMqlQuery({
         dispatch({ type: "fetchResultsRunning" });
         refetchMqlQuery();
       }, QUERY_POLLING_MS);
+    }
+    console.log("status", metricName, status);
+    if (status === MqlQueryStatus.Failed) {
+      if (retries > 0 && state.retries !== retries) {
+        dispatch({ type: "retryFetchResults" });
+        refetchMqlQuery();
+      } else {
+        const errorMessage = `This query failed for an unknown reason.\n\nQueryId: ${
+          data?.mqlQuery?.id
+        }\nStatus: ${data?.mqlQuery?.status}\nResult: ${JSON.stringify(
+          data?.mqlQuery?.result
+        )}`;
+
+        dispatch({
+          type: "fetchResultsFail",
+          errorMessage,
+        });
+
+        handleCombinedError({
+          name: "Unknown Error",
+          message: errorMessage,
+          graphQLErrors: [],
+        });
+      }
     }
   }, [data, error, state.cancelledQueries, limit, handleCombinedError]);
 
