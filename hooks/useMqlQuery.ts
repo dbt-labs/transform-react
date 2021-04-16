@@ -49,6 +49,9 @@ function getErrorMessage(e: CombinedError) {
 }
 
 type State = {
+  // The number of times FetchMqlTimeSeriesQuery will retry if the initial query fails. Defaults to 0.
+  retries: number;
+
   // We endeavor to keep this ID up to date with the chart we are currently displaying or wish to render next
   queryId: string | null;
 
@@ -73,6 +76,7 @@ type State = {
 };
 
 const initialState: State = {
+  retries: 0,
   queryId: null,
   queryStatus: MqlQueryStatus.Pending,
   data: null,
@@ -87,6 +91,7 @@ type Action =
   | { type: "postQuerySuccess"; queryId: string }
   | { type: "fetchResultsFail"; errorMessage: string }
   | { type: "fetchResultsRunning" }
+  | { type: "retryFetchResults" }
   | {
       type: "fetchResultsSuccess";
       data: FetchMqlTimeSeriesQuery;
@@ -161,6 +166,18 @@ function mqlQueryReducer(state: State, action: Action): State {
       };
     }
 
+    case "retryFetchResults": {
+      const now = Date.now();
+      const diff = now - (state.fetchStartTime || 0);
+
+      return {
+        ...state,
+        isTakingForever: diff >= LONG_FETCH_QUERY_ATTEMPT_MAX,
+        errorMessage: undefined,
+        retries: state.retries + 1,
+      };
+    }
+
     case "fetchResultsFail": {
       return {
         ...state,
@@ -205,6 +222,7 @@ type UseMqlQueryParams = {
   limit?: number;
   queryInput?: CreateMqlQueryMutationVariables;
   skip?: boolean;
+  retries?: number;
 };
 
 // This custom hook consists of one useCallback and two useHooks that should asynchronously handle all scenarios for this chained
@@ -276,11 +294,17 @@ export default function useMqlQuery({
 
   useEffect(() => {
     if (error) {
-      dispatch({
-        type: "fetchResultsFail",
-        errorMessage: getErrorMessage(error),
-      });
-      handleCombinedError(error);
+      if (retries > 0 && state.retries !== retries) {
+        dispatch({ type: "retryFetchResults" });
+        refetchMqlQuery();
+      } else {
+        dispatch({
+          type: "fetchResultsFail",
+          errorMessage: getErrorMessage(error),
+        });
+        handleCombinedError(error);
+      }
+
       return;
     }
 
