@@ -49,7 +49,7 @@ function getErrorMessage(e: CombinedError) {
 }
 
 type State = {
-  // The number of times FetchMqlTimeSeriesQuery will retry if the initial query fails.
+  // The number of times FetchMqlTimeSeriesQuery will retry if the initial query fails. Defaults to 0.
   retries: number;
 
   // We endeavor to keep this ID up to date with the chart we are currently displaying or wish to render next
