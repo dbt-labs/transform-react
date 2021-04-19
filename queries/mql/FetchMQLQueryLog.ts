@@ -8,6 +8,8 @@ const query = gql`
       metrics
       dimensions
       logs
+      error
+      errorTraceback
     }
   }
 `;

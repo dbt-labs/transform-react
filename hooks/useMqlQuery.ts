@@ -48,7 +48,7 @@ function getErrorMessage(e: CombinedError) {
   return "Invalid MQL Query error message";
 }
 
-type State = {
+export type UseMqlQueryState = {
   // The number of times FetchMqlTimeSeriesQuery will retry if the initial query fails. Defaults to 0.
   retries: number;
 
@@ -75,7 +75,7 @@ type State = {
   errorMessage?: string;
 };
 
-const initialState: State = {
+const initialState: UseMqlQueryState = {
   retries: 0,
   queryId: null,
   queryStatus: MqlQueryStatus.Pending,
@@ -108,7 +108,10 @@ type Action =
       3. None of this can take place until an MQL Server URL is supplied
     This reducer abstracts all this complexity.
 */
-function mqlQueryReducer(state: State, action: Action): State {
+function mqlQueryReducer(
+  state: UseMqlQueryState,
+  action: Action
+): UseMqlQueryState {
   switch (action.type) {
     case "postQueryStart": {
       // This condition is triggered when there is already a queryId being fetched.
@@ -332,7 +335,7 @@ export default function useMqlQuery({
         refetchMqlQuery();
       }, QUERY_POLLING_MS);
     }
-    console.log("status", metricName, status);
+
     if (status === MqlQueryStatus.Failed) {
       if (retries > 0 && state.retries !== retries) {
         dispatch({ type: "retryFetchResults" });
