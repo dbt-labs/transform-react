@@ -10,6 +10,7 @@ const query = gql`
       logs
       error
       errorTraceback
+      sql
     }
   }
 `;
