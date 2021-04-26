@@ -6,6 +6,7 @@ const query = gql`
       id
       status
       metrics
+      dimensions
       result {
         seriesValue
         data {

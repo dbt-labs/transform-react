@@ -11,7 +11,7 @@ type Query {
   measures(modelKey: ModelKeyArgument): [Measure!]
   measureByName(modelKey: ModelKeyArgument, name: String!): Measure
   dimensionNamesForMetrics(modelKey: ModelKeyArgument, metricNames: [String]): [String]
-  queries(activeOnly: Boolean, limit: Int, offset: Int): [MqlQuery]
+  queries(activeOnly: Boolean, status: MqlQueryStatus, metricNames: [String], dateRangeStart: Date, dateRangeEnd: Date, minExecutionSeconds: Float, maxExecutionSeconds: Float, userIds: [Int], limit: Int, offset: Int): [MqlQuery]
   healthReport: [MqlServerHealthItem]
 }
 
@@ -30,6 +30,9 @@ type MqlQuery {
 
   """The model key used when creating the query"""
   modelKey: ModelKey
+
+  """ID of the user who executed the query"""
+  userId: Int
   metrics: [String!]
   dimensions: [String!]
 
@@ -54,6 +57,9 @@ type MqlQuery {
 
   """Time the MQL Server start query execution"""
   startedAt: DateTime
+  sql: String
+  error: String
+  errorTraceback: String
   logs: String
   logsByLine(fromLine: Int, maxLines: Int): String
 }
@@ -146,6 +152,13 @@ type Measure {
   dataSources: [String!]
 }
 
+"""
+The `Date` scalar type represents a Date
+value as specified by
+[iso8601](https://en.wikipedia.org/wiki/ISO_8601).
+"""
+scalar Date
+
 type MqlServerHealthItem {
   name: String!
   status: String!
@@ -157,9 +170,10 @@ type Mutation {
   createMqlMaterialization(input: CreateMqlMaterializationInput!): CreateMqlMaterializationPayload
 
   """
-  This mutation is used to initiate an MQL Query, but the results are fetched separately.
+  This mutation is used to initiate an MQL Query.
   
-  The return value is a queryId that can be used to fetch the query status, errors, and results.
+  The primary return value is a queryId that can be used to fetch the query status, errors, and results.
+  The full query object is also returned in case we have a result available synchronously (stored the result cache)
   """
   createMqlQuery(input: CreateMqlQueryInput!): CreateMqlQueryPayload
   materialize(asTable: String, cacheMode: CacheMode, groupBy: [String!], metrics: [String!], modelKey: ModelKeyInput, where: ConstraintInput): Materialize @deprecated(reason: "Moving to async implementation (CreateMqlMaterialization)")
@@ -235,12 +249,14 @@ enum CacheMode {
 }
 
 """
-This mutation is used to initiate an MQL Query, but the results are fetched separately.
+This mutation is used to initiate an MQL Query.
 
-The return value is a queryId that can be used to fetch the query status, errors, and results.
+The primary return value is a queryId that can be used to fetch the query status, errors, and results.
+The full query object is also returned in case we have a result available synchronously (stored the result cache)
 """
 type CreateMqlQueryPayload {
-  id: ID
+  id: ID!
+  query: MqlQuery
   clientMutationId: String
 }
 
@@ -255,7 +271,11 @@ input CreateMqlQueryInput {
   """String-based constraint input field using SQL syntax"""
   constraint: String
   order: [String!]
-  limit: Int
+
+  """
+  Integer, '-1', or 'inf' to represent the number of rows of a query to return input field
+  """
+  limit: LimitInput
 
   """
   Set to True if you want to automatically add a default Time Series dimension to the query. This is useful for plotting the metric in time series without needing to know the time dimension up front.
@@ -271,6 +291,13 @@ input CreateMqlQueryInput {
   postProcessors: [String!]
   clientMutationId: String
 }
+
+"""
+Limit is a GraphQL Scalar that can take in inf or positive integers.
+
+This class helps us normalize a API limit input into the Optional[int] type expected by library code
+"""
+scalar LimitInput
 
 type Materialize {
   schema: String

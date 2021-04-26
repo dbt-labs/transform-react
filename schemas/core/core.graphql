@@ -1148,6 +1148,8 @@ type Query {
     where: mql_heartbeats_bool_exp
   ): [mql_heartbeats!]!
   mqlServerUrl: String
+  myOrganization: Organization
+  myUser: User
 
   """
   execute function "my_most_viewed_metrics" which returns "org_metrics_current_view"
@@ -1951,7 +1953,12 @@ type Query {
   heartbeat: String!
 }
 
-"""Base mutation object exposed by GraphQL."""
+"""
+Base mutation object exposed by GraphQL.
+
+Mutation names will be converted from snake_case to camelCase automatically
+(e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+"""
 type Mutation {
   """
   insert a single row into the table: "metric_collection_metrics"
@@ -2066,6 +2073,11 @@ type Mutation {
   perform the action: "createApiKey"
   """
   createApiKey: CreateApiKeyOutput
+
+  """
+  Create API Key for given user. If no user_id passed, create key for authenticated user.
+  """
+  createApiKeyTest(userId: Int): CreateApiKey
 
   """
   insert a single row into the table: "dashboards"
@@ -2741,6 +2753,8 @@ type Mutation {
   perform the action: "removeUserRole"
   """
   removeUserRole(input: RemoveUserRoleInput!): RemoveUserRoleOutput
+  sendMqlHeartbeat(mqlServerId: Int, sha: String!): SendMqlHeartbeat
+  setOrgMqlServerConfigSecret(clientConfigSecretId: String, mqlServerId: Int): SetOrgMqlServerConfigSecretId
 
   """
   delete single row from the table: "question_likes"
@@ -2917,9 +2931,9 @@ type Mutation {
   ): metric_collections_mutation_response
 
   """
-  perform the action: "updateMyEmail"
+  Update user's email in DB and auth0. Auth0 needs to match for user to login with new email.
   """
-  updateMyEmail(input: UpdateMyEmailInput!): UpdateMyEmailOutput
+  updateMyEmail(email: String): UpdateMyEmail
 
   """
   update single row of the table: "org_mql_servers"
@@ -3164,6 +3178,28 @@ type Mutation {
     _set: metric_collection_metrics_set_input
     pk_columns: metric_collection_metrics_pk_columns_input!
   ): metric_collection_metrics
+
+  """
+  Update user's email in DB and auth0. Auth0 needs to match for user to login with new email.
+  """
+  updateUserEmail(email: String!, userId: Int): UpdateUserEmail
+
+  """
+  Create User for given org. If no org_id passed, create user in org of authenticated user.
+  """
+  createUserTest(email: String!, isOrgOwner: Boolean, organizationId: Int, userName: String!): CreateUser
+
+  """Add role to user in DB and Auth0."""
+  addRoleToUserTest(role: String!, userId: Int!): AddRoleToUser
+
+  """Remove role from user in DB and Auth0."""
+  removeRoleFromUserTest(role: String!, userId: Int!): RemoveRoleFromUser
+
+  """Deactivate user in DB and Auth0."""
+  deactivateUserTest(userId: Int!): DeactivateUser
+
+  """Reactivate user in DB and Auth0."""
+  reactivateUserTest(userId: Int!): ReactivateUser
 }
 
 """subscription root"""
@@ -5149,6 +5185,15 @@ input Boolean_comparison_exp {
   _nin: [Boolean!]
 }
 
+"""
+Create API Key for given user. If no user_id passed, create key for authenticated user.
+"""
+type CreateApiKey {
+  createdKeyFullString: String
+  createdKeyPrefix: String
+  revokedKeyPrefixes: [String]
+}
+
 input CreateApiKeyForUserInput {
   userId: Int!
 }
@@ -5218,6 +5263,14 @@ input Int_comparison_exp {
   _nin: [Int!]
 }
 
+"""
+Allows use of a JSON String for input / output from the GraphQL schema.
+
+Use of this type is *not recommended* as you lose the benefits of having a defined, static
+schema (one of the key benefits of GraphQL).
+"""
+scalar JSONString
+
 type LogMQLLogs {
   ok: Boolean
 }
@@ -5231,6 +5284,73 @@ type MQLServerVersion {
   downloadUrl: String
   version: String
   versionHash: String
+}
+
+type Model {
+  Organization: Organization
+  createdAt: DateTime!
+  executionContext: String
+  gitBranch: String!
+  gitCommit: String!
+  gitIsDirty: Boolean!
+  gitRepo: String!
+  id: ID!
+  isCurrent: Boolean!
+  organizationId: Int!
+  uploaderId: Int!
+  organization: Organization
+  uploader: User
+}
+
+type MqlHeartbeats {
+  createdAt: DateTime
+  details: JSONString
+  id: ID!
+  mqlServerId: Int
+  org: Organization
+  orgMqlServers: OrgMqlServer
+  organizationId: Int!
+  status: String!
+  userId: Int!
+  versionSha: String!
+  mqlServer: OrgMqlServer
+  user: User
+}
+
+type OrgMqlServer {
+  Organization: Organization
+  configSecret: String
+  createdAt: DateTime
+  dwEngine: String
+  heartbeats: [MqlHeartbeats]
+  id: ID!
+  isOrgDefault: Boolean
+  name: String!
+  organizationId: Int!
+  updatedAt: DateTime
+  url: String!
+}
+
+type Organization {
+  allUsers: [User]
+  createdAt: DateTime
+  currentModel: [Model]
+  deactivatedAt: DateTime
+  domain: String
+  id: ID!
+  logoUrl: String
+  models(id: ID): [Model]
+  mqlServerLogs: String
+  mqlServerUrl: String
+  mqlServers: [OrgMqlServer]
+  name: String!
+  primaryConfigBranch: String!
+  primaryConfigRepo: String!
+  shardId: Int!
+  sourceControlUrl: String
+  updatedAt: DateTime
+  slug: String
+  isHosted: Boolean!
 }
 
 input ReactivateUserInput {
@@ -5257,6 +5377,14 @@ enum Role {
   user
 }
 
+type SendMqlHeartbeat {
+  success: Boolean
+}
+
+type SetOrgMqlServerConfigSecretId {
+  mqlServer: OrgMqlServer
+}
+
 """
 expression to compare columns of type String. All fields are combined with logical 'AND'.
 """
@@ -5278,6 +5406,13 @@ input String_comparison_exp {
   _similar: String
 }
 
+"""
+Update user's email in DB and auth0. Auth0 needs to match for user to login with new email.
+"""
+type UpdateMyEmail {
+  user: User
+}
+
 input UpdateMyEmailInput {
   email: String!
 }
@@ -5294,6 +5429,27 @@ input UpdateUserEmailForOrgInput {
 
 type UpdateUserEmailForOrgOutput {
   userId: Int!
+}
+
+type User {
+  auth0Id: String!
+  avatarUrl: String
+  createdAt: DateTime
+  deactivatedAt: DateTime
+  email: String!
+  id: ID!
+  mqlServerUrl: String
+  organization: Organization
+  organizationId: Int!
+  userName: String!
+  updatedAt: DateTime
+  dateCreate: Int
+  dateDeactivate: Int
+  roles: [UserRole]
+  activeUserRoles: [UserRole]
+  userPrefs: [UserPref]
+  activeApiKeys: [ApiKey]
+  activeRoles: [String]
 }
 
 """
@@ -13587,6 +13743,7 @@ type org_metrics_current_view {
     """filter the rows returned"""
     where: questions_bool_exp
   ): questions_aggregate!
+  removedAt: timestamptz
 
   """An array relationship"""
   savedQueries(
@@ -13823,6 +13980,7 @@ input org_metrics_current_view_bool_exp {
   organizationId: Int_comparison_exp
   params: json_comparison_exp
   questions: questions_bool_exp
+  removedAt: timestamptz_comparison_exp
   savedQueries: saved_query_metrics_bool_exp
   teamOwners: metric_team_owners_bool_exp
   tier: Int_comparison_exp
@@ -13841,6 +13999,7 @@ type org_metrics_current_view_max_fields {
   modelId: Int
   name: String
   organizationId: Int
+  removedAt: timestamptz
   tier: Int
   updatedAt: timestamptz
 }
@@ -13857,6 +14016,7 @@ input org_metrics_current_view_max_order_by {
   modelId: order_by
   name: order_by
   organizationId: order_by
+  removedAt: order_by
   tier: order_by
   updatedAt: order_by
 }
@@ -13871,6 +14031,7 @@ type org_metrics_current_view_min_fields {
   modelId: Int
   name: String
   organizationId: Int
+  removedAt: timestamptz
   tier: Int
   updatedAt: timestamptz
 }
@@ -13887,6 +14048,7 @@ input org_metrics_current_view_min_order_by {
   modelId: order_by
   name: order_by
   organizationId: order_by
+  removedAt: order_by
   tier: order_by
   updatedAt: order_by
 }
@@ -13914,6 +14076,7 @@ input org_metrics_current_view_order_by {
   organizationId: order_by
   params: order_by
   questions_aggregate: questions_aggregate_order_by
+  removedAt: order_by
   savedQueries_aggregate: saved_query_metrics_aggregate_order_by
   teamOwners_aggregate: metric_team_owners_aggregate_order_by
   tier: order_by
@@ -13962,6 +14125,9 @@ enum org_metrics_current_view_select_column {
 
   """column name"""
   params
+
+  """column name"""
+  removedAt
 
   """column name"""
   tier
@@ -21364,3 +21530,81 @@ input users_variance_order_by {
 }
 
 scalar uuid
+
+type UserRole {
+  id: ID!
+  organizationId: Int!
+  userId: Int!
+  role: String!
+  createdAt: DateTime
+  updatedAt: DateTime
+  removedAt: DateTime
+  dateAdded: Int
+  dateRemoved: Int
+  organization: Organization
+  user: User
+}
+
+type UserPref {
+  id: ID!
+  organizationId: Int!
+  userId: Int!
+  prefKey: String!
+  prefValue: String!
+  createdAt: DateTime
+  updatedAt: DateTime
+  dateCreate: Int
+  organization: Organization
+  user: User
+}
+
+type ApiKey {
+  prefix: String!
+  organizationId: Int!
+  userId: Int!
+  type: String!
+  secretHash: String!
+  dateRevoked: Int
+  createdAt: DateTime
+  revokedAt: DateTime
+  revokerId: Int
+  lastUsedAt: DateTime
+  scope: String
+  user: User
+  organization: Organization
+  revoker: User
+}
+
+"""
+Update user's email in DB and auth0. Auth0 needs to match for user to login with new email.
+"""
+type UpdateUserEmail {
+  user: User
+}
+
+"""
+Create User for given org. If no org_id passed, create user in org of authenticated user.
+"""
+type CreateUser {
+  user: User
+}
+
+"""Add role to user in DB and Auth0."""
+type AddRoleToUser {
+  user: User
+}
+
+"""Remove role from user in DB and Auth0."""
+type RemoveRoleFromUser {
+  user: User
+}
+
+"""Deactivate user in DB and Auth0."""
+type DeactivateUser {
+  user: User
+}
+
+"""Reactivate user in DB and Auth0."""
+type ReactivateUser {
+  user: User
+}

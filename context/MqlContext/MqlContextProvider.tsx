@@ -67,12 +67,12 @@ function MqlContextProviderInternal({
       1. The MQL Server URL
       2. A specific Model Key representing the model content used to execute the query
 
-    Because we cannot yet specify the desired model in the UI, we would always retrieve 
-    and then supply the current model key. But now the MQL Server considers the Model Key 
+    Because we cannot yet specify the desired model in the UI, we would always retrieve
+    and then supply the current model key. But now the MQL Server considers the Model Key
     optional. In its absense, it uses the current model.
 
-    In the future, our UI will allow users to select a specific Model Key for querying, 
-    and at that point, we will update this code with a setModelKey mutation as we have 
+    In the future, our UI will allow users to select a specific Model Key for querying,
+    and at that point, we will update this code with a setModelKey mutation as we have
     for MqlServerUrl.
   */
   const [
@@ -99,7 +99,7 @@ function MqlContextProviderInternal({
     [setMqlServer, refetchMqlServerUrl]
   );
 
-  /* 
+  /*
     Note: Before the mqlServerUrl is available, an urql client will be constructed with the url set to the CORE_API_URL.
     This is because it throws an error to build an urql client without a URL.
     Naturally, this is invalid, so we must check with the mqlServerUrl is present before initiating MQL Queries.
