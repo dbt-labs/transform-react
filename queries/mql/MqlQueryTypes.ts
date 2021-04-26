@@ -11,6 +11,18 @@ export type Scalars = {
   Float: number;
   /** Wrapper around Graphene DateTime that is capable of handling string dates */
   DateTime: any;
+  /**
+   * The `Date` scalar type represents a Date
+   * value as specified by
+   * [iso8601](https://en.wikipedia.org/wiki/ISO_8601).
+   */
+  Date: any;
+  /**
+   * Limit is a GraphQL Scalar that can take in inf or positive integers.
+   *
+   * This class helps us normalize a API limit input into the Optional[int] type expected by library code
+   */
+  LimitInput: any;
 };
 
 /**
@@ -102,6 +114,13 @@ export type QueryDimensionNamesForMetricsArgs = {
  */
 export type QueryQueriesArgs = {
   activeOnly?: Maybe<Scalars['Boolean']>;
+  status?: Maybe<MqlQueryStatus>;
+  metricNames?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dateRangeStart?: Maybe<Scalars['Date']>;
+  dateRangeEnd?: Maybe<Scalars['Date']>;
+  minExecutionSeconds?: Maybe<Scalars['Float']>;
+  maxExecutionSeconds?: Maybe<Scalars['Float']>;
+  userIds?: Maybe<Array<Maybe<Scalars['Int']>>>;
   limit?: Maybe<Scalars['Int']>;
   offset?: Maybe<Scalars['Int']>;
 };
@@ -119,6 +138,8 @@ export type MqlQuery = {
   id?: Maybe<Scalars['ID']>;
   /** The model key used when creating the query */
   modelKey?: Maybe<ModelKey>;
+  /** ID of the user who executed the query */
+  userId?: Maybe<Scalars['Int']>;
   metrics?: Maybe<Array<Scalars['String']>>;
   dimensions?: Maybe<Array<Scalars['String']>>;
   /** The status of the requested query */
@@ -134,6 +155,9 @@ export type MqlQuery = {
   createdAt?: Maybe<Scalars['DateTime']>;
   /** Time the MQL Server start query execution */
   startedAt?: Maybe<Scalars['DateTime']>;
+  sql?: Maybe<Scalars['String']>;
+  error?: Maybe<Scalars['String']>;
+  errorTraceback?: Maybe<Scalars['String']>;
   logs?: Maybe<Scalars['String']>;
   logsByLine?: Maybe<Scalars['String']>;
 };
@@ -252,6 +276,7 @@ export type Measure = {
   dataSources?: Maybe<Array<Scalars['String']>>;
 };
 
+
 export type MqlServerHealthItem = {
   __typename?: 'MqlServerHealthItem';
   name: Scalars['String'];
@@ -264,9 +289,10 @@ export type Mutation = {
   __typename?: 'Mutation';
   createMqlMaterialization?: Maybe<CreateMqlMaterializationPayload>;
   /**
-   * This mutation is used to initiate an MQL Query, but the results are fetched separately.
+   * This mutation is used to initiate an MQL Query.
    *
-   * The return value is a queryId that can be used to fetch the query status, errors, and results.
+   * The primary return value is a queryId that can be used to fetch the query status, errors, and results.
+   * The full query object is also returned in case we have a result available synchronously (stored the result cache)
    */
   createMqlQuery?: Maybe<CreateMqlQueryPayload>;
   /** @deprecated Moving to async implementation (CreateMqlMaterialization) */
@@ -379,13 +405,15 @@ export enum CacheMode {
 }
 
 /**
- * This mutation is used to initiate an MQL Query, but the results are fetched separately.
+ * This mutation is used to initiate an MQL Query.
  *
- * The return value is a queryId that can be used to fetch the query status, errors, and results.
+ * The primary return value is a queryId that can be used to fetch the query status, errors, and results.
+ * The full query object is also returned in case we have a result available synchronously (stored the result cache)
  */
 export type CreateMqlQueryPayload = {
   __typename?: 'CreateMqlQueryPayload';
-  id?: Maybe<Scalars['ID']>;
+  id: Scalars['ID'];
+  query?: Maybe<MqlQuery>;
   clientMutationId?: Maybe<Scalars['String']>;
 };
 
@@ -398,7 +426,8 @@ export type CreateMqlQueryInput = {
   /** String-based constraint input field using SQL syntax */
   constraint?: Maybe<Scalars['String']>;
   order?: Maybe<Array<Scalars['String']>>;
-  limit?: Maybe<Scalars['Int']>;
+  /** Integer, '-1', or 'inf' to represent the number of rows of a query to return input field */
+  limit?: Maybe<Scalars['LimitInput']>;
   /** Set to True if you want to automatically add a default Time Series dimension to the query. This is useful for plotting the metric in time series without needing to know the time dimension up front. */
   addTimeSeries?: Maybe<Scalars['Boolean']>;
   /** Optionally, provide a cache mode to instruct the query engine how/whether to check the cache for data. */
@@ -408,6 +437,7 @@ export type CreateMqlQueryInput = {
   postProcessors?: Maybe<Array<Scalars['String']>>;
   clientMutationId?: Maybe<Scalars['String']>;
 };
+
 
 export type Materialize = {
   __typename?: 'Materialize';
@@ -484,12 +514,16 @@ export type FetchMqlQueryLogQuery = (
   { __typename?: 'Query' }
   & { mqlQuery?: Maybe<(
     { __typename?: 'MqlQuery' }
-    & Pick<MqlQuery, 'id' | 'status' | 'completedAt' | 'startedAt' | 'metrics' | 'logs'>
+    & Pick<MqlQuery, 'id' | 'status' | 'metrics' | 'dimensions' | 'logs' | 'error' | 'errorTraceback' | 'sql'>
   )> }
 );
 
 export type FetchMqlQueryLogsQueryVariables = Exact<{
   activeOnly: Scalars['Boolean'];
+  metricNames?: Maybe<Array<Maybe<Scalars['String']>> | Maybe<Scalars['String']>>;
+  status?: Maybe<MqlQueryStatus>;
+  minExecutionSeconds?: Maybe<Scalars['Float']>;
+  maxExecutionSeconds?: Maybe<Scalars['Float']>;
 }>;
 
 
@@ -510,7 +544,7 @@ export type FetchMqlTimeSeriesQuery = (
   { __typename?: 'Query' }
   & { mqlQuery?: Maybe<(
     { __typename?: 'MqlQuery' }
-    & Pick<MqlQuery, 'id' | 'status' | 'metrics'>
+    & Pick<MqlQuery, 'id' | 'status' | 'metrics' | 'dimensions'>
     & { result?: Maybe<Array<(
       { __typename?: 'MqlQueryResultSeries' }
       & Pick<MqlQueryResultSeries, 'seriesValue'>

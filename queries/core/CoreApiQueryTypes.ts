@@ -15,6 +15,13 @@ export type Scalars = {
    * [iso8601](https://en.wikipedia.org/wiki/ISO_8601).
    */
   DateTime: any;
+  /**
+   * Allows use of a JSON String for input / output from the GraphQL schema.
+   *
+   * Use of this type is *not recommended* as you lose the benefits of having a defined, static
+   * schema (one of the key benefits of GraphQL).
+   */
+  JSONString: any;
   bigint: any;
   date: any;
   json: any;
@@ -178,6 +185,8 @@ export type Query = {
   /** fetch data from the table: "mql_heartbeats" */
   mqlHeartbeats: Array<Mql_Heartbeats>;
   mqlServerUrl?: Maybe<Scalars['String']>;
+  myOrganization?: Maybe<Organization>;
+  myUser?: Maybe<User>;
   /** execute function "my_most_viewed_metrics" which returns "org_metrics_current_view" */
   my_most_viewed_metrics: Array<Org_Metrics_Current_View>;
   /** execute function "my_most_viewed_metrics" and query aggregates on result of table type "org_metrics_current_view" */
@@ -1297,7 +1306,12 @@ export type QueryUsersAggregateArgs = {
   where?: Maybe<Users_Bool_Exp>;
 };
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type Mutation = {
   __typename?: 'Mutation';
   /** insert a single row into the table: "metric_collection_metrics" */
@@ -1324,6 +1338,8 @@ export type Mutation = {
   createAnnotations?: Maybe<Annotations_Mutation_Response>;
   /** perform the action: "createApiKey" */
   createApiKey?: Maybe<CreateApiKeyOutput>;
+  /** Create API Key for given user. If no user_id passed, create key for authenticated user. */
+  createApiKeyTest?: Maybe<CreateApiKey>;
   /** insert a single row into the table: "dashboards" */
   createDashboard?: Maybe<Dashboards>;
   /** insert a single row into the table: "dashboard_item_configs" */
@@ -1489,6 +1505,8 @@ export type Mutation = {
   removeTeamMembers?: Maybe<Team_Members_Mutation_Response>;
   /** perform the action: "removeUserRole" */
   removeUserRole?: Maybe<RemoveUserRoleOutput>;
+  sendMqlHeartbeat?: Maybe<SendMqlHeartbeat>;
+  setOrgMqlServerConfigSecret?: Maybe<SetOrgMqlServerConfigSecretId>;
   /** delete single row from the table: "question_likes" */
   unlikeQuestion?: Maybe<Question_Likes>;
   /** delete data from the table: "question_likes" */
@@ -1521,8 +1539,8 @@ export type Mutation = {
   updateMetricCollection?: Maybe<Metric_Collections>;
   /** update data of the table: "metric_collections" */
   updateMetricCollections?: Maybe<Metric_Collections_Mutation_Response>;
-  /** perform the action: "updateMyEmail" */
-  updateMyEmail?: Maybe<UpdateMyEmailOutput>;
+  /** Update user's email in DB and auth0. Auth0 needs to match for user to login with new email. */
+  updateMyEmail?: Maybe<UpdateMyEmail>;
   /** update single row of the table: "org_mql_servers" */
   updateOrgMqlServer?: Maybe<Org_Mql_Servers>;
   /** update data of the table: "org_mql_servers" */
@@ -1567,541 +1585,984 @@ export type Mutation = {
   update_metric_collection_metrics?: Maybe<Metric_Collection_Metrics_Mutation_Response>;
   /** update single row of the table: "metric_collection_metrics" */
   update_metric_collection_metrics_by_pk?: Maybe<Metric_Collection_Metrics>;
+  /** Update user's email in DB and auth0. Auth0 needs to match for user to login with new email. */
+  updateUserEmail?: Maybe<UpdateUserEmail>;
+  /** Create User for given org. If no org_id passed, create user in org of authenticated user. */
+  createUserTest?: Maybe<CreateUser>;
+  /** Add role to user in DB and Auth0. */
+  addRoleToUserTest?: Maybe<AddRoleToUser>;
+  /** Remove role from user in DB and Auth0. */
+  removeRoleFromUserTest?: Maybe<RemoveRoleFromUser>;
+  /** Deactivate user in DB and Auth0. */
+  deactivateUserTest?: Maybe<DeactivateUser>;
+  /** Reactivate user in DB and Auth0. */
+  reactivateUserTest?: Maybe<ReactivateUser>;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationAddMetricCollectionMetricArgs = {
   object: Metric_Collection_Metrics_Insert_Input;
   on_conflict?: Maybe<Metric_Collection_Metrics_On_Conflict>;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationAddMetricCollectionMetricsArgs = {
   objects: Array<Metric_Collection_Metrics_Insert_Input>;
   on_conflict?: Maybe<Metric_Collection_Metrics_On_Conflict>;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationAddTeamMemberArgs = {
   object: Team_Members_Insert_Input;
   on_conflict?: Maybe<Team_Members_On_Conflict>;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationAddTeamMembersArgs = {
   objects: Array<Team_Members_Insert_Input>;
   on_conflict?: Maybe<Team_Members_On_Conflict>;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationAddUserRoleArgs = {
   input: AddUserRoleInput;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationApproveMetricArgs = {
   object: Metric_Approvals_Insert_Input;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationApproveMetricsArgs = {
   objects: Array<Metric_Approvals_Insert_Input>;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationAssignUserRoleArgs = {
   object: User_Roles_Insert_Input;
   on_conflict?: Maybe<User_Roles_On_Conflict>;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationAssignUserRolesArgs = {
   objects: Array<User_Roles_Insert_Input>;
   on_conflict?: Maybe<User_Roles_On_Conflict>;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationCreateAnnotationArgs = {
   object: Annotations_Insert_Input;
   on_conflict?: Maybe<Annotations_On_Conflict>;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationCreateAnnotationsArgs = {
   objects: Array<Annotations_Insert_Input>;
   on_conflict?: Maybe<Annotations_On_Conflict>;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
+export type MutationCreateApiKeyTestArgs = {
+  userId?: Maybe<Scalars['Int']>;
+};
+
+
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationCreateDashboardArgs = {
   object: Dashboards_Insert_Input;
   on_conflict?: Maybe<Dashboards_On_Conflict>;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationCreateDashboardItemArgs = {
   object: Dashboard_Item_Configs_Insert_Input;
   on_conflict?: Maybe<Dashboard_Item_Configs_On_Conflict>;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationCreateDashboardItemsArgs = {
   objects: Array<Dashboard_Item_Configs_Insert_Input>;
   on_conflict?: Maybe<Dashboard_Item_Configs_On_Conflict>;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationCreateDashboardSectionArgs = {
   object: Dashboard_Sections_Insert_Input;
   on_conflict?: Maybe<Dashboard_Sections_On_Conflict>;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationCreateDashboardSectionsArgs = {
   objects: Array<Dashboard_Sections_Insert_Input>;
   on_conflict?: Maybe<Dashboard_Sections_On_Conflict>;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationCreateDashboardsArgs = {
   objects: Array<Dashboards_Insert_Input>;
   on_conflict?: Maybe<Dashboards_On_Conflict>;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationCreateMetricAnnotationArgs = {
   object: Metric_Annotations_Insert_Input;
   on_conflict?: Maybe<Metric_Annotations_On_Conflict>;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationCreateMetricAnnotationsArgs = {
   objects: Array<Metric_Annotations_Insert_Input>;
   on_conflict?: Maybe<Metric_Annotations_On_Conflict>;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationCreateMetricCollectionArgs = {
   object: Metric_Collections_Insert_Input;
   on_conflict?: Maybe<Metric_Collections_On_Conflict>;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationCreateMetricCollectionViewArgs = {
   object: Metric_Collection_View_Insert_Input;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationCreateMetricCollectionViewsArgs = {
   objects: Array<Metric_Collection_View_Insert_Input>;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationCreateMetricCollectionsArgs = {
   objects: Array<Metric_Collections_Insert_Input>;
   on_conflict?: Maybe<Metric_Collections_On_Conflict>;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationCreateMetricDescriptionArgs = {
   object: Metric_Descriptions_Insert_Input;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationCreateMetricDescriptionsArgs = {
   objects: Array<Metric_Descriptions_Insert_Input>;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationCreateMetricTeamOwnerArgs = {
   object: Metric_Team_Owners_Insert_Input;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationCreateMetricTeamOwnersArgs = {
   objects: Array<Metric_Team_Owners_Insert_Input>;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationCreateMetricUserOwnerArgs = {
   object: Metric_User_Owners_Insert_Input;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationCreateMetricUserOwnersArgs = {
   objects: Array<Metric_User_Owners_Insert_Input>;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationCreateMetricViewArgs = {
   object: Metric_View_Insert_Input;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationCreateMetricViewsArgs = {
   objects: Array<Metric_View_Insert_Input>;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationCreateMqlHeartbeatArgs = {
   object: Mql_Heartbeats_Insert_Input;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationCreateMqlHeartbeatsArgs = {
   objects: Array<Mql_Heartbeats_Insert_Input>;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationCreateOrgMqlServerArgs = {
   object: Org_Mql_Servers_Insert_Input;
   on_conflict?: Maybe<Org_Mql_Servers_On_Conflict>;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationCreateOrgMqlServersArgs = {
   objects: Array<Org_Mql_Servers_Insert_Input>;
   on_conflict?: Maybe<Org_Mql_Servers_On_Conflict>;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationCreateQuestionArgs = {
   object: Questions_Insert_Input;
   on_conflict?: Maybe<Questions_On_Conflict>;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationCreateQuestionRepliesArgs = {
   objects: Array<Question_Replies_Insert_Input>;
   on_conflict?: Maybe<Question_Replies_On_Conflict>;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationCreateQuestionReplyArgs = {
   object: Question_Replies_Insert_Input;
   on_conflict?: Maybe<Question_Replies_On_Conflict>;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationCreateQuestionsArgs = {
   objects: Array<Questions_Insert_Input>;
   on_conflict?: Maybe<Questions_On_Conflict>;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationCreateSavedQueriesArgs = {
   objects: Array<Saved_Queries_Insert_Input>;
   on_conflict?: Maybe<Saved_Queries_On_Conflict>;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationCreateSavedQueryArgs = {
   object: Saved_Queries_Insert_Input;
   on_conflict?: Maybe<Saved_Queries_On_Conflict>;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationCreateTeamArgs = {
   object: Teams_Insert_Input;
   on_conflict?: Maybe<Teams_On_Conflict>;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationCreateTeamDashboardArgs = {
   object: Team_Dashboards_Insert_Input;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationCreateTeamDashboardsArgs = {
   objects: Array<Team_Dashboards_Insert_Input>;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationCreateTeamViewArgs = {
   object: Team_Views_Insert_Input;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationCreateTeamViewsArgs = {
   objects: Array<Team_Views_Insert_Input>;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationCreateTeamsArgs = {
   objects: Array<Teams_Insert_Input>;
   on_conflict?: Maybe<Teams_On_Conflict>;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationCreateUserArgs = {
   input: CreateUserInput;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationCreateUserPreferenceArgs = {
   object: User_Prefs_Insert_Input;
   on_conflict?: Maybe<User_Prefs_On_Conflict>;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationCreateUserPreferencesArgs = {
   objects: Array<User_Prefs_Insert_Input>;
   on_conflict?: Maybe<User_Prefs_On_Conflict>;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationCreatedSavedQueryMetricArgs = {
   object: Saved_Query_Metrics_Insert_Input;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationCreatedSavedQueryMetricsArgs = {
   objects: Array<Saved_Query_Metrics_Insert_Input>;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationDeactivateUserArgs = {
   input: DeactivateUserInput;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationDeleteDashboardItemArgs = {
   id: Scalars['Int'];
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationDeleteDashboardItemsArgs = {
   where: Dashboard_Item_Configs_Bool_Exp;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationDeleteDashboardSectionArgs = {
   id: Scalars['Int'];
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationDeleteDashboardSectionsArgs = {
   where: Dashboard_Sections_Bool_Exp;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationDeleteMetricAnnotationArgs = {
   id: Scalars['Int'];
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationDeleteMetricAnnotationsArgs = {
   where: Metric_Annotations_Bool_Exp;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationDeleteMetricCollectionArgs = {
   id: Scalars['Int'];
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationDeleteMetricCollectionsArgs = {
   where: Metric_Collections_Bool_Exp;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationDeleteMetricDescriptionArgs = {
   id: Scalars['Int'];
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationDeleteMetricDescriptionsArgs = {
   where: Metric_Descriptions_Bool_Exp;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationDeleteMetricTeamOwnerArgs = {
   id: Scalars['Int'];
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationDeleteMetricTeamOwnersArgs = {
   where: Metric_Team_Owners_Bool_Exp;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationDeleteMetricUserOwnerArgs = {
   id: Scalars['Int'];
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationDeleteMetricUserOwnersArgs = {
   where: Metric_User_Owners_Bool_Exp;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationDeleteOrgMqlServerArgs = {
   id: Scalars['Int'];
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationDeleteOrgMqlServersArgs = {
   where: Org_Mql_Servers_Bool_Exp;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationDeleteQuestionRepliesArgs = {
   where: Question_Replies_Bool_Exp;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationDeleteQuestionReplyArgs = {
   id: Scalars['Int'];
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationDeleteSavedQueryMetricArgs = {
   id: Scalars['Int'];
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationDeleteSavedQueryMetricsArgs = {
   where: Saved_Query_Metrics_Bool_Exp;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationDeleteTeamDashboardArgs = {
   dashboardId: Scalars['Int'];
   team_id: Scalars['Int'];
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationDeleteTeamDashboardsArgs = {
   where: Team_Dashboards_Bool_Exp;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationDeleteUserPreferenceArgs = {
   id: Scalars['Int'];
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationDeleteUserPreferencesArgs = {
   where: User_Prefs_Bool_Exp;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationDirectQuestionToArgs = {
   object: Question_Directed_To_Insert_Input;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationDirectQuestionToMultipleArgs = {
   objects: Array<Question_Directed_To_Insert_Input>;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationInsert_UsersArgs = {
   objects: Array<Users_Insert_Input>;
   on_conflict?: Maybe<Users_On_Conflict>;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationInsert_Users_OneArgs = {
   object: Users_Insert_Input;
   on_conflict?: Maybe<Users_On_Conflict>;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationLikeQuestionArgs = {
   object: Question_Likes_Insert_Input;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationLikeQuestionsArgs = {
   objects: Array<Question_Likes_Insert_Input>;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationLogMqlLogArgs = {
   level?: Maybe<Scalars['String']>;
   message?: Maybe<Scalars['String']>;
@@ -2109,114 +2570,228 @@ export type MutationLogMqlLogArgs = {
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationReactivateUserArgs = {
   input: ReactivateUserInput;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationRemoveDirectQuestionToArgs = {
   id: Scalars['Int'];
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationRemoveDirectQuestionToMultipleArgs = {
   where: Question_Directed_To_Bool_Exp;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationRemoveMetricApprovalArgs = {
   id: Scalars['Int'];
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationRemoveMetricApprovalsArgs = {
   where: Metric_Approvals_Bool_Exp;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationRemoveMetricCollectionMetricArgs = {
   id: Scalars['Int'];
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationRemoveMetricCollectionMetricsArgs = {
   where: Metric_Collection_Metrics_Bool_Exp;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationRemoveTeamMemberArgs = {
   id: Scalars['Int'];
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationRemoveTeamMembersArgs = {
   where: Team_Members_Bool_Exp;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationRemoveUserRoleArgs = {
   input: RemoveUserRoleInput;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
+export type MutationSendMqlHeartbeatArgs = {
+  mqlServerId?: Maybe<Scalars['Int']>;
+  sha: Scalars['String'];
+};
+
+
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
+export type MutationSetOrgMqlServerConfigSecretArgs = {
+  clientConfigSecretId?: Maybe<Scalars['String']>;
+  mqlServerId?: Maybe<Scalars['Int']>;
+};
+
+
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationUnlikeQuestionArgs = {
   id: Scalars['Int'];
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationUnlikeQuestionsArgs = {
   where: Question_Likes_Bool_Exp;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationUpdateAnnotationArgs = {
   _set?: Maybe<Annotations_Set_Input>;
   pk_columns: Annotations_Pk_Columns_Input;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationUpdateAnnotationsArgs = {
   _set?: Maybe<Annotations_Set_Input>;
   where: Annotations_Bool_Exp;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationUpdateApiKeyArgs = {
   _set?: Maybe<Api_Keys_Set_Input>;
   pk_columns: Api_Keys_Pk_Columns_Input;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationUpdateApiKeysArgs = {
   _set?: Maybe<Api_Keys_Set_Input>;
   where: Api_Keys_Bool_Exp;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationUpdateDashboardArgs = {
   _set?: Maybe<Dashboards_Set_Input>;
   pk_columns: Dashboards_Pk_Columns_Input;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationUpdateDashboardItemArgs = {
   _inc?: Maybe<Dashboard_Item_Configs_Inc_Input>;
   _set?: Maybe<Dashboard_Item_Configs_Set_Input>;
@@ -2224,7 +2799,12 @@ export type MutationUpdateDashboardItemArgs = {
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationUpdateDashboardItemsArgs = {
   _inc?: Maybe<Dashboard_Item_Configs_Inc_Input>;
   _set?: Maybe<Dashboard_Item_Configs_Set_Input>;
@@ -2232,28 +2812,48 @@ export type MutationUpdateDashboardItemsArgs = {
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationUpdateDashboardSectionArgs = {
   _set?: Maybe<Dashboard_Sections_Set_Input>;
   pk_columns: Dashboard_Sections_Pk_Columns_Input;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationUpdateDashboardSectionsArgs = {
   _set?: Maybe<Dashboard_Sections_Set_Input>;
   where: Dashboard_Sections_Bool_Exp;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationUpdateDashboardsArgs = {
   _set?: Maybe<Dashboards_Set_Input>;
   where: Dashboards_Bool_Exp;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationUpdateMetricAnnotationArgs = {
   _inc?: Maybe<Metric_Annotations_Inc_Input>;
   _set?: Maybe<Metric_Annotations_Set_Input>;
@@ -2261,7 +2861,12 @@ export type MutationUpdateMetricAnnotationArgs = {
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationUpdateMetricAnnotationsArgs = {
   _inc?: Maybe<Metric_Annotations_Inc_Input>;
   _set?: Maybe<Metric_Annotations_Set_Input>;
@@ -2269,7 +2874,12 @@ export type MutationUpdateMetricAnnotationsArgs = {
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationUpdateMetricCollectionArgs = {
   _inc?: Maybe<Metric_Collections_Inc_Input>;
   _set?: Maybe<Metric_Collections_Set_Input>;
@@ -2277,7 +2887,12 @@ export type MutationUpdateMetricCollectionArgs = {
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationUpdateMetricCollectionsArgs = {
   _inc?: Maybe<Metric_Collections_Inc_Input>;
   _set?: Maybe<Metric_Collections_Set_Input>;
@@ -2285,41 +2900,71 @@ export type MutationUpdateMetricCollectionsArgs = {
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationUpdateMyEmailArgs = {
-  input: UpdateMyEmailInput;
+  email?: Maybe<Scalars['String']>;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationUpdateOrgMqlServerArgs = {
   _set?: Maybe<Org_Mql_Servers_Set_Input>;
   pk_columns: Org_Mql_Servers_Pk_Columns_Input;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationUpdateOrgMqlServersArgs = {
   _set?: Maybe<Org_Mql_Servers_Set_Input>;
   where: Org_Mql_Servers_Bool_Exp;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationUpdateOrganizationArgs = {
   _set?: Maybe<Organizations_Set_Input>;
   pk_columns: Organizations_Pk_Columns_Input;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationUpdateOrganizationsArgs = {
   _set?: Maybe<Organizations_Set_Input>;
   where: Organizations_Bool_Exp;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationUpdateQuestionArgs = {
   _inc?: Maybe<Questions_Inc_Input>;
   _set?: Maybe<Questions_Set_Input>;
@@ -2327,21 +2972,36 @@ export type MutationUpdateQuestionArgs = {
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationUpdateQuestionRepliesArgs = {
   _set?: Maybe<Question_Replies_Set_Input>;
   where: Question_Replies_Bool_Exp;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationUpdateQuestionReplyArgs = {
   _set?: Maybe<Question_Replies_Set_Input>;
   pk_columns: Question_Replies_Pk_Columns_Input;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationUpdateQuestionsArgs = {
   _inc?: Maybe<Questions_Inc_Input>;
   _set?: Maybe<Questions_Set_Input>;
@@ -2349,7 +3009,12 @@ export type MutationUpdateQuestionsArgs = {
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationUpdateSavedQueriesArgs = {
   _inc?: Maybe<Saved_Queries_Inc_Input>;
   _set?: Maybe<Saved_Queries_Set_Input>;
@@ -2357,7 +3022,12 @@ export type MutationUpdateSavedQueriesArgs = {
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationUpdateSavedQueryArgs = {
   _inc?: Maybe<Saved_Queries_Inc_Input>;
   _set?: Maybe<Saved_Queries_Set_Input>;
@@ -2365,7 +3035,12 @@ export type MutationUpdateSavedQueryArgs = {
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationUpdateTeamArgs = {
   _inc?: Maybe<Teams_Inc_Input>;
   _set?: Maybe<Teams_Set_Input>;
@@ -2373,21 +3048,36 @@ export type MutationUpdateTeamArgs = {
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationUpdateTeamMemberArgs = {
   _set?: Maybe<Team_Members_Set_Input>;
   pk_columns: Team_Members_Pk_Columns_Input;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationUpdateTeamMembersArgs = {
   _set?: Maybe<Team_Members_Set_Input>;
   where: Team_Members_Bool_Exp;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationUpdateTeamsArgs = {
   _inc?: Maybe<Teams_Inc_Input>;
   _set?: Maybe<Teams_Set_Input>;
@@ -2395,49 +3085,84 @@ export type MutationUpdateTeamsArgs = {
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationUpdateUserArgs = {
   _set?: Maybe<Users_Set_Input>;
   pk_columns: Users_Pk_Columns_Input;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationUpdateUserPreferenceArgs = {
   _set?: Maybe<User_Prefs_Set_Input>;
   pk_columns: User_Prefs_Pk_Columns_Input;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationUpdateUserPreferencesArgs = {
   _set?: Maybe<User_Prefs_Set_Input>;
   where: User_Prefs_Bool_Exp;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationUpdateUserRoleArgs = {
   _set?: Maybe<User_Roles_Set_Input>;
   pk_columns: User_Roles_Pk_Columns_Input;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationUpdateUserRolesArgs = {
   _set?: Maybe<User_Roles_Set_Input>;
   where: User_Roles_Bool_Exp;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationUpdateUsersArgs = {
   _set?: Maybe<Users_Set_Input>;
   where: Users_Bool_Exp;
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationUpdate_Metric_Collection_MetricsArgs = {
   _inc?: Maybe<Metric_Collection_Metrics_Inc_Input>;
   _set?: Maybe<Metric_Collection_Metrics_Set_Input>;
@@ -2445,11 +3170,88 @@ export type MutationUpdate_Metric_Collection_MetricsArgs = {
 };
 
 
-/** Base mutation object exposed by GraphQL. */
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationUpdate_Metric_Collection_Metrics_By_PkArgs = {
   _inc?: Maybe<Metric_Collection_Metrics_Inc_Input>;
   _set?: Maybe<Metric_Collection_Metrics_Set_Input>;
   pk_columns: Metric_Collection_Metrics_Pk_Columns_Input;
+};
+
+
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
+export type MutationUpdateUserEmailArgs = {
+  email: Scalars['String'];
+  userId?: Maybe<Scalars['Int']>;
+};
+
+
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
+export type MutationCreateUserTestArgs = {
+  email: Scalars['String'];
+  isOrgOwner?: Maybe<Scalars['Boolean']>;
+  organizationId?: Maybe<Scalars['Int']>;
+  userName: Scalars['String'];
+};
+
+
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
+export type MutationAddRoleToUserTestArgs = {
+  role: Scalars['String'];
+  userId: Scalars['Int'];
+};
+
+
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
+export type MutationRemoveRoleFromUserTestArgs = {
+  role: Scalars['String'];
+  userId: Scalars['Int'];
+};
+
+
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
+export type MutationDeactivateUserTestArgs = {
+  userId: Scalars['Int'];
+};
+
+
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
+export type MutationReactivateUserTestArgs = {
+  userId: Scalars['Int'];
 };
 
 /** subscription root */
@@ -3880,6 +4682,14 @@ export type Boolean_Comparison_Exp = {
   _nin?: Maybe<Array<Scalars['Boolean']>>;
 };
 
+/** Create API Key for given user. If no user_id passed, create key for authenticated user. */
+export type CreateApiKey = {
+  __typename?: 'CreateApiKey';
+  createdKeyFullString?: Maybe<Scalars['String']>;
+  createdKeyPrefix?: Maybe<Scalars['String']>;
+  revokedKeyPrefixes?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
 export type CreateApiKeyForUserInput = {
   userId: Scalars['Int'];
 };
@@ -3946,6 +4756,7 @@ export type Int_Comparison_Exp = {
   _nin?: Maybe<Array<Scalars['Int']>>;
 };
 
+
 export type LogMqlLogs = {
   __typename?: 'LogMQLLogs';
   ok?: Maybe<Scalars['Boolean']>;
@@ -3961,6 +4772,82 @@ export type MqlServerVersion = {
   downloadUrl?: Maybe<Scalars['String']>;
   version?: Maybe<Scalars['String']>;
   versionHash?: Maybe<Scalars['String']>;
+};
+
+export type Model = {
+  __typename?: 'Model';
+  Organization?: Maybe<Organization>;
+  createdAt: Scalars['DateTime'];
+  executionContext?: Maybe<Scalars['String']>;
+  gitBranch: Scalars['String'];
+  gitCommit: Scalars['String'];
+  gitIsDirty: Scalars['Boolean'];
+  gitRepo: Scalars['String'];
+  id: Scalars['ID'];
+  isCurrent: Scalars['Boolean'];
+  organizationId: Scalars['Int'];
+  uploaderId: Scalars['Int'];
+  organization?: Maybe<Organization>;
+  uploader?: Maybe<User>;
+};
+
+export type MqlHeartbeats = {
+  __typename?: 'MqlHeartbeats';
+  createdAt?: Maybe<Scalars['DateTime']>;
+  details?: Maybe<Scalars['JSONString']>;
+  id: Scalars['ID'];
+  mqlServerId?: Maybe<Scalars['Int']>;
+  org?: Maybe<Organization>;
+  orgMqlServers?: Maybe<OrgMqlServer>;
+  organizationId: Scalars['Int'];
+  status: Scalars['String'];
+  userId: Scalars['Int'];
+  versionSha: Scalars['String'];
+  mqlServer?: Maybe<OrgMqlServer>;
+  user?: Maybe<User>;
+};
+
+export type OrgMqlServer = {
+  __typename?: 'OrgMqlServer';
+  Organization?: Maybe<Organization>;
+  configSecret?: Maybe<Scalars['String']>;
+  createdAt?: Maybe<Scalars['DateTime']>;
+  dwEngine?: Maybe<Scalars['String']>;
+  heartbeats?: Maybe<Array<Maybe<MqlHeartbeats>>>;
+  id: Scalars['ID'];
+  isOrgDefault?: Maybe<Scalars['Boolean']>;
+  name: Scalars['String'];
+  organizationId: Scalars['Int'];
+  updatedAt?: Maybe<Scalars['DateTime']>;
+  url: Scalars['String'];
+};
+
+export type Organization = {
+  __typename?: 'Organization';
+  allUsers?: Maybe<Array<Maybe<User>>>;
+  createdAt?: Maybe<Scalars['DateTime']>;
+  currentModel?: Maybe<Array<Maybe<Model>>>;
+  deactivatedAt?: Maybe<Scalars['DateTime']>;
+  domain?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  logoUrl?: Maybe<Scalars['String']>;
+  models?: Maybe<Array<Maybe<Model>>>;
+  mqlServerLogs?: Maybe<Scalars['String']>;
+  mqlServerUrl?: Maybe<Scalars['String']>;
+  mqlServers?: Maybe<Array<Maybe<OrgMqlServer>>>;
+  name: Scalars['String'];
+  primaryConfigBranch: Scalars['String'];
+  primaryConfigRepo: Scalars['String'];
+  shardId: Scalars['Int'];
+  sourceControlUrl?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['DateTime']>;
+  slug?: Maybe<Scalars['String']>;
+  isHosted: Scalars['Boolean'];
+};
+
+
+export type OrganizationModelsArgs = {
+  id?: Maybe<Scalars['ID']>;
 };
 
 export type ReactivateUserInput = {
@@ -3989,6 +4876,16 @@ export enum Role {
   User = 'user'
 }
 
+export type SendMqlHeartbeat = {
+  __typename?: 'SendMqlHeartbeat';
+  success?: Maybe<Scalars['Boolean']>;
+};
+
+export type SetOrgMqlServerConfigSecretId = {
+  __typename?: 'SetOrgMqlServerConfigSecretId';
+  mqlServer?: Maybe<OrgMqlServer>;
+};
+
 /** expression to compare columns of type String. All fields are combined with logical 'AND'. */
 export type String_Comparison_Exp = {
   _eq?: Maybe<Scalars['String']>;
@@ -4006,6 +4903,12 @@ export type String_Comparison_Exp = {
   _nlike?: Maybe<Scalars['String']>;
   _nsimilar?: Maybe<Scalars['String']>;
   _similar?: Maybe<Scalars['String']>;
+};
+
+/** Update user's email in DB and auth0. Auth0 needs to match for user to login with new email. */
+export type UpdateMyEmail = {
+  __typename?: 'UpdateMyEmail';
+  user?: Maybe<User>;
 };
 
 export type UpdateMyEmailInput = {
@@ -4026,6 +4929,28 @@ export type UpdateUserEmailForOrgInput = {
 export type UpdateUserEmailForOrgOutput = {
   __typename?: 'UpdateUserEmailForOrgOutput';
   userId: Scalars['Int'];
+};
+
+export type User = {
+  __typename?: 'User';
+  auth0Id: Scalars['String'];
+  avatarUrl?: Maybe<Scalars['String']>;
+  createdAt?: Maybe<Scalars['DateTime']>;
+  deactivatedAt?: Maybe<Scalars['DateTime']>;
+  email: Scalars['String'];
+  id: Scalars['ID'];
+  mqlServerUrl?: Maybe<Scalars['String']>;
+  organization?: Maybe<Organization>;
+  organizationId: Scalars['Int'];
+  userName: Scalars['String'];
+  updatedAt?: Maybe<Scalars['DateTime']>;
+  dateCreate?: Maybe<Scalars['Int']>;
+  dateDeactivate?: Maybe<Scalars['Int']>;
+  roles?: Maybe<Array<Maybe<UserRole>>>;
+  activeUserRoles?: Maybe<Array<Maybe<UserRole>>>;
+  userPrefs?: Maybe<Array<Maybe<UserPref>>>;
+  activeApiKeys?: Maybe<Array<Maybe<ApiKey>>>;
+  activeRoles?: Maybe<Array<Maybe<Scalars['String']>>>;
 };
 
 /**
@@ -11306,6 +12231,7 @@ export type Org_Metrics_Current_View = {
   questions: Array<Questions>;
   /** An aggregated array relationship */
   questions_aggregate: Questions_Aggregate;
+  removedAt?: Maybe<Scalars['timestamptz']>;
   /** An array relationship */
   savedQueries: Array<Saved_Query_Metrics>;
   /** An aggregated array relationship */
@@ -11706,6 +12632,7 @@ export type Org_Metrics_Current_View_Bool_Exp = {
   organizationId?: Maybe<Int_Comparison_Exp>;
   params?: Maybe<Json_Comparison_Exp>;
   questions?: Maybe<Questions_Bool_Exp>;
+  removedAt?: Maybe<Timestamptz_Comparison_Exp>;
   savedQueries?: Maybe<Saved_Query_Metrics_Bool_Exp>;
   teamOwners?: Maybe<Metric_Team_Owners_Bool_Exp>;
   tier?: Maybe<Int_Comparison_Exp>;
@@ -11725,6 +12652,7 @@ export type Org_Metrics_Current_View_Max_Fields = {
   modelId?: Maybe<Scalars['Int']>;
   name?: Maybe<Scalars['String']>;
   organizationId?: Maybe<Scalars['Int']>;
+  removedAt?: Maybe<Scalars['timestamptz']>;
   tier?: Maybe<Scalars['Int']>;
   updatedAt?: Maybe<Scalars['timestamptz']>;
 };
@@ -11739,6 +12667,7 @@ export type Org_Metrics_Current_View_Max_Order_By = {
   modelId?: Maybe<Order_By>;
   name?: Maybe<Order_By>;
   organizationId?: Maybe<Order_By>;
+  removedAt?: Maybe<Order_By>;
   tier?: Maybe<Order_By>;
   updatedAt?: Maybe<Order_By>;
 };
@@ -11754,6 +12683,7 @@ export type Org_Metrics_Current_View_Min_Fields = {
   modelId?: Maybe<Scalars['Int']>;
   name?: Maybe<Scalars['String']>;
   organizationId?: Maybe<Scalars['Int']>;
+  removedAt?: Maybe<Scalars['timestamptz']>;
   tier?: Maybe<Scalars['Int']>;
   updatedAt?: Maybe<Scalars['timestamptz']>;
 };
@@ -11768,6 +12698,7 @@ export type Org_Metrics_Current_View_Min_Order_By = {
   modelId?: Maybe<Order_By>;
   name?: Maybe<Order_By>;
   organizationId?: Maybe<Order_By>;
+  removedAt?: Maybe<Order_By>;
   tier?: Maybe<Order_By>;
   updatedAt?: Maybe<Order_By>;
 };
@@ -11793,6 +12724,7 @@ export type Org_Metrics_Current_View_Order_By = {
   organizationId?: Maybe<Order_By>;
   params?: Maybe<Order_By>;
   questions_aggregate?: Maybe<Questions_Aggregate_Order_By>;
+  removedAt?: Maybe<Order_By>;
   savedQueries_aggregate?: Maybe<Saved_Query_Metrics_Aggregate_Order_By>;
   teamOwners_aggregate?: Maybe<Metric_Team_Owners_Aggregate_Order_By>;
   tier?: Maybe<Order_By>;
@@ -11828,6 +12760,8 @@ export enum Org_Metrics_Current_View_Select_Column {
   OrganizationId = 'organizationId',
   /** column name */
   Params = 'params',
+  /** column name */
+  RemovedAt = 'removedAt',
   /** column name */
   Tier = 'tier',
   /** column name */
@@ -18465,6 +19399,89 @@ export type Users_Variance_Order_By = {
   id?: Maybe<Order_By>;
 };
 
+
+export type UserRole = {
+  __typename?: 'UserRole';
+  id: Scalars['ID'];
+  organizationId: Scalars['Int'];
+  userId: Scalars['Int'];
+  role: Scalars['String'];
+  createdAt?: Maybe<Scalars['DateTime']>;
+  updatedAt?: Maybe<Scalars['DateTime']>;
+  removedAt?: Maybe<Scalars['DateTime']>;
+  dateAdded?: Maybe<Scalars['Int']>;
+  dateRemoved?: Maybe<Scalars['Int']>;
+  organization?: Maybe<Organization>;
+  user?: Maybe<User>;
+};
+
+export type UserPref = {
+  __typename?: 'UserPref';
+  id: Scalars['ID'];
+  organizationId: Scalars['Int'];
+  userId: Scalars['Int'];
+  prefKey: Scalars['String'];
+  prefValue: Scalars['String'];
+  createdAt?: Maybe<Scalars['DateTime']>;
+  updatedAt?: Maybe<Scalars['DateTime']>;
+  dateCreate?: Maybe<Scalars['Int']>;
+  organization?: Maybe<Organization>;
+  user?: Maybe<User>;
+};
+
+export type ApiKey = {
+  __typename?: 'ApiKey';
+  prefix: Scalars['String'];
+  organizationId: Scalars['Int'];
+  userId: Scalars['Int'];
+  type: Scalars['String'];
+  secretHash: Scalars['String'];
+  dateRevoked?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['DateTime']>;
+  revokedAt?: Maybe<Scalars['DateTime']>;
+  revokerId?: Maybe<Scalars['Int']>;
+  lastUsedAt?: Maybe<Scalars['DateTime']>;
+  scope?: Maybe<Scalars['String']>;
+  user?: Maybe<User>;
+  organization?: Maybe<Organization>;
+  revoker?: Maybe<User>;
+};
+
+/** Update user's email in DB and auth0. Auth0 needs to match for user to login with new email. */
+export type UpdateUserEmail = {
+  __typename?: 'UpdateUserEmail';
+  user?: Maybe<User>;
+};
+
+/** Create User for given org. If no org_id passed, create user in org of authenticated user. */
+export type CreateUser = {
+  __typename?: 'CreateUser';
+  user?: Maybe<User>;
+};
+
+/** Add role to user in DB and Auth0. */
+export type AddRoleToUser = {
+  __typename?: 'AddRoleToUser';
+  user?: Maybe<User>;
+};
+
+/** Remove role from user in DB and Auth0. */
+export type RemoveRoleFromUser = {
+  __typename?: 'RemoveRoleFromUser';
+  user?: Maybe<User>;
+};
+
+/** Deactivate user in DB and Auth0. */
+export type DeactivateUser = {
+  __typename?: 'DeactivateUser';
+  user?: Maybe<User>;
+};
+
+/** Reactivate user in DB and Auth0. */
+export type ReactivateUser = {
+  __typename?: 'ReactivateUser';
+  user?: Maybe<User>;
+};
 
 export type MqlServerUrlQueryVariables = Exact<{ [key: string]: never; }>;
 
