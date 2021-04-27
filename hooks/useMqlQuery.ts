@@ -328,8 +328,10 @@ export default function useMqlQuery({
         handleCombinedError,
       });
     }
-
-    if (status === MqlQueryStatus.Running) {
+    if (
+      status === MqlQueryStatus.Running ||
+      status === MqlQueryStatus.Pending
+    ) {
       window.setTimeout(() => {
         dispatch({ type: "fetchResultsRunning" });
         refetchMqlQuery();
