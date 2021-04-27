@@ -1717,6 +1717,26 @@ type Query {
   ): team_members_aggregate!
 
   """
+  fetch aggregated fields from the table: "team_views"
+  """
+  teamViewsAggregate(
+    """distinct select on columns"""
+    distinct_on: [team_views_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [team_views_order_by!]
+
+    """filter the rows returned"""
+    where: team_views_bool_exp
+  ): team_views_aggregate!
+
+  """
   fetch data from the table: "team_views"
   """
   team_views(
@@ -4915,6 +4935,26 @@ type Subscription {
     """filter the rows returned"""
     where: team_members_bool_exp
   ): team_members_aggregate!
+
+  """
+  fetch aggregated fields from the table: "team_views"
+  """
+  teamViewsAggregate(
+    """distinct select on columns"""
+    distinct_on: [team_views_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [team_views_order_by!]
+
+    """filter the rows returned"""
+    where: team_views_bool_exp
+  ): team_views_aggregate!
 
   """
   fetch data from the table: "team_views"
@@ -18726,6 +18766,32 @@ type team_views {
 }
 
 """
+aggregated selection of "team_views"
+"""
+type team_views_aggregate {
+  aggregate: team_views_aggregate_fields
+  nodes: [team_views!]!
+}
+
+"""
+aggregate fields of "team_views"
+"""
+type team_views_aggregate_fields {
+  count(columns: [team_views_select_column!], distinct: Boolean): Int
+  max: team_views_max_fields
+  min: team_views_min_fields
+}
+
+"""
+order by aggregate values of table "team_views"
+"""
+input team_views_aggregate_order_by {
+  count: order_by
+  max: team_views_max_order_by
+  min: team_views_min_order_by
+}
+
+"""
 input type for inserting array relation for remote table "team_views"
 """
 input team_views_arr_rel_insert_input {
@@ -18747,6 +18813,30 @@ input type for inserting data into table "team_views"
 """
 input team_views_insert_input {
   team_id: Int
+}
+
+"""aggregate max on columns"""
+type team_views_max_fields {
+  created_at: timestamptz
+}
+
+"""
+order by max() on columns of table "team_views"
+"""
+input team_views_max_order_by {
+  created_at: order_by
+}
+
+"""aggregate min on columns"""
+type team_views_min_fields {
+  created_at: timestamptz
+}
+
+"""
+order by min() on columns of table "team_views"
+"""
+input team_views_min_order_by {
+  created_at: order_by
 }
 
 """
@@ -19054,6 +19144,24 @@ type teams {
     """filter the rows returned"""
     where: team_views_bool_exp
   ): [team_views!]!
+
+  """An aggregated array relationship"""
+  teamViews_aggregate(
+    """distinct select on columns"""
+    distinct_on: [team_views_select_column!]
+
+    """limit the number of rows returned"""
+    limit: Int
+
+    """skip the first n rows. Use only with order_by"""
+    offset: Int
+
+    """sort the rows by one or more columns"""
+    order_by: [team_views_order_by!]
+
+    """filter the rows returned"""
+    where: team_views_bool_exp
+  ): team_views_aggregate!
   theme: String
 
   """Timestamp indicating when the Team was last updated"""
@@ -19280,6 +19388,7 @@ input teams_order_by {
   savedQueries_aggregate: saved_queries_aggregate_order_by
   slug: order_by
   teamMembers_aggregate: team_members_aggregate_order_by
+  teamViews_aggregate: team_views_aggregate_order_by
   theme: order_by
   updatedAt: order_by
 }
