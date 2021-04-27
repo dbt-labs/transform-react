@@ -30,1280 +30,198 @@ export type Scalars = {
   uuid: any;
 };
 
-export type Query = {
-  __typename?: 'Query';
-  /** fetch data from the table: "annotations" using primary key columns */
-  annotation?: Maybe<Annotations>;
-  /** fetch data from the table: "annotations" */
-  annotations: Array<Annotations>;
-  /** fetch aggregated fields from the table: "annotations" */
-  annotationsAggregate: Annotations_Aggregate;
-  /** fetch data from the table: "api_keys" using primary key columns */
-  apiKey?: Maybe<Api_Keys>;
-  /** fetch data from the table: "api_keys" */
-  apiKeys: Array<Api_Keys>;
-  /** fetch aggregated fields from the table: "api_keys" */
-  apiKeysAggregate: Api_Keys_Aggregate;
-  auth0Profile?: Maybe<Auth0Profile>;
-  /** fetch data from the table: "dashboards" using primary key columns */
-  dashboard?: Maybe<Dashboards>;
-  /** fetch data from the table: "dashboard_item_configs" using primary key columns */
-  dashboardItemConfig?: Maybe<Dashboard_Item_Configs>;
-  /** fetch data from the table: "dashboard_item_configs" */
-  dashboardItemConfigs: Array<Dashboard_Item_Configs>;
-  /** fetch aggregated fields from the table: "dashboard_item_configs" */
-  dashboardItemConfigsAggregate: Dashboard_Item_Configs_Aggregate;
-  /** fetch data from the table: "dashboard_sections" using primary key columns */
-  dashboardSection?: Maybe<Dashboard_Sections>;
-  /** fetch data from the table: "dashboard_sections" */
-  dashboardSections: Array<Dashboard_Sections>;
-  /** fetch aggregated fields from the table: "dashboard_sections" */
-  dashboardSectionsAggregate: Dashboard_Sections_Aggregate;
-  /** fetch data from the table: "dashboards" */
-  dashboards: Array<Dashboards>;
-  /** fetch aggregated fields from the table: "dashboards" */
-  dashboardsAggregate: Dashboards_Aggregate;
-  /** fetch data from the table: "org_data_sources" using primary key columns */
-  dataSource?: Maybe<Org_Data_Sources>;
-  /** fetch data from the table: "data_source_versions" using primary key columns */
-  dataSourceVersion?: Maybe<Data_Source_Versions>;
-  /** fetch data from the table: "data_source_versions" */
-  dataSourceVersions: Array<Data_Source_Versions>;
-  /** fetch aggregated fields from the table: "data_source_versions" */
-  dataSourceVersionsAggregate: Data_Source_Versions_Aggregate;
-  /** fetch data from the table: "org_data_sources" */
-  dataSources: Array<Org_Data_Sources>;
-  /** fetch aggregated fields from the table: "org_data_sources" */
-  dataSourcesAggregate: Org_Data_Sources_Aggregate;
-  /** fetch data from the table: "features" using primary key columns */
-  feature?: Maybe<Features>;
-  /** fetch data from the table: "features" */
-  features: Array<Features>;
-  /** fetch aggregated fields from the table: "features" */
-  featuresAggregate: Features_Aggregate;
-  latestMqlServer?: Maybe<MqlServerVersion>;
-  /** execute function "me" which returns "users" */
-  me: Array<Users>;
-  /** execute function "me" and query aggregates on result of table type "users" */
-  me_aggregate: Users_Aggregate;
-  /** fetch data from the table: "metric_annotations" using primary key columns */
-  metricAnnotation?: Maybe<Metric_Annotations>;
-  /** fetch data from the table: "metric_annotations" */
-  metricAnnotations: Array<Metric_Annotations>;
-  /** fetch aggregated fields from the table: "metric_annotations" */
-  metricAnnotationsAggregate: Metric_Annotations_Aggregate;
-  /** fetch data from the table: "metric_approvals" using primary key columns */
-  metricApproval?: Maybe<Metric_Approvals>;
-  /** fetch data from the table: "metric_approvals" */
-  metricApprovals: Array<Metric_Approvals>;
-  /** fetch aggregated fields from the table: "metric_approvals" */
-  metricApprovalsAggregate: Metric_Approvals_Aggregate;
-  /** fetch data from the table: "org_metrics_current_view" using primary key columns */
-  metricByIdTemp?: Maybe<Org_Metrics_Current_View>;
-  /** fetch data from the table: "metric_collections" using primary key columns */
-  metricCollection?: Maybe<Metric_Collections>;
-  /** fetch data from the table: "metric_collection_metrics" using primary key columns */
-  metricCollectionMetric?: Maybe<Metric_Collection_Metrics>;
-  /** fetch data from the table: "metric_collection_metrics" */
-  metricCollectionMetrics: Array<Metric_Collection_Metrics>;
-  /** fetch aggregated fields from the table: "metric_collection_metrics" */
-  metricCollectionMetricsAggregate: Metric_Collection_Metrics_Aggregate;
-  /** fetch data from the table: "metric_collection_view" using primary key columns */
-  metricCollectionView?: Maybe<Metric_Collection_View>;
-  /** fetch aggregated fields from the table: "metric_collection_view" */
-  metricCollectionViewAggregate: Metric_Collection_View_Aggregate;
-  /** fetch data from the table: "metric_collection_view" */
-  metricCollectionViews: Array<Metric_Collection_View>;
-  /** fetch data from the table: "metric_collections" */
-  metricCollections: Array<Metric_Collections>;
-  /** fetch aggregated fields from the table: "metric_collections" */
-  metricCollectionsAggregate: Metric_Collections_Aggregate;
-  /** fetch data from the table: "metric_current_description" */
-  metricCurrentDescriptions: Array<Metric_Current_Description>;
-  /** fetch data from the table: "metric_descriptions" using primary key columns */
-  metricDescription?: Maybe<Metric_Descriptions>;
-  /** fetch data from the table: "metric_descriptions" */
-  metricDescriptions: Array<Metric_Descriptions>;
-  /** fetch aggregated fields from the table: "metric_descriptions" */
-  metricDescriptionsAggregate: Metric_Descriptions_Aggregate;
-  /** fetch data from the table: "metric_team_owners" using primary key columns */
-  metricTeamOwner?: Maybe<Metric_Team_Owners>;
-  /** fetch data from the table: "metric_team_owners" */
-  metricTeamOwners: Array<Metric_Team_Owners>;
-  /** fetch aggregated fields from the table: "metric_team_owners" */
-  metricTeamOwnersAggregate: Metric_Team_Owners_Aggregate;
-  /** fetch data from the table: "metric_user_owners" using primary key columns */
-  metricUserOwner?: Maybe<Metric_User_Owners>;
-  /** fetch data from the table: "metric_user_owners" */
-  metricUserOwners: Array<Metric_User_Owners>;
-  /** fetch aggregated fields from the table: "metric_user_owners" */
-  metricUserOwnersAggregate: Metric_User_Owners_Aggregate;
-  /** fetch data from the table: "metric_versions" using primary key columns */
-  metricVersion?: Maybe<Metric_Versions>;
-  /** fetch data from the table: "metric_versions" */
-  metricVersions: Array<Metric_Versions>;
-  /** fetch aggregated fields from the table: "metric_versions" */
-  metricVersionsAggregate: Metric_Versions_Aggregate;
-  /** fetch data from the table: "metric_view" */
-  metricViews: Array<Metric_View>;
-  /** fetch aggregated fields from the table: "metric_view" */
-  metricViewsAggregate: Metric_View_Aggregate;
-  /** fetch aggregated fields from the table: "metric_current_description" */
-  metric_current_description_aggregate: Metric_Current_Description_Aggregate;
-  /** fetch data from the table: "metric_lineage_data_sources" */
-  metric_lineage_data_sources: Array<Metric_Lineage_Data_Sources>;
-  /** fetch aggregated fields from the table: "metric_lineage_data_sources" */
-  metric_lineage_data_sources_aggregate: Metric_Lineage_Data_Sources_Aggregate;
-  /** fetch data from the table: "metric_lineage_data_sources" using primary key columns */
-  metric_lineage_data_sources_by_pk?: Maybe<Metric_Lineage_Data_Sources>;
-  /** fetch data from the table: "org_metrics_current_view" */
-  metrics: Array<Org_Metrics_Current_View>;
-  /** fetch aggregated fields from the table: "org_metrics_current_view" */
-  metricsAggregate: Org_Metrics_Current_View_Aggregate;
-  /** fetch data from the table: "models" using primary key columns */
-  model?: Maybe<Models>;
-  /** fetch data from the table: "model_data_sources" using primary key columns */
-  modelDataSource?: Maybe<Model_Data_Sources>;
-  /** fetch data from the table: "model_data_sources" */
-  modelDataSources: Array<Model_Data_Sources>;
-  /** fetch aggregated fields from the table: "model_data_sources" */
-  modelDataSourcesAggregate: Model_Data_Sources_Aggregate;
-  /** fetch data from the table: "model_metrics" using primary key columns */
-  modelMetric?: Maybe<Model_Metrics>;
-  /** fetch data from the table: "model_metrics" */
-  modelMetrics: Array<Model_Metrics>;
-  /** fetch aggregated fields from the table: "model_metrics" */
-  modelMetricsAggregate: Model_Metrics_Aggregate;
-  /** fetch data from the table: "model_current" */
-  model_current: Array<Model_Current>;
-  /** fetch data from the table: "models" */
-  models: Array<Models>;
-  /** fetch aggregated fields from the table: "models" */
-  modelsAggregate: Models_Aggregate;
-  /** fetch data from the table: "mql_heartbeats" using primary key columns */
-  mqlHeartbeat?: Maybe<Mql_Heartbeats>;
-  /** fetch data from the table: "mql_heartbeats" */
-  mqlHeartbeats: Array<Mql_Heartbeats>;
-  mqlServerUrl?: Maybe<Scalars['String']>;
-  myOrganization?: Maybe<Organization>;
-  myUser?: Maybe<User>;
-  /** execute function "my_most_viewed_metrics" which returns "org_metrics_current_view" */
-  my_most_viewed_metrics: Array<Org_Metrics_Current_View>;
-  /** execute function "my_most_viewed_metrics" and query aggregates on result of table type "org_metrics_current_view" */
-  my_most_viewed_metrics_aggregate: Org_Metrics_Current_View_Aggregate;
-  /** execute function "my_org" which returns "organizations" */
-  my_org: Array<Organizations>;
-  /** fetch data from the table: "org_mql_servers" using primary key columns */
-  orgMqlServer?: Maybe<Org_Mql_Servers>;
-  /** fetch data from the table: "org_mql_servers" */
-  orgMqlServers: Array<Org_Mql_Servers>;
-  /** fetch aggregated fields from the table: "org_mql_servers" */
-  orgMqlServersAggregate: Org_Mql_Servers_Aggregate;
-  /** fetch data from the table: "organizations" using primary key columns */
-  organization?: Maybe<Organizations>;
-  /** fetch data from the table: "organization_features" using primary key columns */
-  organizationFeature?: Maybe<Organization_Features>;
-  /** fetch data from the table: "organization_features" */
-  organizationFeatures: Array<Organization_Features>;
-  /** fetch aggregated fields from the table: "organization_features" */
-  organizationFeaturesAggregate: Organization_Features_Aggregate;
-  /** fetch data from the table: "organizations" */
-  organizations: Array<Organizations>;
-  /** fetch data from the table: "priorities" */
-  priorities: Array<Priorities>;
-  /** fetch data from the table: "priorities" using primary key columns */
-  priorities_by_pk?: Maybe<Priorities>;
-  /** fetch data from the table: "questions" using primary key columns */
-  question?: Maybe<Questions>;
-  /** fetch data from the table: "question_directed_to" */
-  questionDirectedTo: Array<Question_Directed_To>;
-  /** fetch aggregated fields from the table: "question_directed_to" */
-  questionDirectedToAggregate: Question_Directed_To_Aggregate;
-  /** fetch data from the table: "question_directed_to" using primary key columns */
-  questionDirectedToByPK?: Maybe<Question_Directed_To>;
-  /** fetch data from the table: "question_likes" using primary key columns */
-  questionLike?: Maybe<Question_Likes>;
-  /** fetch data from the table: "question_likes" */
-  questionLikes: Array<Question_Likes>;
-  /** fetch aggregated fields from the table: "question_likes" */
-  questionLikesAggregate: Question_Likes_Aggregate;
-  /** fetch data from the table: "question_replies" */
-  questionReplies: Array<Question_Replies>;
-  /** fetch aggregated fields from the table: "question_replies" */
-  questionRepliesAggregate: Question_Replies_Aggregate;
-  /** fetch data from the table: "question_replies" using primary key columns */
-  questionReply?: Maybe<Question_Replies>;
-  /** fetch data from the table: "questions" */
-  questions: Array<Questions>;
-  /** fetch aggregated fields from the table: "questions" */
-  questionsAggregate: Questions_Aggregate;
-  /** fetch data from the table: "saved_queries" */
-  savedQueries: Array<Saved_Queries>;
-  /** fetch aggregated fields from the table: "saved_queries" */
-  savedQueriesAggregate: Saved_Queries_Aggregate;
-  /** fetch data from the table: "saved_queries" using primary key columns */
-  savedQuery?: Maybe<Saved_Queries>;
-  /** fetch data from the table: "saved_query_metrics" using primary key columns */
-  savedQueryMetric?: Maybe<Saved_Query_Metrics>;
-  /** fetch data from the table: "saved_query_metrics" */
-  savedQueryMetrics: Array<Saved_Query_Metrics>;
-  /** fetch aggregated fields from the table: "saved_query_metrics" */
-  savedQueryMetricsAggregate: Saved_Query_Metrics_Aggregate;
-  /** fetch data from the table: "teams" using primary key columns */
-  team?: Maybe<Teams>;
-  /** fetch data from the table: "team_dashboards" using primary key columns */
-  teamDashboard?: Maybe<Team_Dashboards>;
-  /** fetch data from the table: "team_dashboards" */
-  teamDashboards: Array<Team_Dashboards>;
-  /** fetch aggregated fields from the table: "team_dashboards" */
-  teamDashboardsAggregate: Team_Dashboards_Aggregate;
-  /** fetch data from the table: "team_members" using primary key columns */
-  teamMember?: Maybe<Team_Members>;
-  /** fetch data from the table: "team_members" */
-  teamMembers: Array<Team_Members>;
-  /** fetch aggregated fields from the table: "team_members" */
-  teamMembersAggregate: Team_Members_Aggregate;
-  /** fetch data from the table: "team_views" */
-  team_views: Array<Team_Views>;
-  /** fetch data from the table: "team_views" using primary key columns */
-  team_views_by_pk?: Maybe<Team_Views>;
-  /** fetch data from the table: "teams" */
-  teams: Array<Teams>;
-  /** fetch aggregated fields from the table: "teams" */
-  teamsAggregate: Teams_Aggregate;
-  /** fetch data from the table: "users" using primary key columns */
-  user?: Maybe<Users>;
-  /** fetch data from the table: "user_features" using primary key columns */
-  userFeature?: Maybe<User_Features>;
-  /** fetch data from the table: "user_features" */
-  userFeatures: Array<User_Features>;
-  /** fetch aggregated fields from the table: "user_features" */
-  userFeaturesAggregate: User_Features_Aggregate;
-  /** fetch data from the table: "user_prefs" using primary key columns */
-  userPreference?: Maybe<User_Prefs>;
-  /** fetch data from the table: "user_prefs" */
-  userPreferences: Array<User_Prefs>;
-  /** fetch aggregated fields from the table: "user_prefs" */
-  userPreferencesAggregate: User_Prefs_Aggregate;
-  /** fetch data from the table: "user_roles" using primary key columns */
-  userRole?: Maybe<User_Roles>;
-  /** fetch data from the table: "user_roles" */
-  userRoles: Array<User_Roles>;
-  /** fetch aggregated fields from the table: "user_roles" */
-  userRolesAggregate: User_Roles_Aggregate;
-  /** fetch data from the table: "users" */
-  users: Array<Users>;
-  /** fetch aggregated fields from the table: "users" */
-  usersAggregate: Users_Aggregate;
-  heartbeat: Scalars['String'];
+/** Add role to user in DB and Auth0. */
+export type AddRoleToUser = {
+  __typename?: 'AddRoleToUser';
+  user?: Maybe<User>;
 };
 
-
-export type QueryAnnotationArgs = {
-  id: Scalars['Int'];
+export type AddUserRoleInput = {
+  role: Role;
+  userId: Scalars['Int'];
 };
 
-
-export type QueryAnnotationsArgs = {
-  distinct_on?: Maybe<Array<Annotations_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Annotations_Order_By>>;
-  where?: Maybe<Annotations_Bool_Exp>;
+export type AddUserRoleOutput = {
+  __typename?: 'AddUserRoleOutput';
+  userId: Scalars['Int'];
 };
 
-
-export type QueryAnnotationsAggregateArgs = {
-  distinct_on?: Maybe<Array<Annotations_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Annotations_Order_By>>;
-  where?: Maybe<Annotations_Bool_Exp>;
-};
-
-
-export type QueryApiKeyArgs = {
+export type ApiKey = {
+  __typename?: 'ApiKey';
   prefix: Scalars['String'];
-};
-
-
-export type QueryApiKeysArgs = {
-  distinct_on?: Maybe<Array<Api_Keys_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Api_Keys_Order_By>>;
-  where?: Maybe<Api_Keys_Bool_Exp>;
-};
-
-
-export type QueryApiKeysAggregateArgs = {
-  distinct_on?: Maybe<Array<Api_Keys_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Api_Keys_Order_By>>;
-  where?: Maybe<Api_Keys_Bool_Exp>;
-};
-
-
-export type QueryAuth0ProfileArgs = {
-  auth0Id: Scalars['String'];
-};
-
-
-export type QueryDashboardArgs = {
-  id: Scalars['Int'];
-};
-
-
-export type QueryDashboardItemConfigArgs = {
-  id: Scalars['Int'];
-};
-
-
-export type QueryDashboardItemConfigsArgs = {
-  distinct_on?: Maybe<Array<Dashboard_Item_Configs_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Dashboard_Item_Configs_Order_By>>;
-  where?: Maybe<Dashboard_Item_Configs_Bool_Exp>;
-};
-
-
-export type QueryDashboardItemConfigsAggregateArgs = {
-  distinct_on?: Maybe<Array<Dashboard_Item_Configs_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Dashboard_Item_Configs_Order_By>>;
-  where?: Maybe<Dashboard_Item_Configs_Bool_Exp>;
-};
-
-
-export type QueryDashboardSectionArgs = {
-  id: Scalars['Int'];
-};
-
-
-export type QueryDashboardSectionsArgs = {
-  distinct_on?: Maybe<Array<Dashboard_Sections_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Dashboard_Sections_Order_By>>;
-  where?: Maybe<Dashboard_Sections_Bool_Exp>;
-};
-
-
-export type QueryDashboardSectionsAggregateArgs = {
-  distinct_on?: Maybe<Array<Dashboard_Sections_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Dashboard_Sections_Order_By>>;
-  where?: Maybe<Dashboard_Sections_Bool_Exp>;
-};
-
-
-export type QueryDashboardsArgs = {
-  distinct_on?: Maybe<Array<Dashboards_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Dashboards_Order_By>>;
-  where?: Maybe<Dashboards_Bool_Exp>;
-};
-
-
-export type QueryDashboardsAggregateArgs = {
-  distinct_on?: Maybe<Array<Dashboards_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Dashboards_Order_By>>;
-  where?: Maybe<Dashboards_Bool_Exp>;
-};
-
-
-export type QueryDataSourceArgs = {
-  id: Scalars['Int'];
-};
-
-
-export type QueryDataSourceVersionArgs = {
-  id: Scalars['Int'];
-};
-
-
-export type QueryDataSourceVersionsArgs = {
-  distinct_on?: Maybe<Array<Data_Source_Versions_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Data_Source_Versions_Order_By>>;
-  where?: Maybe<Data_Source_Versions_Bool_Exp>;
-};
-
-
-export type QueryDataSourceVersionsAggregateArgs = {
-  distinct_on?: Maybe<Array<Data_Source_Versions_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Data_Source_Versions_Order_By>>;
-  where?: Maybe<Data_Source_Versions_Bool_Exp>;
-};
-
-
-export type QueryDataSourcesArgs = {
-  distinct_on?: Maybe<Array<Org_Data_Sources_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Org_Data_Sources_Order_By>>;
-  where?: Maybe<Org_Data_Sources_Bool_Exp>;
-};
-
-
-export type QueryDataSourcesAggregateArgs = {
-  distinct_on?: Maybe<Array<Org_Data_Sources_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Org_Data_Sources_Order_By>>;
-  where?: Maybe<Org_Data_Sources_Bool_Exp>;
-};
-
-
-export type QueryFeatureArgs = {
-  id: Scalars['Int'];
-};
-
-
-export type QueryFeaturesArgs = {
-  distinct_on?: Maybe<Array<Features_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Features_Order_By>>;
-  where?: Maybe<Features_Bool_Exp>;
-};
-
-
-export type QueryFeaturesAggregateArgs = {
-  distinct_on?: Maybe<Array<Features_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Features_Order_By>>;
-  where?: Maybe<Features_Bool_Exp>;
-};
-
-
-export type QueryMeArgs = {
-  distinct_on?: Maybe<Array<Users_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Users_Order_By>>;
-  where?: Maybe<Users_Bool_Exp>;
-};
-
-
-export type QueryMe_AggregateArgs = {
-  distinct_on?: Maybe<Array<Users_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Users_Order_By>>;
-  where?: Maybe<Users_Bool_Exp>;
-};
-
-
-export type QueryMetricAnnotationArgs = {
-  id: Scalars['Int'];
-};
-
-
-export type QueryMetricAnnotationsArgs = {
-  distinct_on?: Maybe<Array<Metric_Annotations_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Metric_Annotations_Order_By>>;
-  where?: Maybe<Metric_Annotations_Bool_Exp>;
-};
-
-
-export type QueryMetricAnnotationsAggregateArgs = {
-  distinct_on?: Maybe<Array<Metric_Annotations_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Metric_Annotations_Order_By>>;
-  where?: Maybe<Metric_Annotations_Bool_Exp>;
-};
-
-
-export type QueryMetricApprovalArgs = {
-  id: Scalars['Int'];
-};
-
-
-export type QueryMetricApprovalsArgs = {
-  distinct_on?: Maybe<Array<Metric_Approvals_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Metric_Approvals_Order_By>>;
-  where?: Maybe<Metric_Approvals_Bool_Exp>;
-};
-
-
-export type QueryMetricApprovalsAggregateArgs = {
-  distinct_on?: Maybe<Array<Metric_Approvals_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Metric_Approvals_Order_By>>;
-  where?: Maybe<Metric_Approvals_Bool_Exp>;
-};
-
-
-export type QueryMetricByIdTempArgs = {
-  id: Scalars['Int'];
-};
-
-
-export type QueryMetricCollectionArgs = {
-  id: Scalars['Int'];
-};
-
-
-export type QueryMetricCollectionMetricArgs = {
-  id: Scalars['Int'];
-};
-
-
-export type QueryMetricCollectionMetricsArgs = {
-  distinct_on?: Maybe<Array<Metric_Collection_Metrics_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Metric_Collection_Metrics_Order_By>>;
-  where?: Maybe<Metric_Collection_Metrics_Bool_Exp>;
-};
-
-
-export type QueryMetricCollectionMetricsAggregateArgs = {
-  distinct_on?: Maybe<Array<Metric_Collection_Metrics_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Metric_Collection_Metrics_Order_By>>;
-  where?: Maybe<Metric_Collection_Metrics_Bool_Exp>;
-};
-
-
-export type QueryMetricCollectionViewArgs = {
-  id: Scalars['Int'];
-};
-
-
-export type QueryMetricCollectionViewAggregateArgs = {
-  distinct_on?: Maybe<Array<Metric_Collection_View_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Metric_Collection_View_Order_By>>;
-  where?: Maybe<Metric_Collection_View_Bool_Exp>;
-};
-
-
-export type QueryMetricCollectionViewsArgs = {
-  distinct_on?: Maybe<Array<Metric_Collection_View_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Metric_Collection_View_Order_By>>;
-  where?: Maybe<Metric_Collection_View_Bool_Exp>;
-};
-
-
-export type QueryMetricCollectionsArgs = {
-  distinct_on?: Maybe<Array<Metric_Collections_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Metric_Collections_Order_By>>;
-  where?: Maybe<Metric_Collections_Bool_Exp>;
-};
-
-
-export type QueryMetricCollectionsAggregateArgs = {
-  distinct_on?: Maybe<Array<Metric_Collections_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Metric_Collections_Order_By>>;
-  where?: Maybe<Metric_Collections_Bool_Exp>;
-};
-
-
-export type QueryMetricCurrentDescriptionsArgs = {
-  distinct_on?: Maybe<Array<Metric_Current_Description_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Metric_Current_Description_Order_By>>;
-  where?: Maybe<Metric_Current_Description_Bool_Exp>;
-};
-
-
-export type QueryMetricDescriptionArgs = {
-  id: Scalars['Int'];
-};
-
-
-export type QueryMetricDescriptionsArgs = {
-  distinct_on?: Maybe<Array<Metric_Descriptions_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Metric_Descriptions_Order_By>>;
-  where?: Maybe<Metric_Descriptions_Bool_Exp>;
-};
-
-
-export type QueryMetricDescriptionsAggregateArgs = {
-  distinct_on?: Maybe<Array<Metric_Descriptions_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Metric_Descriptions_Order_By>>;
-  where?: Maybe<Metric_Descriptions_Bool_Exp>;
-};
-
-
-export type QueryMetricTeamOwnerArgs = {
-  id: Scalars['Int'];
-};
-
-
-export type QueryMetricTeamOwnersArgs = {
-  distinct_on?: Maybe<Array<Metric_Team_Owners_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Metric_Team_Owners_Order_By>>;
-  where?: Maybe<Metric_Team_Owners_Bool_Exp>;
-};
-
-
-export type QueryMetricTeamOwnersAggregateArgs = {
-  distinct_on?: Maybe<Array<Metric_Team_Owners_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Metric_Team_Owners_Order_By>>;
-  where?: Maybe<Metric_Team_Owners_Bool_Exp>;
-};
-
-
-export type QueryMetricUserOwnerArgs = {
-  id: Scalars['Int'];
-};
-
-
-export type QueryMetricUserOwnersArgs = {
-  distinct_on?: Maybe<Array<Metric_User_Owners_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Metric_User_Owners_Order_By>>;
-  where?: Maybe<Metric_User_Owners_Bool_Exp>;
-};
-
-
-export type QueryMetricUserOwnersAggregateArgs = {
-  distinct_on?: Maybe<Array<Metric_User_Owners_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Metric_User_Owners_Order_By>>;
-  where?: Maybe<Metric_User_Owners_Bool_Exp>;
-};
-
-
-export type QueryMetricVersionArgs = {
-  id: Scalars['bigint'];
-};
-
-
-export type QueryMetricVersionsArgs = {
-  distinct_on?: Maybe<Array<Metric_Versions_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Metric_Versions_Order_By>>;
-  where?: Maybe<Metric_Versions_Bool_Exp>;
-};
-
-
-export type QueryMetricVersionsAggregateArgs = {
-  distinct_on?: Maybe<Array<Metric_Versions_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Metric_Versions_Order_By>>;
-  where?: Maybe<Metric_Versions_Bool_Exp>;
-};
-
-
-export type QueryMetricViewsArgs = {
-  distinct_on?: Maybe<Array<Metric_View_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Metric_View_Order_By>>;
-  where?: Maybe<Metric_View_Bool_Exp>;
-};
-
-
-export type QueryMetricViewsAggregateArgs = {
-  distinct_on?: Maybe<Array<Metric_View_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Metric_View_Order_By>>;
-  where?: Maybe<Metric_View_Bool_Exp>;
-};
-
-
-export type QueryMetric_Current_Description_AggregateArgs = {
-  distinct_on?: Maybe<Array<Metric_Current_Description_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Metric_Current_Description_Order_By>>;
-  where?: Maybe<Metric_Current_Description_Bool_Exp>;
-};
-
-
-export type QueryMetric_Lineage_Data_SourcesArgs = {
-  distinct_on?: Maybe<Array<Metric_Lineage_Data_Sources_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Metric_Lineage_Data_Sources_Order_By>>;
-  where?: Maybe<Metric_Lineage_Data_Sources_Bool_Exp>;
-};
-
-
-export type QueryMetric_Lineage_Data_Sources_AggregateArgs = {
-  distinct_on?: Maybe<Array<Metric_Lineage_Data_Sources_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Metric_Lineage_Data_Sources_Order_By>>;
-  where?: Maybe<Metric_Lineage_Data_Sources_Bool_Exp>;
-};
-
-
-export type QueryMetric_Lineage_Data_Sources_By_PkArgs = {
-  id: Scalars['Int'];
-};
-
-
-export type QueryMetricsArgs = {
-  distinct_on?: Maybe<Array<Org_Metrics_Current_View_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Org_Metrics_Current_View_Order_By>>;
-  where?: Maybe<Org_Metrics_Current_View_Bool_Exp>;
-};
-
-
-export type QueryMetricsAggregateArgs = {
-  distinct_on?: Maybe<Array<Org_Metrics_Current_View_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Org_Metrics_Current_View_Order_By>>;
-  where?: Maybe<Org_Metrics_Current_View_Bool_Exp>;
-};
-
-
-export type QueryModelArgs = {
-  id: Scalars['bigint'];
-};
-
-
-export type QueryModelDataSourceArgs = {
-  dataSourceVersionId: Scalars['Int'];
-  modelId: Scalars['Int'];
-};
-
-
-export type QueryModelDataSourcesArgs = {
-  distinct_on?: Maybe<Array<Model_Data_Sources_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Model_Data_Sources_Order_By>>;
-  where?: Maybe<Model_Data_Sources_Bool_Exp>;
-};
-
-
-export type QueryModelDataSourcesAggregateArgs = {
-  distinct_on?: Maybe<Array<Model_Data_Sources_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Model_Data_Sources_Order_By>>;
-  where?: Maybe<Model_Data_Sources_Bool_Exp>;
-};
-
-
-export type QueryModelMetricArgs = {
-  metricId: Scalars['bigint'];
-  metricVersionId: Scalars['bigint'];
-  modelId: Scalars['bigint'];
-};
-
-
-export type QueryModelMetricsArgs = {
-  distinct_on?: Maybe<Array<Model_Metrics_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Model_Metrics_Order_By>>;
-  where?: Maybe<Model_Metrics_Bool_Exp>;
-};
-
-
-export type QueryModelMetricsAggregateArgs = {
-  distinct_on?: Maybe<Array<Model_Metrics_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Model_Metrics_Order_By>>;
-  where?: Maybe<Model_Metrics_Bool_Exp>;
-};
-
-
-export type QueryModel_CurrentArgs = {
-  distinct_on?: Maybe<Array<Model_Current_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Model_Current_Order_By>>;
-  where?: Maybe<Model_Current_Bool_Exp>;
-};
-
-
-export type QueryModelsArgs = {
-  distinct_on?: Maybe<Array<Models_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Models_Order_By>>;
-  where?: Maybe<Models_Bool_Exp>;
-};
-
-
-export type QueryModelsAggregateArgs = {
-  distinct_on?: Maybe<Array<Models_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Models_Order_By>>;
-  where?: Maybe<Models_Bool_Exp>;
-};
-
-
-export type QueryMqlHeartbeatArgs = {
-  id: Scalars['Int'];
-};
-
-
-export type QueryMqlHeartbeatsArgs = {
-  distinct_on?: Maybe<Array<Mql_Heartbeats_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Mql_Heartbeats_Order_By>>;
-  where?: Maybe<Mql_Heartbeats_Bool_Exp>;
-};
-
-
-export type QueryMy_Most_Viewed_MetricsArgs = {
-  distinct_on?: Maybe<Array<Org_Metrics_Current_View_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Org_Metrics_Current_View_Order_By>>;
-  where?: Maybe<Org_Metrics_Current_View_Bool_Exp>;
-};
-
-
-export type QueryMy_Most_Viewed_Metrics_AggregateArgs = {
-  distinct_on?: Maybe<Array<Org_Metrics_Current_View_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Org_Metrics_Current_View_Order_By>>;
-  where?: Maybe<Org_Metrics_Current_View_Bool_Exp>;
-};
-
-
-export type QueryMy_OrgArgs = {
-  distinct_on?: Maybe<Array<Organizations_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Organizations_Order_By>>;
-  where?: Maybe<Organizations_Bool_Exp>;
-};
-
-
-export type QueryOrgMqlServerArgs = {
-  id: Scalars['Int'];
-};
-
-
-export type QueryOrgMqlServersArgs = {
-  distinct_on?: Maybe<Array<Org_Mql_Servers_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Org_Mql_Servers_Order_By>>;
-  where?: Maybe<Org_Mql_Servers_Bool_Exp>;
-};
-
-
-export type QueryOrgMqlServersAggregateArgs = {
-  distinct_on?: Maybe<Array<Org_Mql_Servers_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Org_Mql_Servers_Order_By>>;
-  where?: Maybe<Org_Mql_Servers_Bool_Exp>;
-};
-
-
-export type QueryOrganizationArgs = {
-  id: Scalars['Int'];
-};
-
-
-export type QueryOrganizationFeatureArgs = {
-  featureId: Scalars['Int'];
   organizationId: Scalars['Int'];
+  userId: Scalars['Int'];
+  type: Scalars['String'];
+  secretHash: Scalars['String'];
+  dateRevoked?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['DateTime']>;
+  revokedAt?: Maybe<Scalars['DateTime']>;
+  revokerId?: Maybe<Scalars['Int']>;
+  lastUsedAt?: Maybe<Scalars['DateTime']>;
+  scope?: Maybe<Scalars['String']>;
+  user?: Maybe<User>;
+  organization?: Maybe<Organization>;
+  revoker?: Maybe<User>;
 };
 
-
-export type QueryOrganizationFeaturesArgs = {
-  distinct_on?: Maybe<Array<Organization_Features_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Organization_Features_Order_By>>;
-  where?: Maybe<Organization_Features_Bool_Exp>;
+/** A wrapper for the response we get from Auth0's user profile API */
+export type Auth0Profile = {
+  __typename?: 'Auth0Profile';
+  blocked?: Maybe<Scalars['Boolean']>;
+  lastIp?: Maybe<Scalars['String']>;
+  lastLogin?: Maybe<Scalars['DateTime']>;
+  loginsCount?: Maybe<Scalars['Int']>;
+  picture?: Maybe<Scalars['String']>;
 };
 
-
-export type QueryOrganizationFeaturesAggregateArgs = {
-  distinct_on?: Maybe<Array<Organization_Features_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Organization_Features_Order_By>>;
-  where?: Maybe<Organization_Features_Bool_Exp>;
+/** expression to compare columns of type Boolean. All fields are combined with logical 'AND'. */
+export type Boolean_Comparison_Exp = {
+  _eq?: Maybe<Scalars['Boolean']>;
+  _gt?: Maybe<Scalars['Boolean']>;
+  _gte?: Maybe<Scalars['Boolean']>;
+  _in?: Maybe<Array<Scalars['Boolean']>>;
+  _is_null?: Maybe<Scalars['Boolean']>;
+  _lt?: Maybe<Scalars['Boolean']>;
+  _lte?: Maybe<Scalars['Boolean']>;
+  _neq?: Maybe<Scalars['Boolean']>;
+  _nin?: Maybe<Array<Scalars['Boolean']>>;
 };
 
-
-export type QueryOrganizationsArgs = {
-  distinct_on?: Maybe<Array<Organizations_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Organizations_Order_By>>;
-  where?: Maybe<Organizations_Bool_Exp>;
+/** Create API Key for given user. If no user_id passed, create key for authenticated user. */
+export type CreateApiKey = {
+  __typename?: 'CreateApiKey';
+  createdKeyFullString?: Maybe<Scalars['String']>;
+  createdKeyPrefix?: Maybe<Scalars['String']>;
+  revokedKeyPrefixes?: Maybe<Array<Maybe<Scalars['String']>>>;
 };
 
-
-export type QueryPrioritiesArgs = {
-  distinct_on?: Maybe<Array<Priorities_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Priorities_Order_By>>;
-  where?: Maybe<Priorities_Bool_Exp>;
+export type CreateApiKeyForUserInput = {
+  userId: Scalars['Int'];
 };
 
-
-export type QueryPriorities_By_PkArgs = {
-  value: Scalars['String'];
+export type CreateApiKeyForUserOutput = {
+  __typename?: 'CreateApiKeyForUserOutput';
+  created_key_full_string: Scalars['String'];
+  created_key_prefix: Scalars['String'];
+  revoked_key_prefixes?: Maybe<Array<Scalars['String']>>;
 };
 
-
-export type QueryQuestionArgs = {
-  id: Scalars['Int'];
+export type CreateApiKeyOutput = {
+  __typename?: 'CreateApiKeyOutput';
+  createdApiKey?: Maybe<Api_Keys>;
+  created_key_full_string: Scalars['String'];
+  created_key_prefix: Scalars['String'];
+  revoked_key_prefixes?: Maybe<Array<Scalars['String']>>;
 };
 
-
-export type QueryQuestionDirectedToArgs = {
-  distinct_on?: Maybe<Array<Question_Directed_To_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Question_Directed_To_Order_By>>;
-  where?: Maybe<Question_Directed_To_Bool_Exp>;
+/** Create User for given org. If no org_id passed, create user in org of authenticated user. */
+export type CreateUser = {
+  __typename?: 'CreateUser';
+  user?: Maybe<User>;
 };
 
-
-export type QueryQuestionDirectedToAggregateArgs = {
-  distinct_on?: Maybe<Array<Question_Directed_To_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Question_Directed_To_Order_By>>;
-  where?: Maybe<Question_Directed_To_Bool_Exp>;
+export type CreateUserForOrgInput = {
+  email: Scalars['String'];
+  isOrgOwner?: Maybe<Scalars['Boolean']>;
+  orgId: Scalars['Int'];
+  userName: Scalars['String'];
 };
 
-
-export type QueryQuestionDirectedToByPkArgs = {
-  id: Scalars['Int'];
+export type CreateUserForOrgOutput = {
+  __typename?: 'CreateUserForOrgOutput';
+  userId: Scalars['Int'];
 };
 
-
-export type QueryQuestionLikeArgs = {
-  id: Scalars['Int'];
+export type CreateUserInput = {
+  email: Scalars['String'];
+  isOrgOwner?: Maybe<Scalars['Boolean']>;
+  userName: Scalars['String'];
 };
 
-
-export type QueryQuestionLikesArgs = {
-  distinct_on?: Maybe<Array<Question_Likes_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Question_Likes_Order_By>>;
-  where?: Maybe<Question_Likes_Bool_Exp>;
-};
-
-
-export type QueryQuestionLikesAggregateArgs = {
-  distinct_on?: Maybe<Array<Question_Likes_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Question_Likes_Order_By>>;
-  where?: Maybe<Question_Likes_Bool_Exp>;
-};
-
-
-export type QueryQuestionRepliesArgs = {
-  distinct_on?: Maybe<Array<Question_Replies_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Question_Replies_Order_By>>;
-  where?: Maybe<Question_Replies_Bool_Exp>;
-};
-
-
-export type QueryQuestionRepliesAggregateArgs = {
-  distinct_on?: Maybe<Array<Question_Replies_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Question_Replies_Order_By>>;
-  where?: Maybe<Question_Replies_Bool_Exp>;
-};
-
-
-export type QueryQuestionReplyArgs = {
-  id: Scalars['Int'];
-};
-
-
-export type QueryQuestionsArgs = {
-  distinct_on?: Maybe<Array<Questions_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Questions_Order_By>>;
-  where?: Maybe<Questions_Bool_Exp>;
-};
-
-
-export type QueryQuestionsAggregateArgs = {
-  distinct_on?: Maybe<Array<Questions_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Questions_Order_By>>;
-  where?: Maybe<Questions_Bool_Exp>;
-};
-
-
-export type QuerySavedQueriesArgs = {
-  distinct_on?: Maybe<Array<Saved_Queries_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Saved_Queries_Order_By>>;
-  where?: Maybe<Saved_Queries_Bool_Exp>;
-};
-
-
-export type QuerySavedQueriesAggregateArgs = {
-  distinct_on?: Maybe<Array<Saved_Queries_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Saved_Queries_Order_By>>;
-  where?: Maybe<Saved_Queries_Bool_Exp>;
-};
-
-
-export type QuerySavedQueryArgs = {
-  id: Scalars['Int'];
-};
-
-
-export type QuerySavedQueryMetricArgs = {
-  id: Scalars['Int'];
-};
-
-
-export type QuerySavedQueryMetricsArgs = {
-  distinct_on?: Maybe<Array<Saved_Query_Metrics_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Saved_Query_Metrics_Order_By>>;
-  where?: Maybe<Saved_Query_Metrics_Bool_Exp>;
-};
-
-
-export type QuerySavedQueryMetricsAggregateArgs = {
-  distinct_on?: Maybe<Array<Saved_Query_Metrics_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Saved_Query_Metrics_Order_By>>;
-  where?: Maybe<Saved_Query_Metrics_Bool_Exp>;
-};
-
-
-export type QueryTeamArgs = {
-  id: Scalars['Int'];
-};
-
-
-export type QueryTeamDashboardArgs = {
-  dashboardId: Scalars['Int'];
-  team_id: Scalars['Int'];
-};
-
-
-export type QueryTeamDashboardsArgs = {
-  distinct_on?: Maybe<Array<Team_Dashboards_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Team_Dashboards_Order_By>>;
-  where?: Maybe<Team_Dashboards_Bool_Exp>;
-};
-
-
-export type QueryTeamDashboardsAggregateArgs = {
-  distinct_on?: Maybe<Array<Team_Dashboards_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Team_Dashboards_Order_By>>;
-  where?: Maybe<Team_Dashboards_Bool_Exp>;
-};
-
-
-export type QueryTeamMemberArgs = {
-  id: Scalars['Int'];
-};
-
-
-export type QueryTeamMembersArgs = {
-  distinct_on?: Maybe<Array<Team_Members_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Team_Members_Order_By>>;
-  where?: Maybe<Team_Members_Bool_Exp>;
-};
-
-
-export type QueryTeamMembersAggregateArgs = {
-  distinct_on?: Maybe<Array<Team_Members_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Team_Members_Order_By>>;
-  where?: Maybe<Team_Members_Bool_Exp>;
-};
-
-
-export type QueryTeam_ViewsArgs = {
-  distinct_on?: Maybe<Array<Team_Views_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Team_Views_Order_By>>;
-  where?: Maybe<Team_Views_Bool_Exp>;
-};
-
-
-export type QueryTeam_Views_By_PkArgs = {
-  id: Scalars['Int'];
-};
-
-
-export type QueryTeamsArgs = {
-  distinct_on?: Maybe<Array<Teams_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Teams_Order_By>>;
-  where?: Maybe<Teams_Bool_Exp>;
-};
-
-
-export type QueryTeamsAggregateArgs = {
-  distinct_on?: Maybe<Array<Teams_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Teams_Order_By>>;
-  where?: Maybe<Teams_Bool_Exp>;
-};
-
-
-export type QueryUserArgs = {
-  id: Scalars['Int'];
-};
-
-
-export type QueryUserFeatureArgs = {
-  featureId: Scalars['Int'];
+export type CreateUserOutput = {
+  __typename?: 'CreateUserOutput';
+  user?: Maybe<Users>;
   userId: Scalars['Int'];
 };
 
 
-export type QueryUserFeaturesArgs = {
-  distinct_on?: Maybe<Array<User_Features_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<User_Features_Order_By>>;
-  where?: Maybe<User_Features_Bool_Exp>;
+/** Deactivate user in DB and Auth0. */
+export type DeactivateUser = {
+  __typename?: 'DeactivateUser';
+  user?: Maybe<User>;
+};
+
+export type DeactivateUserInput = {
+  userId: Scalars['Int'];
+};
+
+export type DeactivateUserOutput = {
+  __typename?: 'DeactivateUserOutput';
+  userId: Scalars['Int'];
+};
+
+/** expression to compare columns of type Int. All fields are combined with logical 'AND'. */
+export type Int_Comparison_Exp = {
+  _eq?: Maybe<Scalars['Int']>;
+  _gt?: Maybe<Scalars['Int']>;
+  _gte?: Maybe<Scalars['Int']>;
+  _in?: Maybe<Array<Scalars['Int']>>;
+  _is_null?: Maybe<Scalars['Boolean']>;
+  _lt?: Maybe<Scalars['Int']>;
+  _lte?: Maybe<Scalars['Int']>;
+  _neq?: Maybe<Scalars['Int']>;
+  _nin?: Maybe<Array<Scalars['Int']>>;
 };
 
 
-export type QueryUserFeaturesAggregateArgs = {
-  distinct_on?: Maybe<Array<User_Features_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<User_Features_Order_By>>;
-  where?: Maybe<User_Features_Bool_Exp>;
+export type LogMqlLogs = {
+  __typename?: 'LogMQLLogs';
+  ok?: Maybe<Scalars['Boolean']>;
 };
 
-
-export type QueryUserPreferenceArgs = {
-  id: Scalars['Int'];
+/**
+ * This is the externally-facing Graphene object representing the available MQL server download.
+ *
+ * TODO: There's likely a simple way to merge these two objects together
+ */
+export type MqlServerVersion = {
+  __typename?: 'MQLServerVersion';
+  downloadUrl?: Maybe<Scalars['String']>;
+  version?: Maybe<Scalars['String']>;
+  versionHash?: Maybe<Scalars['String']>;
 };
 
-
-export type QueryUserPreferencesArgs = {
-  distinct_on?: Maybe<Array<User_Prefs_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<User_Prefs_Order_By>>;
-  where?: Maybe<User_Prefs_Bool_Exp>;
+export type Model = {
+  __typename?: 'Model';
+  Organization?: Maybe<Organization>;
+  createdAt: Scalars['DateTime'];
+  executionContext?: Maybe<Scalars['String']>;
+  gitBranch: Scalars['String'];
+  gitCommit: Scalars['String'];
+  gitIsDirty: Scalars['Boolean'];
+  gitRepo: Scalars['String'];
+  id: Scalars['ID'];
+  isCurrent: Scalars['Boolean'];
+  organizationId: Scalars['Int'];
+  uploaderId: Scalars['Int'];
+  organization?: Maybe<Organization>;
+  uploader?: Maybe<User>;
 };
 
-
-export type QueryUserPreferencesAggregateArgs = {
-  distinct_on?: Maybe<Array<User_Prefs_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<User_Prefs_Order_By>>;
-  where?: Maybe<User_Prefs_Bool_Exp>;
-};
-
-
-export type QueryUserRoleArgs = {
-  id: Scalars['Int'];
-};
-
-
-export type QueryUserRolesArgs = {
-  distinct_on?: Maybe<Array<User_Roles_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<User_Roles_Order_By>>;
-  where?: Maybe<User_Roles_Bool_Exp>;
-};
-
-
-export type QueryUserRolesAggregateArgs = {
-  distinct_on?: Maybe<Array<User_Roles_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<User_Roles_Order_By>>;
-  where?: Maybe<User_Roles_Bool_Exp>;
-};
-
-
-export type QueryUsersArgs = {
-  distinct_on?: Maybe<Array<Users_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Users_Order_By>>;
-  where?: Maybe<Users_Bool_Exp>;
-};
-
-
-export type QueryUsersAggregateArgs = {
-  distinct_on?: Maybe<Array<Users_Select_Column>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<Users_Order_By>>;
-  where?: Maybe<Users_Bool_Exp>;
+export type MqlHeartbeats = {
+  __typename?: 'MqlHeartbeats';
+  createdAt?: Maybe<Scalars['DateTime']>;
+  details?: Maybe<Scalars['JSONString']>;
+  id: Scalars['ID'];
+  mqlServerId?: Maybe<Scalars['Int']>;
+  org?: Maybe<Organization>;
+  orgMqlServers?: Maybe<OrgMqlServer>;
+  organizationId: Scalars['Int'];
+  status: Scalars['String'];
+  userId: Scalars['Int'];
+  versionSha: Scalars['String'];
+  mqlServer?: Maybe<OrgMqlServer>;
+  user?: Maybe<User>;
 };
 
 /**
@@ -3254,6 +2172,1403 @@ export type MutationReactivateUserTestArgs = {
   userId: Scalars['Int'];
 };
 
+export type OrgMqlServer = {
+  __typename?: 'OrgMqlServer';
+  Organization?: Maybe<Organization>;
+  configSecret?: Maybe<Scalars['String']>;
+  createdAt?: Maybe<Scalars['DateTime']>;
+  dwEngine?: Maybe<Scalars['String']>;
+  heartbeats?: Maybe<Array<Maybe<MqlHeartbeats>>>;
+  id: Scalars['ID'];
+  isOrgDefault?: Maybe<Scalars['Boolean']>;
+  name: Scalars['String'];
+  organizationId: Scalars['Int'];
+  updatedAt?: Maybe<Scalars['DateTime']>;
+  url: Scalars['String'];
+};
+
+export type Organization = {
+  __typename?: 'Organization';
+  allUsers?: Maybe<Array<Maybe<User>>>;
+  createdAt?: Maybe<Scalars['DateTime']>;
+  currentModel?: Maybe<Array<Maybe<Model>>>;
+  deactivatedAt?: Maybe<Scalars['DateTime']>;
+  domain?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  logoUrl?: Maybe<Scalars['String']>;
+  models?: Maybe<Array<Maybe<Model>>>;
+  mqlServerLogs?: Maybe<Scalars['String']>;
+  mqlServerUrl?: Maybe<Scalars['String']>;
+  mqlServers?: Maybe<Array<Maybe<OrgMqlServer>>>;
+  name: Scalars['String'];
+  primaryConfigBranch: Scalars['String'];
+  primaryConfigRepo: Scalars['String'];
+  shardId: Scalars['Int'];
+  sourceControlUrl?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['DateTime']>;
+  slug?: Maybe<Scalars['String']>;
+  isHosted: Scalars['Boolean'];
+};
+
+
+export type OrganizationModelsArgs = {
+  id?: Maybe<Scalars['ID']>;
+};
+
+export type Query = {
+  __typename?: 'Query';
+  /** fetch data from the table: "annotations" using primary key columns */
+  annotation?: Maybe<Annotations>;
+  /** fetch data from the table: "annotations" */
+  annotations: Array<Annotations>;
+  /** fetch aggregated fields from the table: "annotations" */
+  annotationsAggregate: Annotations_Aggregate;
+  /** fetch data from the table: "api_keys" using primary key columns */
+  apiKey?: Maybe<Api_Keys>;
+  /** fetch data from the table: "api_keys" */
+  apiKeys: Array<Api_Keys>;
+  /** fetch aggregated fields from the table: "api_keys" */
+  apiKeysAggregate: Api_Keys_Aggregate;
+  auth0Profile?: Maybe<Auth0Profile>;
+  /** fetch data from the table: "dashboards" using primary key columns */
+  dashboard?: Maybe<Dashboards>;
+  /** fetch data from the table: "dashboard_item_configs" using primary key columns */
+  dashboardItemConfig?: Maybe<Dashboard_Item_Configs>;
+  /** fetch data from the table: "dashboard_item_configs" */
+  dashboardItemConfigs: Array<Dashboard_Item_Configs>;
+  /** fetch aggregated fields from the table: "dashboard_item_configs" */
+  dashboardItemConfigsAggregate: Dashboard_Item_Configs_Aggregate;
+  /** fetch data from the table: "dashboard_sections" using primary key columns */
+  dashboardSection?: Maybe<Dashboard_Sections>;
+  /** fetch data from the table: "dashboard_sections" */
+  dashboardSections: Array<Dashboard_Sections>;
+  /** fetch aggregated fields from the table: "dashboard_sections" */
+  dashboardSectionsAggregate: Dashboard_Sections_Aggregate;
+  /** fetch data from the table: "dashboards" */
+  dashboards: Array<Dashboards>;
+  /** fetch aggregated fields from the table: "dashboards" */
+  dashboardsAggregate: Dashboards_Aggregate;
+  /** fetch data from the table: "org_data_sources" using primary key columns */
+  dataSource?: Maybe<Org_Data_Sources>;
+  /** fetch data from the table: "data_source_versions" using primary key columns */
+  dataSourceVersion?: Maybe<Data_Source_Versions>;
+  /** fetch data from the table: "data_source_versions" */
+  dataSourceVersions: Array<Data_Source_Versions>;
+  /** fetch aggregated fields from the table: "data_source_versions" */
+  dataSourceVersionsAggregate: Data_Source_Versions_Aggregate;
+  /** fetch data from the table: "org_data_sources" */
+  dataSources: Array<Org_Data_Sources>;
+  /** fetch aggregated fields from the table: "org_data_sources" */
+  dataSourcesAggregate: Org_Data_Sources_Aggregate;
+  /** fetch data from the table: "features" using primary key columns */
+  feature?: Maybe<Features>;
+  /** fetch data from the table: "features" */
+  features: Array<Features>;
+  /** fetch aggregated fields from the table: "features" */
+  featuresAggregate: Features_Aggregate;
+  latestMqlServer?: Maybe<MqlServerVersion>;
+  /** execute function "me" which returns "users" */
+  me: Array<Users>;
+  /** execute function "me" and query aggregates on result of table type "users" */
+  me_aggregate: Users_Aggregate;
+  /** fetch data from the table: "metric_annotations" using primary key columns */
+  metricAnnotation?: Maybe<Metric_Annotations>;
+  /** fetch data from the table: "metric_annotations" */
+  metricAnnotations: Array<Metric_Annotations>;
+  /** fetch aggregated fields from the table: "metric_annotations" */
+  metricAnnotationsAggregate: Metric_Annotations_Aggregate;
+  /** fetch data from the table: "metric_approvals" using primary key columns */
+  metricApproval?: Maybe<Metric_Approvals>;
+  /** fetch data from the table: "metric_approvals" */
+  metricApprovals: Array<Metric_Approvals>;
+  /** fetch aggregated fields from the table: "metric_approvals" */
+  metricApprovalsAggregate: Metric_Approvals_Aggregate;
+  /** fetch data from the table: "org_metrics_current_view" using primary key columns */
+  metricByIdTemp?: Maybe<Org_Metrics_Current_View>;
+  /** fetch data from the table: "metric_collections" using primary key columns */
+  metricCollection?: Maybe<Metric_Collections>;
+  /** fetch data from the table: "metric_collection_metrics" using primary key columns */
+  metricCollectionMetric?: Maybe<Metric_Collection_Metrics>;
+  /** fetch data from the table: "metric_collection_metrics" */
+  metricCollectionMetrics: Array<Metric_Collection_Metrics>;
+  /** fetch aggregated fields from the table: "metric_collection_metrics" */
+  metricCollectionMetricsAggregate: Metric_Collection_Metrics_Aggregate;
+  /** fetch data from the table: "metric_collection_view" using primary key columns */
+  metricCollectionView?: Maybe<Metric_Collection_View>;
+  /** fetch aggregated fields from the table: "metric_collection_view" */
+  metricCollectionViewAggregate: Metric_Collection_View_Aggregate;
+  /** fetch data from the table: "metric_collection_view" */
+  metricCollectionViews: Array<Metric_Collection_View>;
+  /** fetch data from the table: "metric_collections" */
+  metricCollections: Array<Metric_Collections>;
+  /** fetch aggregated fields from the table: "metric_collections" */
+  metricCollectionsAggregate: Metric_Collections_Aggregate;
+  /** fetch data from the table: "metric_current_description" */
+  metricCurrentDescriptions: Array<Metric_Current_Description>;
+  /** fetch data from the table: "metric_descriptions" using primary key columns */
+  metricDescription?: Maybe<Metric_Descriptions>;
+  /** fetch data from the table: "metric_descriptions" */
+  metricDescriptions: Array<Metric_Descriptions>;
+  /** fetch aggregated fields from the table: "metric_descriptions" */
+  metricDescriptionsAggregate: Metric_Descriptions_Aggregate;
+  /** fetch data from the table: "metric_team_owners" using primary key columns */
+  metricTeamOwner?: Maybe<Metric_Team_Owners>;
+  /** fetch data from the table: "metric_team_owners" */
+  metricTeamOwners: Array<Metric_Team_Owners>;
+  /** fetch aggregated fields from the table: "metric_team_owners" */
+  metricTeamOwnersAggregate: Metric_Team_Owners_Aggregate;
+  /** fetch data from the table: "metric_user_owners" using primary key columns */
+  metricUserOwner?: Maybe<Metric_User_Owners>;
+  /** fetch data from the table: "metric_user_owners" */
+  metricUserOwners: Array<Metric_User_Owners>;
+  /** fetch aggregated fields from the table: "metric_user_owners" */
+  metricUserOwnersAggregate: Metric_User_Owners_Aggregate;
+  /** fetch data from the table: "metric_versions" using primary key columns */
+  metricVersion?: Maybe<Metric_Versions>;
+  /** fetch data from the table: "metric_versions" */
+  metricVersions: Array<Metric_Versions>;
+  /** fetch aggregated fields from the table: "metric_versions" */
+  metricVersionsAggregate: Metric_Versions_Aggregate;
+  /** fetch data from the table: "metric_view" */
+  metricViews: Array<Metric_View>;
+  /** fetch aggregated fields from the table: "metric_view" */
+  metricViewsAggregate: Metric_View_Aggregate;
+  /** fetch aggregated fields from the table: "metric_current_description" */
+  metric_current_description_aggregate: Metric_Current_Description_Aggregate;
+  /** fetch data from the table: "metric_lineage_data_sources" */
+  metric_lineage_data_sources: Array<Metric_Lineage_Data_Sources>;
+  /** fetch aggregated fields from the table: "metric_lineage_data_sources" */
+  metric_lineage_data_sources_aggregate: Metric_Lineage_Data_Sources_Aggregate;
+  /** fetch data from the table: "metric_lineage_data_sources" using primary key columns */
+  metric_lineage_data_sources_by_pk?: Maybe<Metric_Lineage_Data_Sources>;
+  /** fetch data from the table: "org_metrics_current_view" */
+  metrics: Array<Org_Metrics_Current_View>;
+  /** fetch aggregated fields from the table: "org_metrics_current_view" */
+  metricsAggregate: Org_Metrics_Current_View_Aggregate;
+  /** fetch data from the table: "models" using primary key columns */
+  model?: Maybe<Models>;
+  /** fetch data from the table: "model_data_sources" using primary key columns */
+  modelDataSource?: Maybe<Model_Data_Sources>;
+  /** fetch data from the table: "model_data_sources" */
+  modelDataSources: Array<Model_Data_Sources>;
+  /** fetch aggregated fields from the table: "model_data_sources" */
+  modelDataSourcesAggregate: Model_Data_Sources_Aggregate;
+  /** fetch data from the table: "model_metrics" using primary key columns */
+  modelMetric?: Maybe<Model_Metrics>;
+  /** fetch data from the table: "model_metrics" */
+  modelMetrics: Array<Model_Metrics>;
+  /** fetch aggregated fields from the table: "model_metrics" */
+  modelMetricsAggregate: Model_Metrics_Aggregate;
+  /** fetch data from the table: "model_current" */
+  model_current: Array<Model_Current>;
+  /** fetch data from the table: "models" */
+  models: Array<Models>;
+  /** fetch aggregated fields from the table: "models" */
+  modelsAggregate: Models_Aggregate;
+  /** fetch data from the table: "mql_heartbeats" using primary key columns */
+  mqlHeartbeat?: Maybe<Mql_Heartbeats>;
+  /** fetch data from the table: "mql_heartbeats" */
+  mqlHeartbeats: Array<Mql_Heartbeats>;
+  mqlServerUrl?: Maybe<Scalars['String']>;
+  myOrganization?: Maybe<Organization>;
+  myUser?: Maybe<User>;
+  /** execute function "my_most_viewed_metrics" which returns "org_metrics_current_view" */
+  my_most_viewed_metrics: Array<Org_Metrics_Current_View>;
+  /** execute function "my_most_viewed_metrics" and query aggregates on result of table type "org_metrics_current_view" */
+  my_most_viewed_metrics_aggregate: Org_Metrics_Current_View_Aggregate;
+  /** execute function "my_org" which returns "organizations" */
+  my_org: Array<Organizations>;
+  /** fetch data from the table: "org_mql_servers" using primary key columns */
+  orgMqlServer?: Maybe<Org_Mql_Servers>;
+  /** fetch data from the table: "org_mql_servers" */
+  orgMqlServers: Array<Org_Mql_Servers>;
+  /** fetch aggregated fields from the table: "org_mql_servers" */
+  orgMqlServersAggregate: Org_Mql_Servers_Aggregate;
+  /** fetch data from the table: "organizations" using primary key columns */
+  organization?: Maybe<Organizations>;
+  /** fetch data from the table: "organization_features" using primary key columns */
+  organizationFeature?: Maybe<Organization_Features>;
+  /** fetch data from the table: "organization_features" */
+  organizationFeatures: Array<Organization_Features>;
+  /** fetch aggregated fields from the table: "organization_features" */
+  organizationFeaturesAggregate: Organization_Features_Aggregate;
+  /** fetch data from the table: "organizations" */
+  organizations: Array<Organizations>;
+  /** fetch data from the table: "priorities" */
+  priorities: Array<Priorities>;
+  /** fetch data from the table: "priorities" using primary key columns */
+  priorities_by_pk?: Maybe<Priorities>;
+  /** fetch data from the table: "questions" using primary key columns */
+  question?: Maybe<Questions>;
+  /** fetch data from the table: "question_directed_to" */
+  questionDirectedTo: Array<Question_Directed_To>;
+  /** fetch aggregated fields from the table: "question_directed_to" */
+  questionDirectedToAggregate: Question_Directed_To_Aggregate;
+  /** fetch data from the table: "question_directed_to" using primary key columns */
+  questionDirectedToByPK?: Maybe<Question_Directed_To>;
+  /** fetch data from the table: "question_likes" using primary key columns */
+  questionLike?: Maybe<Question_Likes>;
+  /** fetch data from the table: "question_likes" */
+  questionLikes: Array<Question_Likes>;
+  /** fetch aggregated fields from the table: "question_likes" */
+  questionLikesAggregate: Question_Likes_Aggregate;
+  /** fetch data from the table: "question_replies" */
+  questionReplies: Array<Question_Replies>;
+  /** fetch aggregated fields from the table: "question_replies" */
+  questionRepliesAggregate: Question_Replies_Aggregate;
+  /** fetch data from the table: "question_replies" using primary key columns */
+  questionReply?: Maybe<Question_Replies>;
+  /** fetch data from the table: "questions" */
+  questions: Array<Questions>;
+  /** fetch aggregated fields from the table: "questions" */
+  questionsAggregate: Questions_Aggregate;
+  /** fetch data from the table: "saved_queries" */
+  savedQueries: Array<Saved_Queries>;
+  /** fetch aggregated fields from the table: "saved_queries" */
+  savedQueriesAggregate: Saved_Queries_Aggregate;
+  /** fetch data from the table: "saved_queries" using primary key columns */
+  savedQuery?: Maybe<Saved_Queries>;
+  /** fetch data from the table: "saved_query_metrics" using primary key columns */
+  savedQueryMetric?: Maybe<Saved_Query_Metrics>;
+  /** fetch data from the table: "saved_query_metrics" */
+  savedQueryMetrics: Array<Saved_Query_Metrics>;
+  /** fetch aggregated fields from the table: "saved_query_metrics" */
+  savedQueryMetricsAggregate: Saved_Query_Metrics_Aggregate;
+  /** fetch data from the table: "teams" using primary key columns */
+  team?: Maybe<Teams>;
+  /** fetch data from the table: "team_dashboards" using primary key columns */
+  teamDashboard?: Maybe<Team_Dashboards>;
+  /** fetch data from the table: "team_dashboards" */
+  teamDashboards: Array<Team_Dashboards>;
+  /** fetch aggregated fields from the table: "team_dashboards" */
+  teamDashboardsAggregate: Team_Dashboards_Aggregate;
+  /** fetch data from the table: "team_members" using primary key columns */
+  teamMember?: Maybe<Team_Members>;
+  /** fetch data from the table: "team_members" */
+  teamMembers: Array<Team_Members>;
+  /** fetch aggregated fields from the table: "team_members" */
+  teamMembersAggregate: Team_Members_Aggregate;
+  /** fetch aggregated fields from the table: "team_views" */
+  teamViewsAggregate: Team_Views_Aggregate;
+  /** fetch data from the table: "team_views" */
+  team_views: Array<Team_Views>;
+  /** fetch data from the table: "team_views" using primary key columns */
+  team_views_by_pk?: Maybe<Team_Views>;
+  /** fetch data from the table: "teams" */
+  teams: Array<Teams>;
+  /** fetch aggregated fields from the table: "teams" */
+  teamsAggregate: Teams_Aggregate;
+  /** fetch data from the table: "users" using primary key columns */
+  user?: Maybe<Users>;
+  /** fetch data from the table: "user_features" using primary key columns */
+  userFeature?: Maybe<User_Features>;
+  /** fetch data from the table: "user_features" */
+  userFeatures: Array<User_Features>;
+  /** fetch aggregated fields from the table: "user_features" */
+  userFeaturesAggregate: User_Features_Aggregate;
+  /** fetch data from the table: "user_prefs" using primary key columns */
+  userPreference?: Maybe<User_Prefs>;
+  /** fetch data from the table: "user_prefs" */
+  userPreferences: Array<User_Prefs>;
+  /** fetch aggregated fields from the table: "user_prefs" */
+  userPreferencesAggregate: User_Prefs_Aggregate;
+  /** fetch data from the table: "user_roles" using primary key columns */
+  userRole?: Maybe<User_Roles>;
+  /** fetch data from the table: "user_roles" */
+  userRoles: Array<User_Roles>;
+  /** fetch aggregated fields from the table: "user_roles" */
+  userRolesAggregate: User_Roles_Aggregate;
+  /** fetch data from the table: "users" */
+  users: Array<Users>;
+  /** fetch aggregated fields from the table: "users" */
+  usersAggregate: Users_Aggregate;
+  heartbeat: Scalars['String'];
+};
+
+
+export type QueryAnnotationArgs = {
+  id: Scalars['Int'];
+};
+
+
+export type QueryAnnotationsArgs = {
+  distinct_on?: Maybe<Array<Annotations_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Annotations_Order_By>>;
+  where?: Maybe<Annotations_Bool_Exp>;
+};
+
+
+export type QueryAnnotationsAggregateArgs = {
+  distinct_on?: Maybe<Array<Annotations_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Annotations_Order_By>>;
+  where?: Maybe<Annotations_Bool_Exp>;
+};
+
+
+export type QueryApiKeyArgs = {
+  prefix: Scalars['String'];
+};
+
+
+export type QueryApiKeysArgs = {
+  distinct_on?: Maybe<Array<Api_Keys_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Api_Keys_Order_By>>;
+  where?: Maybe<Api_Keys_Bool_Exp>;
+};
+
+
+export type QueryApiKeysAggregateArgs = {
+  distinct_on?: Maybe<Array<Api_Keys_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Api_Keys_Order_By>>;
+  where?: Maybe<Api_Keys_Bool_Exp>;
+};
+
+
+export type QueryAuth0ProfileArgs = {
+  auth0Id: Scalars['String'];
+};
+
+
+export type QueryDashboardArgs = {
+  id: Scalars['Int'];
+};
+
+
+export type QueryDashboardItemConfigArgs = {
+  id: Scalars['Int'];
+};
+
+
+export type QueryDashboardItemConfigsArgs = {
+  distinct_on?: Maybe<Array<Dashboard_Item_Configs_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Dashboard_Item_Configs_Order_By>>;
+  where?: Maybe<Dashboard_Item_Configs_Bool_Exp>;
+};
+
+
+export type QueryDashboardItemConfigsAggregateArgs = {
+  distinct_on?: Maybe<Array<Dashboard_Item_Configs_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Dashboard_Item_Configs_Order_By>>;
+  where?: Maybe<Dashboard_Item_Configs_Bool_Exp>;
+};
+
+
+export type QueryDashboardSectionArgs = {
+  id: Scalars['Int'];
+};
+
+
+export type QueryDashboardSectionsArgs = {
+  distinct_on?: Maybe<Array<Dashboard_Sections_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Dashboard_Sections_Order_By>>;
+  where?: Maybe<Dashboard_Sections_Bool_Exp>;
+};
+
+
+export type QueryDashboardSectionsAggregateArgs = {
+  distinct_on?: Maybe<Array<Dashboard_Sections_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Dashboard_Sections_Order_By>>;
+  where?: Maybe<Dashboard_Sections_Bool_Exp>;
+};
+
+
+export type QueryDashboardsArgs = {
+  distinct_on?: Maybe<Array<Dashboards_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Dashboards_Order_By>>;
+  where?: Maybe<Dashboards_Bool_Exp>;
+};
+
+
+export type QueryDashboardsAggregateArgs = {
+  distinct_on?: Maybe<Array<Dashboards_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Dashboards_Order_By>>;
+  where?: Maybe<Dashboards_Bool_Exp>;
+};
+
+
+export type QueryDataSourceArgs = {
+  id: Scalars['Int'];
+};
+
+
+export type QueryDataSourceVersionArgs = {
+  id: Scalars['Int'];
+};
+
+
+export type QueryDataSourceVersionsArgs = {
+  distinct_on?: Maybe<Array<Data_Source_Versions_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Data_Source_Versions_Order_By>>;
+  where?: Maybe<Data_Source_Versions_Bool_Exp>;
+};
+
+
+export type QueryDataSourceVersionsAggregateArgs = {
+  distinct_on?: Maybe<Array<Data_Source_Versions_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Data_Source_Versions_Order_By>>;
+  where?: Maybe<Data_Source_Versions_Bool_Exp>;
+};
+
+
+export type QueryDataSourcesArgs = {
+  distinct_on?: Maybe<Array<Org_Data_Sources_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Org_Data_Sources_Order_By>>;
+  where?: Maybe<Org_Data_Sources_Bool_Exp>;
+};
+
+
+export type QueryDataSourcesAggregateArgs = {
+  distinct_on?: Maybe<Array<Org_Data_Sources_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Org_Data_Sources_Order_By>>;
+  where?: Maybe<Org_Data_Sources_Bool_Exp>;
+};
+
+
+export type QueryFeatureArgs = {
+  id: Scalars['Int'];
+};
+
+
+export type QueryFeaturesArgs = {
+  distinct_on?: Maybe<Array<Features_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Features_Order_By>>;
+  where?: Maybe<Features_Bool_Exp>;
+};
+
+
+export type QueryFeaturesAggregateArgs = {
+  distinct_on?: Maybe<Array<Features_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Features_Order_By>>;
+  where?: Maybe<Features_Bool_Exp>;
+};
+
+
+export type QueryMeArgs = {
+  distinct_on?: Maybe<Array<Users_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Users_Order_By>>;
+  where?: Maybe<Users_Bool_Exp>;
+};
+
+
+export type QueryMe_AggregateArgs = {
+  distinct_on?: Maybe<Array<Users_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Users_Order_By>>;
+  where?: Maybe<Users_Bool_Exp>;
+};
+
+
+export type QueryMetricAnnotationArgs = {
+  id: Scalars['Int'];
+};
+
+
+export type QueryMetricAnnotationsArgs = {
+  distinct_on?: Maybe<Array<Metric_Annotations_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Metric_Annotations_Order_By>>;
+  where?: Maybe<Metric_Annotations_Bool_Exp>;
+};
+
+
+export type QueryMetricAnnotationsAggregateArgs = {
+  distinct_on?: Maybe<Array<Metric_Annotations_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Metric_Annotations_Order_By>>;
+  where?: Maybe<Metric_Annotations_Bool_Exp>;
+};
+
+
+export type QueryMetricApprovalArgs = {
+  id: Scalars['Int'];
+};
+
+
+export type QueryMetricApprovalsArgs = {
+  distinct_on?: Maybe<Array<Metric_Approvals_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Metric_Approvals_Order_By>>;
+  where?: Maybe<Metric_Approvals_Bool_Exp>;
+};
+
+
+export type QueryMetricApprovalsAggregateArgs = {
+  distinct_on?: Maybe<Array<Metric_Approvals_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Metric_Approvals_Order_By>>;
+  where?: Maybe<Metric_Approvals_Bool_Exp>;
+};
+
+
+export type QueryMetricByIdTempArgs = {
+  id: Scalars['Int'];
+};
+
+
+export type QueryMetricCollectionArgs = {
+  id: Scalars['Int'];
+};
+
+
+export type QueryMetricCollectionMetricArgs = {
+  id: Scalars['Int'];
+};
+
+
+export type QueryMetricCollectionMetricsArgs = {
+  distinct_on?: Maybe<Array<Metric_Collection_Metrics_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Metric_Collection_Metrics_Order_By>>;
+  where?: Maybe<Metric_Collection_Metrics_Bool_Exp>;
+};
+
+
+export type QueryMetricCollectionMetricsAggregateArgs = {
+  distinct_on?: Maybe<Array<Metric_Collection_Metrics_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Metric_Collection_Metrics_Order_By>>;
+  where?: Maybe<Metric_Collection_Metrics_Bool_Exp>;
+};
+
+
+export type QueryMetricCollectionViewArgs = {
+  id: Scalars['Int'];
+};
+
+
+export type QueryMetricCollectionViewAggregateArgs = {
+  distinct_on?: Maybe<Array<Metric_Collection_View_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Metric_Collection_View_Order_By>>;
+  where?: Maybe<Metric_Collection_View_Bool_Exp>;
+};
+
+
+export type QueryMetricCollectionViewsArgs = {
+  distinct_on?: Maybe<Array<Metric_Collection_View_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Metric_Collection_View_Order_By>>;
+  where?: Maybe<Metric_Collection_View_Bool_Exp>;
+};
+
+
+export type QueryMetricCollectionsArgs = {
+  distinct_on?: Maybe<Array<Metric_Collections_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Metric_Collections_Order_By>>;
+  where?: Maybe<Metric_Collections_Bool_Exp>;
+};
+
+
+export type QueryMetricCollectionsAggregateArgs = {
+  distinct_on?: Maybe<Array<Metric_Collections_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Metric_Collections_Order_By>>;
+  where?: Maybe<Metric_Collections_Bool_Exp>;
+};
+
+
+export type QueryMetricCurrentDescriptionsArgs = {
+  distinct_on?: Maybe<Array<Metric_Current_Description_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Metric_Current_Description_Order_By>>;
+  where?: Maybe<Metric_Current_Description_Bool_Exp>;
+};
+
+
+export type QueryMetricDescriptionArgs = {
+  id: Scalars['Int'];
+};
+
+
+export type QueryMetricDescriptionsArgs = {
+  distinct_on?: Maybe<Array<Metric_Descriptions_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Metric_Descriptions_Order_By>>;
+  where?: Maybe<Metric_Descriptions_Bool_Exp>;
+};
+
+
+export type QueryMetricDescriptionsAggregateArgs = {
+  distinct_on?: Maybe<Array<Metric_Descriptions_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Metric_Descriptions_Order_By>>;
+  where?: Maybe<Metric_Descriptions_Bool_Exp>;
+};
+
+
+export type QueryMetricTeamOwnerArgs = {
+  id: Scalars['Int'];
+};
+
+
+export type QueryMetricTeamOwnersArgs = {
+  distinct_on?: Maybe<Array<Metric_Team_Owners_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Metric_Team_Owners_Order_By>>;
+  where?: Maybe<Metric_Team_Owners_Bool_Exp>;
+};
+
+
+export type QueryMetricTeamOwnersAggregateArgs = {
+  distinct_on?: Maybe<Array<Metric_Team_Owners_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Metric_Team_Owners_Order_By>>;
+  where?: Maybe<Metric_Team_Owners_Bool_Exp>;
+};
+
+
+export type QueryMetricUserOwnerArgs = {
+  id: Scalars['Int'];
+};
+
+
+export type QueryMetricUserOwnersArgs = {
+  distinct_on?: Maybe<Array<Metric_User_Owners_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Metric_User_Owners_Order_By>>;
+  where?: Maybe<Metric_User_Owners_Bool_Exp>;
+};
+
+
+export type QueryMetricUserOwnersAggregateArgs = {
+  distinct_on?: Maybe<Array<Metric_User_Owners_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Metric_User_Owners_Order_By>>;
+  where?: Maybe<Metric_User_Owners_Bool_Exp>;
+};
+
+
+export type QueryMetricVersionArgs = {
+  id: Scalars['bigint'];
+};
+
+
+export type QueryMetricVersionsArgs = {
+  distinct_on?: Maybe<Array<Metric_Versions_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Metric_Versions_Order_By>>;
+  where?: Maybe<Metric_Versions_Bool_Exp>;
+};
+
+
+export type QueryMetricVersionsAggregateArgs = {
+  distinct_on?: Maybe<Array<Metric_Versions_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Metric_Versions_Order_By>>;
+  where?: Maybe<Metric_Versions_Bool_Exp>;
+};
+
+
+export type QueryMetricViewsArgs = {
+  distinct_on?: Maybe<Array<Metric_View_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Metric_View_Order_By>>;
+  where?: Maybe<Metric_View_Bool_Exp>;
+};
+
+
+export type QueryMetricViewsAggregateArgs = {
+  distinct_on?: Maybe<Array<Metric_View_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Metric_View_Order_By>>;
+  where?: Maybe<Metric_View_Bool_Exp>;
+};
+
+
+export type QueryMetric_Current_Description_AggregateArgs = {
+  distinct_on?: Maybe<Array<Metric_Current_Description_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Metric_Current_Description_Order_By>>;
+  where?: Maybe<Metric_Current_Description_Bool_Exp>;
+};
+
+
+export type QueryMetric_Lineage_Data_SourcesArgs = {
+  distinct_on?: Maybe<Array<Metric_Lineage_Data_Sources_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Metric_Lineage_Data_Sources_Order_By>>;
+  where?: Maybe<Metric_Lineage_Data_Sources_Bool_Exp>;
+};
+
+
+export type QueryMetric_Lineage_Data_Sources_AggregateArgs = {
+  distinct_on?: Maybe<Array<Metric_Lineage_Data_Sources_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Metric_Lineage_Data_Sources_Order_By>>;
+  where?: Maybe<Metric_Lineage_Data_Sources_Bool_Exp>;
+};
+
+
+export type QueryMetric_Lineage_Data_Sources_By_PkArgs = {
+  id: Scalars['Int'];
+};
+
+
+export type QueryMetricsArgs = {
+  distinct_on?: Maybe<Array<Org_Metrics_Current_View_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Org_Metrics_Current_View_Order_By>>;
+  where?: Maybe<Org_Metrics_Current_View_Bool_Exp>;
+};
+
+
+export type QueryMetricsAggregateArgs = {
+  distinct_on?: Maybe<Array<Org_Metrics_Current_View_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Org_Metrics_Current_View_Order_By>>;
+  where?: Maybe<Org_Metrics_Current_View_Bool_Exp>;
+};
+
+
+export type QueryModelArgs = {
+  id: Scalars['bigint'];
+};
+
+
+export type QueryModelDataSourceArgs = {
+  dataSourceVersionId: Scalars['Int'];
+  modelId: Scalars['Int'];
+};
+
+
+export type QueryModelDataSourcesArgs = {
+  distinct_on?: Maybe<Array<Model_Data_Sources_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Model_Data_Sources_Order_By>>;
+  where?: Maybe<Model_Data_Sources_Bool_Exp>;
+};
+
+
+export type QueryModelDataSourcesAggregateArgs = {
+  distinct_on?: Maybe<Array<Model_Data_Sources_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Model_Data_Sources_Order_By>>;
+  where?: Maybe<Model_Data_Sources_Bool_Exp>;
+};
+
+
+export type QueryModelMetricArgs = {
+  metricId: Scalars['bigint'];
+  metricVersionId: Scalars['bigint'];
+  modelId: Scalars['bigint'];
+};
+
+
+export type QueryModelMetricsArgs = {
+  distinct_on?: Maybe<Array<Model_Metrics_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Model_Metrics_Order_By>>;
+  where?: Maybe<Model_Metrics_Bool_Exp>;
+};
+
+
+export type QueryModelMetricsAggregateArgs = {
+  distinct_on?: Maybe<Array<Model_Metrics_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Model_Metrics_Order_By>>;
+  where?: Maybe<Model_Metrics_Bool_Exp>;
+};
+
+
+export type QueryModel_CurrentArgs = {
+  distinct_on?: Maybe<Array<Model_Current_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Model_Current_Order_By>>;
+  where?: Maybe<Model_Current_Bool_Exp>;
+};
+
+
+export type QueryModelsArgs = {
+  distinct_on?: Maybe<Array<Models_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Models_Order_By>>;
+  where?: Maybe<Models_Bool_Exp>;
+};
+
+
+export type QueryModelsAggregateArgs = {
+  distinct_on?: Maybe<Array<Models_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Models_Order_By>>;
+  where?: Maybe<Models_Bool_Exp>;
+};
+
+
+export type QueryMqlHeartbeatArgs = {
+  id: Scalars['Int'];
+};
+
+
+export type QueryMqlHeartbeatsArgs = {
+  distinct_on?: Maybe<Array<Mql_Heartbeats_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Mql_Heartbeats_Order_By>>;
+  where?: Maybe<Mql_Heartbeats_Bool_Exp>;
+};
+
+
+export type QueryMy_Most_Viewed_MetricsArgs = {
+  distinct_on?: Maybe<Array<Org_Metrics_Current_View_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Org_Metrics_Current_View_Order_By>>;
+  where?: Maybe<Org_Metrics_Current_View_Bool_Exp>;
+};
+
+
+export type QueryMy_Most_Viewed_Metrics_AggregateArgs = {
+  distinct_on?: Maybe<Array<Org_Metrics_Current_View_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Org_Metrics_Current_View_Order_By>>;
+  where?: Maybe<Org_Metrics_Current_View_Bool_Exp>;
+};
+
+
+export type QueryMy_OrgArgs = {
+  distinct_on?: Maybe<Array<Organizations_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Organizations_Order_By>>;
+  where?: Maybe<Organizations_Bool_Exp>;
+};
+
+
+export type QueryOrgMqlServerArgs = {
+  id: Scalars['Int'];
+};
+
+
+export type QueryOrgMqlServersArgs = {
+  distinct_on?: Maybe<Array<Org_Mql_Servers_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Org_Mql_Servers_Order_By>>;
+  where?: Maybe<Org_Mql_Servers_Bool_Exp>;
+};
+
+
+export type QueryOrgMqlServersAggregateArgs = {
+  distinct_on?: Maybe<Array<Org_Mql_Servers_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Org_Mql_Servers_Order_By>>;
+  where?: Maybe<Org_Mql_Servers_Bool_Exp>;
+};
+
+
+export type QueryOrganizationArgs = {
+  id: Scalars['Int'];
+};
+
+
+export type QueryOrganizationFeatureArgs = {
+  featureId: Scalars['Int'];
+  organizationId: Scalars['Int'];
+};
+
+
+export type QueryOrganizationFeaturesArgs = {
+  distinct_on?: Maybe<Array<Organization_Features_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Organization_Features_Order_By>>;
+  where?: Maybe<Organization_Features_Bool_Exp>;
+};
+
+
+export type QueryOrganizationFeaturesAggregateArgs = {
+  distinct_on?: Maybe<Array<Organization_Features_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Organization_Features_Order_By>>;
+  where?: Maybe<Organization_Features_Bool_Exp>;
+};
+
+
+export type QueryOrganizationsArgs = {
+  distinct_on?: Maybe<Array<Organizations_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Organizations_Order_By>>;
+  where?: Maybe<Organizations_Bool_Exp>;
+};
+
+
+export type QueryPrioritiesArgs = {
+  distinct_on?: Maybe<Array<Priorities_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Priorities_Order_By>>;
+  where?: Maybe<Priorities_Bool_Exp>;
+};
+
+
+export type QueryPriorities_By_PkArgs = {
+  value: Scalars['String'];
+};
+
+
+export type QueryQuestionArgs = {
+  id: Scalars['Int'];
+};
+
+
+export type QueryQuestionDirectedToArgs = {
+  distinct_on?: Maybe<Array<Question_Directed_To_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Question_Directed_To_Order_By>>;
+  where?: Maybe<Question_Directed_To_Bool_Exp>;
+};
+
+
+export type QueryQuestionDirectedToAggregateArgs = {
+  distinct_on?: Maybe<Array<Question_Directed_To_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Question_Directed_To_Order_By>>;
+  where?: Maybe<Question_Directed_To_Bool_Exp>;
+};
+
+
+export type QueryQuestionDirectedToByPkArgs = {
+  id: Scalars['Int'];
+};
+
+
+export type QueryQuestionLikeArgs = {
+  id: Scalars['Int'];
+};
+
+
+export type QueryQuestionLikesArgs = {
+  distinct_on?: Maybe<Array<Question_Likes_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Question_Likes_Order_By>>;
+  where?: Maybe<Question_Likes_Bool_Exp>;
+};
+
+
+export type QueryQuestionLikesAggregateArgs = {
+  distinct_on?: Maybe<Array<Question_Likes_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Question_Likes_Order_By>>;
+  where?: Maybe<Question_Likes_Bool_Exp>;
+};
+
+
+export type QueryQuestionRepliesArgs = {
+  distinct_on?: Maybe<Array<Question_Replies_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Question_Replies_Order_By>>;
+  where?: Maybe<Question_Replies_Bool_Exp>;
+};
+
+
+export type QueryQuestionRepliesAggregateArgs = {
+  distinct_on?: Maybe<Array<Question_Replies_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Question_Replies_Order_By>>;
+  where?: Maybe<Question_Replies_Bool_Exp>;
+};
+
+
+export type QueryQuestionReplyArgs = {
+  id: Scalars['Int'];
+};
+
+
+export type QueryQuestionsArgs = {
+  distinct_on?: Maybe<Array<Questions_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Questions_Order_By>>;
+  where?: Maybe<Questions_Bool_Exp>;
+};
+
+
+export type QueryQuestionsAggregateArgs = {
+  distinct_on?: Maybe<Array<Questions_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Questions_Order_By>>;
+  where?: Maybe<Questions_Bool_Exp>;
+};
+
+
+export type QuerySavedQueriesArgs = {
+  distinct_on?: Maybe<Array<Saved_Queries_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Saved_Queries_Order_By>>;
+  where?: Maybe<Saved_Queries_Bool_Exp>;
+};
+
+
+export type QuerySavedQueriesAggregateArgs = {
+  distinct_on?: Maybe<Array<Saved_Queries_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Saved_Queries_Order_By>>;
+  where?: Maybe<Saved_Queries_Bool_Exp>;
+};
+
+
+export type QuerySavedQueryArgs = {
+  id: Scalars['Int'];
+};
+
+
+export type QuerySavedQueryMetricArgs = {
+  id: Scalars['Int'];
+};
+
+
+export type QuerySavedQueryMetricsArgs = {
+  distinct_on?: Maybe<Array<Saved_Query_Metrics_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Saved_Query_Metrics_Order_By>>;
+  where?: Maybe<Saved_Query_Metrics_Bool_Exp>;
+};
+
+
+export type QuerySavedQueryMetricsAggregateArgs = {
+  distinct_on?: Maybe<Array<Saved_Query_Metrics_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Saved_Query_Metrics_Order_By>>;
+  where?: Maybe<Saved_Query_Metrics_Bool_Exp>;
+};
+
+
+export type QueryTeamArgs = {
+  id: Scalars['Int'];
+};
+
+
+export type QueryTeamDashboardArgs = {
+  dashboardId: Scalars['Int'];
+  team_id: Scalars['Int'];
+};
+
+
+export type QueryTeamDashboardsArgs = {
+  distinct_on?: Maybe<Array<Team_Dashboards_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Team_Dashboards_Order_By>>;
+  where?: Maybe<Team_Dashboards_Bool_Exp>;
+};
+
+
+export type QueryTeamDashboardsAggregateArgs = {
+  distinct_on?: Maybe<Array<Team_Dashboards_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Team_Dashboards_Order_By>>;
+  where?: Maybe<Team_Dashboards_Bool_Exp>;
+};
+
+
+export type QueryTeamMemberArgs = {
+  id: Scalars['Int'];
+};
+
+
+export type QueryTeamMembersArgs = {
+  distinct_on?: Maybe<Array<Team_Members_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Team_Members_Order_By>>;
+  where?: Maybe<Team_Members_Bool_Exp>;
+};
+
+
+export type QueryTeamMembersAggregateArgs = {
+  distinct_on?: Maybe<Array<Team_Members_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Team_Members_Order_By>>;
+  where?: Maybe<Team_Members_Bool_Exp>;
+};
+
+
+export type QueryTeamViewsAggregateArgs = {
+  distinct_on?: Maybe<Array<Team_Views_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Team_Views_Order_By>>;
+  where?: Maybe<Team_Views_Bool_Exp>;
+};
+
+
+export type QueryTeam_ViewsArgs = {
+  distinct_on?: Maybe<Array<Team_Views_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Team_Views_Order_By>>;
+  where?: Maybe<Team_Views_Bool_Exp>;
+};
+
+
+export type QueryTeam_Views_By_PkArgs = {
+  id: Scalars['Int'];
+};
+
+
+export type QueryTeamsArgs = {
+  distinct_on?: Maybe<Array<Teams_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Teams_Order_By>>;
+  where?: Maybe<Teams_Bool_Exp>;
+};
+
+
+export type QueryTeamsAggregateArgs = {
+  distinct_on?: Maybe<Array<Teams_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Teams_Order_By>>;
+  where?: Maybe<Teams_Bool_Exp>;
+};
+
+
+export type QueryUserArgs = {
+  id: Scalars['Int'];
+};
+
+
+export type QueryUserFeatureArgs = {
+  featureId: Scalars['Int'];
+  userId: Scalars['Int'];
+};
+
+
+export type QueryUserFeaturesArgs = {
+  distinct_on?: Maybe<Array<User_Features_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<User_Features_Order_By>>;
+  where?: Maybe<User_Features_Bool_Exp>;
+};
+
+
+export type QueryUserFeaturesAggregateArgs = {
+  distinct_on?: Maybe<Array<User_Features_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<User_Features_Order_By>>;
+  where?: Maybe<User_Features_Bool_Exp>;
+};
+
+
+export type QueryUserPreferenceArgs = {
+  id: Scalars['Int'];
+};
+
+
+export type QueryUserPreferencesArgs = {
+  distinct_on?: Maybe<Array<User_Prefs_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<User_Prefs_Order_By>>;
+  where?: Maybe<User_Prefs_Bool_Exp>;
+};
+
+
+export type QueryUserPreferencesAggregateArgs = {
+  distinct_on?: Maybe<Array<User_Prefs_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<User_Prefs_Order_By>>;
+  where?: Maybe<User_Prefs_Bool_Exp>;
+};
+
+
+export type QueryUserRoleArgs = {
+  id: Scalars['Int'];
+};
+
+
+export type QueryUserRolesArgs = {
+  distinct_on?: Maybe<Array<User_Roles_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<User_Roles_Order_By>>;
+  where?: Maybe<User_Roles_Bool_Exp>;
+};
+
+
+export type QueryUserRolesAggregateArgs = {
+  distinct_on?: Maybe<Array<User_Roles_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<User_Roles_Order_By>>;
+  where?: Maybe<User_Roles_Bool_Exp>;
+};
+
+
+export type QueryUsersArgs = {
+  distinct_on?: Maybe<Array<Users_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Users_Order_By>>;
+  where?: Maybe<Users_Bool_Exp>;
+};
+
+
+export type QueryUsersAggregateArgs = {
+  distinct_on?: Maybe<Array<Users_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Users_Order_By>>;
+  where?: Maybe<Users_Bool_Exp>;
+};
+
+/** Reactivate user in DB and Auth0. */
+export type ReactivateUser = {
+  __typename?: 'ReactivateUser';
+  user?: Maybe<User>;
+};
+
+export type ReactivateUserInput = {
+  userId: Scalars['Int'];
+};
+
+export type ReactivateUserOutput = {
+  __typename?: 'ReactivateUserOutput';
+  userId: Scalars['Int'];
+};
+
+/** Remove role from user in DB and Auth0. */
+export type RemoveRoleFromUser = {
+  __typename?: 'RemoveRoleFromUser';
+  user?: Maybe<User>;
+};
+
+export type RemoveUserRoleInput = {
+  role: Role;
+  userId: Scalars['Int'];
+};
+
+export type RemoveUserRoleOutput = {
+  __typename?: 'RemoveUserRoleOutput';
+  userId: Scalars['Int'];
+};
+
+export enum Role {
+  Admin = 'admin',
+  OrgAdmin = 'org_admin',
+  ServiceUser = 'service_user',
+  User = 'user'
+}
+
+export type SendMqlHeartbeat = {
+  __typename?: 'SendMqlHeartbeat';
+  success?: Maybe<Scalars['Boolean']>;
+};
+
+export type SetOrgMqlServerConfigSecretId = {
+  __typename?: 'SetOrgMqlServerConfigSecretId';
+  mqlServer?: Maybe<OrgMqlServer>;
+};
+
+/** expression to compare columns of type String. All fields are combined with logical 'AND'. */
+export type String_Comparison_Exp = {
+  _eq?: Maybe<Scalars['String']>;
+  _gt?: Maybe<Scalars['String']>;
+  _gte?: Maybe<Scalars['String']>;
+  _ilike?: Maybe<Scalars['String']>;
+  _in?: Maybe<Array<Scalars['String']>>;
+  _is_null?: Maybe<Scalars['Boolean']>;
+  _like?: Maybe<Scalars['String']>;
+  _lt?: Maybe<Scalars['String']>;
+  _lte?: Maybe<Scalars['String']>;
+  _neq?: Maybe<Scalars['String']>;
+  _nilike?: Maybe<Scalars['String']>;
+  _nin?: Maybe<Array<Scalars['String']>>;
+  _nlike?: Maybe<Scalars['String']>;
+  _nsimilar?: Maybe<Scalars['String']>;
+  _similar?: Maybe<Scalars['String']>;
+};
+
 /** subscription root */
 export type Subscription = {
   __typename?: 'Subscription';
@@ -3483,6 +3798,8 @@ export type Subscription = {
   teamMembers: Array<Team_Members>;
   /** fetch aggregated fields from the table: "team_members" */
   teamMembersAggregate: Team_Members_Aggregate;
+  /** fetch aggregated fields from the table: "team_views" */
+  teamViewsAggregate: Team_Views_Aggregate;
   /** fetch data from the table: "team_views" */
   team_views: Array<Team_Views>;
   /** fetch data from the table: "team_views" using primary key columns */
@@ -4510,6 +4827,16 @@ export type SubscriptionTeamMembersAggregateArgs = {
 
 
 /** subscription root */
+export type SubscriptionTeamViewsAggregateArgs = {
+  distinct_on?: Maybe<Array<Team_Views_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Team_Views_Order_By>>;
+  where?: Maybe<Team_Views_Bool_Exp>;
+};
+
+
+/** subscription root */
 export type SubscriptionTeam_ViewsArgs = {
   distinct_on?: Maybe<Array<Team_Views_Select_Column>>;
   limit?: Maybe<Scalars['Int']>;
@@ -4649,262 +4976,6 @@ export type SubscriptionUsersAggregateArgs = {
   where?: Maybe<Users_Bool_Exp>;
 };
 
-export type AddUserRoleInput = {
-  role: Role;
-  userId: Scalars['Int'];
-};
-
-export type AddUserRoleOutput = {
-  __typename?: 'AddUserRoleOutput';
-  userId: Scalars['Int'];
-};
-
-/** A wrapper for the response we get from Auth0's user profile API */
-export type Auth0Profile = {
-  __typename?: 'Auth0Profile';
-  blocked?: Maybe<Scalars['Boolean']>;
-  lastIp?: Maybe<Scalars['String']>;
-  lastLogin?: Maybe<Scalars['DateTime']>;
-  loginsCount?: Maybe<Scalars['Int']>;
-  picture?: Maybe<Scalars['String']>;
-};
-
-/** expression to compare columns of type Boolean. All fields are combined with logical 'AND'. */
-export type Boolean_Comparison_Exp = {
-  _eq?: Maybe<Scalars['Boolean']>;
-  _gt?: Maybe<Scalars['Boolean']>;
-  _gte?: Maybe<Scalars['Boolean']>;
-  _in?: Maybe<Array<Scalars['Boolean']>>;
-  _is_null?: Maybe<Scalars['Boolean']>;
-  _lt?: Maybe<Scalars['Boolean']>;
-  _lte?: Maybe<Scalars['Boolean']>;
-  _neq?: Maybe<Scalars['Boolean']>;
-  _nin?: Maybe<Array<Scalars['Boolean']>>;
-};
-
-/** Create API Key for given user. If no user_id passed, create key for authenticated user. */
-export type CreateApiKey = {
-  __typename?: 'CreateApiKey';
-  createdKeyFullString?: Maybe<Scalars['String']>;
-  createdKeyPrefix?: Maybe<Scalars['String']>;
-  revokedKeyPrefixes?: Maybe<Array<Maybe<Scalars['String']>>>;
-};
-
-export type CreateApiKeyForUserInput = {
-  userId: Scalars['Int'];
-};
-
-export type CreateApiKeyForUserOutput = {
-  __typename?: 'CreateApiKeyForUserOutput';
-  created_key_full_string: Scalars['String'];
-  created_key_prefix: Scalars['String'];
-  revoked_key_prefixes?: Maybe<Array<Scalars['String']>>;
-};
-
-export type CreateApiKeyOutput = {
-  __typename?: 'CreateApiKeyOutput';
-  createdApiKey?: Maybe<Api_Keys>;
-  created_key_full_string: Scalars['String'];
-  created_key_prefix: Scalars['String'];
-  revoked_key_prefixes?: Maybe<Array<Scalars['String']>>;
-};
-
-export type CreateUserForOrgInput = {
-  email: Scalars['String'];
-  isOrgOwner?: Maybe<Scalars['Boolean']>;
-  orgId: Scalars['Int'];
-  userName: Scalars['String'];
-};
-
-export type CreateUserForOrgOutput = {
-  __typename?: 'CreateUserForOrgOutput';
-  userId: Scalars['Int'];
-};
-
-export type CreateUserInput = {
-  email: Scalars['String'];
-  isOrgOwner?: Maybe<Scalars['Boolean']>;
-  userName: Scalars['String'];
-};
-
-export type CreateUserOutput = {
-  __typename?: 'CreateUserOutput';
-  user?: Maybe<Users>;
-  userId: Scalars['Int'];
-};
-
-
-export type DeactivateUserInput = {
-  userId: Scalars['Int'];
-};
-
-export type DeactivateUserOutput = {
-  __typename?: 'DeactivateUserOutput';
-  userId: Scalars['Int'];
-};
-
-/** expression to compare columns of type Int. All fields are combined with logical 'AND'. */
-export type Int_Comparison_Exp = {
-  _eq?: Maybe<Scalars['Int']>;
-  _gt?: Maybe<Scalars['Int']>;
-  _gte?: Maybe<Scalars['Int']>;
-  _in?: Maybe<Array<Scalars['Int']>>;
-  _is_null?: Maybe<Scalars['Boolean']>;
-  _lt?: Maybe<Scalars['Int']>;
-  _lte?: Maybe<Scalars['Int']>;
-  _neq?: Maybe<Scalars['Int']>;
-  _nin?: Maybe<Array<Scalars['Int']>>;
-};
-
-
-export type LogMqlLogs = {
-  __typename?: 'LogMQLLogs';
-  ok?: Maybe<Scalars['Boolean']>;
-};
-
-/**
- * This is the externally-facing Graphene object representing the available MQL server download.
- *
- * TODO: There's likely a simple way to merge these two objects together
- */
-export type MqlServerVersion = {
-  __typename?: 'MQLServerVersion';
-  downloadUrl?: Maybe<Scalars['String']>;
-  version?: Maybe<Scalars['String']>;
-  versionHash?: Maybe<Scalars['String']>;
-};
-
-export type Model = {
-  __typename?: 'Model';
-  Organization?: Maybe<Organization>;
-  createdAt: Scalars['DateTime'];
-  executionContext?: Maybe<Scalars['String']>;
-  gitBranch: Scalars['String'];
-  gitCommit: Scalars['String'];
-  gitIsDirty: Scalars['Boolean'];
-  gitRepo: Scalars['String'];
-  id: Scalars['ID'];
-  isCurrent: Scalars['Boolean'];
-  organizationId: Scalars['Int'];
-  uploaderId: Scalars['Int'];
-  organization?: Maybe<Organization>;
-  uploader?: Maybe<User>;
-};
-
-export type MqlHeartbeats = {
-  __typename?: 'MqlHeartbeats';
-  createdAt?: Maybe<Scalars['DateTime']>;
-  details?: Maybe<Scalars['JSONString']>;
-  id: Scalars['ID'];
-  mqlServerId?: Maybe<Scalars['Int']>;
-  org?: Maybe<Organization>;
-  orgMqlServers?: Maybe<OrgMqlServer>;
-  organizationId: Scalars['Int'];
-  status: Scalars['String'];
-  userId: Scalars['Int'];
-  versionSha: Scalars['String'];
-  mqlServer?: Maybe<OrgMqlServer>;
-  user?: Maybe<User>;
-};
-
-export type OrgMqlServer = {
-  __typename?: 'OrgMqlServer';
-  Organization?: Maybe<Organization>;
-  configSecret?: Maybe<Scalars['String']>;
-  createdAt?: Maybe<Scalars['DateTime']>;
-  dwEngine?: Maybe<Scalars['String']>;
-  heartbeats?: Maybe<Array<Maybe<MqlHeartbeats>>>;
-  id: Scalars['ID'];
-  isOrgDefault?: Maybe<Scalars['Boolean']>;
-  name: Scalars['String'];
-  organizationId: Scalars['Int'];
-  updatedAt?: Maybe<Scalars['DateTime']>;
-  url: Scalars['String'];
-};
-
-export type Organization = {
-  __typename?: 'Organization';
-  allUsers?: Maybe<Array<Maybe<User>>>;
-  createdAt?: Maybe<Scalars['DateTime']>;
-  currentModel?: Maybe<Array<Maybe<Model>>>;
-  deactivatedAt?: Maybe<Scalars['DateTime']>;
-  domain?: Maybe<Scalars['String']>;
-  id: Scalars['ID'];
-  logoUrl?: Maybe<Scalars['String']>;
-  models?: Maybe<Array<Maybe<Model>>>;
-  mqlServerLogs?: Maybe<Scalars['String']>;
-  mqlServerUrl?: Maybe<Scalars['String']>;
-  mqlServers?: Maybe<Array<Maybe<OrgMqlServer>>>;
-  name: Scalars['String'];
-  primaryConfigBranch: Scalars['String'];
-  primaryConfigRepo: Scalars['String'];
-  shardId: Scalars['Int'];
-  sourceControlUrl?: Maybe<Scalars['String']>;
-  updatedAt?: Maybe<Scalars['DateTime']>;
-  slug?: Maybe<Scalars['String']>;
-  isHosted: Scalars['Boolean'];
-};
-
-
-export type OrganizationModelsArgs = {
-  id?: Maybe<Scalars['ID']>;
-};
-
-export type ReactivateUserInput = {
-  userId: Scalars['Int'];
-};
-
-export type ReactivateUserOutput = {
-  __typename?: 'ReactivateUserOutput';
-  userId: Scalars['Int'];
-};
-
-export type RemoveUserRoleInput = {
-  role: Role;
-  userId: Scalars['Int'];
-};
-
-export type RemoveUserRoleOutput = {
-  __typename?: 'RemoveUserRoleOutput';
-  userId: Scalars['Int'];
-};
-
-export enum Role {
-  Admin = 'admin',
-  OrgAdmin = 'org_admin',
-  ServiceUser = 'service_user',
-  User = 'user'
-}
-
-export type SendMqlHeartbeat = {
-  __typename?: 'SendMqlHeartbeat';
-  success?: Maybe<Scalars['Boolean']>;
-};
-
-export type SetOrgMqlServerConfigSecretId = {
-  __typename?: 'SetOrgMqlServerConfigSecretId';
-  mqlServer?: Maybe<OrgMqlServer>;
-};
-
-/** expression to compare columns of type String. All fields are combined with logical 'AND'. */
-export type String_Comparison_Exp = {
-  _eq?: Maybe<Scalars['String']>;
-  _gt?: Maybe<Scalars['String']>;
-  _gte?: Maybe<Scalars['String']>;
-  _ilike?: Maybe<Scalars['String']>;
-  _in?: Maybe<Array<Scalars['String']>>;
-  _is_null?: Maybe<Scalars['Boolean']>;
-  _like?: Maybe<Scalars['String']>;
-  _lt?: Maybe<Scalars['String']>;
-  _lte?: Maybe<Scalars['String']>;
-  _neq?: Maybe<Scalars['String']>;
-  _nilike?: Maybe<Scalars['String']>;
-  _nin?: Maybe<Array<Scalars['String']>>;
-  _nlike?: Maybe<Scalars['String']>;
-  _nsimilar?: Maybe<Scalars['String']>;
-  _similar?: Maybe<Scalars['String']>;
-};
-
 /** Update user's email in DB and auth0. Auth0 needs to match for user to login with new email. */
 export type UpdateMyEmail = {
   __typename?: 'UpdateMyEmail';
@@ -4918,6 +4989,12 @@ export type UpdateMyEmailInput = {
 export type UpdateMyEmailOutput = {
   __typename?: 'UpdateMyEmailOutput';
   userId: Scalars['Int'];
+};
+
+/** Update user's email in DB and auth0. Auth0 needs to match for user to login with new email. */
+export type UpdateUserEmail = {
+  __typename?: 'UpdateUserEmail';
+  user?: Maybe<User>;
 };
 
 export type UpdateUserEmailForOrgInput = {
@@ -4951,6 +5028,35 @@ export type User = {
   userPrefs?: Maybe<Array<Maybe<UserPref>>>;
   activeApiKeys?: Maybe<Array<Maybe<ApiKey>>>;
   activeRoles?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type UserPref = {
+  __typename?: 'UserPref';
+  id: Scalars['ID'];
+  organizationId: Scalars['Int'];
+  userId: Scalars['Int'];
+  prefKey: Scalars['String'];
+  prefValue: Scalars['String'];
+  createdAt?: Maybe<Scalars['DateTime']>;
+  updatedAt?: Maybe<Scalars['DateTime']>;
+  dateCreate?: Maybe<Scalars['Int']>;
+  organization?: Maybe<Organization>;
+  user?: Maybe<User>;
+};
+
+export type UserRole = {
+  __typename?: 'UserRole';
+  id: Scalars['ID'];
+  organizationId: Scalars['Int'];
+  userId: Scalars['Int'];
+  role: Scalars['String'];
+  createdAt?: Maybe<Scalars['DateTime']>;
+  updatedAt?: Maybe<Scalars['DateTime']>;
+  removedAt?: Maybe<Scalars['DateTime']>;
+  dateAdded?: Maybe<Scalars['Int']>;
+  dateRemoved?: Maybe<Scalars['Int']>;
+  organization?: Maybe<Organization>;
+  user?: Maybe<User>;
 };
 
 /**
@@ -16885,6 +16991,35 @@ export type Team_Views = {
   created_at: Scalars['timestamptz'];
 };
 
+/** aggregated selection of "team_views" */
+export type Team_Views_Aggregate = {
+  __typename?: 'team_views_aggregate';
+  aggregate?: Maybe<Team_Views_Aggregate_Fields>;
+  nodes: Array<Team_Views>;
+};
+
+/** aggregate fields of "team_views" */
+export type Team_Views_Aggregate_Fields = {
+  __typename?: 'team_views_aggregate_fields';
+  count?: Maybe<Scalars['Int']>;
+  max?: Maybe<Team_Views_Max_Fields>;
+  min?: Maybe<Team_Views_Min_Fields>;
+};
+
+
+/** aggregate fields of "team_views" */
+export type Team_Views_Aggregate_FieldsCountArgs = {
+  columns?: Maybe<Array<Team_Views_Select_Column>>;
+  distinct?: Maybe<Scalars['Boolean']>;
+};
+
+/** order by aggregate values of table "team_views" */
+export type Team_Views_Aggregate_Order_By = {
+  count?: Maybe<Order_By>;
+  max?: Maybe<Team_Views_Max_Order_By>;
+  min?: Maybe<Team_Views_Min_Order_By>;
+};
+
 /** input type for inserting array relation for remote table "team_views" */
 export type Team_Views_Arr_Rel_Insert_Input = {
   data: Array<Team_Views_Insert_Input>;
@@ -16901,6 +17036,28 @@ export type Team_Views_Bool_Exp = {
 /** input type for inserting data into table "team_views" */
 export type Team_Views_Insert_Input = {
   team_id?: Maybe<Scalars['Int']>;
+};
+
+/** aggregate max on columns */
+export type Team_Views_Max_Fields = {
+  __typename?: 'team_views_max_fields';
+  created_at?: Maybe<Scalars['timestamptz']>;
+};
+
+/** order by max() on columns of table "team_views" */
+export type Team_Views_Max_Order_By = {
+  created_at?: Maybe<Order_By>;
+};
+
+/** aggregate min on columns */
+export type Team_Views_Min_Fields = {
+  __typename?: 'team_views_min_fields';
+  created_at?: Maybe<Scalars['timestamptz']>;
+};
+
+/** order by min() on columns of table "team_views" */
+export type Team_Views_Min_Order_By = {
+  created_at?: Maybe<Order_By>;
 };
 
 /** response of any mutation on the table "team_views" */
@@ -16983,6 +17140,8 @@ export type Teams = {
   teamMembers_aggregate: Team_Members_Aggregate;
   /** An array relationship */
   teamViews: Array<Team_Views>;
+  /** An aggregated array relationship */
+  teamViews_aggregate: Team_Views_Aggregate;
   theme?: Maybe<Scalars['String']>;
   /** Timestamp indicating when the Team was last updated */
   updatedAt?: Maybe<Scalars['timestamptz']>;
@@ -17178,6 +17337,21 @@ export type TeamsTeamMembers_AggregateArgs = {
  * columns and relationships of "teams"
  */
 export type TeamsTeamViewsArgs = {
+  distinct_on?: Maybe<Array<Team_Views_Select_Column>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<Team_Views_Order_By>>;
+  where?: Maybe<Team_Views_Bool_Exp>;
+};
+
+
+/**
+ * Teams are groups of Users within an Organization
+ *
+ *
+ * columns and relationships of "teams"
+ */
+export type TeamsTeamViews_AggregateArgs = {
   distinct_on?: Maybe<Array<Team_Views_Select_Column>>;
   limit?: Maybe<Scalars['Int']>;
   offset?: Maybe<Scalars['Int']>;
@@ -17381,6 +17555,7 @@ export type Teams_Order_By = {
   savedQueries_aggregate?: Maybe<Saved_Queries_Aggregate_Order_By>;
   slug?: Maybe<Order_By>;
   teamMembers_aggregate?: Maybe<Team_Members_Aggregate_Order_By>;
+  teamViews_aggregate?: Maybe<Team_Views_Aggregate_Order_By>;
   theme?: Maybe<Order_By>;
   updatedAt?: Maybe<Order_By>;
 };
@@ -19399,89 +19574,6 @@ export type Users_Variance_Order_By = {
   id?: Maybe<Order_By>;
 };
 
-
-export type UserRole = {
-  __typename?: 'UserRole';
-  id: Scalars['ID'];
-  organizationId: Scalars['Int'];
-  userId: Scalars['Int'];
-  role: Scalars['String'];
-  createdAt?: Maybe<Scalars['DateTime']>;
-  updatedAt?: Maybe<Scalars['DateTime']>;
-  removedAt?: Maybe<Scalars['DateTime']>;
-  dateAdded?: Maybe<Scalars['Int']>;
-  dateRemoved?: Maybe<Scalars['Int']>;
-  organization?: Maybe<Organization>;
-  user?: Maybe<User>;
-};
-
-export type UserPref = {
-  __typename?: 'UserPref';
-  id: Scalars['ID'];
-  organizationId: Scalars['Int'];
-  userId: Scalars['Int'];
-  prefKey: Scalars['String'];
-  prefValue: Scalars['String'];
-  createdAt?: Maybe<Scalars['DateTime']>;
-  updatedAt?: Maybe<Scalars['DateTime']>;
-  dateCreate?: Maybe<Scalars['Int']>;
-  organization?: Maybe<Organization>;
-  user?: Maybe<User>;
-};
-
-export type ApiKey = {
-  __typename?: 'ApiKey';
-  prefix: Scalars['String'];
-  organizationId: Scalars['Int'];
-  userId: Scalars['Int'];
-  type: Scalars['String'];
-  secretHash: Scalars['String'];
-  dateRevoked?: Maybe<Scalars['Int']>;
-  createdAt?: Maybe<Scalars['DateTime']>;
-  revokedAt?: Maybe<Scalars['DateTime']>;
-  revokerId?: Maybe<Scalars['Int']>;
-  lastUsedAt?: Maybe<Scalars['DateTime']>;
-  scope?: Maybe<Scalars['String']>;
-  user?: Maybe<User>;
-  organization?: Maybe<Organization>;
-  revoker?: Maybe<User>;
-};
-
-/** Update user's email in DB and auth0. Auth0 needs to match for user to login with new email. */
-export type UpdateUserEmail = {
-  __typename?: 'UpdateUserEmail';
-  user?: Maybe<User>;
-};
-
-/** Create User for given org. If no org_id passed, create user in org of authenticated user. */
-export type CreateUser = {
-  __typename?: 'CreateUser';
-  user?: Maybe<User>;
-};
-
-/** Add role to user in DB and Auth0. */
-export type AddRoleToUser = {
-  __typename?: 'AddRoleToUser';
-  user?: Maybe<User>;
-};
-
-/** Remove role from user in DB and Auth0. */
-export type RemoveRoleFromUser = {
-  __typename?: 'RemoveRoleFromUser';
-  user?: Maybe<User>;
-};
-
-/** Deactivate user in DB and Auth0. */
-export type DeactivateUser = {
-  __typename?: 'DeactivateUser';
-  user?: Maybe<User>;
-};
-
-/** Reactivate user in DB and Auth0. */
-export type ReactivateUser = {
-  __typename?: 'ReactivateUser';
-  user?: Maybe<User>;
-};
 
 export type MqlServerUrlQueryVariables = Exact<{ [key: string]: never; }>;
 
