@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useContext, useCallback } from "react";
+import { useEffect, useReducer, useContext } from "react";
 import { CombinedError } from "urql";
 
 import MqlContext from "../context/MqlContext/MqlContext";
@@ -245,6 +245,9 @@ export default function useMqlQuery({
     mqlServerUrl,
   } = useContext(MqlContext);
   const [state, dispatch] = useReducer(mqlQueryReducer, initialState);
+  const isRunning =
+    state.queryStatus === MqlQueryStatus.Running ||
+    state.queryStatus === MqlQueryStatus.Pending;
 
   const [{}, createMqlQuery] = useMutation<
     CreateMqlQueryMutation,
@@ -283,6 +286,11 @@ export default function useMqlQuery({
     });
   }, [queryInput, metricName, mqlServerUrl, skip]);
 
+  const _skip =
+    skip ||
+    !state.queryId ||
+    (state.cancelledQueries.includes(state.queryId) && !isRunning);
+
   const [{ data, error }, refetchMqlQuery] = useQuery<
     FetchMqlTimeSeriesQuery,
     FetchMqlTimeSeriesQueryVariables
@@ -291,8 +299,7 @@ export default function useMqlQuery({
     variables: {
       queryId: state.queryId || "",
     },
-    pause:
-      skip || !state.queryId || state.cancelledQueries.includes(state.queryId),
+    pause: _skip,
   });
 
   useEffect(() => {
@@ -316,7 +323,7 @@ export default function useMqlQuery({
     }
 
     const { status, id } = data.mqlQuery;
-    if (id && state.cancelledQueries.includes(id)) {
+    if (id && state.cancelledQueries.includes(id) && !isRunning) {
       return;
     }
 
@@ -328,10 +335,7 @@ export default function useMqlQuery({
         handleCombinedError,
       });
     }
-    if (
-      status === MqlQueryStatus.Running ||
-      status === MqlQueryStatus.Pending
-    ) {
+    if (isRunning) {
       window.setTimeout(() => {
         dispatch({ type: "fetchResultsRunning" });
         refetchMqlQuery();
