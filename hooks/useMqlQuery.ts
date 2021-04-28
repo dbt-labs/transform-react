@@ -228,7 +228,7 @@ type UseMqlQueryParams = {
   retries?: number;
 };
 
-// This custom hook consists of one useCallback and two useHooks that should asynchronously handle all scenarios for this chained
+// This custom hook consists of two useHooks that should asynchronously handle all scenarios for this chained
 // data fetching we are doing. It should do it in a high performance way and in a way that is resilient to race conditions if the
 // user updates their request while a query is in flight
 export default function useMqlQuery({
