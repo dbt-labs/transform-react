@@ -14,6 +14,7 @@ import {
   FetchMqlTimeSeriesQueryVariables,
   MqlQueryStatus,
 } from "../queries/mql/MqlQueryTypes";
+import MqlQueryStore, { IMqlQueryStore } from "./MqlQueryStore";
 
 // This is the delay between the _response_ from the last query and the _start_ of the new query
 const QUERY_POLLING_MS = 200;
@@ -73,6 +74,8 @@ export type UseMqlQueryState = {
   isTakingForever: boolean;
 
   errorMessage?: string;
+
+  queryStore: IMqlQueryStore;
 };
 
 const initialState: UseMqlQueryState = {
@@ -81,6 +84,7 @@ const initialState: UseMqlQueryState = {
   queryStatus: MqlQueryStatus.Pending,
   data: null,
   cancelledQueries: [],
+  queryStore: new MqlQueryStore(),
   fetchStartTime: null,
   isTakingForever: false,
 };
@@ -115,7 +119,7 @@ function mqlQueryReducer(
   switch (action.type) {
     case "postQueryStart": {
       // This condition is triggered when there is already a queryId being fetched.
-      // In this case we want to add "cancel" that query by adding it to the cancelledQueries list
+      // In this case we want to "cancel" that query by adding it to the cancelledQueries list
       if (state.queryId) {
         return {
           ...state,
@@ -151,6 +155,16 @@ function mqlQueryReducer(
     }
 
     case "postQuerySuccess": {
+      const existingData = state.queryStore.get(action.queryId);
+      if (existingData) {
+        return {
+          ...state,
+          queryId: action.queryId,
+          errorMessage: undefined,
+          queryStatus: MqlQueryStatus.Successful,
+          data: existingData,
+        };
+      }
       return {
         ...state,
         queryId: action.queryId,
@@ -192,6 +206,9 @@ function mqlQueryReducer(
     }
 
     case "fetchResultsSuccess": {
+      if (state.queryId) {
+        state.queryStore.set(state.queryId, action.data?.mqlQuery);
+      }
       return {
         ...state,
         queryStatus: MqlQueryStatus.Successful,
@@ -289,7 +306,8 @@ export default function useMqlQuery({
   const _skip =
     skip ||
     !state.queryId ||
-    (state.cancelledQueries.includes(state.queryId) && !isRunning);
+    (state.cancelledQueries.includes(state.queryId) && !isRunning) ||
+    Boolean(state.queryStore.get(state.queryId));
 
   const [{ data, error }, refetchMqlQuery] = useQuery<
     FetchMqlTimeSeriesQuery,
@@ -366,6 +384,5 @@ export default function useMqlQuery({
       }
     }
   }, [data, error, state.cancelledQueries, limit, handleCombinedError]);
-
   return state;
 }
