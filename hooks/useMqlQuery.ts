@@ -347,11 +347,14 @@ export default function useMqlQuery({
         dispatch({ type: "retryFetchResults" });
         refetchMqlQuery();
       } else {
-        const errorMessage = `This query failed for an unknown reason.\n\nQueryId: ${
-          data?.mqlQuery?.id
-        }\nStatus: ${data?.mqlQuery?.status}\nResult: ${JSON.stringify(
-          data?.mqlQuery?.result
-        )}`;
+        let jsonString: string;
+        try {
+          jsonString = JSON.stringify(data?.mqlQuery?.result);
+        } catch (e) {
+          jsonString = "Invalid data.mqlQuery.result";
+        }
+
+        const errorMessage = `This query failed for an unknown reason.\n\nQueryId: ${data?.mqlQuery?.id}\nStatus: ${data?.mqlQuery?.status}\nResult: ${jsonString}`;
 
         dispatch({
           type: "fetchResultsFail",
