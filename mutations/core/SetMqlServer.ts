@@ -1,16 +1,21 @@
 import { gql } from "urql";
 
 const mutation = gql`
-  mutation SetMqlServer($newServerIdAsString: String!) {
+  mutation SetMqlServer($newServerIdAsString: String!, $userId: ID!) {
     setUserPreference(
       prefKey: "mql_server_override_id"
       prefValue: $newServerIdAsString
+      userId: $userId
     ) {
-      id
-      prefKey
-      prefValue
-      userId
-      createdAt
+      user {
+        prefs {
+          id
+          prefKey
+          prefValue
+          userId
+          createdAt
+        }
+      }
     }
   }
 `;

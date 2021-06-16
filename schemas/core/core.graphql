@@ -1,4 +1,7 @@
 type Query {
+  allFeatures(pageNumber: Int, pageSize: Int, orderBy: FeatureOrderBy, desc: Boolean): [Feature]
+  allOrganizations(pageNumber: Int, pageSize: Int, orderBy: OrganizationOrderBy, desc: Boolean): [Organization]
+
   """fetch data from the table: "annotations" using primary key columns"""
   annotation(
     """ID field to identify an Annotation"""
@@ -319,6 +322,7 @@ type Query {
 
   """fetch data from the table: "features" using primary key columns"""
   feature(id: Int!): features
+  featureTest(id: ID!): Feature
 
   """
   fetch data from the table: "features"
@@ -1304,6 +1308,7 @@ type Query {
     """filter the rows returned"""
     where: organization_features_bool_exp
   ): organization_features_aggregate!
+  organizationTest(id: ID!): Organization
 
   """
   fetch data from the table: "organizations"
@@ -1798,6 +1803,8 @@ type Query {
     """filter the rows returned"""
     where: teams_bool_exp
   ): teams_aggregate!
+  totalFeatures: Int
+  totalOrganizations: Int
 
   """fetch data from the table: "users" using primary key columns"""
   user(id: Int!): users
@@ -2002,6 +2009,9 @@ type Mutation {
     on_conflict: metric_collection_metrics_on_conflict
   ): metric_collection_metrics_mutation_response
 
+  """Add role to user in DB and Auth0."""
+  addRoleToUserTest(role: String!, userId: Int!): AddRoleToUser
+
   """
   insert a single row into the table: "team_members"
   """
@@ -2077,6 +2087,7 @@ type Mutation {
     """on conflict condition"""
     on_conflict: annotations_on_conflict
   ): annotations
+  createAnnotationTest(dateEndedAt: Date!, dateStartedAt: Date!, expectedImpact: String!, metricInputs: [GMetricAnnotationInput]!, priority: Priority!, text: String!, title: String!): CreateAnnotation
 
   """
   insert data into the table: "annotations"
@@ -2326,6 +2337,7 @@ type Mutation {
     """on conflict condition"""
     on_conflict: org_mql_servers_on_conflict
   ): org_mql_servers_mutation_response
+  createOrganizationTest(name: String!, primaryConfigRepo: String, primaryConfigBranch: String, mqlServerUrl: String, sourceControlUrl: String, mqlServerLogs: String, isHosted: Boolean, dwEngine: String, mqlServerName: String): Organization
 
   """
   insert a single row into the table: "questions"
@@ -2475,6 +2487,11 @@ type Mutation {
   ): user_prefs_mutation_response
 
   """
+  Create User for given org. If no org_id passed, create user in org of authenticated user.
+  """
+  createUserTest(email: String!, isOrgOwner: Boolean, organizationId: Int, userName: String!): CreateUser
+
+  """
   insert a single row into the table: "saved_query_metrics"
   """
   createdSavedQueryMetric(
@@ -2494,6 +2511,9 @@ type Mutation {
   perform the action: "deactivateUser"
   """
   deactivateUser(input: DeactivateUserInput!): DeactivateUserOutput
+
+  """Deactivate user in DB and Auth0."""
+  deactivateUserTest(userId: Int!): DeactivateUser
 
   """
   delete single row from the table: "dashboard_item_configs"
@@ -2669,6 +2689,11 @@ type Mutation {
     """the rows to be inserted"""
     objects: [question_directed_to_insert_input!]!
   ): question_directed_to_mutation_response
+  featuresAddOrg(featureId: ID!, organizationId: ID!): Feature
+  featuresAddUser(featureId: ID!, userId: ID!): Feature
+  featuresCreate(name: String!): Feature
+  featuresRemoveAccess(featureId: ID!, userIds: [ID], organizationIds: [ID]): Feature
+  featuresUpdate(id: ID!, name: String, retireFeature: Boolean): Feature
 
   """
   insert data into the table: "users"
@@ -2708,11 +2733,24 @@ type Mutation {
     objects: [question_likes_insert_input!]!
   ): question_likes_mutation_response
   logMqlLog(level: String, message: String, tags: [String!]): LogMQLLogs
+  metricCollectionCreate(title: String!, description: String!, slug: String!, defaultEmphasis: String!, metrics: [ID], ownerTeamId: ID): MetricCollection
+  metricCollectionDelete(id: ID!): MetricCollection
+  questionRepliesLike(id: ID!): QuestionReply
+  questionRepliesUnlike(id: ID!): QuestionReply
+  questionsCreate(text: String!, priority: String!, metricId: ID!, directedToUsers: [ID], directedToTeams: [ID]): Question
+  questionsCreateReply(questionId: ID!, text: String!): Question
+  questionsEdit(id: ID!, text: String, priority: String, directedToTeams: [ID], directedToUsers: [ID], resolved: Boolean): Question
+  questionsLike(id: ID!): Question
+  questionsUnlike(id: ID!): Question
 
   """
   perform the action: "reactivateUser"
   """
   reactivateUser(input: ReactivateUserInput!): ReactivateUserOutput
+
+  """Reactivate user in DB and Auth0."""
+  reactivateUserTest(userId: Int!): ReactivateUser
+  removeAnnotation(annotationId: Int!): RemoveAnnotation
 
   """
   delete single row from the table: "question_directed_to"
@@ -2756,6 +2794,9 @@ type Mutation {
     where: metric_collection_metrics_bool_exp!
   ): metric_collection_metrics_mutation_response
 
+  """Remove role from user in DB and Auth0."""
+  removeRoleFromUserTest(role: String!, userId: Int!): RemoveRoleFromUser
+
   """
   delete single row from the table: "team_members"
   """
@@ -2773,8 +2814,10 @@ type Mutation {
   perform the action: "removeUserRole"
   """
   removeUserRole(input: RemoveUserRoleInput!): RemoveUserRoleOutput
+  revokeApiKeyTest(prefix: String!): ApiKey
   sendMqlHeartbeat(mqlServerId: Int, sha: String!): SendMqlHeartbeat
   setOrgMqlServerConfigSecret(clientConfigSecretId: String, mqlServerId: Int): SetOrgMqlServerConfigSecretId
+  setUserPreference(prefKey: String!, prefValue: String!, userId: ID!): SetUserPreference
 
   """
   delete single row from the table: "question_likes"
@@ -2800,6 +2843,7 @@ type Mutation {
     _set: annotations_set_input
     pk_columns: annotations_pk_columns_input!
   ): annotations
+  updateAnnotationTest(annotationId: Int!, dateEndedAt: Date, dateStartedAt: Date, expectedImpact: String, metricInputs: [GMetricAnnotationInput], priority: Priority, text: String, title: String): UpdateAnnotation
 
   """
   update data of the table: "annotations"
@@ -2949,11 +2993,6 @@ type Mutation {
     """filter the rows which have to be updated"""
     where: metric_collections_bool_exp!
   ): metric_collections_mutation_response
-
-  """
-  Update user's email in DB and auth0. Auth0 needs to match for user to login with new email.
-  """
-  updateMyEmail(email: String): UpdateMyEmail
 
   """
   update single row of the table: "org_mql_servers"
@@ -3123,6 +3162,11 @@ type Mutation {
   ): users
 
   """
+  Update user's email in DB and auth0. Auth0 needs to match for user to login with new email.
+  """
+  updateUserEmail(email: String!, userId: Int): UpdateUserEmail
+
+  """
   update single row of the table: "user_prefs"
   """
   updateUserPreference(
@@ -3162,6 +3206,9 @@ type Mutation {
     where: user_roles_bool_exp!
   ): user_roles_mutation_response
 
+  """Update fields on a User."""
+  updateUserTest(avatarUrl: String, email: String, id: ID!, primaryDashboardId: ID, userName: String): UpdateUser
+
   """
   update data of the table: "users"
   """
@@ -3198,28 +3245,9 @@ type Mutation {
     _set: metric_collection_metrics_set_input
     pk_columns: metric_collection_metrics_pk_columns_input!
   ): metric_collection_metrics
-
-  """
-  Update user's email in DB and auth0. Auth0 needs to match for user to login with new email.
-  """
-  updateUserEmail(email: String!, userId: Int): UpdateUserEmail
-
-  """
-  Create User for given org. If no org_id passed, create user in org of authenticated user.
-  """
-  createUserTest(email: String!, isOrgOwner: Boolean, organizationId: Int, userName: String!): CreateUser
-
-  """Add role to user in DB and Auth0."""
-  addRoleToUserTest(role: String!, userId: Int!): AddRoleToUser
-
-  """Remove role from user in DB and Auth0."""
-  removeRoleFromUserTest(role: String!, userId: Int!): RemoveRoleFromUser
-
-  """Deactivate user in DB and Auth0."""
-  deactivateUserTest(userId: Int!): DeactivateUser
-
-  """Reactivate user in DB and Auth0."""
-  reactivateUserTest(userId: Int!): ReactivateUser
+  orgMqlServerUpdate(id: ID!, name: String, url: String, isOrgDefault: Boolean, configSecret: String, dwEngine: String): OrgMqlServer
+  orgMqlServerDelete(id: ID!): OrgMqlServer
+  orgMqlServerCreate(organizationId: ID, name: String!, url: String!, isOrgDefault: Boolean, configSecret: String, dwEngine: String): OrgMqlServer
 }
 
 """subscription root"""
@@ -5192,6 +5220,11 @@ type Subscription {
   ): users_aggregate!
 }
 
+"""Add role to user in DB and Auth0."""
+type AddRoleToUser {
+  user: User
+}
+
 input AddUserRoleInput {
   role: Role!
   userId: Int!
@@ -5199,6 +5232,82 @@ input AddUserRoleInput {
 
 type AddUserRoleOutput {
   userId: Int!
+}
+
+type Annotation {
+  author: User
+  authorId: Int!
+  createdAt: DateTime
+  dateEnd: String
+  dateEndedAt: String!
+  dateStart: String
+  dateStartedAt: String!
+  deletedAt: DateTime
+  expectedImpact: String!
+  id: ID!
+  metricAnnotations: [MetricAnnotation]
+  metrics: [Metric]
+  notifiedAt: DateTime
+  orgMetrics: [OrgMetric]
+  organization: Organization
+  organizationId: Int!
+  priority: String!
+  text: String!
+  timestampCreated: Int
+  title: String!
+  updatedAt: DateTime
+}
+
+"""An enumeration."""
+enum AnnotationOrderBy {
+  AUTHOR_ID
+  CREATED_AT
+  DATE_END
+  DATE_ENDED_AT
+  DATE_START
+  DATE_STARTED_AT
+  DELETED_AT
+  EXPECTED_IMPACT
+  ID
+  NOTIFIED_AT
+  ORGANIZATION_ID
+  PRIORITY
+  TEXT
+  TIMESTAMP_CREATED
+  TITLE
+  UPDATED_AT
+}
+
+type ApiKey {
+  createdAt: DateTime
+  dateRevoked: Int
+  lastUsedAt: DateTime
+  organization: Organization
+  organizationId: Int!
+  prefix: String!
+  revokedAt: DateTime
+  revoker: User
+  revokerId: Int
+  scope: String
+  secretHash: String!
+  type: String!
+  user: User
+  userId: Int!
+}
+
+"""An enumeration."""
+enum ApiKeyOrderBy {
+  CREATED_AT
+  DATE_REVOKED
+  LAST_USED_AT
+  ORGANIZATION_ID
+  PREFIX
+  REVOKED_AT
+  REVOKER_ID
+  SCOPE
+  SECRET_HASH
+  TYPE
+  USER_ID
 }
 
 """A wrapper for the response we get from Auth0's user profile API"""
@@ -5225,13 +5334,16 @@ input Boolean_comparison_exp {
   _nin: [Boolean!]
 }
 
+type CreateAnnotation {
+  annotation: Annotation
+}
+
 """
 Create API Key for given user. If no user_id passed, create key for authenticated user.
 """
 type CreateApiKey {
   createdKeyFullString: String
   createdKeyPrefix: String
-  revokedKeyPrefixes: [String]
 }
 
 input CreateApiKeyForUserInput {
@@ -5249,6 +5361,13 @@ type CreateApiKeyOutput {
   created_key_full_string: String!
   created_key_prefix: String!
   revoked_key_prefixes: [String!]
+}
+
+"""
+Create User for given org. If no org_id passed, create user in org of authenticated user.
+"""
+type CreateUser {
+  user: User
 }
 
 input CreateUserForOrgInput {
@@ -5273,6 +5392,91 @@ type CreateUserOutput {
   userId: Int!
 }
 
+type Dashboard {
+  createdAt: DateTime
+  dashboardLayout: String!
+  deletedAt: DateTime
+  id: ID!
+  organization: Organization
+  organizationId: Int!
+  sections: [DashboardSection]
+  title: String!
+  updatedAt: DateTime
+}
+
+type DashboardItem {
+  dashboardRenderableType: String!
+  dashboardSection: DashboardSection
+  dashboardSectionId: Int!
+  id: ID!
+  metricCollection: MetricCollection
+  metricCollectionId: Int
+  metricId: Int
+  position: Int
+  subtitle: String
+  team: Team
+  teamId: Int
+  title: String
+  user: User
+  userId: Int
+}
+
+type DashboardSection {
+  dashboard: Dashboard
+  dashboardId: Int!
+  dashboardSectionType: String!
+  id: ID!
+  items: [DashboardItem]
+}
+
+type DataSourceVersion {
+  connection: String!
+  constraint: JSONString
+  createdAt: DateTime!
+  dataSourceMetadata: JSONString!
+  description: String!
+  dimensions: JSONString!
+  hash: String!
+  id: ID!
+  identifiers: JSONString!
+  measures: JSONString!
+  metricLineageDataSources: [MetricLineageDataSource]
+  mutability: JSONString!
+  name: String!
+  organization: Organization
+  organizationId: Int!
+  owners: JSONString
+  sqlQuery: String
+  sqlTable: String
+}
+
+"""An enumeration."""
+enum DataSourceVersionOrderBy {
+  CONNECTION
+  CONSTRAINT
+  CREATED_AT
+  DATA_SOURCE_METADATA
+  DESCRIPTION
+  DIMENSIONS
+  HASH
+  ID
+  IDENTIFIERS
+  MEASURES
+  MUTABILITY
+  NAME
+  ORGANIZATION_ID
+  OWNERS
+  SQL_QUERY
+  SQL_TABLE
+}
+
+"""
+The `Date` scalar type represents a Date
+value as specified by
+[iso8601](https://en.wikipedia.org/wiki/ISO_8601).
+"""
+scalar Date
+
 """
 The `DateTime` scalar type represents a DateTime
 value as specified by
@@ -5280,12 +5484,46 @@ value as specified by
 """
 scalar DateTime
 
+"""Deactivate user in DB and Auth0."""
+type DeactivateUser {
+  user: User
+}
+
 input DeactivateUserInput {
   userId: Int!
 }
 
 type DeactivateUserOutput {
   userId: Int!
+}
+
+type Feature {
+  createdAt: DateTime
+  id: ID!
+  name: String!
+  organizations: [Organization]
+  retiredAt: DateTime
+  updatedAt: DateTime
+  users: [User]
+}
+
+"""An enumeration."""
+enum FeatureOrderBy {
+  CREATED_AT
+  ID
+  NAME
+  RETIRED_AT
+  UPDATED_AT
+}
+
+input GMetricAnnotationDimensionInput {
+  dimensionName: String!
+  valueHashes: [String]!
+}
+
+input GMetricAnnotationInput {
+  dimensions: [GMetricAnnotationDimensionInput]!
+  metricId: Int!
 }
 
 """
@@ -5326,8 +5564,227 @@ type MQLServerVersion {
   versionHash: String
 }
 
+type Metric {
+  annotations(pageNumber: Int, pageSize: Int, orderBy: AnnotationOrderBy, desc: Boolean): [Annotation]
+  createdAt: DateTime!
+  currentDescription: String
+  dataSources(pageNumber: Int, pageSize: Int, orderBy: DataSourceVersionOrderBy, desc: Boolean): [DataSourceVersion]
+  description: String!
+  displayName: String!
+  hash: String!
+  id: Int
+  latestApproval: MetricApproval
+  metadata_: JSONString!
+  metricId: Int
+  metricLineageDataSources: [MetricLineageDataSource]
+  metricType: Int!
+  model: [Model]
+  name: String
+  orgDataSourceId: Int
+  orgMetric: OrgMetric
+  organization: Organization
+  organizationId: Int!
+  params: JSONString!
+  questions(pageNumber: Int, pageSize: Int, orderBy: QuestionOrderBy, desc: Boolean): [Question]
+  recentAnnotations(pageNumber: Int, pageSize: Int, orderBy: AnnotationOrderBy, desc: Boolean): [Annotation]
+  recentQuestions(pageNumber: Int, pageSize: Int, orderBy: QuestionOrderBy, desc: Boolean): [Question]
+  savedQueries(pageNumber: Int, pageSize: Int, orderBy: SavedQueryOrderBy, desc: Boolean): [SavedQuery]
+  sourceDataSourceVersions: JSONString!
+  teamOwners: [MetricTeamOwner]
+  tier: Int!
+  totalAnnotations: Int
+  totalQuestions: Int
+  totalRecentViews: Int
+  totalRecentViewsForUser: Int
+  userIsMetricOwner: Boolean
+  userOwners: [MetricUserOwner]
+  views: MetricView
+  resolvedQuestions: Question
+  unresolvedQuestions: Question
+  totalDataSources: Int
+  totalSavedQueries: Int
+  totalResolvedQuestions: Int
+  totalUnresolvedQuestions: Int
+  ownerTeams(pageNumber: Int, pageSize: Int, orderBy: TeamOrderBy, desc: Boolean): [Team]
+  totalOwnerTeams: Int
+  ownerUsers(pageNumber: Int, pageSize: Int, orderBy: UserOrderBy, desc: Boolean): [User]
+  totalOwnerUsers: Int
+}
+
+type MetricAnnotation {
+  annotation: Annotation
+  annotationId: Int!
+  createdAt: DateTime
+  dimensionName: String
+  dimensionValue: String
+  dimensions: [MetricAnnotationDimension]
+  id: ID!
+  metric: Metric
+  metricId: Int
+  metricName: String
+  orgMetric: OrgMetric
+  organization: Organization
+  organizationId: Int!
+  updatedAt: DateTime
+}
+
+type MetricAnnotationDimension {
+  dimensionName: String!
+  id: ID!
+  metricAnnotationId: Int!
+  valueHashes: [String]
+}
+
+type MetricApproval {
+  approvalTs: Int!
+  approvedAt: DateTime
+  approver: User
+  approverId: Int!
+  id: ID!
+  metricId: Int
+  metricName: String!
+  organization: Organization
+  organizationId: Int!
+}
+
+type MetricCollection {
+  createdAt: DateTime
+  createdBy: Int!
+  createdByUser: User
+  defaultEmphasis: Int
+  deletedAt: DateTime
+  description: String
+  id: ID!
+  items(pageNumber: Int, pageSize: Int, orderBy: MetricCollectionMetricOrderBy, desc: Boolean): [MetricCollectionMetric]
+  organization: Organization
+  organizationId: Int!
+  ownerTeamId: Int
+  primaryDashboard: Dashboard
+  primaryDashboardId: Int
+  slug: String!
+  teamOwner: Team
+  title: String!
+  totalItems: Int
+  updatedAt: DateTime
+}
+
+type MetricCollectionMetric {
+  createdAt: DateTime!
+  emphasis: Int!
+  id: ID!
+  metric: Metric
+  metricCollection: MetricCollection
+  metricCollectionId: Int!
+  metricId: Int!
+  orgMetric: OrgMetric
+  position: Int!
+  updatedAt: DateTime!
+}
+
+"""An enumeration."""
+enum MetricCollectionMetricOrderBy {
+  CREATED_AT
+  EMPHASIS
+  ID
+  METRIC_COLLECTION_ID
+  METRIC_ID
+  POSITION
+  UPDATED_AT
+}
+
+"""An enumeration."""
+enum MetricCollectionOrderBy {
+  CREATED_AT
+  CREATED_BY
+  DEFAULT_EMPHASIS
+  DELETED_AT
+  DESCRIPTION
+  ID
+  ORGANIZATION_ID
+  OWNER_TEAM_ID
+  PRIMARY_DASHBOARD_ID
+  SLUG
+  TITLE
+  UPDATED_AT
+}
+
+type MetricLineageDataSource {
+  createdAt: DateTime!
+  dataSourceVersion: DataSourceVersion
+  dataSourceVersionId: Int
+  id: ID!
+  metric: Metric
+  metricVersionId: Int
+  organization: Organization
+  organizationId: Int!
+  updatedAt: DateTime!
+}
+
+type MetricTeamOwner {
+  createdAt: DateTime
+  createdTs: Int!
+  id: ID!
+  metricName: String!
+  orgMetricId: Int
+  organization: Organization
+  organizationId: Int!
+  team: Team
+  teamId: Int!
+}
+
+"""An enumeration."""
+enum MetricTier {
+  ONE
+  THREE
+  TWO
+}
+
+"""An enumeration."""
+enum MetricType {
+  EXPR
+  MEASURE_PROXY
+  RATIO
+}
+
+type MetricUserOwner {
+  createdAt: DateTime
+  id: ID!
+  orgMetricId: Int
+  organization: Organization
+  organizationId: Int!
+  user: User
+  userId: Int!
+}
+
+"""An enumeration."""
+enum MetricVersionOrderBy {
+  CREATED_AT
+  DESCRIPTION
+  DISPLAY_NAME
+  HASH
+  ID
+  METADATA
+  METRIC_ID
+  METRIC_TYPE
+  ORGANIZATION_ID
+  ORG_DATA_SOURCE_ID
+  PARAMS
+  SOURCE_DATA_SOURCE_VERSIONS
+  TIER
+  VIEWS
+}
+
+type MetricView {
+  createdAt: DateTime
+  metricId: Int
+  metricName: String!
+  organization: Organization
+  organizationId: ID!
+  userId: ID!
+  viewedTs: ID!
+}
+
 type Model {
-  Organization: Organization
   createdAt: DateTime!
   executionContext: String
   gitBranch: String!
@@ -5336,61 +5793,236 @@ type Model {
   gitRepo: String!
   id: ID!
   isCurrent: Boolean!
-  organizationId: Int!
-  uploaderId: Int!
+  metrics: [Metric]
+  modelDataSources: [ModelDataSource]
   organization: Organization
+  organizationId: Int!
   uploader: User
+  uploaderId: Int!
 }
 
-type MqlHeartbeats {
+type ModelDataSource {
+  dataSourceVersion: DataSourceVersion
+  dataSourceVersionId: ID!
+  model: Model
+  modelId: ID!
+  orgDataSourceId: ID!
+}
+
+type MqlHeartbeat {
   createdAt: DateTime
   details: JSONString
   id: ID!
+  mqlServer: OrgMqlServer
   mqlServerId: Int
   org: Organization
   orgMqlServers: OrgMqlServer
   organizationId: Int!
   status: String!
+  user: User
   userId: Int!
   versionSha: String!
-  mqlServer: OrgMqlServer
-  user: User
+}
+
+type OrgMetric {
+  createdAt: DateTime!
+  id: ID!
+  metricAnnotations: [MetricAnnotation]
+  name: String!
+  organization: Organization
+  organizationId: Int!
+  teamOwners: [MetricTeamOwner]
+  userOwners: [MetricUserOwner]
+  versions: [Metric]
 }
 
 type OrgMqlServer {
-  Organization: Organization
   configSecret: String
   createdAt: DateTime
   dwEngine: String
-  heartbeats: [MqlHeartbeats]
+  heartbeats: [MqlHeartbeat]
   id: ID!
   isOrgDefault: Boolean
   name: String!
+  organization: Organization
   organizationId: Int!
   updatedAt: DateTime
   url: String!
+  latestHeartbeat: MqlHeartbeat
+}
+
+"""An enumeration."""
+enum OrgMqlServerOrderBy {
+  CONFIG_SECRET
+  CREATED_AT
+  DW_ENGINE
+  ID
+  IS_ORG_DEFAULT
+  NAME
+  ORGANIZATION_ID
+  UPDATED_AT
+  URL
 }
 
 type Organization {
-  allUsers: [User]
+  activeFeatures: [Feature]
+  annotations(pageNumber: Int, pageSize: Int, orderBy: AnnotationOrderBy, desc: Boolean): [Annotation]
+  apiKeys: [ApiKey]
   createdAt: DateTime
   currentModel: [Model]
+  dashboard(id: ID!): Dashboard
+  dashboards: [Dashboard]
   deactivatedAt: DateTime
   domain: String
   id: ID!
+  isHosted: Boolean!
+  latestMqlHeartbeat: MqlHeartbeat
   logoUrl: String
+  metric(name: String!): Metric
+  metricCollection(slug: String!): MetricCollection
+  metricCollections(pageNumber: Int, pageSize: Int, orderBy: MetricCollectionOrderBy, desc: Boolean): [MetricCollection]
+  metricViews: [MetricView]
+  metrics(names: [String], tiers: [MetricTier], types: [MetricType], pageNumber: Int, pageSize: Int, orderBy: MetricVersionOrderBy, desc: Boolean): [Metric]
   models(id: ID): [Model]
+  mqlHeartbeats: [MqlHeartbeat]
   mqlServerLogs: String
   mqlServerUrl: String
-  mqlServers: [OrgMqlServer]
+  mqlServers(pageNumber: Int, pageSize: Int, orderBy: OrgMqlServerOrderBy, desc: Boolean): [OrgMqlServer]
   name: String!
+  orgMetrics: [OrgMetric]
   primaryConfigBranch: String!
   primaryConfigRepo: String!
+  questions(pageNumber: Int, pageSize: Int, orderBy: QuestionOrderBy, desc: Boolean): [Question]
+  recentAnnotations(pageNumber: Int, pageSize: Int, orderBy: AnnotationOrderBy, desc: Boolean): [Annotation]
+  recentQuestions(pageNumber: Int, pageSize: Int, orderBy: QuestionOrderBy, desc: Boolean): [Question]
+  savedQueries(pageNumber: Int, pageSize: Int, orderBy: SavedQueryOrderBy, desc: Boolean): [SavedQuery]
+  savedQuery(id: ID!): SavedQuery
   shardId: Int!
-  sourceControlUrl: String
-  updatedAt: DateTime
   slug: String
-  isHosted: Boolean!
+  sourceControlUrl: String
+  team(slug: String!): Team
+  teams(pageNumber: Int, pageSize: Int, orderBy: TeamOrderBy, desc: Boolean): [Team]
+  totalAnnotations: Int
+  totalMetricCollections: Int
+  totalMqlServers: Int
+  totalQuestions: Int
+  totalUsers: Int
+  updatedAt: DateTime
+  users(activeOnly: Boolean, pageNumber: Int, pageSize: Int, orderBy: UserOrderBy, desc: Boolean): [User]
+  question(id: ID!): Question
+  totalMetrics: Int
+  totalTeams: Int
+  totalSavedQueries: Int
+}
+
+"""An enumeration."""
+enum OrganizationOrderBy {
+  CREATED_AT
+  DEACTIVATED_AT
+  DOMAIN
+  ID
+  IS_HOSTED
+  LOGO_URL
+  MQL_SERVER_LOGS
+  MQL_SERVER_URL
+  NAME
+  PRIMARY_CONFIG_BRANCH
+  PRIMARY_CONFIG_REPO
+  SHARD_ID
+  SLUG
+  SOURCE_CONTROL_URL
+  UPDATED_AT
+}
+
+"""An enumeration."""
+enum Priority {
+  CRITICAL
+  HIGH
+  LOW
+  MEDIUM
+  NO_PRIORITY
+}
+
+type Question {
+  author: User
+  authorId: Int!
+  createdAt: DateTime
+  createdTs: Int
+  directedToTeams: [Team]
+  directedToUsers: [User]
+  id: ID!
+  likedByCurrentUser: Boolean
+  metric: Metric
+  metricId: Int
+  metricName: String!
+  notifiedAt: DateTime
+  orgMetric: OrgMetric
+  organization: Organization
+  organizationId: Int!
+  priority: String!
+  replies(pageNumber: Int, pageSize: Int, orderBy: QuestionReplyOrderBy, desc: Boolean): [QuestionReply]
+  resolved: Boolean
+  resolvedAt: DateTime
+  resolvedBy: Int
+  resolvedByUser: User
+  resolvedTs: Int
+  text: String!
+  totalLikes: Int
+  totalReplies: Int
+  updatedAt: DateTime
+  currentUserIsAuthor: Boolean
+}
+
+"""An enumeration."""
+enum QuestionOrderBy {
+  AUTHOR_ID
+  CREATED_AT
+  CREATED_TS
+  ID
+  METRIC_ID
+  METRIC_NAME
+  NOTIFIED_AT
+  ORGANIZATION_ID
+  PRIORITY
+  RESOLVED
+  RESOLVED_AT
+  RESOLVED_BY
+  RESOLVED_TS
+  TEXT
+  UPDATED_AT
+}
+
+type QuestionReply {
+  author: User
+  authorId: Int!
+  createdAt: DateTime
+  createdTs: Int
+  id: ID!
+  likedByCurrentUser: Boolean
+  organization: Organization
+  organizationId: Int!
+  question: Question
+  questionId: Int!
+  text: String!
+  totalLikes: Int
+  updatedAt: DateTime
+}
+
+"""An enumeration."""
+enum QuestionReplyOrderBy {
+  AUTHOR_ID
+  CREATED_AT
+  CREATED_TS
+  ID
+  ORGANIZATION_ID
+  QUESTION_ID
+  TEXT
+  UPDATED_AT
+}
+
+"""Reactivate user in DB and Auth0."""
+type ReactivateUser {
+  user: User
 }
 
 input ReactivateUserInput {
@@ -5399,6 +6031,15 @@ input ReactivateUserInput {
 
 type ReactivateUserOutput {
   userId: Int!
+}
+
+type RemoveAnnotation {
+  ok: Boolean
+}
+
+"""Remove role from user in DB and Auth0."""
+type RemoveRoleFromUser {
+  user: User
 }
 
 input RemoveUserRoleInput {
@@ -5417,12 +6058,46 @@ enum Role {
   user
 }
 
+type SavedQuery {
+  createdAt: DateTime
+  createdBy: Int!
+  createdByUser: User
+  deletedAt: DateTime
+  id: ID!
+  metrics(pageNumber: Int, pageSize: Int, orderBy: MetricVersionOrderBy, desc: Boolean): [Metric]
+  organization: Organization
+  organizationId: Int!
+  ownerTeam: Team
+  ownerTeamId: Int
+  serializedQuery: JSONString!
+  title: String!
+  updatedAt: DateTime
+  totalMetrics: Int
+}
+
+"""An enumeration."""
+enum SavedQueryOrderBy {
+  CREATED_AT
+  CREATED_BY
+  DELETED_AT
+  ID
+  ORGANIZATION_ID
+  OWNER_TEAM_ID
+  SERIALIZED_QUERY
+  TITLE
+  UPDATED_AT
+}
+
 type SendMqlHeartbeat {
   success: Boolean
 }
 
 type SetOrgMqlServerConfigSecretId {
   mqlServer: OrgMqlServer
+}
+
+type SetUserPreference {
+  user: User
 }
 
 """
@@ -5446,11 +6121,72 @@ input String_comparison_exp {
   _similar: String
 }
 
-"""
-Update user's email in DB and auth0. Auth0 needs to match for user to login with new email.
-"""
-type UpdateMyEmail {
+type Team {
+  createdAt: DateTime
+  createdBy: Int
+  createdByUser: User
+  createdTs: Int
+  dashboards: [Dashboard]
+  deactivatedAt: DateTime
+  deactivatedTs: Int
+  description: String
+  featuredMetricCollection: MetricCollection
+  featuredMetricCollectionId: Int
+  id: ID!
+  memberUsers: [User]
+  members: [TeamMember]
+  metricCollections(pageNumber: Int, pageSize: Int, orderBy: MetricCollectionOrderBy, desc: Boolean): [MetricCollection]
+  metrics(pageNumber: Int, pageSize: Int, orderBy: MetricVersionOrderBy, desc: Boolean): [Metric]
+  name: String!
+  organization: Organization
+  organizationId: Int!
+  primaryDashboard: Dashboard
+  primaryDashboardId: Int
+  savedQueries(pageNumber: Int, pageSize: Int, orderBy: SavedQueryOrderBy, desc: Boolean): [SavedQuery]
+  slug: String!
+  teamAdminIds: [Int]
+  theme: String
+  totalMetrics: Int
+  updatedAt: DateTime
+  userIsTeamAdmin: Boolean
+  adminMembers: [TeamMember]
+  totalSavedQueries: Int
+  totalMetricCollections: Int
+}
+
+type TeamMember {
+  id: ID!
+  isTeamAdmin: Boolean!
+  joinedAt: DateTime
+  joinedTs: Int
+  organization: Organization
+  organizationId: Int!
+  team: Team
+  teamId: Int!
   user: User
+  userId: Int!
+}
+
+"""An enumeration."""
+enum TeamOrderBy {
+  CREATED_AT
+  CREATED_BY
+  CREATED_TS
+  DEACTIVATED_AT
+  DEACTIVATED_TS
+  DESCRIPTION
+  FEATURED_METRIC_COLLECTION_ID
+  ID
+  NAME
+  ORGANIZATION_ID
+  PRIMARY_DASHBOARD_ID
+  SLUG
+  THEME
+  UPDATED_AT
+}
+
+type UpdateAnnotation {
+  annotation: Annotation
 }
 
 input UpdateMyEmailInput {
@@ -5459,6 +6195,18 @@ input UpdateMyEmailInput {
 
 type UpdateMyEmailOutput {
   userId: Int!
+}
+
+"""Update fields on a User."""
+type UpdateUser {
+  user: User
+}
+
+"""
+Update user's email in DB and auth0. Auth0 needs to match for user to login with new email.
+"""
+type UpdateUserEmail {
+  user: User
 }
 
 input UpdateUserEmailForOrgInput {
@@ -5472,24 +6220,84 @@ type UpdateUserEmailForOrgOutput {
 }
 
 type User {
+  activeFeatures: [Feature]
+  activeRoles: [String]
+  activeUserRoles: [UserRole]
+  apiKeys(activeOnly: Boolean, pageNumber: Int, pageSize: Int, orderBy: ApiKeyOrderBy, desc: Boolean): [ApiKey]
   auth0Id: String!
+  auth0Profile: Auth0Profile
   avatarUrl: String
   createdAt: DateTime
+  dashboards: [Dashboard]
+  dateCreate: Int
+  dateDeactivate: Int
   deactivatedAt: DateTime
   email: String!
   id: ID!
+  isAdmin: Boolean
+  isOrgAdmin: Boolean
+  metricCollections(pageNumber: Int, pageSize: Int, orderBy: MetricCollectionOrderBy, desc: Boolean): [MetricCollection]
   mqlServerUrl: String
   organization: Organization
   organizationId: Int!
-  userName: String!
-  updatedAt: DateTime
-  dateCreate: Int
-  dateDeactivate: Int
+  prefs: [UserPref]
+  primaryDashboard: Dashboard
+  primaryDashboardId: Int
   roles: [UserRole]
-  activeUserRoles: [UserRole]
-  userPrefs: [UserPref]
-  activeApiKeys: [ApiKey]
-  activeRoles: [String]
+  savedQueries(pageNumber: Int, pageSize: Int, orderBy: SavedQueryOrderBy, desc: Boolean): [SavedQuery]
+  teamMemberships: [TeamMember]
+  teams(isAdminOnly: Boolean, pageNumber: Int, pageSize: Int, orderBy: TeamOrderBy, desc: Boolean): [Team]
+  totalApiKeys: Int
+  updatedAt: DateTime
+  userName: String!
+  viewedMetrics(pageNumber: Int, pageSize: Int, orderBy: MetricVersionOrderBy, desc: Boolean): [Metric]
+  totalTeams: Int
+  totalSavedQueries: Int
+  totalViewedMetrics: Int
+  totalMetricCollections: Int
+}
+
+"""An enumeration."""
+enum UserOrderBy {
+  AUTH0_ID
+  AVATAR_URL
+  CREATED_AT
+  DATE_CREATE
+  DATE_DEACTIVATE
+  DEACTIVATED_AT
+  EMAIL
+  ID
+  ORGANIZATION_ID
+  PRIMARY_DASHBOARD_ID
+  UPDATED_AT
+  USER_NAME
+}
+
+type UserPref {
+  createdAt: DateTime
+  dateCreate: Int
+  id: ID!
+  organization: Organization
+  organizationId: Int!
+  prefKey: String!
+  prefValue: String!
+  updatedAt: DateTime
+  user: User
+  userId: Int!
+}
+
+type UserRole {
+  createdAt: DateTime
+  dateAdded: Int
+  dateRemoved: Int
+  id: ID!
+  organization: Organization
+  organizationId: Int!
+  removedAt: DateTime
+  role: String!
+  updatedAt: DateTime
+  user: User
+  userId: Int!
 }
 
 """
@@ -17067,8 +17875,8 @@ type questions {
   id: Int!
 
   """An object relationship"""
-  metric: org_metrics_current_view
-  metricId: Int
+  metric: org_metrics_current_view!
+  metricId: Int!
   metricName: String!
 
   """An object relationship"""
@@ -18891,7 +19699,7 @@ type teams {
   createdAt: timestamptz
 
   """An object relationship"""
-  createdBy: users
+  createdBy: users!
 
   """An array relationship"""
   dashboards(
@@ -18928,6 +19736,7 @@ type teams {
     """filter the rows returned"""
     where: team_dashboards_bool_exp
   ): team_dashboards_aggregate!
+  description: String
 
   """An object relationship"""
   featuredMetricCollection: metric_collections
@@ -19089,7 +19898,7 @@ type teams {
   ): saved_queries_aggregate!
 
   """The slug is a URL-friendly string used to identify a team in the App"""
-  slug: String
+  slug: String!
 
   """An array relationship"""
   teamMembers(
@@ -19245,6 +20054,7 @@ input teams_bool_exp {
   createdAt: timestamptz_comparison_exp
   createdBy: users_bool_exp
   dashboards: team_dashboards_bool_exp
+  description: String_comparison_exp
   featuredMetricCollection: metric_collections_bool_exp
   id: Int_comparison_exp
   metricCollections: metric_collections_bool_exp
@@ -19285,6 +20095,7 @@ input type for inserting data into table "teams"
 input teams_insert_input {
   createdBy: users_obj_rel_insert_input
   dashboards: team_dashboards_arr_rel_insert_input
+  description: String
   featuredMetricCollection: metric_collections_obj_rel_insert_input
   metricCollections: metric_collections_arr_rel_insert_input
   metricTeamOwners: metric_team_owners_arr_rel_insert_input
@@ -19301,6 +20112,7 @@ input teams_insert_input {
 """aggregate max on columns"""
 type teams_max_fields {
   createdAt: timestamptz
+  description: String
   id: Int
   name: String
   slug: String
@@ -19313,6 +20125,7 @@ order by max() on columns of table "teams"
 """
 input teams_max_order_by {
   createdAt: order_by
+  description: order_by
   id: order_by
   name: order_by
   slug: order_by
@@ -19323,6 +20136,7 @@ input teams_max_order_by {
 """aggregate min on columns"""
 type teams_min_fields {
   createdAt: timestamptz
+  description: String
   id: Int
   name: String
   slug: String
@@ -19335,6 +20149,7 @@ order by min() on columns of table "teams"
 """
 input teams_min_order_by {
   createdAt: order_by
+  description: order_by
   id: order_by
   name: order_by
   slug: order_by
@@ -19377,6 +20192,7 @@ input teams_order_by {
   createdAt: order_by
   createdBy: users_order_by
   dashboards_aggregate: team_dashboards_aggregate_order_by
+  description: order_by
   featuredMetricCollection: metric_collections_order_by
   id: order_by
   metricCollections_aggregate: metric_collections_aggregate_order_by
@@ -19409,6 +20225,9 @@ enum teams_select_column {
   createdAt
 
   """column name"""
+  description
+
+  """column name"""
   id
 
   """column name"""
@@ -19429,6 +20248,7 @@ input type for updating data in table "teams"
 """
 input teams_set_input {
   deactivatedAt: timestamptz
+  description: String
   featuredMetricCollectionId: Int
   name: String
   slug: String
@@ -19489,6 +20309,9 @@ update columns of table "teams"
 enum teams_update_column {
   """column name"""
   deactivatedAt
+
+  """column name"""
+  description
 
   """column name"""
   featuredMetricCollectionId
@@ -21639,81 +22462,3 @@ input users_variance_order_by {
 }
 
 scalar uuid
-
-type UserRole {
-  id: ID!
-  organizationId: Int!
-  userId: Int!
-  role: String!
-  createdAt: DateTime
-  updatedAt: DateTime
-  removedAt: DateTime
-  dateAdded: Int
-  dateRemoved: Int
-  organization: Organization
-  user: User
-}
-
-type UserPref {
-  id: ID!
-  organizationId: Int!
-  userId: Int!
-  prefKey: String!
-  prefValue: String!
-  createdAt: DateTime
-  updatedAt: DateTime
-  dateCreate: Int
-  organization: Organization
-  user: User
-}
-
-type ApiKey {
-  prefix: String!
-  organizationId: Int!
-  userId: Int!
-  type: String!
-  secretHash: String!
-  dateRevoked: Int
-  createdAt: DateTime
-  revokedAt: DateTime
-  revokerId: Int
-  lastUsedAt: DateTime
-  scope: String
-  user: User
-  organization: Organization
-  revoker: User
-}
-
-"""
-Update user's email in DB and auth0. Auth0 needs to match for user to login with new email.
-"""
-type UpdateUserEmail {
-  user: User
-}
-
-"""
-Create User for given org. If no org_id passed, create user in org of authenticated user.
-"""
-type CreateUser {
-  user: User
-}
-
-"""Add role to user in DB and Auth0."""
-type AddRoleToUser {
-  user: User
-}
-
-"""Remove role from user in DB and Auth0."""
-type RemoveRoleFromUser {
-  user: User
-}
-
-"""Deactivate user in DB and Auth0."""
-type DeactivateUser {
-  user: User
-}
-
-"""Reactivate user in DB and Auth0."""
-type ReactivateUser {
-  user: User
-}
