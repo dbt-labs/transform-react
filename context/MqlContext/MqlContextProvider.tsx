@@ -10,6 +10,7 @@ import {
   SetMqlServerMutationVariables,
 } from "../../mutations/core/CoreApiMutationTypes";
 import MqlContext, { MqlContextType, CORE_API_URL } from "./MqlContext";
+import getUserIdFromAuthToken from "./utils/getUserIdFromAuthToken";
 
 type Props = {
   getToken: () => Promise<string>;
@@ -90,12 +91,16 @@ function MqlContextProviderInternal({
   >(SetMqlServerMutation);
 
   const setMqlServerThenRefetch = useCallback(
-    (newServerId: number) =>
+    async (newServerId: number) => {
+      const token = await getToken();
       // Note: newServerid is cast as a string because it is stored on the backend
       // as a User Preference, whose values are all strings.
-      setMqlServer({ newServerIdAsString: `${newServerId}` }).then(
-        refetchMqlServerUrl
-      ),
+      return setMqlServer({
+        newServerIdAsString: `${newServerId}`,
+        userId: getUserIdFromAuthToken(token),
+      }).then(refetchMqlServerUrl);
+    },
+
     [setMqlServer, refetchMqlServerUrl]
   );
 

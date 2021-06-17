@@ -167,7 +167,7 @@ type MqlServerHealthItem {
 
 """Base mutation object exposed by GraphQL."""
 type Mutation {
-  createMqlMaterialization(input: CreateMqlMaterializationInput!): CreateMqlMaterializationPayload
+  createMqlMaterializationNew(input: CreateMqlMaterializationNewInput!): CreateMqlMaterializationNewPayload
 
   """
   This mutation is used to initiate an MQL Query.
@@ -176,7 +176,7 @@ type Mutation {
   The full query object is also returned in case we have a result available synchronously (stored the result cache)
   """
   createMqlQuery(input: CreateMqlQueryInput!): CreateMqlQueryPayload
-  materialize(asTable: String, cacheMode: CacheMode, groupBy: [String!], metrics: [String!], modelKey: ModelKeyInput, where: ConstraintInput): Materialize @deprecated(reason: "Moving to async implementation (CreateMqlMaterialization)")
+  materialize(asTable: String, cacheMode: CacheMode, groupBy: [String!], metrics: [String!], modelKey: ModelKeyInput, where: ConstraintInput): Materialize @deprecated(reason: "Moving to async implementation (CreateMqlMaterializationNew)")
 
   """
   Drop the MQL dynamic cache. Please avoid doing this unless there's a cache corruption issue.
@@ -188,23 +188,24 @@ type Mutation {
 
   """Removes hosted MQL Server config using AWS Secrets Manager."""
   revokeMqlServerConfig(mqlServerId: Int): RevokeMqlServerConfig
+
+  """
+  Rewrites SQL containing an MQL(...) function invocation by expanding into generated SQL
+  """
+  rewriteMqlSql(sql: String!): RewriteMqlSql
 }
 
-type CreateMqlMaterializationPayload {
+type CreateMqlMaterializationNewPayload {
   id: ID
   clientMutationId: String
 }
 
-input CreateMqlMaterializationInput {
+input CreateMqlMaterializationNewInput {
   modelKey: ModelKeyInput
-  asTable: String
-  metrics: [String!]
-  groupBy: [String!]
-  where: ConstraintInput
-
-  """String-based constraint input field using SQL syntax"""
-  constraint: String
-  cacheMode: CacheMode
+  materializationName: String
+  startTime: String
+  endTime: String
+  outputTable: String
   clientMutationId: String
 }
 
@@ -214,38 +215,6 @@ input ModelKeyInput {
   repo: String
   branch: String
   commit: String
-}
-
-"""
-Container class for inputs to allow for and/or wrappers on the `where` clause
-"""
-input ConstraintInput {
-  And: [SingleConstraintInput!]
-  Or: [SingleConstraintInput!]
-  constraint: SingleConstraintInput
-}
-
-"""Actual `where` clauses to be applied"""
-input SingleConstraintInput {
-  constraintType: AtomicConstraintType
-  dimensionName: String
-  values: [String!]
-  start: String
-  stop: String
-}
-
-"""Current possible values for constraints"""
-enum AtomicConstraintType {
-  SET
-  RANGE
-}
-
-"""An enumeration."""
-enum CacheMode {
-  READ
-  READWRITE
-  WRITE
-  IGNORE
 }
 
 """
@@ -289,7 +258,32 @@ input CreateMqlQueryInput {
   useResultCache: Boolean
   postProcessor: String
   postProcessors: [String!]
+  asTable: String
   clientMutationId: String
+}
+
+"""
+Container class for inputs to allow for and/or wrappers on the `where` clause
+"""
+input ConstraintInput {
+  And: [SingleConstraintInput!]
+  Or: [SingleConstraintInput!]
+  constraint: SingleConstraintInput
+}
+
+"""Actual `where` clauses to be applied"""
+input SingleConstraintInput {
+  constraintType: AtomicConstraintType
+  dimensionName: String
+  values: [String!]
+  start: String
+  stop: String
+}
+
+"""Current possible values for constraints"""
+enum AtomicConstraintType {
+  SET
+  RANGE
 }
 
 """
@@ -298,6 +292,14 @@ Limit is a GraphQL Scalar that can take in inf or positive integers.
 This class helps us normalize a API limit input into the Optional[int] type expected by library code
 """
 scalar LimitInput
+
+"""An enumeration."""
+enum CacheMode {
+  READ
+  READWRITE
+  WRITE
+  IGNORE
+}
 
 type Materialize {
   schema: String
@@ -335,6 +337,13 @@ type MqlServerConfig {
 """Removes hosted MQL Server config using AWS Secrets Manager."""
 type RevokeMqlServerConfig {
   success: Boolean
+}
+
+"""
+Rewrites SQL containing an MQL(...) function invocation by expanding into generated SQL
+"""
+type RewriteMqlSql {
+  resultSql: String
 }
 
 """
