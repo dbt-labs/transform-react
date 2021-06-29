@@ -7,6 +7,8 @@ const mutation = gql`
     $groupBy: [String!]
     $where: ConstraintInput
     $addTimeSeries: Boolean
+    $pctChange: PercentChange
+    $granularity: Granularity
   ) {
     createMqlQuery(
       input: {
@@ -15,6 +17,8 @@ const mutation = gql`
         groupBy: $groupBy
         where: $where
         addTimeSeries: $addTimeSeries
+        pctChange: $pctChange
+        granularity: $granularity
       }
     ) {
       id
