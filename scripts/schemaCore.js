@@ -19,7 +19,7 @@ async function main() {
   let response;
   let data;
   try {
-    response = await fetch("https://gateway.transformdata.io/graphql", {
+    response = await fetch("https://api.transformdata.io/graphql", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

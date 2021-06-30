@@ -9,6 +9,12 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
+  /**
+   * The `GenericScalar` scalar type represents a generic
+   * GraphQL scalar value that could be:
+   * String, Boolean, Int, Float, List or Object.
+   */
+  GenericScalar: any;
   /** Wrapper around Graphene DateTime that is capable of handling string dates */
   DateTime: any;
   /**
@@ -221,8 +227,9 @@ export type MqlQueryResultSeries = {
 
 /** This interface is used to describe any type of MQL Query result data */
 export type ResultDatum = {
-  y: Scalars['Float'];
+  y?: Maybe<Scalars['GenericScalar']>;
 };
+
 
 /** Object type for Tabular data used to populate Pandas DataFrames */
 export type MqlQueryTabularResult = {
@@ -408,9 +415,12 @@ export type CreateMqlQueryInput = {
   /** Optionally, provide a cache mode to instruct the query engine how/whether to check the cache for data. */
   cacheMode?: Maybe<CacheMode>;
   useResultCache?: Maybe<Scalars['Boolean']>;
-  postProcessor?: Maybe<Scalars['String']>;
-  postProcessors?: Maybe<Array<Scalars['String']>>;
+  resultFormat?: Maybe<ResultFormat>;
   asTable?: Maybe<Scalars['String']>;
+  /** Aggregate results by selected time period. */
+  granularity?: Maybe<Granularity>;
+  /** Calculate percentage changed from current time period to previous time period. Must also select granularity. */
+  pctChange?: Maybe<PercentChange>;
   clientMutationId?: Maybe<Scalars['String']>;
 };
 
@@ -443,6 +453,27 @@ export enum CacheMode {
   Readwrite = 'READWRITE',
   Write = 'WRITE',
   Ignore = 'IGNORE'
+}
+
+/** An enumeration. */
+export enum ResultFormat {
+  Tfd = 'TFD'
+}
+
+/** An enumeration. */
+export enum Granularity {
+  Daily = 'DAILY',
+  Weekly = 'WEEKLY',
+  Monthly = 'MONTHLY',
+  Yearly = 'YEARLY'
+}
+
+/** An enumeration. */
+export enum PercentChange {
+  Wow = 'WOW',
+  Mom = 'MOM',
+  Qoq = 'QOQ',
+  Yoy = 'YOY'
 }
 
 export type Materialize = {
@@ -489,7 +520,7 @@ export type RewriteMqlSql = {
 /** MQL Query Result Data are expected to be plotted on a time series so this is the most common result type */
 export type TimeSeriesDatum = ResultDatum & {
   __typename?: 'TimeSeriesDatum';
-  y: Scalars['Float'];
+  y?: Maybe<Scalars['GenericScalar']>;
   xDate: Scalars['DateTime'];
 };
 

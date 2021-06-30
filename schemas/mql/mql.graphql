@@ -97,8 +97,15 @@ type MqlQueryResultSeries {
 
 """This interface is used to describe any type of MQL Query result data"""
 interface ResultDatum {
-  y: Float!
+  y: GenericScalar
 }
+
+"""
+The `GenericScalar` scalar type represents a generic
+GraphQL scalar value that could be:
+String, Boolean, Int, Float, List or Object.
+"""
+scalar GenericScalar
 
 """Object type for Tabular data used to populate Pandas DataFrames"""
 type MqlQueryTabularResult {
@@ -256,9 +263,16 @@ input CreateMqlQueryInput {
   """
   cacheMode: CacheMode
   useResultCache: Boolean
-  postProcessor: String
-  postProcessors: [String!]
+  resultFormat: ResultFormat
   asTable: String
+
+  """Aggregate results by selected time period."""
+  granularity: Granularity
+
+  """
+  Calculate percentage changed from current time period to previous time period. Must also select granularity.
+  """
+  pctChange: PercentChange
   clientMutationId: String
 }
 
@@ -299,6 +313,27 @@ enum CacheMode {
   READWRITE
   WRITE
   IGNORE
+}
+
+"""An enumeration."""
+enum ResultFormat {
+  TFD
+}
+
+"""An enumeration."""
+enum Granularity {
+  DAILY
+  WEEKLY
+  MONTHLY
+  YEARLY
+}
+
+"""An enumeration."""
+enum PercentChange {
+  WOW
+  MOM
+  QOQ
+  YOY
 }
 
 type Materialize {
@@ -350,6 +385,6 @@ type RewriteMqlSql {
 MQL Query Result Data are expected to be plotted on a time series so this is the most common result type
 """
 type TimeSeriesDatum implements ResultDatum {
-  y: Float!
+  y: GenericScalar
   xDate: DateTime!
 }
