@@ -263,14 +263,6 @@ export default function useMqlQuery({
       formState = queryInput;
     }
 
-    console.log("args", {
-      metrics: [metricName],
-      groupBy: formState.groupBy || [],
-      where: clearEmptyConstraints(formState.where),
-      pctChange: formState.pctChange,
-      granularity: formState.granularity,
-      addTimeSeries: true,
-    });
     dispatch({ type: "postQueryStart" });
     createMqlQuery({
       metrics: [metricName],
@@ -311,16 +303,12 @@ export default function useMqlQuery({
     pause: _skip,
   });
 
-  console.log("time series data", data);
-  // console.log("time series error", error);
-
   useEffect(() => {
     if (error) {
       if (retries > 0 && state.retries !== retries) {
         dispatch({ type: "retryFetchResults" });
         refetchMqlQuery();
       } else {
-        console.log("WTF?", error);
         dispatch({
           type: "fetchResultsFail",
           errorMessage: getErrorMessage(error),
@@ -339,8 +327,7 @@ export default function useMqlQuery({
     if (id && state.cancelledQueries.includes(id) && !isRunning) {
       return;
     }
-    console.log("status", status);
-    console.log("data", data);
+
     if (status === MqlQueryStatus.Successful) {
       dispatch({
         type: "fetchResultsSuccess",
@@ -361,7 +348,6 @@ export default function useMqlQuery({
         dispatch({ type: "retryFetchResults" });
         refetchMqlQuery();
       } else {
-        console.log("data", data);
         let jsonString: string;
         try {
           jsonString = JSON.stringify(data?.mqlQuery?.result);
