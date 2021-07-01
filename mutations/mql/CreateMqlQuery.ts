@@ -19,6 +19,7 @@ const mutation = gql`
         addTimeSeries: $addTimeSeries
         pctChange: $pctChange
         granularity: $granularity
+        resultFormat: TFD
       }
     ) {
       id
