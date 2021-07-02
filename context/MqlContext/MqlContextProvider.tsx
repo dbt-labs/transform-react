@@ -95,10 +95,13 @@ function MqlContextProviderInternal({
       const token = await getToken();
       // Note: newServerid is cast as a string because it is stored on the backend
       // as a User Preference, whose values are all strings.
-      return setMqlServer({
-        newServerIdAsString: `${newServerId}`,
-        userId: getUserIdFromAuthToken(token),
-      }).then(refetchMqlServerUrl);
+      const userId = getUserIdFromAuthToken(token);
+      if (userId) {
+        return setMqlServer({
+          newServerIdAsString: `${newServerId}`,
+          userId,
+        }).then(refetchMqlServerUrl);
+      }
     },
 
     [setMqlServer, refetchMqlServerUrl]

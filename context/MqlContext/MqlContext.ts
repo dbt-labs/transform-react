@@ -6,7 +6,7 @@ import {
   SetMqlServerMutationVariables,
 } from "../../mutations/core/CoreApiMutationTypes";
 // TODO: Make this configurable when needed
-export const CORE_API_URL = "https://gateway.transformdata.io/graphql";
+export const CORE_API_URL = "https://api.transformdata.io/graphql";
 
 export type MqlContextType = {
   /*

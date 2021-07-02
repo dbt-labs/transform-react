@@ -264,11 +264,12 @@ export default function useMqlQuery({
     }
 
     dispatch({ type: "postQueryStart" });
-
     createMqlQuery({
       metrics: [metricName],
       groupBy: formState.groupBy || [],
       where: clearEmptyConstraints(formState.where),
+      pctChange: formState.pctChange,
+      granularity: formState.granularity,
       addTimeSeries: true,
     }).then(({ data, error }) => {
       if (data?.createMqlQuery?.id) {
