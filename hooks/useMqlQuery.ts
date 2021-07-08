@@ -164,6 +164,7 @@ function mqlQueryReducer(
 
       return {
         ...state,
+        queryStatus: MqlQueryStatus.Running,
         isTakingForever: diff >= LONG_FETCH_QUERY_ATTEMPT_MAX,
         errorMessage: undefined,
       };
@@ -175,6 +176,7 @@ function mqlQueryReducer(
 
       return {
         ...state,
+        queryStatus: MqlQueryStatus.Running,
         isTakingForever: diff >= LONG_FETCH_QUERY_ATTEMPT_MAX,
         errorMessage: undefined,
         retries: state.retries + 1,
@@ -245,9 +247,9 @@ export default function useMqlQuery({
     mqlServerUrl,
   } = useContext(MqlContext);
   const [state, dispatch] = useReducer(mqlQueryReducer, initialState);
-  const isRunning =
-    state.queryStatus === MqlQueryStatus.Running ||
-    state.queryStatus === MqlQueryStatus.Pending;
+  // const isRunning =
+  //   state.queryStatus === MqlQueryStatus.Running ||
+  //   state.queryStatus === MqlQueryStatus.Pending;
 
   const [{}, createMqlQuery] = useMutation<
     CreateMqlQueryMutation,
@@ -290,9 +292,9 @@ export default function useMqlQuery({
   const _skip =
     skip ||
     !state.queryId ||
-    (state.cancelledQueries.includes(state.queryId) && !isRunning);
+    state.cancelledQueries.includes(state.queryId); /* && !isRunning*/
 
-  const [{ data, error }, refetchMqlQuery] = useQuery<
+  const [{ data, error, fetching }, refetchMqlQuery] = useQuery<
     FetchMqlTimeSeriesQuery,
     FetchMqlTimeSeriesQueryVariables
   >({
@@ -324,7 +326,7 @@ export default function useMqlQuery({
     }
 
     const { status, id } = data.mqlQuery;
-    if (id && state.cancelledQueries.includes(id) && !isRunning) {
+    if (id && state.cancelledQueries.includes(id) /*&& !isRunning*/) {
       return;
     }
 
@@ -336,7 +338,12 @@ export default function useMqlQuery({
         handleCombinedError,
       });
     }
-    if (isRunning) {
+
+    if (
+      // isRunning ||
+      status === MqlQueryStatus.Running ||
+      status === MqlQueryStatus.Pending
+    ) {
       window.setTimeout(() => {
         dispatch({ type: "fetchResultsRunning" });
         refetchMqlQuery();
