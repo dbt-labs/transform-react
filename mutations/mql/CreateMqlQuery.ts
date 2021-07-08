@@ -9,6 +9,8 @@ const mutation = gql`
     $addTimeSeries: Boolean
     $pctChange: PercentChange
     $granularity: Granularity
+    $startTime: String
+    $endTime: String
   ) {
     createMqlQuery(
       input: {
@@ -19,6 +21,8 @@ const mutation = gql`
         addTimeSeries: $addTimeSeries
         pctChange: $pctChange
         granularity: $granularity
+        startTime: $startTime
+        endTime: $endTime
         resultFormat: TFD
       }
     ) {

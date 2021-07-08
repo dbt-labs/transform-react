@@ -295,6 +295,8 @@ input CreateMqlQueryInput {
   Calculate percentage changed from current time period to previous time period. Must also select granularity.
   """
   pctChange: PercentChange
+  startTime: String
+  endTime: String
   clientMutationId: String
 }
 

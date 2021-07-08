@@ -40,6 +40,7 @@ export type Query = {
   __typename?: 'Query';
   version?: Maybe<Scalars['String']>;
   mqlQuery?: Maybe<MqlQuery>;
+  materializations?: Maybe<Array<Materialization>>;
   metrics?: Maybe<Array<Metric>>;
   metricByName?: Maybe<Metric>;
   measures?: Maybe<Array<Measure>>;
@@ -57,6 +58,16 @@ export type Query = {
  */
 export type QueryMqlQueryArgs = {
   id: Scalars['ID'];
+};
+
+
+/**
+ * Base Query object exposed by GraphQL for the MQL Server
+ *
+ * Each field defined below is accessible by the API, by calling the equivalent resolver.
+ */
+export type QueryMaterializationsArgs = {
+  modelKey?: Maybe<ModelKeyArgument>;
 };
 
 
@@ -255,6 +266,22 @@ export enum PandasJsonOrient {
 }
 
 
+export type Materialization = {
+  __typename?: 'Materialization';
+  name: Scalars['String'];
+  metrics?: Maybe<Array<Scalars['String']>>;
+  dimensions?: Maybe<Array<Scalars['String']>>;
+  destinationTable?: Maybe<Scalars['String']>;
+};
+
+/** Directly mirrors ModelKey in models as an input argument */
+export type ModelKeyArgument = {
+  organization?: Maybe<Scalars['String']>;
+  repo?: Maybe<Scalars['String']>;
+  branch?: Maybe<Scalars['String']>;
+  commit?: Maybe<Scalars['String']>;
+};
+
 export type Metric = {
   __typename?: 'Metric';
   name: Scalars['String'];
@@ -267,14 +294,6 @@ export type Metric = {
 export type MetricDimensionValuesArgs = {
   modelKey?: Maybe<ModelKeyArgument>;
   dimensionName?: Maybe<Scalars['String']>;
-};
-
-/** Directly mirrors ModelKey in models as an input argument */
-export type ModelKeyArgument = {
-  organization?: Maybe<Scalars['String']>;
-  repo?: Maybe<Scalars['String']>;
-  branch?: Maybe<Scalars['String']>;
-  commit?: Maybe<Scalars['String']>;
 };
 
 export type Measure = {
@@ -295,6 +314,7 @@ export type MqlServerHealthItem = {
 export type Mutation = {
   __typename?: 'Mutation';
   createMqlMaterializationNew?: Maybe<CreateMqlMaterializationNewPayload>;
+  createMqlDropMaterialization?: Maybe<CreateMqlDropMaterializationPayload>;
   /**
    * This mutation is used to initiate an MQL Query.
    *
@@ -322,6 +342,12 @@ export type MutationCreateMqlMaterializationNewArgs = {
 
 
 /** Base mutation object exposed by GraphQL. */
+export type MutationCreateMqlDropMaterializationArgs = {
+  input: CreateMqlDropMaterializationInput;
+};
+
+
+/** Base mutation object exposed by GraphQL. */
 export type MutationCreateMqlQueryArgs = {
   input: CreateMqlQueryInput;
 };
@@ -334,7 +360,7 @@ export type MutationMaterializeArgs = {
   groupBy?: Maybe<Array<Scalars['String']>>;
   metrics?: Maybe<Array<Scalars['String']>>;
   modelKey?: Maybe<ModelKeyInput>;
-  where?: Maybe<ConstraintInput>;
+  where?: Maybe<Scalars['String']>;
 };
 
 
@@ -386,6 +412,20 @@ export type ModelKeyInput = {
   commit?: Maybe<Scalars['String']>;
 };
 
+export type CreateMqlDropMaterializationPayload = {
+  __typename?: 'CreateMqlDropMaterializationPayload';
+  id?: Maybe<Scalars['ID']>;
+  clientMutationId?: Maybe<Scalars['String']>;
+};
+
+export type CreateMqlDropMaterializationInput = {
+  modelKey?: Maybe<ModelKeyInput>;
+  materializationName?: Maybe<Scalars['String']>;
+  startTime?: Maybe<Scalars['String']>;
+  endTime?: Maybe<Scalars['String']>;
+  clientMutationId?: Maybe<Scalars['String']>;
+};
+
 /**
  * This mutation is used to initiate an MQL Query.
  *
@@ -403,10 +443,11 @@ export type CreateMqlQueryInput = {
   modelKey?: Maybe<ModelKeyInput>;
   metrics?: Maybe<Array<Scalars['String']>>;
   groupBy?: Maybe<Array<Scalars['String']>>;
-  /** Dict-based constraint input field */
-  where?: Maybe<ConstraintInput>;
   /** String-based constraint input field using SQL syntax */
   constraint?: Maybe<Scalars['String']>;
+  where?: Maybe<ConstraintInput>;
+  whereConstraint?: Maybe<Scalars['String']>;
+  timeConstraint?: Maybe<Scalars['String']>;
   order?: Maybe<Array<Scalars['String']>>;
   /** Integer, '-1', or 'inf' to represent the number of rows of a query to return input field */
   limit?: Maybe<Scalars['LimitInput']>;
@@ -421,6 +462,8 @@ export type CreateMqlQueryInput = {
   granularity?: Maybe<Granularity>;
   /** Calculate percentage changed from current time period to previous time period. Must also select granularity. */
   pctChange?: Maybe<PercentChange>;
+  startTime?: Maybe<Scalars['String']>;
+  endTime?: Maybe<Scalars['String']>;
   clientMutationId?: Maybe<Scalars['String']>;
 };
 
