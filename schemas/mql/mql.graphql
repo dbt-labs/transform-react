@@ -6,6 +6,7 @@ Each field defined below is accessible by the API, by calling the equivalent res
 type Query {
   version: String
   mqlQuery(id: ID!): MqlQuery
+  materializations(modelKey: ModelKeyArgument): [Materialization!]
   metrics(modelKey: ModelKeyArgument): [Metric!]
   metricByName(modelKey: ModelKeyArgument, name: String!): Metric
   measures(modelKey: ModelKeyArgument): [Measure!]
@@ -139,11 +140,11 @@ Wrapper around Graphene DateTime that is capable of handling string dates
 """
 scalar DateTime
 
-type Metric {
+type Materialization {
   name: String!
-  measures: [String!]
+  metrics: [String!]
   dimensions: [String!]
-  dimensionValues(modelKey: ModelKeyArgument, dimensionName: String): [String!]
+  destinationTable: String
 }
 
 """Directly mirrors ModelKey in models as an input argument"""
@@ -152,6 +153,13 @@ input ModelKeyArgument {
   repo: String
   branch: String
   commit: String
+}
+
+type Metric {
+  name: String!
+  measures: [String!]
+  dimensions: [String!]
+  dimensionValues(modelKey: ModelKeyArgument, dimensionName: String): [String!]
 }
 
 type Measure {
@@ -175,6 +183,7 @@ type MqlServerHealthItem {
 """Base mutation object exposed by GraphQL."""
 type Mutation {
   createMqlMaterializationNew(input: CreateMqlMaterializationNewInput!): CreateMqlMaterializationNewPayload
+  createMqlDropMaterialization(input: CreateMqlDropMaterializationInput!): CreateMqlDropMaterializationPayload
 
   """
   This mutation is used to initiate an MQL Query.
@@ -183,7 +192,7 @@ type Mutation {
   The full query object is also returned in case we have a result available synchronously (stored the result cache)
   """
   createMqlQuery(input: CreateMqlQueryInput!): CreateMqlQueryPayload
-  materialize(asTable: String, cacheMode: CacheMode, groupBy: [String!], metrics: [String!], modelKey: ModelKeyInput, where: ConstraintInput): Materialize @deprecated(reason: "Moving to async implementation (CreateMqlMaterializationNew)")
+  materialize(asTable: String, cacheMode: CacheMode, groupBy: [String!], metrics: [String!], modelKey: ModelKeyInput, where: String): Materialize @deprecated(reason: "Moving to async implementation (CreateMqlMaterializationNew)")
 
   """
   Drop the MQL dynamic cache. Please avoid doing this unless there's a cache corruption issue.
@@ -224,6 +233,19 @@ input ModelKeyInput {
   commit: String
 }
 
+type CreateMqlDropMaterializationPayload {
+  id: ID
+  clientMutationId: String
+}
+
+input CreateMqlDropMaterializationInput {
+  modelKey: ModelKeyInput
+  materializationName: String
+  startTime: String
+  endTime: String
+  clientMutationId: String
+}
+
 """
 This mutation is used to initiate an MQL Query.
 
@@ -241,11 +263,11 @@ input CreateMqlQueryInput {
   metrics: [String!]
   groupBy: [String!]
 
-  """Dict-based constraint input field"""
-  where: ConstraintInput
-
   """String-based constraint input field using SQL syntax"""
   constraint: String
+  where: ConstraintInput
+  whereConstraint: String
+  timeConstraint: String
   order: [String!]
 
   """

@@ -411,6 +411,7 @@ type Metric {
   totalRecentViews: Int
   totalRecentViewsForUser: Int
   userIsMetricOwner: Boolean
+  userCanEdit: Boolean
   dataSources(searchStr: String, searchColumns: [DataSourceVersionStrColumn], pageNumber: Int, pageSize: Int, orderBy: DataSourceVersionOrderBy, desc: Boolean): [DataSourceVersion]
   totalDataSources: Int
   savedQueries(searchStr: String, searchColumns: [SavedQueryStrColumn], pageNumber: Int, pageSize: Int, orderBy: SavedQueryOrderBy, desc: Boolean): [SavedQuery]
@@ -1065,7 +1066,7 @@ type Mutation {
 
   """Update fields on a User."""
   updateUserTest(avatarUrl: String, email: String, id: ID!, primaryDashboardId: ID, userName: String): UpdateUser
-  setUserPreference(prefKey: String!, prefValue: String!, userId: ID!): SetUserPreference
+  setUserPreference(prefKey: String!, prefValue: String!, userId: ID): SetUserPreference
   featuresCreate(name: String!): Feature
   featuresUpdate(id: ID!, name: String, retireFeature: Boolean): Feature
   featuresAddOrg(featureId: ID!, organizationId: ID!): Feature
@@ -1102,7 +1103,9 @@ type Mutation {
   metricsAssignTeamOwners(metricId: ID!, teamIds: [ID]): Metric
   metricsRemoveTeamOwners(metricId: ID!, teamIds: [ID]): Metric
   metricsAddDescription(metricId: ID!, description: String!): Metric
-  savedQueryCreate(ownerTeamId: ID!, title: String!, serializedQuery: GenericScalar!, metricIds: [ID]): SavedQuery
+  savedQueryCreate(title: String!, serializedQuery: GenericScalar!, metricIds: [ID], ownerTeamId: ID): SavedQuery
+  savedQueryUpdate(id: ID!, title: String, createdBy: Int, ownerTeamId: Int, serializedQuery: GenericScalar, metricIds: [ID]): SavedQuery
+  savedQueryDeactivate(id: ID!): SavedQuery
 }
 
 type LogMQLLogs {
