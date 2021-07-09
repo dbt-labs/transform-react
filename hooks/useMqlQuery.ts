@@ -273,6 +273,8 @@ export default function useMqlQuery({
       pctChange: formState.pctChange,
       granularity: formState.granularity,
       addTimeSeries: true,
+      startTime: formState.startTime,
+      endTime: formState.endTime,
     }).then(({ data, error }) => {
       if (data?.createMqlQuery?.id) {
         dispatch({

@@ -1118,6 +1118,7 @@ type SetOrgMqlServerConfigSecretId {
 
 type SendMqlHeartbeat {
   success: Boolean
+  heartbeat: MqlHeartbeat
 }
 
 type CreateAnnotation {

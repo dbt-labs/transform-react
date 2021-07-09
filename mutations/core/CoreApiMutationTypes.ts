@@ -783,6 +783,7 @@ export type Metric = {
   totalRecentViews?: Maybe<Scalars['Int']>;
   totalRecentViewsForUser?: Maybe<Scalars['Int']>;
   userIsMetricOwner?: Maybe<Scalars['Boolean']>;
+  userCanEdit?: Maybe<Scalars['Boolean']>;
   dataSources?: Maybe<Array<Maybe<DataSourceVersion>>>;
   totalDataSources?: Maybe<Scalars['Int']>;
   savedQueries?: Maybe<Array<Maybe<SavedQuery>>>;
@@ -1562,6 +1563,8 @@ export type Mutation = {
   metricsRemoveTeamOwners?: Maybe<Metric>;
   metricsAddDescription?: Maybe<Metric>;
   savedQueryCreate?: Maybe<SavedQuery>;
+  savedQueryUpdate?: Maybe<SavedQuery>;
+  savedQueryDeactivate?: Maybe<SavedQuery>;
 };
 
 
@@ -1785,7 +1788,7 @@ export type MutationUpdateUserTestArgs = {
 export type MutationSetUserPreferenceArgs = {
   prefKey: Scalars['String'];
   prefValue: Scalars['String'];
-  userId: Scalars['ID'];
+  userId?: Maybe<Scalars['ID']>;
 };
 
 
@@ -2261,10 +2264,37 @@ export type MutationMetricsAddDescriptionArgs = {
  * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
  */
 export type MutationSavedQueryCreateArgs = {
-  ownerTeamId: Scalars['ID'];
   title: Scalars['String'];
   serializedQuery: Scalars['GenericScalar'];
   metricIds?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  ownerTeamId?: Maybe<Scalars['ID']>;
+};
+
+
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
+export type MutationSavedQueryUpdateArgs = {
+  id: Scalars['ID'];
+  title?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['Int']>;
+  ownerTeamId?: Maybe<Scalars['Int']>;
+  serializedQuery?: Maybe<Scalars['GenericScalar']>;
+  metricIds?: Maybe<Array<Maybe<Scalars['ID']>>>;
+};
+
+
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
+export type MutationSavedQueryDeactivateArgs = {
+  id: Scalars['ID'];
 };
 
 export type LogMqlLogs = {
@@ -2280,6 +2310,7 @@ export type SetOrgMqlServerConfigSecretId = {
 export type SendMqlHeartbeat = {
   __typename?: 'SendMqlHeartbeat';
   success?: Maybe<Scalars['Boolean']>;
+  heartbeat?: Maybe<MqlHeartbeat>;
 };
 
 export type CreateAnnotation = {
