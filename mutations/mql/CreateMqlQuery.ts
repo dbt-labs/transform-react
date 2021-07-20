@@ -1,4 +1,5 @@
 import { gql } from "urql";
+import { Granularity } from "./MqlMutationTypes";
 
 const mutation = gql`
   mutation CreateMqlQuery(
@@ -8,7 +9,7 @@ const mutation = gql`
     $where: ConstraintInput
     $addTimeSeries: Boolean
     $pctChange: PercentChange
-    $granularity: Granularity
+    $granularity: Granularity = ${Granularity.Daily}
     $startTime: String
     $endTime: String
   ) {
