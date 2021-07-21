@@ -616,7 +616,28 @@ export type FetchMqlQueryQueryVariables = Exact<{
 }>;
 
 export type FetchMqlQueryQuery = { __typename?: "Query" } & {
-  mqlQuery?: Maybe<{ __typename?: "MqlQuery" } & Pick<MqlQuery, "id">>;
+  mqlQuery?: Maybe<
+    { __typename?: "MqlQuery" } & Pick<
+      MqlQuery,
+      | "id"
+      | "userId"
+      | "metrics"
+      | "dimensions"
+      | "status"
+      | "completedAt"
+      | "resultTableSchema"
+      | "resultTableName"
+      | "createdAt"
+      | "startedAt"
+      | "sql"
+      | "error"
+      | "errorTraceback"
+    > & {
+        modelKey?: Maybe<
+          { __typename?: "ModelKey" } & Pick<ModelKey, "branch" | "commit">
+        >;
+      }
+  >;
 };
 
 export type FetchMqlTimeSeriesQueryVariables = Exact<{
