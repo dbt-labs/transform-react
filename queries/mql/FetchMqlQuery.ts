@@ -14,16 +14,6 @@ const query = gql`
       metrics
       dimensions
       status
-      result {
-        seriesValue
-        data {
-          y
-        }
-      }
-      resultTabular {
-        data
-        nextCursor
-      }
       completedAt
       resultTableSchema
       resultTableName
@@ -32,8 +22,6 @@ const query = gql`
       sql
       error
       errorTraceback
-      logs
-      logsByLine(fromLine: 0, maxLines: 1000000)
     }
   }
 `;
