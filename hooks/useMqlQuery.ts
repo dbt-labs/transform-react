@@ -73,6 +73,8 @@ export type UseMqlQueryState = {
   isTakingForever: boolean;
 
   errorMessage?: string;
+
+  // Used to know if createMQLQuery immediately returned results, and as such we don't need to use FetchMqlTimeSeries
 };
 
 const initialState: UseMqlQueryState = {
@@ -89,6 +91,11 @@ type Action =
   | { type: "postQueryStart" }
   | { type: "postQueryFail"; errorMessage: string }
   | { type: "postQuerySuccess"; queryId: string }
+  | { type: "postQueryCachedResultsSuccess";
+      data: CreateMqlQueryMutation;
+      limit?: number;
+      handleCombinedError: (e: CombinedError) => void;
+    }
   | { type: "fetchResultsFail"; errorMessage: string }
   | { type: "fetchResultsRunning" }
   | { type: "retryFetchResults" }
@@ -158,6 +165,18 @@ function mqlQueryReducer(
       };
     }
 
+    case "postQueryCachedResultsSuccess": {
+      return {
+        ...state,
+        queryId: null,
+        queryStatus: MqlQueryStatus.Successful,
+        data: action.data?.createMqlQuery?.query,
+        fetchStartTime: null,
+        isTakingForever: false,
+        errorMessage: undefined,
+      }
+    }
+
     case "fetchResultsRunning": {
       const now = Date.now();
       const diff = now - (state.fetchStartTime || 0);
@@ -203,6 +222,8 @@ function mqlQueryReducer(
         errorMessage: undefined,
       };
     }
+
+
 
     default: {
       throw new Error();
@@ -276,18 +297,28 @@ export default function useMqlQuery({
       startTime: formState.startTime,
       endTime: formState.endTime,
     }).then(({ data, error }) => {
-      if (data?.createMqlQuery?.id) {
+      if (data?.createMqlQuery?.query?.status === MqlQueryStatus.Successful) {
         dispatch({
-          type: "postQuerySuccess",
-          queryId: data?.createMqlQuery?.id,
+          type: "postQueryCachedResultsSuccess",
+          data,
+          limit,
+          handleCombinedError,
         });
-      } else if (error) {
-        dispatch({
-          type: "postQueryFail",
-          errorMessage: error && error.message,
-        });
-        handleCombinedError(error);
+      } else {
+        if (data?.createMqlQuery?.id) {
+          dispatch({
+            type: "postQuerySuccess",
+            queryId: data?.createMqlQuery?.id,
+          });
+        } else if (error) {
+          dispatch({
+            type: "postQueryFail",
+            errorMessage: error && error.message,
+          });
+          handleCombinedError(error);
+        }
       }
+
     });
   }, [queryInput, metricName, mqlServerUrl, skip]);
 
@@ -331,7 +362,6 @@ export default function useMqlQuery({
     if (id && state.cancelledQueries.includes(id) /*&& !isRunning*/) {
       return;
     }
-
     if (status === MqlQueryStatus.Successful) {
       dispatch({
         type: "fetchResultsSuccess",

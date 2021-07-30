@@ -585,6 +585,18 @@ export type CreateMqlQueryMutation = (
   & { createMqlQuery?: Maybe<(
     { __typename?: 'CreateMqlQueryPayload' }
     & Pick<CreateMqlQueryPayload, 'id'>
+    & { query?: Maybe<(
+      { __typename?: 'MqlQuery' }
+      & Pick<MqlQuery, 'id' | 'status' | 'metrics' | 'dimensions'>
+      & { result?: Maybe<Array<(
+        { __typename?: 'MqlQueryResultSeries' }
+        & Pick<MqlQueryResultSeries, 'seriesValue'>
+        & { data?: Maybe<Array<(
+          { __typename?: 'TimeSeriesDatum' }
+          & Pick<TimeSeriesDatum, 'xDate' | 'y'>
+        )>> }
+      )>> }
+    )> }
   )> }
 );
 

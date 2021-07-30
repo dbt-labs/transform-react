@@ -27,6 +27,21 @@ const mutation = gql`
       }
     ) {
       id
+      query {
+        id
+        status
+        metrics
+        dimensions
+        result {
+          seriesValue
+          data {
+            y
+            ... on TimeSeriesDatum {
+              xDate
+            }
+          }
+        }
+      }
     }
   }
 `;
