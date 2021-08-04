@@ -9,7 +9,7 @@ import {
   SetMqlServerMutation as SetMqlServerMutationType,
   SetMqlServerMutationVariables,
 } from "../../mutations/core/CoreApiMutationTypes";
-import MqlContext, { MqlContextType, CORE_API_URL } from "./MqlContext";
+import MqlContext, { HandleCombinedErrorContext, MqlContextType, CORE_API_URL } from "./MqlContext";
 import getUserIdFromAuthToken from "./utils/getUserIdFromAuthToken";
 
 type Props = {
@@ -51,13 +51,13 @@ function MqlContextProviderInternal({
 }: Props) {
   // We do this because we want to allow the parent to provide a bespoke error handling function.
   const handleCombinedError = useCallback(
-    (e: CombinedError) => {
+    (e: CombinedError, context?: HandleCombinedErrorContext) => {
       const errFunction = captureException || console.error;
       if (e.message) {
-        errFunction(e.message);
+        errFunction(e.message, context);
       }
       if (e.networkError) {
-        errFunction(e.networkError);
+        errFunction(e.networkError, context);
       }
     },
     [captureException]
