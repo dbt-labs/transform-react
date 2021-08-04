@@ -305,16 +305,6 @@ export default function useMqlQuery({
           limit,
           handleCombinedError,
         });
-        console.log('asdfasdfsadf', data)
-        handleCombinedError({
-          name: "Unknown Error",
-          message: "Test error",
-          graphQLErrors: [],
-        }, {
-          queryId: data?.createMqlQuery?.query?.id as string,
-          queryStatus: data?.createMqlQuery?.query?.status as string,
-          json: "Test json string"
-        });
       } else {
         if (data?.createMqlQuery?.id) {
           dispatch({
