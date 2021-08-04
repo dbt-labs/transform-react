@@ -297,7 +297,6 @@ export default function useMqlQuery({
       startTime: formState.startTime,
       endTime: formState.endTime,
     }).then(({ data, error }) => {
-      console.log('asdfasdfsadf')
       if (data?.createMqlQuery?.query?.status === MqlQueryStatus.Successful) {
         dispatch({
           type: "postQueryCachedResultsSuccess",
