@@ -297,12 +297,23 @@ export default function useMqlQuery({
       startTime: formState.startTime,
       endTime: formState.endTime,
     }).then(({ data, error }) => {
+      console.log('asdfasdfsadf')
       if (data?.createMqlQuery?.query?.status === MqlQueryStatus.Successful) {
         dispatch({
           type: "postQueryCachedResultsSuccess",
           data,
           limit,
           handleCombinedError,
+        });
+        console.log('asdfasdfsadf', data)
+        handleCombinedError({
+          name: "Unknown Error",
+          message: "Test error",
+          graphQLErrors: [],
+        }, {
+          queryId: data?.createMqlQuery?.query?.id as string,
+          queryStatus: data?.createMqlQuery?.query?.status as string,
+          json: "Test json string"
         });
       } else {
         if (data?.createMqlQuery?.id) {
@@ -394,7 +405,7 @@ export default function useMqlQuery({
           jsonString = "Invalid data.mqlQuery.result";
         }
 
-        const errorMessage = `This query failed for an unknown reason.\n\nQueryId: ${data?.mqlQuery?.id}\nStatus: ${data?.mqlQuery?.status}\nResult: ${jsonString}`;
+        const errorMessage = `This query failed for an unknown reason.`;
 
         dispatch({
           type: "fetchResultsFail",
@@ -405,6 +416,10 @@ export default function useMqlQuery({
           name: "Unknown Error",
           message: errorMessage,
           graphQLErrors: [],
+        }, {
+          queryId: data?.mqlQuery?.id as string,
+          queryStatus: data?.mqlQuery?.status as string,
+          json: jsonString
         });
       }
     }

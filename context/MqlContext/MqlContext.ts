@@ -8,6 +8,12 @@ import {
 // TODO: Make this configurable when needed
 export const CORE_API_URL = "https://api.transformdata.io/graphql";
 
+export type HandleCombinedErrorContext = {
+  queryId?: string,
+  queryStatus?: string,
+  json?: string
+}
+
 export type MqlContextType = {
   /*
     The Core API URL is used to query Transform's universal backend system, as opposed
@@ -62,7 +68,7 @@ export type MqlContextType = {
   getToken: () => Promise<string>;
   useQuery: typeof useQuery;
   useMutation: typeof useMutation;
-  handleCombinedError: (e: CombinedError) => void;
+  handleCombinedError: (e: CombinedError, context?: HandleCombinedErrorContext) => void;
 };
 
 export const MqlContextInitialState = {
@@ -77,8 +83,8 @@ export const MqlContextInitialState = {
   getToken: () => Promise.resolve(""),
   useQuery,
   useMutation,
-  handleCombinedError: (e: CombinedError) => {
-    throw new Error(e.message);
+  handleCombinedError: (e: CombinedError, context?: HandleCombinedErrorContext) => {
+    throw new Error(context ? `Query Id: ${context.queryId} - Query Status: ${context.queryStatus} - Result: ${context.json} - ${e.message}` : e.message);
   },
 };
 
