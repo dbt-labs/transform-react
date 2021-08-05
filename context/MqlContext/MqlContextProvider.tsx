@@ -15,7 +15,7 @@ import getUserIdFromAuthToken from "./utils/getUserIdFromAuthToken";
 type Props = {
   getToken: () => Promise<string>;
   isAuthenticated: boolean;
-  captureException?: (e: CombinedError) => void;
+  captureException?: (e: CombinedError, context: HandleCombinedErrorContext) => void;
   children: ReactNode;
 };
 
