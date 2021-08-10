@@ -297,17 +297,6 @@ export default function useNewMqlQuery({
       formState = queryInput;
     }
 
-    console.log('mutation vars', {
-      metrics: [metricName],
-      groupBy: formState.groupBy || [],
-      where: clearEmptyConstraints(formState.where),
-      pctChange: formState.pctChange,
-      timeGranularity: formState?.granularity ? granularityToTimeGranularityMap[formState?.granularity] : TimeGranularity.Day,
-      addTimeSeries: true,
-      startTime: formState.startTime,
-      endTime: formState.endTime,
-    })
-
     dispatch({ type: "postQueryStart" });
     createMqlQuery({
       metrics: [metricName],
