@@ -2,11 +2,13 @@ import { useEffect, useReducer, useContext } from "react";
 import { CombinedError } from "urql";
 
 import MqlContext from "../context/MqlContext/MqlContext";
-import CreateMqlQuery from "../mutations/mql/CreateMqlQuery";
+import CreateMqlQueryWithTimeGranularity from "../mutations/mql/CreateMqlQueryWithTimeGranularity";
 import {
-  CreateMqlQueryMutation,
-  CreateMqlQueryMutationVariables,
+  CreateMqlQueryWithTimeGranularityMutation,
+  CreateMqlQueryWithTimeGranularityMutationVariables,
   ConstraintInput,
+  TimeGranularity,
+  Granularity
 } from "../mutations/mql/MqlMutationTypes";
 import FetchMqlQueryTimeSeries from "../queries/mql/FetchMqlQueryTimeSeries";
 import {
@@ -14,6 +16,14 @@ import {
   FetchMqlTimeSeriesQueryVariables,
   MqlQueryStatus,
 } from "../queries/mql/MqlQueryTypes";
+
+const granularityToTimeGranularityMap = {
+  [Granularity.Daily]: TimeGranularity.Day,
+  [Granularity.Weekly]: TimeGranularity.Week,
+  [Granularity.Monthly]: TimeGranularity.Month,
+  // [Granularity.Quaterly]: TimeGranularity.Quarter,
+  [Granularity.Yearly]: TimeGranularity.Year,
+}
 
 // This is the delay between the _response_ from the last query and the _start_ of the new query
 const QUERY_POLLING_MS = 200;
@@ -92,7 +102,7 @@ type Action =
   | { type: "postQueryFail"; errorMessage: string }
   | { type: "postQuerySuccess"; queryId: string }
   | { type: "postQueryCachedResultsSuccess";
-      data: CreateMqlQueryMutation;
+      data: CreateMqlQueryWithTimeGranularityMutation;
       limit?: number;
       handleCombinedError: (e: CombinedError) => void;
     }
@@ -246,7 +256,7 @@ function mqlQueryReducer(
 type UseMqlQueryParams = {
   metricName: string;
   limit?: number;
-  queryInput?: CreateMqlQueryMutationVariables;
+  queryInput?: CreateMqlQueryWithTimeGranularityMutationVariables;
   skip?: boolean;
   retries?: number;
 };
@@ -254,7 +264,7 @@ type UseMqlQueryParams = {
 // This custom hook consists of two useHooks that should asynchronously handle all scenarios for this chained
 // data fetching we are doing. It should do it in a high performance way and in a way that is resilient to race conditions if the
 // user updates their request while a query is in flight
-export default function useMqlQuery({
+export default function useNewMqlQuery({
   queryInput,
   metricName,
   limit,
@@ -273,15 +283,15 @@ export default function useMqlQuery({
   //   state.queryStatus === MqlQueryStatus.Pending;
 
   const [{}, createMqlQuery] = useMutation<
-    CreateMqlQueryMutation,
-    CreateMqlQueryMutationVariables
-  >(CreateMqlQuery);
+    CreateMqlQueryWithTimeGranularityMutation,
+    CreateMqlQueryWithTimeGranularityMutationVariables
+  >(CreateMqlQueryWithTimeGranularity);
 
   useEffect(() => {
     if (!metricName || !mqlServerUrl || skip) {
       return;
     }
-    let formState: CreateMqlQueryMutationVariables = {};
+    let formState: CreateMqlQueryWithTimeGranularityMutationVariables & {granularity?: Granularity} = {};
     if (queryInput) {
       formState = queryInput;
     }
@@ -292,7 +302,7 @@ export default function useMqlQuery({
       groupBy: formState.groupBy || [],
       where: clearEmptyConstraints(formState.where),
       pctChange: formState.pctChange,
-      granularity: formState.granularity,
+      timeGranularity: formState?.granularity ? granularityToTimeGranularityMap[formState?.granularity] : TimeGranularity.Day,
       addTimeSeries: true,
       startTime: formState.startTime,
       endTime: formState.endTime,

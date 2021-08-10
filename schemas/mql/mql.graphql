@@ -6,12 +6,12 @@ Each field defined below is accessible by the API, by calling the equivalent res
 type Query {
   version: String
   mqlQuery(id: ID!): MqlQuery
-  materializations(modelKey: ModelKeyArgument): [Materialization!]
-  metrics(modelKey: ModelKeyArgument): [Metric!]
-  metricByName(modelKey: ModelKeyArgument, name: String!): Metric
-  measures(modelKey: ModelKeyArgument): [Measure!]
-  measureByName(modelKey: ModelKeyArgument, name: String!): Measure
-  dimensionNamesForMetrics(modelKey: ModelKeyArgument, metricNames: [String]): [String]
+  materializations(modelKey: ModelKeyInput): [Materialization!]
+  metrics(modelKey: ModelKeyInput): [Metric!]
+  metricByName(modelKey: ModelKeyInput, name: String!): Metric
+  measures(modelKey: ModelKeyInput): [Measure!]
+  measureByName(modelKey: ModelKeyInput, name: String!): Measure
+  dimensionNamesForMetrics(modelKey: ModelKeyInput, metricNames: [String]): [String]
   queries(activeOnly: Boolean, status: MqlQueryStatus, metricNames: [String], dateRangeStart: Date, dateRangeEnd: Date, minExecutionSeconds: Float, maxExecutionSeconds: Float, userIds: [Int], limit: Int, offset: Int): [MqlQuery]
   healthReport: [MqlServerHealthItem]
 }
@@ -63,9 +63,11 @@ type MqlQuery {
   errorTraceback: String
   logs: String
   logsByLine(fromLine: Int, maxLines: Int): String
+  chartValueMin: Float
+  chartValueMax: Float
 }
 
-"""A Model Key is unsed to uniquely identify a model at a specific commit"""
+"""API Output definition for a Model Key"""
 type ModelKey {
   organization: String!
   repo: String!
@@ -147,19 +149,19 @@ type Materialization {
   destinationTable: String
 }
 
-"""Directly mirrors ModelKey in models as an input argument"""
-input ModelKeyArgument {
-  organization: String
-  repo: String
-  branch: String
-  commit: String
+"""API Input definition for a Model Key"""
+input ModelKeyInput {
+  organization: String!
+  repo: String!
+  branch: String!
+  commit: String!
 }
 
 type Metric {
   name: String!
   measures: [String!]
   dimensions: [String!]
-  dimensionValues(modelKey: ModelKeyArgument, dimensionName: String): [String!]
+  dimensionValues(modelKey: ModelKeyInput, dimensionName: String, startTime: String, endTime: String): [String!]
 }
 
 type Measure {
@@ -225,14 +227,6 @@ input CreateMqlMaterializationNewInput {
   clientMutationId: String
 }
 
-"""Directly mirrors ModelKey in models"""
-input ModelKeyInput {
-  organization: String
-  repo: String
-  branch: String
-  commit: String
-}
-
 type CreateMqlDropMaterializationPayload {
   id: ID
   clientMutationId: String
@@ -262,12 +256,14 @@ input CreateMqlQueryInput {
   modelKey: ModelKeyInput
   metrics: [String!]
   groupBy: [String!]
-
-  """String-based constraint input field using SQL syntax"""
-  constraint: String
   where: ConstraintInput
   whereConstraint: String
   timeConstraint: String
+
+  """
+  Optionally, provide a granularity for the primary time dimension in the returned results.
+  """
+  timeGranularity: TimeGranularity
   order: [String!]
 
   """
@@ -305,7 +301,6 @@ Container class for inputs to allow for and/or wrappers on the `where` clause
 """
 input ConstraintInput {
   And: [SingleConstraintInput!]
-  Or: [SingleConstraintInput!]
   constraint: SingleConstraintInput
 }
 
@@ -322,6 +317,15 @@ input SingleConstraintInput {
 enum AtomicConstraintType {
   SET
   RANGE
+}
+
+"""An enumeration."""
+enum TimeGranularity {
+  DAY
+  WEEK
+  MONTH
+  QUARTER
+  YEAR
 }
 
 """
