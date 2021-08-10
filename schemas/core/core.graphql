@@ -6,7 +6,8 @@ Each field defined below is accessible by the API, by calling the equivalent res
 type Query {
   auth0Profile(auth0Id: String!): Auth0Profile
   mqlServerUrl: String
-  latestMqlServer: MQLServerVersion
+  latestMqlServer: ServiceRelease
+  latestAvaticaServer: ServiceRelease
   myOrganization: Organization
   myUser: User
   allFeatures(searchStr: String, searchColumns: [FeatureStrColumn], pageNumber: Int, pageSize: Int, orderBy: FeatureOrderBy, desc: Boolean): [Feature]
@@ -39,7 +40,8 @@ This is the externally-facing Graphene object representing the available MQL ser
 
 TODO: There's likely a simple way to merge these two objects together
 """
-type MQLServerVersion {
+type ServiceRelease {
+  serviceName: String
   version: String
   downloadUrl: String
   versionHash: String
@@ -68,13 +70,12 @@ type Organization {
   mqlHeartbeats: [MqlHeartbeat]
   currentModel: [Model]
   teams(searchStr: String, searchColumns: [TeamStrColumn], pageNumber: Int, pageSize: Int, orderBy: TeamOrderBy, desc: Boolean): [Team]
+  apiKeys: [ApiKey]
   metricViews: [MetricView]
   savedQueries(searchStr: String, searchColumns: [SavedQueryStrColumn], pageNumber: Int, pageSize: Int, orderBy: SavedQueryOrderBy, desc: Boolean): [SavedQuery]
   teamViews: [TeamView]
-  activeFeatures: [Feature]
   dashboards: [Dashboard]
   metricCollections(searchStr: String, searchColumns: [MetricCollectionStrColumn], pageNumber: Int, pageSize: Int, orderBy: MetricCollectionOrderBy, desc: Boolean): [MetricCollection]
-  apiKeys: [ApiKey]
   questions(searchStr: String, searchColumns: [QuestionStrColumn], pageNumber: Int, pageSize: Int, orderBy: QuestionOrderBy, desc: Boolean): [Question]
   question(id: ID!): Question
   annotations(searchStr: String, searchColumns: [AnnotationStrColumn], pageNumber: Int, pageSize: Int, orderBy: AnnotationOrderBy, desc: Boolean): [Annotation]
@@ -87,6 +88,7 @@ type Organization {
   latestMqlHeartbeat: MqlHeartbeat
   totalUsers: Int
   totalTeams: Int
+  mqlServer(id: ID!): OrgMqlServer
   totalMqlServers: Int
   metric(name: String!): Metric
   team(slug: String!): Team
@@ -95,6 +97,8 @@ type Organization {
   metricCollection(slug: String!): MetricCollection
   totalMetricCollections: Int
   totalSavedQueries: Int
+  totalActiveFeatures: Int
+  activeFeatures: [Feature]
 }
 
 type User {
@@ -117,12 +121,11 @@ type User {
   teamMemberships: [TeamMember]
   dashboards: [Dashboard]
   primaryDashboard: Dashboard
+  apiKeys(activeOnly: Boolean, searchStr: String, searchColumns: [ApiKeyStrColumn], pageNumber: Int, pageSize: Int, orderBy: ApiKeyOrderBy, desc: Boolean): [ApiKey]
   savedQueries(searchStr: String, searchColumns: [SavedQueryStrColumn], pageNumber: Int, pageSize: Int, orderBy: SavedQueryOrderBy, desc: Boolean): [SavedQuery]
   organization: Organization
   teamViews: [TeamView]
-  activeFeatures: [Feature]
   metricCollections(searchStr: String, searchColumns: [MetricCollectionStrColumn], pageNumber: Int, pageSize: Int, orderBy: MetricCollectionOrderBy, desc: Boolean): [MetricCollection]
-  apiKeys(activeOnly: Boolean, searchStr: String, searchColumns: [ApiKeyStrColumn], pageNumber: Int, pageSize: Int, orderBy: ApiKeyOrderBy, desc: Boolean): [ApiKey]
   mqlServerUrl: String
   activeRoles: [String]
   isAdmin: Boolean
@@ -137,7 +140,9 @@ type User {
   totalViewedTeams: Int
   viewedMetricCollections(searchStr: String, searchColumns: [MetricCollectionStrColumn], pageNumber: Int, pageSize: Int, orderBy: MetricCollectionOrderBy, desc: Boolean): [MetricCollection]
   totalViewedMetricCollections: Int
+  totalActiveFeatures: Int
   viewedMetrics(searchStr: String, searchColumns: [MetricVersionStrColumn], pageNumber: Int, pageSize: Int, orderBy: MetricVersionOrderBy, desc: Boolean): [Metric]
+  activeFeatures: [Feature]
 }
 
 type UserRole {
@@ -860,16 +865,6 @@ enum MetricCollectionOrderBy {
   VIEWS
 }
 
-type Feature {
-  id: ID!
-  createdAt: DateTime
-  updatedAt: DateTime
-  name: String!
-  retiredAt: DateTime
-  users: [User]
-  organizations: [Organization]
-}
-
 type ApiKey {
   prefix: String!
   organizationId: Int!
@@ -908,6 +903,50 @@ enum ApiKeyOrderBy {
   REVOKER_ID
   LAST_USED_AT
   SCOPE
+}
+
+type Feature {
+  id: ID!
+  createdAt: DateTime
+  updatedAt: DateTime
+  name: String!
+  retiredAt: DateTime
+  organizations(searchStr: String, searchColumns: [OrganizationStrColumn], pageNumber: Int, pageSize: Int, orderBy: OrganizationOrderBy, desc: Boolean): [Organization]
+  users(searchStr: String, searchColumns: [UserStrColumn], pageNumber: Int, pageSize: Int, orderBy: UserOrderBy, desc: Boolean): [User]
+  totalOrganizations: Int
+  totalUsers: Int
+}
+
+"""An enumeration."""
+enum OrganizationStrColumn {
+  NAME
+  DOMAIN
+  LOGO_URL
+  PRIMARY_CONFIG_REPO
+  PRIMARY_CONFIG_BRANCH
+  MQL_SERVER_URL
+  SOURCE_CONTROL_URL
+  MQL_SERVER_LOGS
+  SLUG
+}
+
+"""An enumeration."""
+enum OrganizationOrderBy {
+  ID
+  NAME
+  DOMAIN
+  CREATED_AT
+  DEACTIVATED_AT
+  SHARD_ID
+  LOGO_URL
+  PRIMARY_CONFIG_REPO
+  PRIMARY_CONFIG_BRANCH
+  MQL_SERVER_URL
+  SOURCE_CONTROL_URL
+  MQL_SERVER_LOGS
+  UPDATED_AT
+  SLUG
+  IS_HOSTED
 }
 
 type OrgMqlServer {
@@ -989,38 +1028,6 @@ enum FeatureOrderBy {
   RETIRED_AT
 }
 
-"""An enumeration."""
-enum OrganizationStrColumn {
-  NAME
-  DOMAIN
-  LOGO_URL
-  PRIMARY_CONFIG_REPO
-  PRIMARY_CONFIG_BRANCH
-  MQL_SERVER_URL
-  SOURCE_CONTROL_URL
-  MQL_SERVER_LOGS
-  SLUG
-}
-
-"""An enumeration."""
-enum OrganizationOrderBy {
-  ID
-  NAME
-  DOMAIN
-  CREATED_AT
-  DEACTIVATED_AT
-  SHARD_ID
-  LOGO_URL
-  PRIMARY_CONFIG_REPO
-  PRIMARY_CONFIG_BRANCH
-  MQL_SERVER_URL
-  SOURCE_CONTROL_URL
-  MQL_SERVER_LOGS
-  UPDATED_AT
-  SLUG
-  IS_HOSTED
-}
-
 """
 Base mutation object exposed by GraphQL.
 
@@ -1069,8 +1076,8 @@ type Mutation {
   setUserPreference(prefKey: String!, prefValue: String!, userId: ID): SetUserPreference
   featuresCreate(name: String!): Feature
   featuresUpdate(id: ID!, name: String, retireFeature: Boolean): Feature
-  featuresAddOrg(featureId: ID!, organizationId: ID!): Feature
-  featuresAddUser(featureId: ID!, userId: ID!): Feature
+  featuresAddOrgs(featureId: ID!, organizationIds: [ID]!): Feature
+  featuresAddUsers(featureId: ID!, userIds: [ID]!): Feature
   featuresRemoveAccess(featureId: ID!, userIds: [ID], organizationIds: [ID]): Feature
   questionsCreateReply(questionId: ID!, text: String!): Question
   questionRepliesLike(id: ID!): QuestionReply

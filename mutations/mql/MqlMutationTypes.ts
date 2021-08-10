@@ -67,7 +67,7 @@ export type QueryMqlQueryArgs = {
  * Each field defined below is accessible by the API, by calling the equivalent resolver.
  */
 export type QueryMaterializationsArgs = {
-  modelKey?: Maybe<ModelKeyArgument>;
+  modelKey?: Maybe<ModelKeyInput>;
 };
 
 
@@ -77,7 +77,7 @@ export type QueryMaterializationsArgs = {
  * Each field defined below is accessible by the API, by calling the equivalent resolver.
  */
 export type QueryMetricsArgs = {
-  modelKey?: Maybe<ModelKeyArgument>;
+  modelKey?: Maybe<ModelKeyInput>;
 };
 
 
@@ -87,7 +87,7 @@ export type QueryMetricsArgs = {
  * Each field defined below is accessible by the API, by calling the equivalent resolver.
  */
 export type QueryMetricByNameArgs = {
-  modelKey?: Maybe<ModelKeyArgument>;
+  modelKey?: Maybe<ModelKeyInput>;
   name: Scalars['String'];
 };
 
@@ -98,7 +98,7 @@ export type QueryMetricByNameArgs = {
  * Each field defined below is accessible by the API, by calling the equivalent resolver.
  */
 export type QueryMeasuresArgs = {
-  modelKey?: Maybe<ModelKeyArgument>;
+  modelKey?: Maybe<ModelKeyInput>;
 };
 
 
@@ -108,7 +108,7 @@ export type QueryMeasuresArgs = {
  * Each field defined below is accessible by the API, by calling the equivalent resolver.
  */
 export type QueryMeasureByNameArgs = {
-  modelKey?: Maybe<ModelKeyArgument>;
+  modelKey?: Maybe<ModelKeyInput>;
   name: Scalars['String'];
 };
 
@@ -119,7 +119,7 @@ export type QueryMeasureByNameArgs = {
  * Each field defined below is accessible by the API, by calling the equivalent resolver.
  */
 export type QueryDimensionNamesForMetricsArgs = {
-  modelKey?: Maybe<ModelKeyArgument>;
+  modelKey?: Maybe<ModelKeyInput>;
   metricNames?: Maybe<Array<Maybe<Scalars['String']>>>;
 };
 
@@ -177,6 +177,8 @@ export type MqlQuery = {
   errorTraceback?: Maybe<Scalars['String']>;
   logs?: Maybe<Scalars['String']>;
   logsByLine?: Maybe<Scalars['String']>;
+  chartValueMin?: Maybe<Scalars['Float']>;
+  chartValueMax?: Maybe<Scalars['Float']>;
 };
 
 
@@ -205,7 +207,7 @@ export type MqlQueryLogsByLineArgs = {
   maxLines?: Maybe<Scalars['Int']>;
 };
 
-/** A Model Key is unsed to uniquely identify a model at a specific commit */
+/** API Output definition for a Model Key */
 export type ModelKey = {
   __typename?: 'ModelKey';
   organization: Scalars['String'];
@@ -274,12 +276,12 @@ export type Materialization = {
   destinationTable?: Maybe<Scalars['String']>;
 };
 
-/** Directly mirrors ModelKey in models as an input argument */
-export type ModelKeyArgument = {
-  organization?: Maybe<Scalars['String']>;
-  repo?: Maybe<Scalars['String']>;
-  branch?: Maybe<Scalars['String']>;
-  commit?: Maybe<Scalars['String']>;
+/** API Input definition for a Model Key */
+export type ModelKeyInput = {
+  organization: Scalars['String'];
+  repo: Scalars['String'];
+  branch: Scalars['String'];
+  commit: Scalars['String'];
 };
 
 export type Metric = {
@@ -292,8 +294,10 @@ export type Metric = {
 
 
 export type MetricDimensionValuesArgs = {
-  modelKey?: Maybe<ModelKeyArgument>;
+  modelKey?: Maybe<ModelKeyInput>;
   dimensionName?: Maybe<Scalars['String']>;
+  startTime?: Maybe<Scalars['String']>;
+  endTime?: Maybe<Scalars['String']>;
 };
 
 export type Measure = {
@@ -404,14 +408,6 @@ export type CreateMqlMaterializationNewInput = {
   clientMutationId?: Maybe<Scalars['String']>;
 };
 
-/** Directly mirrors ModelKey in models */
-export type ModelKeyInput = {
-  organization?: Maybe<Scalars['String']>;
-  repo?: Maybe<Scalars['String']>;
-  branch?: Maybe<Scalars['String']>;
-  commit?: Maybe<Scalars['String']>;
-};
-
 export type CreateMqlDropMaterializationPayload = {
   __typename?: 'CreateMqlDropMaterializationPayload';
   id?: Maybe<Scalars['ID']>;
@@ -443,11 +439,11 @@ export type CreateMqlQueryInput = {
   modelKey?: Maybe<ModelKeyInput>;
   metrics?: Maybe<Array<Scalars['String']>>;
   groupBy?: Maybe<Array<Scalars['String']>>;
-  /** String-based constraint input field using SQL syntax */
-  constraint?: Maybe<Scalars['String']>;
   where?: Maybe<ConstraintInput>;
   whereConstraint?: Maybe<Scalars['String']>;
   timeConstraint?: Maybe<Scalars['String']>;
+  /** Optionally, provide a granularity for the primary time dimension in the returned results. */
+  timeGranularity?: Maybe<TimeGranularity>;
   order?: Maybe<Array<Scalars['String']>>;
   /** Integer, '-1', or 'inf' to represent the number of rows of a query to return input field */
   limit?: Maybe<Scalars['LimitInput']>;
@@ -470,7 +466,6 @@ export type CreateMqlQueryInput = {
 /** Container class for inputs to allow for and/or wrappers on the `where` clause */
 export type ConstraintInput = {
   And?: Maybe<Array<SingleConstraintInput>>;
-  Or?: Maybe<Array<SingleConstraintInput>>;
   constraint?: Maybe<SingleConstraintInput>;
 };
 
@@ -487,6 +482,15 @@ export type SingleConstraintInput = {
 export enum AtomicConstraintType {
   Set = 'SET',
   Range = 'RANGE'
+}
+
+/** An enumeration. */
+export enum TimeGranularity {
+  Day = 'DAY',
+  Week = 'WEEK',
+  Month = 'MONTH',
+  Quarter = 'QUARTER',
+  Year = 'YEAR'
 }
 
 
@@ -581,6 +585,39 @@ export type CreateMqlQueryMutationVariables = Exact<{
 
 
 export type CreateMqlQueryMutation = (
+  { __typename?: 'Mutation' }
+  & { createMqlQuery?: Maybe<(
+    { __typename?: 'CreateMqlQueryPayload' }
+    & Pick<CreateMqlQueryPayload, 'id'>
+    & { query?: Maybe<(
+      { __typename?: 'MqlQuery' }
+      & Pick<MqlQuery, 'id' | 'status' | 'metrics' | 'dimensions'>
+      & { result?: Maybe<Array<(
+        { __typename?: 'MqlQueryResultSeries' }
+        & Pick<MqlQueryResultSeries, 'seriesValue'>
+        & { data?: Maybe<Array<(
+          { __typename?: 'TimeSeriesDatum' }
+          & Pick<TimeSeriesDatum, 'xDate' | 'y'>
+        )>> }
+      )>> }
+    )> }
+  )> }
+);
+
+export type CreateMqlQueryWithTimeGranularityMutationVariables = Exact<{
+  modelKey?: Maybe<ModelKeyInput>;
+  metrics?: Maybe<Array<Scalars['String']> | Scalars['String']>;
+  groupBy?: Maybe<Array<Scalars['String']> | Scalars['String']>;
+  where?: Maybe<ConstraintInput>;
+  addTimeSeries?: Maybe<Scalars['Boolean']>;
+  pctChange?: Maybe<PercentChange>;
+  timeGranularity?: Maybe<TimeGranularity>;
+  startTime?: Maybe<Scalars['String']>;
+  endTime?: Maybe<Scalars['String']>;
+}>;
+
+
+export type CreateMqlQueryWithTimeGranularityMutation = (
   { __typename?: 'Mutation' }
   & { createMqlQuery?: Maybe<(
     { __typename?: 'CreateMqlQueryPayload' }

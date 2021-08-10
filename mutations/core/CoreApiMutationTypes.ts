@@ -45,7 +45,8 @@ export type Query = {
   __typename?: 'Query';
   auth0Profile?: Maybe<Auth0Profile>;
   mqlServerUrl?: Maybe<Scalars['String']>;
-  latestMqlServer?: Maybe<MqlServerVersion>;
+  latestMqlServer?: Maybe<ServiceRelease>;
+  latestAvaticaServer?: Maybe<ServiceRelease>;
   myOrganization?: Maybe<Organization>;
   myUser?: Maybe<User>;
   allFeatures?: Maybe<Array<Maybe<Feature>>>;
@@ -133,8 +134,9 @@ export type Auth0Profile = {
  *
  * TODO: There's likely a simple way to merge these two objects together
  */
-export type MqlServerVersion = {
-  __typename?: 'MQLServerVersion';
+export type ServiceRelease = {
+  __typename?: 'ServiceRelease';
+  serviceName?: Maybe<Scalars['String']>;
   version?: Maybe<Scalars['String']>;
   downloadUrl?: Maybe<Scalars['String']>;
   versionHash?: Maybe<Scalars['String']>;
@@ -164,13 +166,12 @@ export type Organization = {
   mqlHeartbeats?: Maybe<Array<Maybe<MqlHeartbeat>>>;
   currentModel?: Maybe<Array<Maybe<Model>>>;
   teams?: Maybe<Array<Maybe<Team>>>;
+  apiKeys?: Maybe<Array<Maybe<ApiKey>>>;
   metricViews?: Maybe<Array<Maybe<MetricView>>>;
   savedQueries?: Maybe<Array<Maybe<SavedQuery>>>;
   teamViews?: Maybe<Array<Maybe<TeamView>>>;
-  activeFeatures?: Maybe<Array<Maybe<Feature>>>;
   dashboards?: Maybe<Array<Maybe<Dashboard>>>;
   metricCollections?: Maybe<Array<Maybe<MetricCollection>>>;
-  apiKeys?: Maybe<Array<Maybe<ApiKey>>>;
   questions?: Maybe<Array<Maybe<Question>>>;
   question?: Maybe<Question>;
   annotations?: Maybe<Array<Maybe<Annotation>>>;
@@ -183,6 +184,7 @@ export type Organization = {
   latestMqlHeartbeat?: Maybe<MqlHeartbeat>;
   totalUsers?: Maybe<Scalars['Int']>;
   totalTeams?: Maybe<Scalars['Int']>;
+  mqlServer?: Maybe<OrgMqlServer>;
   totalMqlServers?: Maybe<Scalars['Int']>;
   metric?: Maybe<Metric>;
   team?: Maybe<Team>;
@@ -191,6 +193,8 @@ export type Organization = {
   metricCollection?: Maybe<MetricCollection>;
   totalMetricCollections?: Maybe<Scalars['Int']>;
   totalSavedQueries?: Maybe<Scalars['Int']>;
+  totalActiveFeatures?: Maybe<Scalars['Int']>;
+  activeFeatures?: Maybe<Array<Maybe<Feature>>>;
 };
 
 
@@ -308,6 +312,11 @@ export type OrganizationMetricsArgs = {
 };
 
 
+export type OrganizationMqlServerArgs = {
+  id: Scalars['ID'];
+};
+
+
 export type OrganizationMetricArgs = {
   name: Scalars['String'];
 };
@@ -353,12 +362,11 @@ export type User = {
   teamMemberships?: Maybe<Array<Maybe<TeamMember>>>;
   dashboards?: Maybe<Array<Maybe<Dashboard>>>;
   primaryDashboard?: Maybe<Dashboard>;
+  apiKeys?: Maybe<Array<Maybe<ApiKey>>>;
   savedQueries?: Maybe<Array<Maybe<SavedQuery>>>;
   organization?: Maybe<Organization>;
   teamViews?: Maybe<Array<Maybe<TeamView>>>;
-  activeFeatures?: Maybe<Array<Maybe<Feature>>>;
   metricCollections?: Maybe<Array<Maybe<MetricCollection>>>;
-  apiKeys?: Maybe<Array<Maybe<ApiKey>>>;
   mqlServerUrl?: Maybe<Scalars['String']>;
   activeRoles?: Maybe<Array<Maybe<Scalars['String']>>>;
   isAdmin?: Maybe<Scalars['Boolean']>;
@@ -373,7 +381,9 @@ export type User = {
   totalViewedTeams?: Maybe<Scalars['Int']>;
   viewedMetricCollections?: Maybe<Array<Maybe<MetricCollection>>>;
   totalViewedMetricCollections?: Maybe<Scalars['Int']>;
+  totalActiveFeatures?: Maybe<Scalars['Int']>;
   viewedMetrics?: Maybe<Array<Maybe<Metric>>>;
+  activeFeatures?: Maybe<Array<Maybe<Feature>>>;
 };
 
 
@@ -384,6 +394,17 @@ export type UserTeamsArgs = {
   pageNumber?: Maybe<Scalars['Int']>;
   pageSize?: Maybe<Scalars['Int']>;
   orderBy?: Maybe<TeamOrderBy>;
+  desc?: Maybe<Scalars['Boolean']>;
+};
+
+
+export type UserApiKeysArgs = {
+  activeOnly?: Maybe<Scalars['Boolean']>;
+  searchStr?: Maybe<Scalars['String']>;
+  searchColumns?: Maybe<Array<Maybe<ApiKeyStrColumn>>>;
+  pageNumber?: Maybe<Scalars['Int']>;
+  pageSize?: Maybe<Scalars['Int']>;
+  orderBy?: Maybe<ApiKeyOrderBy>;
   desc?: Maybe<Scalars['Boolean']>;
 };
 
@@ -404,17 +425,6 @@ export type UserMetricCollectionsArgs = {
   pageNumber?: Maybe<Scalars['Int']>;
   pageSize?: Maybe<Scalars['Int']>;
   orderBy?: Maybe<MetricCollectionOrderBy>;
-  desc?: Maybe<Scalars['Boolean']>;
-};
-
-
-export type UserApiKeysArgs = {
-  activeOnly?: Maybe<Scalars['Boolean']>;
-  searchStr?: Maybe<Scalars['String']>;
-  searchColumns?: Maybe<Array<Maybe<ApiKeyStrColumn>>>;
-  pageNumber?: Maybe<Scalars['Int']>;
-  pageSize?: Maybe<Scalars['Int']>;
-  orderBy?: Maybe<ApiKeyOrderBy>;
   desc?: Maybe<Scalars['Boolean']>;
 };
 
@@ -1328,17 +1338,6 @@ export enum MetricCollectionOrderBy {
   Views = 'VIEWS'
 }
 
-export type Feature = {
-  __typename?: 'Feature';
-  id: Scalars['ID'];
-  createdAt?: Maybe<Scalars['DateTime']>;
-  updatedAt?: Maybe<Scalars['DateTime']>;
-  name: Scalars['String'];
-  retiredAt?: Maybe<Scalars['DateTime']>;
-  users?: Maybe<Array<Maybe<User>>>;
-  organizations?: Maybe<Array<Maybe<Organization>>>;
-};
-
 export type ApiKey = {
   __typename?: 'ApiKey';
   prefix: Scalars['String'];
@@ -1378,6 +1377,71 @@ export enum ApiKeyOrderBy {
   RevokerId = 'REVOKER_ID',
   LastUsedAt = 'LAST_USED_AT',
   Scope = 'SCOPE'
+}
+
+export type Feature = {
+  __typename?: 'Feature';
+  id: Scalars['ID'];
+  createdAt?: Maybe<Scalars['DateTime']>;
+  updatedAt?: Maybe<Scalars['DateTime']>;
+  name: Scalars['String'];
+  retiredAt?: Maybe<Scalars['DateTime']>;
+  organizations?: Maybe<Array<Maybe<Organization>>>;
+  users?: Maybe<Array<Maybe<User>>>;
+  totalOrganizations?: Maybe<Scalars['Int']>;
+  totalUsers?: Maybe<Scalars['Int']>;
+};
+
+
+export type FeatureOrganizationsArgs = {
+  searchStr?: Maybe<Scalars['String']>;
+  searchColumns?: Maybe<Array<Maybe<OrganizationStrColumn>>>;
+  pageNumber?: Maybe<Scalars['Int']>;
+  pageSize?: Maybe<Scalars['Int']>;
+  orderBy?: Maybe<OrganizationOrderBy>;
+  desc?: Maybe<Scalars['Boolean']>;
+};
+
+
+export type FeatureUsersArgs = {
+  searchStr?: Maybe<Scalars['String']>;
+  searchColumns?: Maybe<Array<Maybe<UserStrColumn>>>;
+  pageNumber?: Maybe<Scalars['Int']>;
+  pageSize?: Maybe<Scalars['Int']>;
+  orderBy?: Maybe<UserOrderBy>;
+  desc?: Maybe<Scalars['Boolean']>;
+};
+
+/** An enumeration. */
+export enum OrganizationStrColumn {
+  Name = 'NAME',
+  Domain = 'DOMAIN',
+  LogoUrl = 'LOGO_URL',
+  PrimaryConfigRepo = 'PRIMARY_CONFIG_REPO',
+  PrimaryConfigBranch = 'PRIMARY_CONFIG_BRANCH',
+  MqlServerUrl = 'MQL_SERVER_URL',
+  SourceControlUrl = 'SOURCE_CONTROL_URL',
+  MqlServerLogs = 'MQL_SERVER_LOGS',
+  Slug = 'SLUG'
+}
+
+/** An enumeration. */
+export enum OrganizationOrderBy {
+  Id = 'ID',
+  Name = 'NAME',
+  Domain = 'DOMAIN',
+  CreatedAt = 'CREATED_AT',
+  DeactivatedAt = 'DEACTIVATED_AT',
+  ShardId = 'SHARD_ID',
+  LogoUrl = 'LOGO_URL',
+  PrimaryConfigRepo = 'PRIMARY_CONFIG_REPO',
+  PrimaryConfigBranch = 'PRIMARY_CONFIG_BRANCH',
+  MqlServerUrl = 'MQL_SERVER_URL',
+  SourceControlUrl = 'SOURCE_CONTROL_URL',
+  MqlServerLogs = 'MQL_SERVER_LOGS',
+  UpdatedAt = 'UPDATED_AT',
+  Slug = 'SLUG',
+  IsHosted = 'IS_HOSTED'
 }
 
 export type OrgMqlServer = {
@@ -1461,38 +1525,6 @@ export enum FeatureOrderBy {
   RetiredAt = 'RETIRED_AT'
 }
 
-/** An enumeration. */
-export enum OrganizationStrColumn {
-  Name = 'NAME',
-  Domain = 'DOMAIN',
-  LogoUrl = 'LOGO_URL',
-  PrimaryConfigRepo = 'PRIMARY_CONFIG_REPO',
-  PrimaryConfigBranch = 'PRIMARY_CONFIG_BRANCH',
-  MqlServerUrl = 'MQL_SERVER_URL',
-  SourceControlUrl = 'SOURCE_CONTROL_URL',
-  MqlServerLogs = 'MQL_SERVER_LOGS',
-  Slug = 'SLUG'
-}
-
-/** An enumeration. */
-export enum OrganizationOrderBy {
-  Id = 'ID',
-  Name = 'NAME',
-  Domain = 'DOMAIN',
-  CreatedAt = 'CREATED_AT',
-  DeactivatedAt = 'DEACTIVATED_AT',
-  ShardId = 'SHARD_ID',
-  LogoUrl = 'LOGO_URL',
-  PrimaryConfigRepo = 'PRIMARY_CONFIG_REPO',
-  PrimaryConfigBranch = 'PRIMARY_CONFIG_BRANCH',
-  MqlServerUrl = 'MQL_SERVER_URL',
-  SourceControlUrl = 'SOURCE_CONTROL_URL',
-  MqlServerLogs = 'MQL_SERVER_LOGS',
-  UpdatedAt = 'UPDATED_AT',
-  Slug = 'SLUG',
-  IsHosted = 'IS_HOSTED'
-}
-
 /**
  * Base mutation object exposed by GraphQL.
  *
@@ -1528,8 +1560,8 @@ export type Mutation = {
   setUserPreference?: Maybe<SetUserPreference>;
   featuresCreate?: Maybe<Feature>;
   featuresUpdate?: Maybe<Feature>;
-  featuresAddOrg?: Maybe<Feature>;
-  featuresAddUser?: Maybe<Feature>;
+  featuresAddOrgs?: Maybe<Feature>;
+  featuresAddUsers?: Maybe<Feature>;
   featuresRemoveAccess?: Maybe<Feature>;
   questionsCreateReply?: Maybe<Question>;
   questionRepliesLike?: Maybe<QuestionReply>;
@@ -1822,9 +1854,9 @@ export type MutationFeaturesUpdateArgs = {
  * Mutation names will be converted from snake_case to camelCase automatically
  * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
  */
-export type MutationFeaturesAddOrgArgs = {
+export type MutationFeaturesAddOrgsArgs = {
   featureId: Scalars['ID'];
-  organizationId: Scalars['ID'];
+  organizationIds: Array<Maybe<Scalars['ID']>>;
 };
 
 
@@ -1834,9 +1866,9 @@ export type MutationFeaturesAddOrgArgs = {
  * Mutation names will be converted from snake_case to camelCase automatically
  * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
  */
-export type MutationFeaturesAddUserArgs = {
+export type MutationFeaturesAddUsersArgs = {
   featureId: Scalars['ID'];
-  userId: Scalars['ID'];
+  userIds: Array<Maybe<Scalars['ID']>>;
 };
 
 
