@@ -21,7 +21,7 @@ const granularityToTimeGranularityMap = {
   [Granularity.Daily]: TimeGranularity.Day,
   [Granularity.Weekly]: TimeGranularity.Week,
   [Granularity.Monthly]: TimeGranularity.Month,
-  // [Granularity.Daily]: TimeGranularity.Quarter,
+  // [Granularity.Quaterly]: TimeGranularity.Quarter,
   [Granularity.Yearly]: TimeGranularity.Year,
 }
 
