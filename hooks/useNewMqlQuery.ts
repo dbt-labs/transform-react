@@ -271,7 +271,6 @@ export default function useNewMqlQuery({
   skip,
   retries = 0,
 }: UseMqlQueryParams) {
-  console.log('new')
   const {
     useQuery,
     useMutation,
