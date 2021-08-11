@@ -17,6 +17,7 @@ type Props = {
   isAuthenticated: boolean;
   captureException?: (e: CombinedError, context: HandleCombinedErrorContext) => void;
   children: ReactNode;
+  coreApiUrl?: string;
 };
 
 /*
@@ -28,8 +29,9 @@ function MqlContextProvider({
   children,
   isAuthenticated,
   captureException,
+  coreApiUrl
 }: Props) {
-  const coreApiClient = buildMqlUrqlClient(getToken, CORE_API_URL);
+  const coreApiClient = buildMqlUrqlClient(getToken, coreApiUrl || CORE_API_URL);
   return (
     <Provider value={coreApiClient}>
       <MqlContextProviderInternal
