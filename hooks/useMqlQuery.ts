@@ -144,6 +144,7 @@ function mqlQueryReducer(
         isTakingForever: false,
         data: null,
         errorMessage: undefined,
+        retries: 0
       };
     }
 
@@ -259,7 +260,7 @@ export default function useMqlQuery({
   metricName,
   limit,
   skip,
-  retries = 0,
+  retries = 2,
 }: UseMqlQueryParams) {
   const {
     useQuery,
@@ -387,29 +388,49 @@ export default function useMqlQuery({
         dispatch({ type: "retryFetchResults" });
         refetchMqlQuery();
       } else {
-        let jsonString: string;
-        try {
-          jsonString = JSON.stringify(data?.mqlQuery?.result);
-        } catch (e) {
-          jsonString = "Invalid data.mqlQuery.result";
+        if (data?.mqlQuery?.error) {
+          const {error} = data.mqlQuery;
+          dispatch({
+            type: "fetchResultsFail",
+            errorMessage: error,
+          });
+
+          handleCombinedError({
+            name: "Unknown Error",
+            message: error,
+            graphQLErrors: [],
+          }, {
+            queryId: data?.mqlQuery?.id as string,
+            queryStatus: data?.mqlQuery?.status as string,
+            json: error
+          });
+        } else {
+
+          let jsonString: string;
+          try {
+            jsonString = JSON.stringify(data?.mqlQuery?.result);
+          } catch (e) {
+            jsonString = "Invalid data.mqlQuery.result";
+          }
+
+          const errorMessage = `This query failed for an unknown reason.`;
+
+          dispatch({
+            type: "fetchResultsFail",
+            errorMessage,
+          });
+
+          handleCombinedError({
+            name: "Unknown Error",
+            message: errorMessage,
+            graphQLErrors: [],
+          }, {
+            queryId: data?.mqlQuery?.id as string,
+            queryStatus: data?.mqlQuery?.status as string,
+            json: jsonString
+          });
         }
 
-        const errorMessage = `This query failed for an unknown reason.`;
-
-        dispatch({
-          type: "fetchResultsFail",
-          errorMessage,
-        });
-
-        handleCombinedError({
-          name: "Unknown Error",
-          message: errorMessage,
-          graphQLErrors: [],
-        }, {
-          queryId: data?.mqlQuery?.id as string,
-          queryStatus: data?.mqlQuery?.status as string,
-          json: jsonString
-        });
       }
     }
   }, [data, error, state.cancelledQueries, limit, handleCombinedError]);
