@@ -591,7 +591,7 @@ export type CreateMqlQueryMutation = (
     & Pick<CreateMqlQueryPayload, 'id'>
     & { query?: Maybe<(
       { __typename?: 'MqlQuery' }
-      & Pick<MqlQuery, 'id' | 'status' | 'metrics' | 'dimensions'>
+      & Pick<MqlQuery, 'id' | 'status' | 'metrics' | 'dimensions' | 'error'>
       & { result?: Maybe<Array<(
         { __typename?: 'MqlQueryResultSeries' }
         & Pick<MqlQueryResultSeries, 'seriesValue'>
@@ -624,7 +624,7 @@ export type CreateMqlQueryWithTimeGranularityMutation = (
     & Pick<CreateMqlQueryPayload, 'id'>
     & { query?: Maybe<(
       { __typename?: 'MqlQuery' }
-      & Pick<MqlQuery, 'id' | 'status' | 'metrics' | 'dimensions'>
+      & Pick<MqlQuery, 'id' | 'status' | 'metrics' | 'dimensions' | 'error'>
       & { result?: Maybe<Array<(
         { __typename?: 'MqlQueryResultSeries' }
         & Pick<MqlQueryResultSeries, 'seriesValue'>
