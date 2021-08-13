@@ -2,13 +2,11 @@ import { useEffect, useReducer, useContext } from "react";
 import { CombinedError } from "urql";
 
 import MqlContext from "../context/MqlContext/MqlContext";
-import CreateMqlQueryWithTimeGranularity from "../mutations/mql/CreateMqlQueryWithTimeGranularity";
+import CreateMqlQuery from "../mutations/mql/CreateMqlQuery";
 import {
   CreateMqlQueryWithTimeGranularityMutation,
   CreateMqlQueryWithTimeGranularityMutationVariables,
   ConstraintInput,
-  TimeGranularity,
-  Granularity
 } from "../mutations/mql/MqlMutationTypes";
 import FetchMqlQueryTimeSeries from "../queries/mql/FetchMqlQueryTimeSeries";
 import {
@@ -16,14 +14,7 @@ import {
   FetchMqlTimeSeriesQueryVariables,
   MqlQueryStatus,
 } from "../queries/mql/MqlQueryTypes";
-
-const granularityToTimeGranularityMap = {
-  [Granularity.Daily]: TimeGranularity.Day,
-  [Granularity.Weekly]: TimeGranularity.Week,
-  [Granularity.Monthly]: TimeGranularity.Month,
-  // [Granularity.Quaterly]: TimeGranularity.Quarter,
-  [Granularity.Yearly]: TimeGranularity.Year,
-}
+import {MqlQueryUserFriendlyErrorType} from '../mutations/mql/MqlMutationTypes'
 
 // This is the delay between the _response_ from the last query and the _start_ of the new query
 const QUERY_POLLING_MS = 200;
@@ -84,8 +75,10 @@ export type UseMqlQueryState = {
 
   errorMessage?: string;
 
-  // Used to know if createMQLQuery immediately returned results, and as such we don't need to use FetchMqlTimeSeries
+  // TODO: use error enum type
+  userFriendlyErrorType?: MqlQueryUserFriendlyErrorType | null;
 };
+
 
 const initialState: UseMqlQueryState = {
   retries: 0,
@@ -95,18 +88,21 @@ const initialState: UseMqlQueryState = {
   cancelledQueries: [],
   fetchStartTime: null,
   isTakingForever: false,
-};
+  userFriendlyErrorType: null
+}
+
+
 
 type Action =
   | { type: "postQueryStart" }
-  | { type: "postQueryFail"; errorMessage: string }
+  | { type: "postQueryFail"; errorMessage: string; userFriendlyErrorType: MqlQueryUserFriendlyErrorType }
   | { type: "postQuerySuccess"; queryId: string }
   | { type: "postQueryCachedResultsSuccess";
       data: CreateMqlQueryWithTimeGranularityMutation;
       limit?: number;
       handleCombinedError: (e: CombinedError) => void;
     }
-  | { type: "fetchResultsFail"; errorMessage: string }
+  | { type: "fetchResultsFail"; errorMessage: string; userFriendlyErrorType: MqlQueryUserFriendlyErrorType }
   | { type: "fetchResultsRunning" }
   | { type: "retryFetchResults" }
   | {
@@ -129,6 +125,7 @@ function mqlQueryReducer(
   state: UseMqlQueryState,
   action: Action
 ): UseMqlQueryState {
+  console.log("WTF", action)
   switch (action.type) {
     case "postQueryStart": {
       // This condition is triggered when there is already a queryId being fetched.
@@ -145,6 +142,7 @@ function mqlQueryReducer(
           fetchStartTime: Date.now(),
           isTakingForever: false,
           errorMessage: undefined,
+          userFriendlyErrorType: undefined
         };
       }
       return {
@@ -154,6 +152,8 @@ function mqlQueryReducer(
         isTakingForever: false,
         data: null,
         errorMessage: undefined,
+        userFriendlyErrorType: undefined,
+        retries: 0
       };
     }
 
@@ -162,6 +162,7 @@ function mqlQueryReducer(
         ...state,
         queryStatus: MqlQueryStatus.Failed,
         errorMessage: action.errorMessage,
+        userFriendlyErrorType: action.userFriendlyErrorType,
         isTakingForever: false,
         fetchStartTime: null,
       };
@@ -172,6 +173,7 @@ function mqlQueryReducer(
         ...state,
         queryId: action.queryId,
         errorMessage: undefined,
+        userFriendlyErrorType: undefined,
       };
     }
 
@@ -184,6 +186,7 @@ function mqlQueryReducer(
         fetchStartTime: null,
         isTakingForever: false,
         errorMessage: undefined,
+        userFriendlyErrorType: undefined,
       }
     }
 
@@ -196,6 +199,7 @@ function mqlQueryReducer(
         queryStatus: MqlQueryStatus.Running,
         isTakingForever: diff >= LONG_FETCH_QUERY_ATTEMPT_MAX,
         errorMessage: undefined,
+        userFriendlyErrorType: undefined,
       };
     }
 
@@ -208,6 +212,7 @@ function mqlQueryReducer(
         queryStatus: MqlQueryStatus.Running,
         isTakingForever: diff >= LONG_FETCH_QUERY_ATTEMPT_MAX,
         errorMessage: undefined,
+        userFriendlyErrorType: undefined,
         retries: state.retries + 1,
       };
     }
@@ -219,6 +224,7 @@ function mqlQueryReducer(
         isTakingForever: false,
         fetchStartTime: null,
         errorMessage: action.errorMessage,
+        userFriendlyErrorType: action.userFriendlyErrorType,
       };
     }
 
@@ -230,6 +236,7 @@ function mqlQueryReducer(
         fetchStartTime: null,
         isTakingForever: false,
         errorMessage: undefined,
+        userFriendlyErrorType: undefined,
       };
     }
 
@@ -264,12 +271,12 @@ type UseMqlQueryParams = {
 // This custom hook consists of two useHooks that should asynchronously handle all scenarios for this chained
 // data fetching we are doing. It should do it in a high performance way and in a way that is resilient to race conditions if the
 // user updates their request while a query is in flight
-export default function useNewMqlQuery({
+export default function useMqlQuery({
   queryInput,
   metricName,
   limit,
   skip,
-  retries = 0,
+  retries = 2,
 }: UseMqlQueryParams) {
   const {
     useQuery,
@@ -285,13 +292,13 @@ export default function useNewMqlQuery({
   const [{}, createMqlQuery] = useMutation<
     CreateMqlQueryWithTimeGranularityMutation,
     CreateMqlQueryWithTimeGranularityMutationVariables
-  >(CreateMqlQueryWithTimeGranularity);
+  >(CreateMqlQuery);
 
   useEffect(() => {
     if (!metricName || !mqlServerUrl || skip) {
       return;
     }
-    let formState: CreateMqlQueryWithTimeGranularityMutationVariables & {granularity?: Granularity} = {};
+    let formState: CreateMqlQueryWithTimeGranularityMutationVariables = {};
     if (queryInput) {
       formState = queryInput;
     }
@@ -302,12 +309,13 @@ export default function useNewMqlQuery({
       groupBy: formState.groupBy || [],
       where: clearEmptyConstraints(formState.where),
       pctChange: formState.pctChange,
-      timeGranularity: formState?.granularity ? granularityToTimeGranularityMap[formState?.granularity] : TimeGranularity.Day,
+      granularity: formState.granularity,
       addTimeSeries: true,
       startTime: formState.startTime,
       endTime: formState.endTime,
     }).then(({ data, error }) => {
       if (data?.createMqlQuery?.query?.status === MqlQueryStatus.Successful) {
+        console.log('cached data')
         dispatch({
           type: "postQueryCachedResultsSuccess",
           data,
@@ -315,6 +323,7 @@ export default function useNewMqlQuery({
           handleCombinedError,
         });
       } else {
+        console.log('fetching data')
         if (data?.createMqlQuery?.id) {
           dispatch({
             type: "postQuerySuccess",
@@ -324,6 +333,7 @@ export default function useNewMqlQuery({
           dispatch({
             type: "postQueryFail",
             errorMessage: error && error.message,
+            userFriendlyErrorType: MqlQueryUserFriendlyErrorType.Unknown
           });
           handleCombinedError(error);
         }
@@ -351,12 +361,14 @@ export default function useNewMqlQuery({
   useEffect(() => {
     if (error) {
       if (retries > 0 && state.retries !== retries) {
+        console.log('retry')
         dispatch({ type: "retryFetchResults" });
         refetchMqlQuery();
       } else {
         dispatch({
           type: "fetchResultsFail",
           errorMessage: getErrorMessage(error),
+          userFriendlyErrorType: MqlQueryUserFriendlyErrorType.Unknown
         });
         handleCombinedError(error);
       }
@@ -393,36 +405,59 @@ export default function useNewMqlQuery({
     }
 
     if (status === MqlQueryStatus.Failed) {
+      console.log('failed', retries)
       if (retries > 0 && state.retries !== retries) {
+        console.log('retry')
         dispatch({ type: "retryFetchResults" });
         refetchMqlQuery();
       } else {
-        let jsonString: string;
-        try {
-          jsonString = JSON.stringify(data?.mqlQuery?.result);
-        } catch (e) {
-          jsonString = "Invalid data.mqlQuery.result";
-        }
+        if (data?.mqlQuery?.error) {
+          dispatch({
+            type: "fetchResultsFail",
+            errorMessage: data?.mqlQuery?.error,
+            userFriendlyErrorType: data?.mqlQuery?.userFriendlyErrorType || MqlQueryUserFriendlyErrorType.Unknown,
+          });
 
-        const errorMessage = `This query failed for an unknown reason.`;
+          handleCombinedError({
+            name: "Unknown Error",
+            message: data?.mqlQuery?.error,
+            graphQLErrors: [],
+          }, {
+            queryId: data?.mqlQuery?.id as string,
+            queryStatus: data?.mqlQuery?.status as string,
+            json: data?.mqlQuery?.error
+          });
+        } else {
 
-        dispatch({
-          type: "fetchResultsFail",
-          errorMessage,
-        });
+          let jsonString: string;
+          try {
+            jsonString = JSON.stringify(data?.mqlQuery?.result);
+          } catch (e) {
+            jsonString = "Invalid data.mqlQuery.result";
+          }
 
-        handleCombinedError({
-          name: "Unknown Error",
-          message: errorMessage,
-          graphQLErrors: [],
-        }, {
-          queryId: data?.mqlQuery?.id as string,
-          queryStatus: data?.mqlQuery?.status as string,
-          json: jsonString
-        });
+          const errorMessage = `This query failed for an unknown reason.`;
+
+          dispatch({
+            type: "fetchResultsFail",
+            errorMessage,
+            userFriendlyErrorType: MqlQueryUserFriendlyErrorType.Unknown,
+          });
+
+          handleCombinedError({
+            name: "Unknown Error",
+            message: errorMessage,
+            graphQLErrors: [],
+          }, {
+            queryId: data?.mqlQuery?.id as string,
+            queryStatus: data?.mqlQuery?.status as string,
+            json: jsonString
+          });
+      }
       }
     }
   }, [data, error, state.cancelledQueries, limit, handleCombinedError]);
 
+  console.log('state', state)
   return state;
 }

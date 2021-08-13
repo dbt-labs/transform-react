@@ -13,7 +13,7 @@ async function main() {
   let response;
   let data;
   try {
-    response = await fetch("https://tfd-mql.prod.transformdata.io/graphql", {
+    response = await fetch("https://mql-athena.staging.transformdata.io/graphql", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

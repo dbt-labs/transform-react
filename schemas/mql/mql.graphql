@@ -61,6 +61,7 @@ type MqlQuery {
   sql: String
   error: String
   errorTraceback: String
+  userFriendlyErrorType: MqlQueryUserFriendlyErrorType
   logs: String
   logsByLine(fromLine: Int, maxLines: Int): String
   chartValueMin: Float
@@ -141,6 +142,13 @@ enum PandasJsonOrient {
 Wrapper around Graphene DateTime that is capable of handling string dates
 """
 scalar DateTime
+
+"""User friendly error types to return with MqlQuery"""
+enum MqlQueryUserFriendlyErrorType {
+  DB_ERROR
+  UNABLE_TO_SATISFY_QUERY_ERROR
+  UNKNOWN
+}
 
 type Materialization {
   name: String!

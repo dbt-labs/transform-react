@@ -32,6 +32,8 @@ const mutation = gql`
         status
         metrics
         dimensions
+        error
+        userFriendlyErrorType
         result {
           seriesValue
           data {

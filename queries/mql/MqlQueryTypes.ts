@@ -175,6 +175,7 @@ export type MqlQuery = {
   sql?: Maybe<Scalars['String']>;
   error?: Maybe<Scalars['String']>;
   errorTraceback?: Maybe<Scalars['String']>;
+  userFriendlyErrorType?: Maybe<MqlQueryUserFriendlyErrorType>;
   logs?: Maybe<Scalars['String']>;
   logsByLine?: Maybe<Scalars['String']>;
   chartValueMin?: Maybe<Scalars['Float']>;
@@ -267,6 +268,13 @@ export enum PandasJsonOrient {
   Table = 'TABLE'
 }
 
+
+/** User friendly error types to return with MqlQuery */
+export enum MqlQueryUserFriendlyErrorType {
+  DbError = 'DB_ERROR',
+  UnableToSatisfyQueryError = 'UNABLE_TO_SATISFY_QUERY_ERROR',
+  Unknown = 'UNKNOWN'
+}
 
 export type Materialization = {
   __typename?: 'Materialization';
@@ -651,7 +659,7 @@ export type FetchMqlTimeSeriesQuery = (
   { __typename?: 'Query' }
   & { mqlQuery?: Maybe<(
     { __typename?: 'MqlQuery' }
-    & Pick<MqlQuery, 'id' | 'status' | 'metrics' | 'dimensions'>
+    & Pick<MqlQuery, 'id' | 'status' | 'metrics' | 'dimensions' | 'error' | 'userFriendlyErrorType'>
     & { result?: Maybe<Array<(
       { __typename?: 'MqlQueryResultSeries' }
       & Pick<MqlQueryResultSeries, 'seriesValue'>

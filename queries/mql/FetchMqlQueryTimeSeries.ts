@@ -7,6 +7,8 @@ const query = gql`
       status
       metrics
       dimensions
+      error
+      userFriendlyErrorType
       result {
         seriesValue
         data {
