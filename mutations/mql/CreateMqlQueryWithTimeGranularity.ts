@@ -8,7 +8,7 @@ const mutation = gql`
     $where: ConstraintInput
     $addTimeSeries: Boolean
     $pctChange: PercentChange
-    $timeGranularity: TimeGranularity = DAY
+    $timeGranularity: TimeGranularity
     $startTime: String
     $endTime: String
   ) {
