@@ -338,7 +338,7 @@ export default function useNewMqlQuery({
     !state.queryId ||
     state.cancelledQueries.includes(state.queryId); /* && !isRunning*/
 
-  const [{ data, error, fetching }, refetchMqlQuery] = useQuery<
+  const [{ data, error }, refetchMqlQuery] = useQuery<
     FetchMqlTimeSeriesQuery,
     FetchMqlTimeSeriesQueryVariables
   >({
@@ -399,7 +399,7 @@ export default function useNewMqlQuery({
         refetchMqlQuery();
       } else {
         if (data?.mqlQuery?.error) {
-          const {} = data.mqlQuery;
+          const {error} = data.mqlQuery;
           dispatch({
             type: "fetchResultsFail",
             errorMessage: error,

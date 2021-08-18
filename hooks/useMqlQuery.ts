@@ -328,7 +328,7 @@ export default function useMqlQuery({
     !state.queryId ||
     state.cancelledQueries.includes(state.queryId); /* && !isRunning*/
 
-  const [{ data, error, fetching }, refetchMqlQuery] = useQuery<
+  const [{ data, error }, refetchMqlQuery] = useQuery<
     FetchMqlTimeSeriesQuery,
     FetchMqlTimeSeriesQueryVariables
   >({
