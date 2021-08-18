@@ -314,7 +314,7 @@ export default function useMqlQuery({
         } else if (error) {
           dispatch({
             type: "postQueryFail",
-            errorMessage: error && error.message,
+            errorMessage: getErrorMessage(error),
           });
           handleCombinedError(error);
         }
@@ -328,7 +328,7 @@ export default function useMqlQuery({
     !state.queryId ||
     state.cancelledQueries.includes(state.queryId); /* && !isRunning*/
 
-  const [{ data, error, fetching }, refetchMqlQuery] = useQuery<
+  const [{ data, error }, refetchMqlQuery] = useQuery<
     FetchMqlTimeSeriesQuery,
     FetchMqlTimeSeriesQueryVariables
   >({
