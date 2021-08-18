@@ -308,7 +308,6 @@ export default function useNewMqlQuery({
       startTime: formState.startTime,
       endTime: formState.endTime,
     }).then(({ data, error }) => {
-      console.log("data", data)
       if (data?.createMqlQuery?.query?.status === MqlQueryStatus.Successful) {
         dispatch({
           type: "postQueryCachedResultsSuccess",
@@ -323,7 +322,6 @@ export default function useNewMqlQuery({
             queryId: data?.createMqlQuery?.id,
           });
         } else if (error) {
-          console.log("error", error)
           dispatch({
             type: "postQueryFail",
             errorMessage: getErrorMessage(error),
