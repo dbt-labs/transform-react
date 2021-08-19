@@ -303,7 +303,7 @@ export default function useNewMqlQuery({
       groupBy: formState.groupBy || [],
       where: clearEmptyConstraints(formState.where),
       pctChange: formState.pctChange,
-      timeGranularity: formState?.granularity ? granularityToTimeGranularityMap[formState?.granularity] : TimeGranularity.Day,
+      timeGranularity: formState?.granularity ? granularityToTimeGranularityMap[formState?.granularity] : null,
       addTimeSeries: true,
       startTime: formState.startTime,
       endTime: formState.endTime,
