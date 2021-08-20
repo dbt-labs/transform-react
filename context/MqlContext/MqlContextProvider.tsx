@@ -18,7 +18,6 @@ type Props = {
   captureException?: (e: CombinedError, context: HandleCombinedErrorContext) => void;
   children: ReactNode;
   coreApiUrl?: string;
-  mqlServerUrlOverride?: string;
 };
 
 /*
@@ -30,8 +29,7 @@ function MqlContextProvider({
   children,
   isAuthenticated,
   captureException,
-  coreApiUrl,
-  mqlServerUrlOverride
+  coreApiUrl
 }: Props) {
   const coreApiClient = buildMqlUrqlClient(getToken, coreApiUrl || CORE_API_URL);
   return (
@@ -40,8 +38,6 @@ function MqlContextProvider({
         isAuthenticated={isAuthenticated}
         getToken={getToken}
         captureException={captureException}
-        coreApiUrl={coreApiUrl || CORE_API_URL}
-        mqlServerUrlOverride={mqlServerUrlOverride}
       >
         {children}
       </MqlContextProviderInternal>
@@ -54,8 +50,6 @@ function MqlContextProviderInternal({
   isAuthenticated,
   children,
   captureException,
-  coreApiUrl,
-  mqlServerUrlOverride
 }: Props) {
   // We do this because we want to allow the parent to provide a bespoke error handling function.
   const handleCombinedError = useCallback(
@@ -122,12 +116,12 @@ function MqlContextProviderInternal({
   */
   const mqlClient = buildMqlUrqlClient(
     getToken,
-    mqlServerUrlOverride || mqlServerUrlData?.mqlServerUrl || coreApiUrl || CORE_API_URL
+    mqlServerUrlData?.mqlServerUrl || CORE_API_URL
   );
 
   const [mqlContext, setMqlContext] = useState<MqlContextType>({
-    coreApiUrl: coreApiUrl || CORE_API_URL,
-    mqlServerUrl: mqlServerUrlOverride || mqlServerUrlData?.mqlServerUrl,
+    coreApiUrl: CORE_API_URL,
+    mqlServerUrl: mqlServerUrlData?.mqlServerUrl,
     setMqlServer: setMqlServerThenRefetch,
     mqlServerOverrideLoading: fetching,
     modelKey: null,
@@ -142,35 +136,18 @@ function MqlContextProviderInternal({
 
   useEffect(() => {
     const stateToUpdate: Partial<MqlContextType> = {};
-    const useOverride = !!mqlServerUrlOverride;
-    if (useOverride) {
-      if (mqlServerUrlOverride !== mqlContext.mqlServerUrl) {
-        stateToUpdate.mqlServerUrl = mqlServerUrlOverride;
-      }
-      if (
-        mqlServerUrlOverride &&
-        mqlServerUrlOverride !== mqlContext.mqlServerUrl
-      ) {
-        stateToUpdate.mqlClient = buildMqlUrqlClient(
-          getToken,
-          mqlServerUrlOverride
-        );
-      }
-    } else {
-      if (mqlServerUrlData?.mqlServerUrl !== mqlContext.mqlServerUrl) {
-        stateToUpdate.mqlServerUrl = mqlServerUrlData?.mqlServerUrl;
-      }
-      if (
-        mqlServerUrlData?.mqlServerUrl &&
-        mqlServerUrlData?.mqlServerUrl !== mqlContext.mqlServerUrl
-      ) {
-        stateToUpdate.mqlClient = buildMqlUrqlClient(
-          getToken,
-          mqlServerUrlData?.mqlServerUrl
-        );
-      }
+    if (mqlServerUrlData?.mqlServerUrl !== mqlContext.mqlServerUrl) {
+      stateToUpdate.mqlServerUrl = mqlServerUrlData?.mqlServerUrl;
     }
-
+    if (
+      mqlServerUrlData?.mqlServerUrl &&
+      mqlServerUrlData?.mqlServerUrl !== mqlContext.mqlServerUrl
+    ) {
+      stateToUpdate.mqlClient = buildMqlUrqlClient(
+        getToken,
+        mqlServerUrlData?.mqlServerUrl
+      );
+    }
 
     /*
       FUTURE: Add check for Model Key.
@@ -182,7 +159,7 @@ function MqlContextProviderInternal({
         ...stateToUpdate,
       });
     }
-  }, [mqlServerUrlData, getToken, mqlContext, mqlServerUrlOverride]);
+  }, [mqlServerUrlData, getToken, mqlContext]);
 
   return (
     <Provider value={mqlContext.mqlClient}>
