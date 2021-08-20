@@ -1,6 +1,6 @@
 {
   "name": "@transform-data/transform-react",
-  "version": "1.5.12",
+  "version": "1.5.13",
   "description": "React components and hooks for querying Transform's MQL Server",
   "repository": {
     "type": "git",
