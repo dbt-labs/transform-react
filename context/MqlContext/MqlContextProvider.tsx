@@ -127,7 +127,7 @@ function MqlContextProviderInternal({
 
   const [mqlContext, setMqlContext] = useState<MqlContextType>({
     coreApiUrl: coreApiUrl || CORE_API_URL,
-    mqlServerUrl: mqlServerUrlOverride || mqlServerUrlData?.mqlServerUrl,
+    mqlServerUrl: mqlServerUrlData?.mqlServerUrl,
     setMqlServer: setMqlServerThenRefetch,
     mqlServerOverrideLoading: fetching,
     modelKey: null,
@@ -143,6 +143,7 @@ function MqlContextProviderInternal({
   useEffect(() => {
     const stateToUpdate: Partial<MqlContextType> = {};
     const useOverride = !!mqlServerUrlOverride;
+
     if (useOverride) {
       if (mqlServerUrlOverride !== mqlContext.mqlServerUrl) {
         stateToUpdate.mqlServerUrl = mqlServerUrlOverride;
