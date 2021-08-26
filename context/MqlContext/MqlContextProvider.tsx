@@ -122,7 +122,7 @@ function MqlContextProviderInternal({
   */
   const mqlClient = buildMqlUrqlClient(
     getToken,
-    mqlServerUrlOverride || mqlServerUrlData?.mqlServerUrl || coreApiUrl || CORE_API_URL
+    mqlServerUrlData?.mqlServerUrl || coreApiUrl || CORE_API_URL
   );
 
   const [mqlContext, setMqlContext] = useState<MqlContextType>({
@@ -145,7 +145,7 @@ function MqlContextProviderInternal({
   useEffect(() => {
     const stateToUpdate: Partial<MqlContextType> = {};
     const useOverride = !!mqlServerUrlOverride;
-    if (useOverride) {
+    if (useOverride && isAuthenticated) {
       if (mqlServerUrlOverride !== mqlContext.mqlServerUrl) {
         stateToUpdate.mqlServerUrl = mqlServerUrlOverride;
       }
