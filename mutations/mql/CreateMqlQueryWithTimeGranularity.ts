@@ -11,6 +11,8 @@ const mutation = gql`
     $timeGranularity: TimeGranularity
     $startTime: String
     $endTime: String
+    $limit: LimitInput
+    $order: [String!]
   ) {
     createMqlQuery(
       input: {
@@ -24,6 +26,8 @@ const mutation = gql`
         startTime: $startTime
         endTime: $endTime
         resultFormat: TFD
+        limit: $limit
+        order: $order
       }
     ) {
       id

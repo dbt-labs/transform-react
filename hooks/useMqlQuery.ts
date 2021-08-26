@@ -297,6 +297,8 @@ export default function useMqlQuery({
       addTimeSeries: true,
       startTime: formState.startTime,
       endTime: formState.endTime,
+      order: queryInput.order,
+      limit: queryInput.limit
     }).then(({ data, error }) => {
       if (data?.createMqlQuery?.query?.status === MqlQueryStatus.Successful) {
         dispatch({
