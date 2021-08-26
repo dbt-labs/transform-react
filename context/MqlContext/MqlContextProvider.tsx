@@ -140,10 +140,11 @@ function MqlContextProviderInternal({
     handleCombinedError,
   });
 
+
+
   useEffect(() => {
     const stateToUpdate: Partial<MqlContextType> = {};
     const useOverride = !!mqlServerUrlOverride;
-
     if (useOverride) {
       if (mqlServerUrlOverride !== mqlContext.mqlServerUrl) {
         stateToUpdate.mqlServerUrl = mqlServerUrlOverride;

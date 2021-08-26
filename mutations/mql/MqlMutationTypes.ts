@@ -581,6 +581,8 @@ export type CreateMqlQueryMutationVariables = Exact<{
   granularity?: Maybe<Granularity>;
   startTime?: Maybe<Scalars['String']>;
   endTime?: Maybe<Scalars['String']>;
+  limit?: Maybe<Scalars['LimitInput']>;
+  order?: Maybe<Array<Scalars['String']> | Scalars['String']>;
 }>;
 
 
@@ -614,6 +616,8 @@ export type CreateMqlQueryWithTimeGranularityMutationVariables = Exact<{
   timeGranularity?: Maybe<TimeGranularity>;
   startTime?: Maybe<Scalars['String']>;
   endTime?: Maybe<Scalars['String']>;
+  limit?: Maybe<Scalars['LimitInput']>;
+  order?: Maybe<Array<Scalars['String']> | Scalars['String']>;
 }>;
 
 
