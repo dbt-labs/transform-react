@@ -17,6 +17,7 @@ type Query {
   organizationTest(id: ID!): Organization
   featureTest(id: ID!): Feature
   allMetricFilters: GenericScalar
+  boom(raise_: Boolean): Boolean
 }
 
 """A wrapper for the response we get from Auth0's user profile API"""
@@ -98,6 +99,8 @@ type Organization {
   totalMetricCollections: Int
   totalSavedQueries: Int
   totalActiveFeatures: Int
+  requireMfa: Boolean
+  allowMfaRememberBrowser: Boolean
   activeFeatures: [Feature]
 }
 
@@ -299,12 +302,23 @@ type MetricCollection {
   organization: Organization
   teamOwner: Team
   primaryDashboard: Dashboard
-  items(pageNumber: Int, pageSize: Int, orderBy: MetricCollectionMetricOrderBy, desc: Boolean): [MetricCollectionMetric]
   views: [MetricCollectionView]
+  items(pageNumber: Int, pageSize: Int, orderBy: MetricCollectionMetricOrderBy, desc: Boolean): [MetricCollectionMetric]
   totalItems: Int
   totalRecentViews: Int
   totalRecentViewsForUser: Int
   userCanEdit: Boolean
+}
+
+type MetricCollectionView {
+  id: ID!
+  metricCollectionId: Int!
+  userId: Int!
+  organizationId: Int!
+  createdAt: DateTime!
+  metricCollection: MetricCollection
+  organization: Organization
+  user: User
 }
 
 type MetricCollectionMetric {
@@ -615,6 +629,7 @@ type Annotation {
   author: User
   organization: Organization
   metricAnnotations: [MetricAnnotation]
+  userCanEdit: Boolean
   metrics: [Metric]
 }
 
@@ -817,17 +832,6 @@ enum MetricCollectionMetricOrderBy {
   METRIC_ID
   POSITION
   EMPHASIS
-}
-
-type MetricCollectionView {
-  id: ID!
-  metricCollectionId: Int!
-  userId: Int!
-  organizationId: Int!
-  createdAt: DateTime!
-  metricCollection: MetricCollection
-  organization: Organization
-  user: User
 }
 
 type TeamView {
@@ -1036,7 +1040,7 @@ Mutation names will be converted from snake_case to camelCase automatically
 """
 type Mutation {
   revokeApiKeyTest(prefix: String!): ApiKey
-  createOrganizationTest(name: String!, primaryConfigRepo: String, primaryConfigBranch: String, mqlServerUrl: String, sourceControlUrl: String, mqlServerLogs: String, isHosted: Boolean, dwEngine: String, mqlServerName: String): Organization
+  createOrganizationTest(name: String!, primaryConfigRepo: String, primaryConfigBranch: String, mqlServerUrl: String, sourceControlUrl: String, mqlServerLogs: String, isHosted: Boolean, dwEngine: String, mqlServerName: String, requireMfa: Boolean, allowMfaRememberBrowser: Boolean): Organization
   logMqlLog(level: String, message: String, tags: [String!]): LogMQLLogs
   setOrgMqlServerConfigSecret(clientConfigSecretId: String, mqlServerId: Int): SetOrgMqlServerConfigSecretId
   sendMqlHeartbeat(mqlServerId: Int, sha: String!): SendMqlHeartbeat
@@ -1085,6 +1089,7 @@ type Mutation {
   questionRepliesUnlike(id: ID!): QuestionReply
   questionsUnlike(id: ID!): Question
   questionsCreate(text: String!, priority: String!, metricId: ID!, directedToUsers: [ID], directedToTeams: [ID]): Question
+  questionsDelete(id: ID!): Question
   questionsEdit(id: ID!, text: String, priority: String, directedToTeams: [ID], directedToUsers: [ID], resolved: Boolean): Question
   metricCollectionCreate(title: String!, description: String!, slug: String!, defaultEmphasis: Int!, metrics: [ID], ownerTeamId: ID): MetricCollection
   metricCollectionUpdate(id: ID!, title: String, primaryDashboardId: ID, description: String, slug: String, defaultEmphasis: Int, items: [MetricCollectionItem], ownerTeamId: ID): MetricCollection
@@ -1100,6 +1105,7 @@ type Mutation {
   teamsAssignAsMetricOwner(teamId: ID!, metricIds: [ID]): Team
   teamsRemoveAsMetricOwner(teamId: ID!, metricIds: [ID]): Team
   organizationsUpdate(id: ID!, name: String, logoUrl: String, primaryConfigRepo: String, primaryConfigBranch: String, sourceControlUrl: String, mqlServerLogs: String, isHosted: Boolean): Organization
+  organizationsSetMfaPrefs(organizationId: ID!, requireMfa: Boolean, allowMfaRememberBrowser: Boolean): Organization
   organizationsDelete(id: ID!): Organization
   metricsApprove(metricId: ID!): Metric
   metricsLogView(metricId: ID!): MetricView

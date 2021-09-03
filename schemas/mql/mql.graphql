@@ -5,13 +5,16 @@ Each field defined below is accessible by the API, by calling the equivalent res
 """
 type Query {
   version: String
+  boom(raise_: Boolean): Boolean
   mqlQuery(id: ID!): MqlQuery
+  sourceQuery(id: ID!): String
   materializations(modelKey: ModelKeyInput): [Materialization!]
   metrics(modelKey: ModelKeyInput): [Metric!]
   metricByName(modelKey: ModelKeyInput, name: String!): Metric
   measures(modelKey: ModelKeyInput): [Measure!]
   measureByName(modelKey: ModelKeyInput, name: String!): Measure
   dimensionNamesForMetrics(modelKey: ModelKeyInput, metricNames: [String]): [String]
+  dimensionsForMetrics(modelKey: ModelKeyInput, metricNames: [String]): Dimensions
   queries(activeOnly: Boolean, status: MqlQueryStatus, metricNames: [String], dateRangeStart: Date, dateRangeEnd: Date, minExecutionSeconds: Float, maxExecutionSeconds: Float, userIds: [Int], limit: Int, offset: Int): [MqlQuery]
   healthReport: [MqlServerHealthItem]
 }
@@ -52,6 +55,7 @@ type MqlQuery {
   completedAt: DateTime
   resultTableSchema: String
   resultTableName: String
+  resultSource: QueryResultSource
 
   """Time this query was submitted to the MQL server"""
   createdAt: DateTime
@@ -61,6 +65,7 @@ type MqlQuery {
   sql: String
   error: String
   errorTraceback: String
+  userFriendlyErrorType: MqlQueryUserFriendlyErrorType
   logs: String
   logsByLine(fromLine: Int, maxLines: Int): String
   chartValueMin: Float
@@ -142,6 +147,24 @@ Wrapper around Graphene DateTime that is capable of handling string dates
 """
 scalar DateTime
 
+"""
+Different ways that a query result could have been computed or retrieved.
+"""
+enum QueryResultSource {
+  DYNAMIC_CACHE
+  DW_MATERIALIZATION
+  FAST_CACHE
+  NOT_APPLICABLE
+  NOT_SPECIFIED
+}
+
+"""User friendly error types to return with MqlQuery"""
+enum MqlQueryUserFriendlyErrorType {
+  DB_ERROR
+  UNABLE_TO_SATISFY_QUERY_ERROR
+  UNKNOWN
+}
+
 type Materialization {
   name: String!
   metrics: [String!]
@@ -161,12 +184,32 @@ type Metric {
   name: String!
   measures: [String!]
   dimensions: [String!]
-  dimensionValues(modelKey: ModelKeyInput, dimensionName: String, startTime: String, endTime: String): [String!]
+  dimensionValues(modelKey: ModelKeyInput, dimensionName: String, startTime: String, endTime: String): [String]
 }
 
 type Measure {
   name: String!
   dataSources: [String!]
+}
+
+type Dimensions {
+  localDimensions(modelKey: ModelKeyInput, metricNames: [String]): [Dimension]
+  nonLocalDimensions(modelKey: ModelKeyInput, metricNames: [String]): [Dimension]
+}
+
+type Dimension {
+  name: String!
+  identifierName: String
+  type: DimensionType
+  isPrimaryTime: Boolean
+  values: [String!]
+  cardinality: Int
+}
+
+"""Determines types values expected of dimension"""
+enum DimensionType {
+  CATEGORICAL
+  TIME
 }
 
 """
@@ -293,6 +336,11 @@ input CreateMqlQueryInput {
   pctChange: PercentChange
   startTime: String
   endTime: String
+
+  """
+  If granularity is applied, trim start/end periods with incomplete date ranges or data.
+  """
+  trimIncompletePeriods: Boolean
   clientMutationId: String
 }
 
@@ -308,7 +356,7 @@ input ConstraintInput {
 input SingleConstraintInput {
   constraintType: AtomicConstraintType
   dimensionName: String
-  values: [String!]
+  values: [String]
   start: String
   stop: String
 }

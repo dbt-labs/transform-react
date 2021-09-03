@@ -39,13 +39,16 @@ export type Scalars = {
 export type Query = {
   __typename?: 'Query';
   version?: Maybe<Scalars['String']>;
+  boom?: Maybe<Scalars['Boolean']>;
   mqlQuery?: Maybe<MqlQuery>;
+  sourceQuery?: Maybe<Scalars['String']>;
   materializations?: Maybe<Array<Materialization>>;
   metrics?: Maybe<Array<Metric>>;
   metricByName?: Maybe<Metric>;
   measures?: Maybe<Array<Measure>>;
   measureByName?: Maybe<Measure>;
   dimensionNamesForMetrics?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dimensionsForMetrics?: Maybe<Dimensions>;
   queries?: Maybe<Array<Maybe<MqlQuery>>>;
   healthReport?: Maybe<Array<Maybe<MqlServerHealthItem>>>;
 };
@@ -56,7 +59,27 @@ export type Query = {
  *
  * Each field defined below is accessible by the API, by calling the equivalent resolver.
  */
+export type QueryBoomArgs = {
+  raise_?: Maybe<Scalars['Boolean']>;
+};
+
+
+/**
+ * Base Query object exposed by GraphQL for the MQL Server
+ *
+ * Each field defined below is accessible by the API, by calling the equivalent resolver.
+ */
 export type QueryMqlQueryArgs = {
+  id: Scalars['ID'];
+};
+
+
+/**
+ * Base Query object exposed by GraphQL for the MQL Server
+ *
+ * Each field defined below is accessible by the API, by calling the equivalent resolver.
+ */
+export type QuerySourceQueryArgs = {
   id: Scalars['ID'];
 };
 
@@ -129,6 +152,17 @@ export type QueryDimensionNamesForMetricsArgs = {
  *
  * Each field defined below is accessible by the API, by calling the equivalent resolver.
  */
+export type QueryDimensionsForMetricsArgs = {
+  modelKey?: Maybe<ModelKeyInput>;
+  metricNames?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+
+/**
+ * Base Query object exposed by GraphQL for the MQL Server
+ *
+ * Each field defined below is accessible by the API, by calling the equivalent resolver.
+ */
 export type QueryQueriesArgs = {
   activeOnly?: Maybe<Scalars['Boolean']>;
   status?: Maybe<MqlQueryStatus>;
@@ -168,6 +202,7 @@ export type MqlQuery = {
   completedAt?: Maybe<Scalars['DateTime']>;
   resultTableSchema?: Maybe<Scalars['String']>;
   resultTableName?: Maybe<Scalars['String']>;
+  resultSource?: Maybe<QueryResultSource>;
   /** Time this query was submitted to the MQL server */
   createdAt?: Maybe<Scalars['DateTime']>;
   /** Time the MQL Server start query execution */
@@ -175,6 +210,7 @@ export type MqlQuery = {
   sql?: Maybe<Scalars['String']>;
   error?: Maybe<Scalars['String']>;
   errorTraceback?: Maybe<Scalars['String']>;
+  userFriendlyErrorType?: Maybe<MqlQueryUserFriendlyErrorType>;
   logs?: Maybe<Scalars['String']>;
   logsByLine?: Maybe<Scalars['String']>;
   chartValueMin?: Maybe<Scalars['Float']>;
@@ -268,6 +304,22 @@ export enum PandasJsonOrient {
 }
 
 
+/** Different ways that a query result could have been computed or retrieved. */
+export enum QueryResultSource {
+  DynamicCache = 'DYNAMIC_CACHE',
+  DwMaterialization = 'DW_MATERIALIZATION',
+  FastCache = 'FAST_CACHE',
+  NotApplicable = 'NOT_APPLICABLE',
+  NotSpecified = 'NOT_SPECIFIED'
+}
+
+/** User friendly error types to return with MqlQuery */
+export enum MqlQueryUserFriendlyErrorType {
+  DbError = 'DB_ERROR',
+  UnableToSatisfyQueryError = 'UNABLE_TO_SATISFY_QUERY_ERROR',
+  Unknown = 'UNKNOWN'
+}
+
 export type Materialization = {
   __typename?: 'Materialization';
   name: Scalars['String'];
@@ -289,7 +341,7 @@ export type Metric = {
   name: Scalars['String'];
   measures?: Maybe<Array<Scalars['String']>>;
   dimensions?: Maybe<Array<Scalars['String']>>;
-  dimensionValues?: Maybe<Array<Scalars['String']>>;
+  dimensionValues?: Maybe<Array<Maybe<Scalars['String']>>>;
 };
 
 
@@ -305,6 +357,40 @@ export type Measure = {
   name: Scalars['String'];
   dataSources?: Maybe<Array<Scalars['String']>>;
 };
+
+export type Dimensions = {
+  __typename?: 'Dimensions';
+  localDimensions?: Maybe<Array<Maybe<Dimension>>>;
+  nonLocalDimensions?: Maybe<Array<Maybe<Dimension>>>;
+};
+
+
+export type DimensionsLocalDimensionsArgs = {
+  modelKey?: Maybe<ModelKeyInput>;
+  metricNames?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+
+export type DimensionsNonLocalDimensionsArgs = {
+  modelKey?: Maybe<ModelKeyInput>;
+  metricNames?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type Dimension = {
+  __typename?: 'Dimension';
+  name: Scalars['String'];
+  identifierName?: Maybe<Scalars['String']>;
+  type?: Maybe<DimensionType>;
+  isPrimaryTime?: Maybe<Scalars['Boolean']>;
+  values?: Maybe<Array<Scalars['String']>>;
+  cardinality?: Maybe<Scalars['Int']>;
+};
+
+/** Determines types values expected of dimension */
+export enum DimensionType {
+  Categorical = 'CATEGORICAL',
+  Time = 'TIME'
+}
 
 
 export type MqlServerHealthItem = {
@@ -460,6 +546,8 @@ export type CreateMqlQueryInput = {
   pctChange?: Maybe<PercentChange>;
   startTime?: Maybe<Scalars['String']>;
   endTime?: Maybe<Scalars['String']>;
+  /** If granularity is applied, trim start/end periods with incomplete date ranges or data. */
+  trimIncompletePeriods?: Maybe<Scalars['Boolean']>;
   clientMutationId?: Maybe<Scalars['String']>;
 };
 
@@ -473,7 +561,7 @@ export type ConstraintInput = {
 export type SingleConstraintInput = {
   constraintType?: Maybe<AtomicConstraintType>;
   dimensionName?: Maybe<Scalars['String']>;
-  values?: Maybe<Array<Scalars['String']>>;
+  values?: Maybe<Array<Maybe<Scalars['String']>>>;
   start?: Maybe<Scalars['String']>;
   stop?: Maybe<Scalars['String']>;
 };

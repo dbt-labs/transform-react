@@ -12,6 +12,7 @@ const query = gql`
       errorTraceback
       sql
     }
+    sourceQuery(id: $queryId)
   }
 `;
 

@@ -56,6 +56,7 @@ export type Query = {
   organizationTest?: Maybe<Organization>;
   featureTest?: Maybe<Feature>;
   allMetricFilters?: Maybe<Scalars['GenericScalar']>;
+  boom?: Maybe<Scalars['Boolean']>;
 };
 
 
@@ -116,6 +117,16 @@ export type QueryOrganizationTestArgs = {
  */
 export type QueryFeatureTestArgs = {
   id: Scalars['ID'];
+};
+
+
+/**
+ * Base Query object exposed by GraphQL.
+ *
+ * Each field defined below is accessible by the API, by calling the equivalent resolver.
+ */
+export type QueryBoomArgs = {
+  raise_?: Maybe<Scalars['Boolean']>;
 };
 
 /** A wrapper for the response we get from Auth0's user profile API */
@@ -194,6 +205,8 @@ export type Organization = {
   totalMetricCollections?: Maybe<Scalars['Int']>;
   totalSavedQueries?: Maybe<Scalars['Int']>;
   totalActiveFeatures?: Maybe<Scalars['Int']>;
+  requireMfa?: Maybe<Scalars['Boolean']>;
+  allowMfaRememberBrowser?: Maybe<Scalars['Boolean']>;
   activeFeatures?: Maybe<Array<Maybe<Feature>>>;
 };
 
@@ -658,8 +671,8 @@ export type MetricCollection = {
   organization?: Maybe<Organization>;
   teamOwner?: Maybe<Team>;
   primaryDashboard?: Maybe<Dashboard>;
-  items?: Maybe<Array<Maybe<MetricCollectionMetric>>>;
   views?: Maybe<Array<Maybe<MetricCollectionView>>>;
+  items?: Maybe<Array<Maybe<MetricCollectionMetric>>>;
   totalItems?: Maybe<Scalars['Int']>;
   totalRecentViews?: Maybe<Scalars['Int']>;
   totalRecentViewsForUser?: Maybe<Scalars['Int']>;
@@ -672,6 +685,18 @@ export type MetricCollectionItemsArgs = {
   pageSize?: Maybe<Scalars['Int']>;
   orderBy?: Maybe<MetricCollectionMetricOrderBy>;
   desc?: Maybe<Scalars['Boolean']>;
+};
+
+export type MetricCollectionView = {
+  __typename?: 'MetricCollectionView';
+  id: Scalars['ID'];
+  metricCollectionId: Scalars['Int'];
+  userId: Scalars['Int'];
+  organizationId: Scalars['Int'];
+  createdAt: Scalars['DateTime'];
+  metricCollection?: Maybe<MetricCollection>;
+  organization?: Maybe<Organization>;
+  user?: Maybe<User>;
 };
 
 export type MetricCollectionMetric = {
@@ -1083,6 +1108,7 @@ export type Annotation = {
   author?: Maybe<User>;
   organization?: Maybe<Organization>;
   metricAnnotations?: Maybe<Array<Maybe<MetricAnnotation>>>;
+  userCanEdit?: Maybe<Scalars['Boolean']>;
   metrics?: Maybe<Array<Maybe<Metric>>>;
 };
 
@@ -1289,18 +1315,6 @@ export enum MetricCollectionMetricOrderBy {
   Position = 'POSITION',
   Emphasis = 'EMPHASIS'
 }
-
-export type MetricCollectionView = {
-  __typename?: 'MetricCollectionView';
-  id: Scalars['ID'];
-  metricCollectionId: Scalars['Int'];
-  userId: Scalars['Int'];
-  organizationId: Scalars['Int'];
-  createdAt: Scalars['DateTime'];
-  metricCollection?: Maybe<MetricCollection>;
-  organization?: Maybe<Organization>;
-  user?: Maybe<User>;
-};
 
 export type TeamView = {
   __typename?: 'TeamView';
@@ -1569,6 +1583,7 @@ export type Mutation = {
   questionRepliesUnlike?: Maybe<QuestionReply>;
   questionsUnlike?: Maybe<Question>;
   questionsCreate?: Maybe<Question>;
+  questionsDelete?: Maybe<Question>;
   questionsEdit?: Maybe<Question>;
   metricCollectionCreate?: Maybe<MetricCollection>;
   metricCollectionUpdate?: Maybe<MetricCollection>;
@@ -1584,6 +1599,7 @@ export type Mutation = {
   teamsAssignAsMetricOwner?: Maybe<Team>;
   teamsRemoveAsMetricOwner?: Maybe<Team>;
   organizationsUpdate?: Maybe<Organization>;
+  organizationsSetMfaPrefs?: Maybe<Organization>;
   organizationsDelete?: Maybe<Organization>;
   metricsApprove?: Maybe<Metric>;
   metricsLogView?: Maybe<MetricView>;
@@ -1627,6 +1643,8 @@ export type MutationCreateOrganizationTestArgs = {
   isHosted?: Maybe<Scalars['Boolean']>;
   dwEngine?: Maybe<Scalars['String']>;
   mqlServerName?: Maybe<Scalars['String']>;
+  requireMfa?: Maybe<Scalars['Boolean']>;
+  allowMfaRememberBrowser?: Maybe<Scalars['Boolean']>;
 };
 
 
@@ -1962,6 +1980,17 @@ export type MutationQuestionsCreateArgs = {
  * Mutation names will be converted from snake_case to camelCase automatically
  * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
  */
+export type MutationQuestionsDeleteArgs = {
+  id: Scalars['ID'];
+};
+
+
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationQuestionsEditArgs = {
   id: Scalars['ID'];
   text?: Maybe<Scalars['String']>;
@@ -2171,6 +2200,19 @@ export type MutationOrganizationsUpdateArgs = {
   sourceControlUrl?: Maybe<Scalars['String']>;
   mqlServerLogs?: Maybe<Scalars['String']>;
   isHosted?: Maybe<Scalars['Boolean']>;
+};
+
+
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
+export type MutationOrganizationsSetMfaPrefsArgs = {
+  organizationId: Scalars['ID'];
+  requireMfa?: Maybe<Scalars['Boolean']>;
+  allowMfaRememberBrowser?: Maybe<Scalars['Boolean']>;
 };
 
 
