@@ -26,7 +26,7 @@ const granularityToTimeGranularityMap = {
 }
 
 // This is the delay between the _response_ from the last query and the _start_ of the new query
-const QUERY_POLLING_MS = 200;
+const QUERY_POLLING_MS = 400;
 
 // Time in milliseconds to wait for a query to respond successfully before showing a slow loading message to the user.
 const LONG_FETCH_QUERY_ATTEMPT_MAX = 20000; // 20 seconds
