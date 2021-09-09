@@ -182,12 +182,17 @@ function mqlQueryReducer(
       const now = Date.now();
       const diff = now - (state.fetchStartTime || 0);
 
-      return {
-        ...state,
-        queryStatus: MqlQueryStatus.Running,
-        isTakingForever: diff >= LONG_FETCH_QUERY_ATTEMPT_MAX,
-        errorMessage: undefined,
-      };
+      if (state.queryStatus !== MqlQueryStatus.Running && state.isTakingForever !== diff >= LONG_FETCH_QUERY_ATTEMPT_MAX && state.errorMessage !== undefined) {
+        return {
+          ...state,
+          queryStatus: MqlQueryStatus.Running,
+          isTakingForever: diff >= LONG_FETCH_QUERY_ATTEMPT_MAX,
+          errorMessage: undefined,
+        }
+      }
+      else {
+        return state;
+      }
     }
 
     case "retryFetchResults": {
