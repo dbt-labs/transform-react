@@ -322,8 +322,10 @@ export default function useMqlQuery({
             });
           } else if (error) {
             if (retries > 0 && state.retries !== retries) {
-              dispatch({ type: "retryFetchResults" });
-              doCreateMqlQuery();
+              setTimeout(() => {
+                dispatch({ type: "retryFetchResults" });
+                doCreateMqlQuery();
+              }, 200)
             } else {
               dispatch({
                 type: "postQueryFail",
