@@ -28,6 +28,9 @@ const granularityToTimeGranularityMap = {
 // This is the delay between the _response_ from the last query and the _start_ of the new query
 const QUERY_POLLING_MS = 400;
 
+// Length of time to wait before retrying when query fails
+const RETRY_POLLING_MS = 200;
+
 // Time in milliseconds to wait for a query to respond successfully before showing a slow loading message to the user.
 const LONG_FETCH_QUERY_ATTEMPT_MAX = 20000; // 20 seconds
 
@@ -335,7 +338,7 @@ export default function useNewMqlQuery({
               setTimeout(() => {
                 dispatch({ type: "retryFetchResults" });
                 doCreateMqlQuery();
-              }, 200)
+              }, RETRY_POLLING_MS)
             } else {
               dispatch({
                 type: "postQueryFail",
@@ -373,7 +376,7 @@ export default function useNewMqlQuery({
     setTimeout(() => {
       dispatch({ type: "retryFetchResults" });
       refetchMqlQuery();
-    }, 200);
+    }, RETRY_POLLING_MS);
   }
 
   useEffect(() => {
