@@ -28,6 +28,9 @@ const granularityToTimeGranularityMap = {
 // This is the delay between the _response_ from the last query and the _start_ of the new query
 const QUERY_POLLING_MS = 400;
 
+// Length of time to wait before retrying when query fails
+const RETRY_POLLING_MS = 200;
+
 // Time in milliseconds to wait for a query to respond successfully before showing a slow loading message to the user.
 const LONG_FETCH_QUERY_ATTEMPT_MAX = 20000; // 20 seconds
 
@@ -275,7 +278,7 @@ export default function useNewMqlQuery({
   metricName,
   limit,
   skip,
-  retries = 2,
+  retries = 5,
 }: UseMqlQueryParams) {
   const {
     useQuery,
@@ -303,41 +306,54 @@ export default function useNewMqlQuery({
     }
 
     dispatch({ type: "postQueryStart" });
-    createMqlQuery({
-      metrics: [metricName],
-      groupBy: formState.groupBy || [],
-      where: clearEmptyConstraints(formState.where),
-      pctChange: formState.pctChange,
-      timeGranularity: formState?.granularity ? granularityToTimeGranularityMap[formState?.granularity] : null,
-      addTimeSeries: true,
-      startTime: formState.startTime,
-      endTime: formState.endTime,
-      order: formState.order,
-      limit: formState.limit
-    }).then(({ data, error }) => {
-      if (data?.createMqlQuery?.query?.status === MqlQueryStatus.Successful) {
-        dispatch({
-          type: "postQueryCachedResultsSuccess",
-          data,
-          limit,
-          handleCombinedError,
-        });
-      } else {
-        if (data?.createMqlQuery?.id) {
-          dispatch({
-            type: "postQuerySuccess",
-            queryId: data?.createMqlQuery?.id,
-          });
-        } else if (error) {
-          dispatch({
-            type: "postQueryFail",
-            errorMessage: getErrorMessage(error),
-          });
-          handleCombinedError(error);
-        }
-      }
 
-    });
+    const doCreateMqlQuery = () => {
+      createMqlQuery({
+        metrics: [metricName],
+        groupBy: formState.groupBy || [],
+        where: clearEmptyConstraints(formState.where),
+        pctChange: formState.pctChange,
+        timeGranularity: formState?.granularity ? granularityToTimeGranularityMap[formState?.granularity] : null,
+        addTimeSeries: true,
+        startTime: formState.startTime,
+        endTime: formState.endTime,
+        order: formState.order,
+        limit: formState.limit
+      }).then(({ data, error }) => {
+        if (data?.createMqlQuery?.query?.status === MqlQueryStatus.Successful) {
+          dispatch({
+            type: "postQueryCachedResultsSuccess",
+            data,
+            limit,
+            handleCombinedError,
+          });
+        } else {
+          if (data?.createMqlQuery?.id) {
+            dispatch({
+              type: "postQuerySuccess",
+              queryId: data?.createMqlQuery?.id,
+            });
+          } else if (error) {
+            if (retries > 0 && state.retries !== retries) {
+              setTimeout(() => {
+                dispatch({ type: "retryFetchResults" });
+                doCreateMqlQuery();
+              }, RETRY_POLLING_MS)
+            } else {
+              dispatch({
+                type: "postQueryFail",
+                errorMessage: getErrorMessage(error),
+              });
+            }
+            handleCombinedError(error);
+          }
+        }
+
+      });
+    }
+
+    doCreateMqlQuery();
+
   }, [queryInput, metricName, mqlServerUrl, skip]);
 
   const _skip =
@@ -356,11 +372,17 @@ export default function useNewMqlQuery({
     pause: _skip,
   });
 
+  const retry = () => {
+    setTimeout(() => {
+      dispatch({ type: "retryFetchResults" });
+      refetchMqlQuery();
+    }, RETRY_POLLING_MS);
+  }
+
   useEffect(() => {
     if (error) {
       if (retries > 0 && state.retries !== retries) {
-        dispatch({ type: "retryFetchResults" });
-        refetchMqlQuery();
+        retry()
       } else {
         dispatch({
           type: "fetchResultsFail",
@@ -402,8 +424,7 @@ export default function useNewMqlQuery({
 
     if (status === MqlQueryStatus.Failed) {
       if (retries > 0 && state.retries !== retries) {
-        dispatch({ type: "retryFetchResults" });
-        refetchMqlQuery();
+        retry()
       } else {
         if (data?.mqlQuery?.error) {
           const {error} = data.mqlQuery;
