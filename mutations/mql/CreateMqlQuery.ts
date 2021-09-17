@@ -8,7 +8,7 @@ const mutation = gql`
     $where: ConstraintInput
     $addTimeSeries: Boolean
     $pctChange: PercentChange
-    $granularity: Granularity = DAILY
+    $timeGranularity: TimeGranularity
     $startTime: String
     $endTime: String
     $limit: LimitInput
@@ -22,7 +22,7 @@ const mutation = gql`
         where: $where
         addTimeSeries: $addTimeSeries
         pctChange: $pctChange
-        granularity: $granularity
+        timeGranularity: $timeGranularity
         startTime: $startTime
         endTime: $endTime
         resultFormat: TFD

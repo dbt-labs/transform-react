@@ -666,41 +666,6 @@ export type CreateMqlQueryMutationVariables = Exact<{
   where?: Maybe<ConstraintInput>;
   addTimeSeries?: Maybe<Scalars['Boolean']>;
   pctChange?: Maybe<PercentChange>;
-  granularity?: Maybe<Granularity>;
-  startTime?: Maybe<Scalars['String']>;
-  endTime?: Maybe<Scalars['String']>;
-  limit?: Maybe<Scalars['LimitInput']>;
-  order?: Maybe<Array<Scalars['String']> | Scalars['String']>;
-}>;
-
-
-export type CreateMqlQueryMutation = (
-  { __typename?: 'Mutation' }
-  & { createMqlQuery?: Maybe<(
-    { __typename?: 'CreateMqlQueryPayload' }
-    & Pick<CreateMqlQueryPayload, 'id'>
-    & { query?: Maybe<(
-      { __typename?: 'MqlQuery' }
-      & Pick<MqlQuery, 'id' | 'status' | 'metrics' | 'dimensions' | 'error'>
-      & { result?: Maybe<Array<(
-        { __typename?: 'MqlQueryResultSeries' }
-        & Pick<MqlQueryResultSeries, 'seriesValue'>
-        & { data?: Maybe<Array<(
-          { __typename?: 'TimeSeriesDatum' }
-          & Pick<TimeSeriesDatum, 'xDate' | 'y'>
-        )>> }
-      )>> }
-    )> }
-  )> }
-);
-
-export type CreateMqlQueryWithTimeGranularityMutationVariables = Exact<{
-  modelKey?: Maybe<ModelKeyInput>;
-  metrics?: Maybe<Array<Scalars['String']> | Scalars['String']>;
-  groupBy?: Maybe<Array<Scalars['String']> | Scalars['String']>;
-  where?: Maybe<ConstraintInput>;
-  addTimeSeries?: Maybe<Scalars['Boolean']>;
-  pctChange?: Maybe<PercentChange>;
   timeGranularity?: Maybe<TimeGranularity>;
   startTime?: Maybe<Scalars['String']>;
   endTime?: Maybe<Scalars['String']>;
@@ -709,7 +674,7 @@ export type CreateMqlQueryWithTimeGranularityMutationVariables = Exact<{
 }>;
 
 
-export type CreateMqlQueryWithTimeGranularityMutation = (
+export type CreateMqlQueryMutation = (
   { __typename?: 'Mutation' }
   & { createMqlQuery?: Maybe<(
     { __typename?: 'CreateMqlQueryPayload' }
