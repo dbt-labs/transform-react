@@ -297,7 +297,7 @@ export default function useMqlQuery({
 
     dispatch({ type: "postQueryStart" });
 
-    const doCreateMqlQuery = () => {
+    const doCreateMqlQuery = (stateRetries: number) => {
       createMqlQuery({
         metrics: [metricName],
         groupBy: formState.groupBy || [],
@@ -324,10 +324,10 @@ export default function useMqlQuery({
               queryId: data?.createMqlQuery?.id,
             });
           } else if (error) {
-            if (retries > 0 && state.retries !== retries) {
+            if (retries > 0 && stateRetries !== retries && stateRetries < retries) {
               setTimeout(() => {
                 dispatch({ type: "retryFetchResults" });
-                doCreateMqlQuery();
+                doCreateMqlQuery(stateRetries + 1);
               }, RETRY_POLLING_MS)
             } else {
               dispatch({
@@ -342,7 +342,7 @@ export default function useMqlQuery({
       });
     };
 
-    doCreateMqlQuery()
+    doCreateMqlQuery(state.retries)
 
 
   }, [queryInput, metricName, mqlServerUrl, skip]);
