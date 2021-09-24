@@ -48,6 +48,7 @@ export type Query = {
   measures?: Maybe<Array<Measure>>;
   measureByName?: Maybe<Measure>;
   dimensionNamesForMetrics?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dimensionNamesForMetricsMultihop?: Maybe<Array<Maybe<Scalars['String']>>>;
   dimensionsForMetrics?: Maybe<Dimensions>;
   queries?: Maybe<Array<Maybe<MqlQuery>>>;
   healthReport?: Maybe<Array<Maybe<MqlServerHealthItem>>>;
@@ -663,10 +664,19 @@ export type FetchDimensionNamesQueryVariables = Exact<{
   metricNames: Array<Scalars['String']> | Scalars['String'];
 }>;
 
+export type FetchDimensionNamesMultihopQueryVariables = Exact<{
+  metricNames: Array<Scalars['String']> | Scalars['String'];
+}>;
+
 
 export type FetchDimensionNamesQuery = (
   { __typename?: 'Query' }
   & Pick<Query, 'dimensionNamesForMetrics'>
+);
+
+export type FetchDimensionNamesMultihopQuery = (
+  { __typename?: 'Query' }
+  & Pick<Query, 'dimensionNamesForMetricsMultihop'>
 );
 
 export type FetchDimensionValuesQueryVariables = Exact<{
