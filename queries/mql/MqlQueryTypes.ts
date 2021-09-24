@@ -50,6 +50,7 @@ export type Query = {
   dimensionNamesForMetrics?: Maybe<Array<Maybe<Scalars['String']>>>;
   dimensionNamesForMetricsMultihop?: Maybe<Array<Maybe<Scalars['String']>>>;
   dimensionsForMetrics?: Maybe<Dimensions>;
+  primaryTimeDimension?: Maybe<Dimension>;
   queries?: Maybe<Array<Maybe<MqlQuery>>>;
   healthReport?: Maybe<Array<Maybe<MqlServerHealthItem>>>;
 };
@@ -153,9 +154,30 @@ export type QueryDimensionNamesForMetricsArgs = {
  *
  * Each field defined below is accessible by the API, by calling the equivalent resolver.
  */
+export type QueryDimensionNamesForMetricsMultihopArgs = {
+  modelKey?: Maybe<ModelKeyInput>;
+  metricNames?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+
+/**
+ * Base Query object exposed by GraphQL for the MQL Server
+ *
+ * Each field defined below is accessible by the API, by calling the equivalent resolver.
+ */
 export type QueryDimensionsForMetricsArgs = {
   modelKey?: Maybe<ModelKeyInput>;
   metricNames?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+
+/**
+ * Base Query object exposed by GraphQL for the MQL Server
+ *
+ * Each field defined below is accessible by the API, by calling the equivalent resolver.
+ */
+export type QueryPrimaryTimeDimensionArgs = {
+  modelKey?: Maybe<ModelKeyInput>;
 };
 
 
@@ -204,6 +226,7 @@ export type MqlQuery = {
   resultTableSchema?: Maybe<Scalars['String']>;
   resultTableName?: Maybe<Scalars['String']>;
   resultSource?: Maybe<QueryResultSource>;
+  resultPrimaryTimeGranularity?: Maybe<TimeGranularity>;
   /** Time this query was submitted to the MQL server */
   createdAt?: Maybe<Scalars['DateTime']>;
   /** Time the MQL Server start query execution */
@@ -312,6 +335,19 @@ export enum QueryResultSource {
   FastCache = 'FAST_CACHE',
   NotApplicable = 'NOT_APPLICABLE',
   NotSpecified = 'NOT_SPECIFIED'
+}
+
+/**
+ * For time dimensions, the smallest possible difference between two time values.
+ *
+ *     Needed for calculating adjacency when merging 2 different time ranges.
+ */
+export enum TimeGranularity {
+  Day = 'DAY',
+  Week = 'WEEK',
+  Month = 'MONTH',
+  Quarter = 'QUARTER',
+  Year = 'YEAR'
 }
 
 /** User friendly error types to return with MqlQuery */
@@ -573,17 +609,13 @@ export enum AtomicConstraintType {
   Range = 'RANGE'
 }
 
-/** An enumeration. */
-export enum TimeGranularity {
-  Day = 'DAY',
-  Week = 'WEEK',
-  Month = 'MONTH',
-  Quarter = 'QUARTER',
-  Year = 'YEAR'
-}
 
-
-/** An enumeration. */
+/**
+ * Options for the SemanticLayer cache.
+ *
+ *     Tables in a specified schema in the same data warehouse contain measure / dimension combinations that can be used to
+ *     speed up queries for different measure / dimension combinations.
+ */
 export enum CacheMode {
   Read = 'READ',
   Readwrite = 'READWRITE',
@@ -664,15 +696,16 @@ export type FetchDimensionNamesQueryVariables = Exact<{
   metricNames: Array<Scalars['String']> | Scalars['String'];
 }>;
 
-export type FetchDimensionNamesMultihopQueryVariables = Exact<{
-  metricNames: Array<Scalars['String']> | Scalars['String'];
-}>;
-
 
 export type FetchDimensionNamesQuery = (
   { __typename?: 'Query' }
   & Pick<Query, 'dimensionNamesForMetrics'>
 );
+
+export type FetchDimensionNamesMultihopQueryVariables = Exact<{
+  metricNames: Array<Scalars['String']> | Scalars['String'];
+}>;
+
 
 export type FetchDimensionNamesMultihopQuery = (
   { __typename?: 'Query' }

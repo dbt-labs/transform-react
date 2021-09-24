@@ -14,7 +14,9 @@ type Query {
   measures(modelKey: ModelKeyInput): [Measure!]
   measureByName(modelKey: ModelKeyInput, name: String!): Measure
   dimensionNamesForMetrics(modelKey: ModelKeyInput, metricNames: [String]): [String]
+  dimensionNamesForMetricsMultihop(modelKey: ModelKeyInput, metricNames: [String]): [String]
   dimensionsForMetrics(modelKey: ModelKeyInput, metricNames: [String]): Dimensions
+  primaryTimeDimension(modelKey: ModelKeyInput): Dimension
   queries(activeOnly: Boolean, status: MqlQueryStatus, metricNames: [String], dateRangeStart: Date, dateRangeEnd: Date, minExecutionSeconds: Float, maxExecutionSeconds: Float, userIds: [Int], limit: Int, offset: Int): [MqlQuery]
   healthReport: [MqlServerHealthItem]
 }
@@ -56,6 +58,7 @@ type MqlQuery {
   resultTableSchema: String
   resultTableName: String
   resultSource: QueryResultSource
+  resultPrimaryTimeGranularity: TimeGranularity
 
   """Time this query was submitted to the MQL server"""
   createdAt: DateTime
@@ -156,6 +159,20 @@ enum QueryResultSource {
   FAST_CACHE
   NOT_APPLICABLE
   NOT_SPECIFIED
+}
+
+"""
+For time dimensions, the smallest possible difference between two time values.
+
+    Needed for calculating adjacency when merging 2 different time ranges.
+    
+"""
+enum TimeGranularity {
+  DAY
+  WEEK
+  MONTH
+  QUARTER
+  YEAR
 }
 
 """User friendly error types to return with MqlQuery"""
@@ -367,15 +384,6 @@ enum AtomicConstraintType {
   RANGE
 }
 
-"""An enumeration."""
-enum TimeGranularity {
-  DAY
-  WEEK
-  MONTH
-  QUARTER
-  YEAR
-}
-
 """
 Limit is a GraphQL Scalar that can take in inf or positive integers.
 
@@ -383,7 +391,13 @@ This class helps us normalize a API limit input into the Optional[int] type expe
 """
 scalar LimitInput
 
-"""An enumeration."""
+"""
+Options for the SemanticLayer cache.
+
+    Tables in a specified schema in the same data warehouse contain measure / dimension combinations that can be used to
+    speed up queries for different measure / dimension combinations.
+    
+"""
 enum CacheMode {
   READ
   READWRITE
