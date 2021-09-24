@@ -16,18 +16,18 @@ export type Scalars = {
    */
   DateTime: any;
   /**
-   * The `GenericScalar` scalar type represents a generic
-   * GraphQL scalar value that could be:
-   * String, Boolean, Int, Float, List or Object.
-   */
-  GenericScalar: any;
-  /**
    * Allows use of a JSON String for input / output from the GraphQL schema.
    *
    * Use of this type is *not recommended* as you lose the benefits of having a defined, static
    * schema (one of the key benefits of GraphQL).
    */
   JSONString: any;
+  /**
+   * The `GenericScalar` scalar type represents a generic
+   * GraphQL scalar value that could be:
+   * String, Boolean, Int, Float, List or Object.
+   */
+  GenericScalar: any;
   /**
    * The `Date` scalar type represents a Date
    * value as specified by
@@ -624,6 +624,8 @@ export type Dashboard = {
   deletedAt?: Maybe<Scalars['DateTime']>;
   organization?: Maybe<Organization>;
   sections?: Maybe<Array<Maybe<DashboardSection>>>;
+  user?: Maybe<Array<Maybe<User>>>;
+  team?: Maybe<Array<Maybe<Team>>>;
 };
 
 export type DashboardSection = {
@@ -631,8 +633,8 @@ export type DashboardSection = {
   id: Scalars['ID'];
   dashboardId: Scalars['Int'];
   dashboardSectionType: Scalars['String'];
-  dashboard?: Maybe<Dashboard>;
   items?: Maybe<Array<Maybe<DashboardItem>>>;
+  dashboard?: Maybe<Dashboard>;
 };
 
 export type DashboardItem = {
@@ -719,12 +721,11 @@ export type OrgMetric = {
   createdAt: Scalars['DateTime'];
   organizationId: Scalars['Int'];
   name: Scalars['String'];
-  organization?: Maybe<Organization>;
   userOwners?: Maybe<Array<Maybe<MetricUserOwner>>>;
   teamOwners?: Maybe<Array<Maybe<MetricTeamOwner>>>;
-  savedQueries?: Maybe<Array<Maybe<SavedQuery>>>;
   versions?: Maybe<Array<Maybe<Metric>>>;
   metricAnnotations?: Maybe<Array<Maybe<MetricAnnotation>>>;
+  organization?: Maybe<Organization>;
 };
 
 export type MetricUserOwner = {
@@ -750,36 +751,6 @@ export type MetricTeamOwner = {
   team?: Maybe<Team>;
   organization?: Maybe<Organization>;
 };
-
-export type SavedQuery = {
-  __typename?: 'SavedQuery';
-  id: Scalars['ID'];
-  organizationId: Scalars['Int'];
-  title: Scalars['String'];
-  createdAt?: Maybe<Scalars['DateTime']>;
-  updatedAt?: Maybe<Scalars['DateTime']>;
-  deletedAt?: Maybe<Scalars['DateTime']>;
-  createdBy: Scalars['Int'];
-  ownerTeamId?: Maybe<Scalars['Int']>;
-  serializedQuery?: Maybe<Scalars['GenericScalar']>;
-  createdByUser?: Maybe<User>;
-  organization?: Maybe<Organization>;
-  ownerTeam?: Maybe<Team>;
-  orgMetrics?: Maybe<Array<Maybe<OrgMetric>>>;
-  totalMetrics?: Maybe<Scalars['Int']>;
-  metrics?: Maybe<Array<Maybe<Metric>>>;
-};
-
-
-export type SavedQueryMetricsArgs = {
-  searchStr?: Maybe<Scalars['String']>;
-  searchColumns?: Maybe<Array<Maybe<MetricVersionStrColumn>>>;
-  pageNumber?: Maybe<Scalars['Int']>;
-  pageSize?: Maybe<Scalars['Int']>;
-  orderBy?: Maybe<MetricVersionOrderBy>;
-  desc?: Maybe<Scalars['Boolean']>;
-};
-
 
 export type Metric = {
   __typename?: 'Metric';
@@ -807,8 +778,6 @@ export type Metric = {
   unresolvedQuestions?: Maybe<Question>;
   metricLineageDataSources?: Maybe<Array<Maybe<MetricLineageDataSource>>>;
   metadata?: Maybe<Scalars['GenericScalar']>;
-  recentQuestions?: Maybe<Array<Maybe<Question>>>;
-  recentAnnotations?: Maybe<Array<Maybe<Annotation>>>;
   totalQuestions?: Maybe<Scalars['Int']>;
   totalAnnotations?: Maybe<Scalars['Int']>;
   name?: Maybe<Scalars['String']>;
@@ -842,27 +811,11 @@ export type MetricQuestionsArgs = {
 };
 
 
-export type MetricRecentQuestionsArgs = {
-  searchStr?: Maybe<Scalars['String']>;
-  searchColumns?: Maybe<Array<Maybe<QuestionStrColumn>>>;
-  pageNumber?: Maybe<Scalars['Int']>;
-  pageSize?: Maybe<Scalars['Int']>;
-  orderBy?: Maybe<QuestionOrderBy>;
-  desc?: Maybe<Scalars['Boolean']>;
-};
-
-
-export type MetricRecentAnnotationsArgs = {
-  searchStr?: Maybe<Scalars['String']>;
-  searchColumns?: Maybe<Array<Maybe<AnnotationStrColumn>>>;
-  pageNumber?: Maybe<Scalars['Int']>;
-  pageSize?: Maybe<Scalars['Int']>;
-  orderBy?: Maybe<AnnotationOrderBy>;
-  desc?: Maybe<Scalars['Boolean']>;
-};
-
-
 export type MetricAnnotationsArgs = {
+  dimensions?: Maybe<Array<Maybe<GMetricAnnotationDimensionInput>>>;
+  startDate?: Maybe<Scalars['Date']>;
+  endDate?: Maybe<Scalars['Date']>;
+  priorities?: Maybe<Array<Maybe<Priority>>>;
   searchStr?: Maybe<Scalars['String']>;
   searchColumns?: Maybe<Array<Maybe<AnnotationStrColumn>>>;
   pageNumber?: Maybe<Scalars['Int']>;
@@ -910,6 +863,7 @@ export type MetricOwnerUsersArgs = {
   orderBy?: Maybe<UserOrderBy>;
   desc?: Maybe<Scalars['Boolean']>;
 };
+
 
 
 export type Model = {
@@ -1086,6 +1040,19 @@ export enum QuestionOrderBy {
   MetricName = 'METRIC_NAME'
 }
 
+export type MetricApproval = {
+  __typename?: 'MetricApproval';
+  id: Scalars['ID'];
+  organizationId: Scalars['Int'];
+  approverId: Scalars['Int'];
+  approvedAt?: Maybe<Scalars['DateTime']>;
+  metricId?: Maybe<Scalars['Int']>;
+  approvalTs?: Maybe<Scalars['Int']>;
+  metricName?: Maybe<Scalars['String']>;
+  approver?: Maybe<User>;
+  organization?: Maybe<Organization>;
+};
+
 export type Annotation = {
   __typename?: 'Annotation';
   id: Scalars['ID'];
@@ -1124,9 +1091,9 @@ export type MetricAnnotation = {
   dimensionName?: Maybe<Scalars['String']>;
   dimensionValue?: Maybe<Scalars['String']>;
   organization?: Maybe<Organization>;
+  annotation?: Maybe<Annotation>;
   orgMetric?: Maybe<OrgMetric>;
   dimensions?: Maybe<Array<Maybe<MetricAnnotationDimension>>>;
-  annotation?: Maybe<Annotation>;
   metric?: Maybe<Metric>;
 };
 
@@ -1137,6 +1104,21 @@ export type MetricAnnotationDimension = {
   dimensionName: Scalars['String'];
   valueHashes?: Maybe<Array<Maybe<Scalars['String']>>>;
 };
+
+export type GMetricAnnotationDimensionInput = {
+  dimensionName: Scalars['String'];
+  valueHashes?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+
+/** An enumeration. */
+export enum Priority {
+  NoPriority = 'NO_PRIORITY',
+  Low = 'LOW',
+  Medium = 'MEDIUM',
+  High = 'HIGH',
+  Critical = 'CRITICAL'
+}
 
 /** An enumeration. */
 export enum AnnotationStrColumn {
@@ -1168,19 +1150,6 @@ export enum AnnotationOrderBy {
   TimestampCreated = 'TIMESTAMP_CREATED'
 }
 
-export type MetricApproval = {
-  __typename?: 'MetricApproval';
-  id: Scalars['ID'];
-  organizationId: Scalars['Int'];
-  approverId: Scalars['Int'];
-  approvedAt?: Maybe<Scalars['DateTime']>;
-  metricId?: Maybe<Scalars['Int']>;
-  approvalTs?: Maybe<Scalars['Int']>;
-  metricName?: Maybe<Scalars['String']>;
-  approver?: Maybe<User>;
-  organization?: Maybe<Organization>;
-};
-
 /** An enumeration. */
 export enum DataSourceVersionStrColumn {
   Name = 'NAME',
@@ -1209,6 +1178,60 @@ export enum DataSourceVersionOrderBy {
   CreatedAt = 'CREATED_AT',
   Hash = 'HASH',
   OrganizationId = 'ORGANIZATION_ID'
+}
+
+export type SavedQuery = {
+  __typename?: 'SavedQuery';
+  id: Scalars['ID'];
+  organizationId: Scalars['Int'];
+  title: Scalars['String'];
+  createdAt?: Maybe<Scalars['DateTime']>;
+  updatedAt?: Maybe<Scalars['DateTime']>;
+  deletedAt?: Maybe<Scalars['DateTime']>;
+  createdBy: Scalars['Int'];
+  ownerTeamId?: Maybe<Scalars['Int']>;
+  serializedQuery?: Maybe<Scalars['GenericScalar']>;
+  createdByUser?: Maybe<User>;
+  organization?: Maybe<Organization>;
+  ownerTeam?: Maybe<Team>;
+  orgMetrics?: Maybe<Array<Maybe<OrgMetric>>>;
+  totalMetrics?: Maybe<Scalars['Int']>;
+  metrics?: Maybe<Array<Maybe<Metric>>>;
+};
+
+
+export type SavedQueryMetricsArgs = {
+  searchStr?: Maybe<Scalars['String']>;
+  searchColumns?: Maybe<Array<Maybe<MetricVersionStrColumn>>>;
+  pageNumber?: Maybe<Scalars['Int']>;
+  pageSize?: Maybe<Scalars['Int']>;
+  orderBy?: Maybe<MetricVersionOrderBy>;
+  desc?: Maybe<Scalars['Boolean']>;
+};
+
+/** An enumeration. */
+export enum MetricVersionStrColumn {
+  DisplayName = 'DISPLAY_NAME',
+  Description = 'DESCRIPTION',
+  Hash = 'HASH'
+}
+
+/** An enumeration. */
+export enum MetricVersionOrderBy {
+  Id = 'ID',
+  DisplayName = 'DISPLAY_NAME',
+  Description = 'DESCRIPTION',
+  Tier = 'TIER',
+  MetricType = 'METRIC_TYPE',
+  MetricId = 'METRIC_ID',
+  Params = 'PARAMS',
+  Metadata = 'METADATA',
+  CreatedAt = 'CREATED_AT',
+  Hash = 'HASH',
+  OrganizationId = 'ORGANIZATION_ID',
+  SourceDataSourceVersions = 'SOURCE_DATA_SOURCE_VERSIONS',
+  OrgDataSourceId = 'ORG_DATA_SOURCE_ID',
+  Views = 'VIEWS'
 }
 
 /** An enumeration. */
@@ -1278,31 +1301,6 @@ export enum UserOrderBy {
   PrimaryDashboardId = 'PRIMARY_DASHBOARD_ID',
   DateCreate = 'DATE_CREATE',
   DateDeactivate = 'DATE_DEACTIVATE'
-}
-
-/** An enumeration. */
-export enum MetricVersionStrColumn {
-  DisplayName = 'DISPLAY_NAME',
-  Description = 'DESCRIPTION',
-  Hash = 'HASH'
-}
-
-/** An enumeration. */
-export enum MetricVersionOrderBy {
-  Id = 'ID',
-  DisplayName = 'DISPLAY_NAME',
-  Description = 'DESCRIPTION',
-  Tier = 'TIER',
-  MetricType = 'METRIC_TYPE',
-  MetricId = 'METRIC_ID',
-  Params = 'PARAMS',
-  Metadata = 'METADATA',
-  CreatedAt = 'CREATED_AT',
-  Hash = 'HASH',
-  OrganizationId = 'ORGANIZATION_ID',
-  SourceDataSourceVersions = 'SOURCE_DATA_SOURCE_VERSIONS',
-  OrgDataSourceId = 'ORG_DATA_SOURCE_ID',
-  Views = 'VIEWS'
 }
 
 /** An enumeration. */
@@ -1487,7 +1485,6 @@ export type MqlHeartbeat = {
   mqlServer?: Maybe<OrgMqlServer>;
   user?: Maybe<User>;
   org?: Maybe<Organization>;
-  orgMqlServers?: Maybe<OrgMqlServer>;
 };
 
 /** An enumeration. */
@@ -1522,7 +1519,8 @@ export enum MetricTier {
 export enum MetricType {
   MeasureProxy = 'MEASURE_PROXY',
   Ratio = 'RATIO',
-  Expr = 'EXPR'
+  Expr = 'EXPR',
+  Cumulative = 'CUMULATIVE'
 }
 
 /** An enumeration. */
@@ -2392,25 +2390,10 @@ export type CreateAnnotation = {
   annotation?: Maybe<Annotation>;
 };
 
-
 export type GMetricAnnotationInput = {
   metricId: Scalars['Int'];
-  dimensions: Array<Maybe<GMetricAnnotationDimensionInput>>;
+  dimensions?: Maybe<Array<Maybe<GMetricAnnotationDimensionInput>>>;
 };
-
-export type GMetricAnnotationDimensionInput = {
-  dimensionName: Scalars['String'];
-  valueHashes: Array<Maybe<Scalars['String']>>;
-};
-
-/** An enumeration. */
-export enum Priority {
-  NoPriority = 'NO_PRIORITY',
-  Low = 'LOW',
-  Medium = 'MEDIUM',
-  High = 'HIGH',
-  Critical = 'CRITICAL'
-}
 
 export type UpdateAnnotation = {
   __typename?: 'UpdateAnnotation';

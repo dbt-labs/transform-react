@@ -304,6 +304,7 @@ export default function useMqlQuery({
         where: clearEmptyConstraints(formState.where),
         pctChange: formState.pctChange,
         timeGranularity: formState.timeGranularity,
+        granularity: formState.granularity,
         addTimeSeries: true,
         startTime: formState.startTime,
         endTime: formState.endTime,

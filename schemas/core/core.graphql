@@ -258,14 +258,16 @@ type Dashboard {
   deletedAt: DateTime
   organization: Organization
   sections: [DashboardSection]
+  user: [User]
+  team: [Team]
 }
 
 type DashboardSection {
   id: ID!
   dashboardId: Int!
   dashboardSectionType: String!
-  dashboard: Dashboard
   items: [DashboardItem]
+  dashboard: Dashboard
 }
 
 type DashboardItem {
@@ -339,12 +341,11 @@ type OrgMetric {
   createdAt: DateTime!
   organizationId: Int!
   name: String!
-  organization: Organization
   userOwners: [MetricUserOwner]
   teamOwners: [MetricTeamOwner]
-  savedQueries: [SavedQuery]
   versions: [Metric]
   metricAnnotations: [MetricAnnotation]
+  organization: Organization
 }
 
 type MetricUserOwner {
@@ -368,31 +369,6 @@ type MetricTeamOwner {
   team: Team
   organization: Organization
 }
-
-type SavedQuery {
-  id: ID!
-  organizationId: Int!
-  title: String!
-  createdAt: DateTime
-  updatedAt: DateTime
-  deletedAt: DateTime
-  createdBy: Int!
-  ownerTeamId: Int
-  serializedQuery: GenericScalar
-  createdByUser: User
-  organization: Organization
-  ownerTeam: Team
-  orgMetrics: [OrgMetric]
-  totalMetrics: Int
-  metrics(searchStr: String, searchColumns: [MetricVersionStrColumn], pageNumber: Int, pageSize: Int, orderBy: MetricVersionOrderBy, desc: Boolean): [Metric]
-}
-
-"""
-The `GenericScalar` scalar type represents a generic
-GraphQL scalar value that could be:
-String, Boolean, Int, Float, List or Object.
-"""
-scalar GenericScalar
 
 type Metric {
   metadata_: JSONString!
@@ -419,13 +395,11 @@ type Metric {
   unresolvedQuestions: Question
   metricLineageDataSources: [MetricLineageDataSource]
   metadata: GenericScalar
-  recentQuestions(searchStr: String, searchColumns: [QuestionStrColumn], pageNumber: Int, pageSize: Int, orderBy: QuestionOrderBy, desc: Boolean): [Question]
-  recentAnnotations(searchStr: String, searchColumns: [AnnotationStrColumn], pageNumber: Int, pageSize: Int, orderBy: AnnotationOrderBy, desc: Boolean): [Annotation]
   totalQuestions: Int
   totalAnnotations: Int
   name: String
   latestApproval: MetricApproval
-  annotations(searchStr: String, searchColumns: [AnnotationStrColumn], pageNumber: Int, pageSize: Int, orderBy: AnnotationOrderBy, desc: Boolean): [Annotation]
+  annotations(dimensions: [GMetricAnnotationDimensionInput], startDate: Date, endDate: Date, priorities: [Priority], searchStr: String, searchColumns: [AnnotationStrColumn], pageNumber: Int, pageSize: Int, orderBy: AnnotationOrderBy, desc: Boolean): [Annotation]
   currentDescription: String
   totalRecentViews: Int
   totalRecentViewsForUser: Int
@@ -450,6 +424,13 @@ Use of this type is *not recommended* as you lose the benefits of having a defin
 schema (one of the key benefits of GraphQL).
 """
 scalar JSONString
+
+"""
+The `GenericScalar` scalar type represents a generic
+GraphQL scalar value that could be:
+String, Boolean, Int, Float, List or Object.
+"""
+scalar GenericScalar
 
 type Model {
   id: ID!
@@ -608,6 +589,18 @@ enum QuestionOrderBy {
   METRIC_NAME
 }
 
+type MetricApproval {
+  id: ID!
+  organizationId: Int!
+  approverId: Int!
+  approvedAt: DateTime
+  metricId: Int
+  approvalTs: Int
+  metricName: String
+  approver: User
+  organization: Organization
+}
+
 type Annotation {
   id: ID!
   organizationId: Int!
@@ -644,9 +637,9 @@ type MetricAnnotation {
   dimensionName: String
   dimensionValue: String
   organization: Organization
+  annotation: Annotation
   orgMetric: OrgMetric
   dimensions: [MetricAnnotationDimension]
-  annotation: Annotation
   metric: Metric
 }
 
@@ -655,6 +648,27 @@ type MetricAnnotationDimension {
   metricAnnotationId: Int!
   dimensionName: String!
   valueHashes: [String]
+}
+
+input GMetricAnnotationDimensionInput {
+  dimensionName: String!
+  valueHashes: [String]
+}
+
+"""
+The `Date` scalar type represents a Date
+value as specified by
+[iso8601](https://en.wikipedia.org/wiki/ISO_8601).
+"""
+scalar Date
+
+"""An enumeration."""
+enum Priority {
+  NO_PRIORITY
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
 }
 
 """An enumeration."""
@@ -687,18 +701,6 @@ enum AnnotationOrderBy {
   TIMESTAMP_CREATED
 }
 
-type MetricApproval {
-  id: ID!
-  organizationId: Int!
-  approverId: Int!
-  approvedAt: DateTime
-  metricId: Int
-  approvalTs: Int
-  metricName: String
-  approver: User
-  organization: Organization
-}
-
 """An enumeration."""
 enum DataSourceVersionStrColumn {
   NAME
@@ -727,6 +729,49 @@ enum DataSourceVersionOrderBy {
   CREATED_AT
   HASH
   ORGANIZATION_ID
+}
+
+type SavedQuery {
+  id: ID!
+  organizationId: Int!
+  title: String!
+  createdAt: DateTime
+  updatedAt: DateTime
+  deletedAt: DateTime
+  createdBy: Int!
+  ownerTeamId: Int
+  serializedQuery: GenericScalar
+  createdByUser: User
+  organization: Organization
+  ownerTeam: Team
+  orgMetrics: [OrgMetric]
+  totalMetrics: Int
+  metrics(searchStr: String, searchColumns: [MetricVersionStrColumn], pageNumber: Int, pageSize: Int, orderBy: MetricVersionOrderBy, desc: Boolean): [Metric]
+}
+
+"""An enumeration."""
+enum MetricVersionStrColumn {
+  DISPLAY_NAME
+  DESCRIPTION
+  HASH
+}
+
+"""An enumeration."""
+enum MetricVersionOrderBy {
+  ID
+  DISPLAY_NAME
+  DESCRIPTION
+  TIER
+  METRIC_TYPE
+  METRIC_ID
+  PARAMS
+  METADATA
+  CREATED_AT
+  HASH
+  ORGANIZATION_ID
+  SOURCE_DATA_SOURCE_VERSIONS
+  ORG_DATA_SOURCE_ID
+  VIEWS
 }
 
 """An enumeration."""
@@ -796,31 +841,6 @@ enum UserOrderBy {
   PRIMARY_DASHBOARD_ID
   DATE_CREATE
   DATE_DEACTIVATE
-}
-
-"""An enumeration."""
-enum MetricVersionStrColumn {
-  DISPLAY_NAME
-  DESCRIPTION
-  HASH
-}
-
-"""An enumeration."""
-enum MetricVersionOrderBy {
-  ID
-  DISPLAY_NAME
-  DESCRIPTION
-  TIER
-  METRIC_TYPE
-  METRIC_ID
-  PARAMS
-  METADATA
-  CREATED_AT
-  HASH
-  ORGANIZATION_ID
-  SOURCE_DATA_SOURCE_VERSIONS
-  ORG_DATA_SOURCE_ID
-  VIEWS
 }
 
 """An enumeration."""
@@ -980,7 +1000,6 @@ type MqlHeartbeat {
   mqlServer: OrgMqlServer
   user: User
   org: Organization
-  orgMqlServers: OrgMqlServer
 }
 
 """An enumeration."""
@@ -1016,6 +1035,7 @@ enum MetricType {
   MEASURE_PROXY
   RATIO
   EXPR
+  CUMULATIVE
 }
 
 """An enumeration."""
@@ -1138,30 +1158,9 @@ type CreateAnnotation {
   annotation: Annotation
 }
 
-"""
-The `Date` scalar type represents a Date
-value as specified by
-[iso8601](https://en.wikipedia.org/wiki/ISO_8601).
-"""
-scalar Date
-
 input GMetricAnnotationInput {
   metricId: Int!
-  dimensions: [GMetricAnnotationDimensionInput]!
-}
-
-input GMetricAnnotationDimensionInput {
-  dimensionName: String!
-  valueHashes: [String]!
-}
-
-"""An enumeration."""
-enum Priority {
-  NO_PRIORITY
-  LOW
-  MEDIUM
-  HIGH
-  CRITICAL
+  dimensions: [GMetricAnnotationDimensionInput]
 }
 
 type UpdateAnnotation {
