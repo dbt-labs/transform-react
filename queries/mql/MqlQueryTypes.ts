@@ -500,6 +500,7 @@ export type MutationDropCacheArgs = {
 /** Base mutation object exposed by GraphQL. */
 export type MutationUpdateMqlServerConfigArgs = {
   dwPassword?: Maybe<Scalars['String']>;
+  modeCreds?: Maybe<Scalars['String']>;
   mqlServerId?: Maybe<Scalars['Int']>;
   tfdApiKey?: Maybe<Scalars['String']>;
 };
@@ -671,6 +672,8 @@ export type MqlServerConfig = {
   tfdApiKey?: Maybe<Scalars['String']>;
   /** Password used to access the Data Warehouse. _Note:_ Stored securely using AWS Secrets Manager. */
   dwPassword?: Maybe<Scalars['String']>;
+  /** Mode bridge connection config. _Note:_ Stored securely using AWS Secrets Manager. */
+  modeCreds?: Maybe<Scalars['String']>;
 };
 
 /** Removes hosted MQL Server config using AWS Secrets Manager. */
