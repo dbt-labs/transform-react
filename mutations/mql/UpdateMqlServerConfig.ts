@@ -15,6 +15,7 @@ const mutation = gql`
     ) {
       config {
         mqlServerId
+        modeCreds
       }
     }
   }

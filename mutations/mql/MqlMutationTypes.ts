@@ -748,7 +748,7 @@ export type UpdateMqlServerConfigMutation = (
     { __typename?: 'UpdateMqlServerConfig' }
     & { config?: Maybe<(
       { __typename?: 'MqlServerConfig' }
-      & Pick<MqlServerConfig, 'mqlServerId'>
+      & Pick<MqlServerConfig, 'mqlServerId' | 'modeCreds'>
     )> }
   )> }
 );
