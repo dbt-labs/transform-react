@@ -14,6 +14,7 @@ const mutation = gql`
     $endTime: String
     $limit: LimitInput
     $order: [String!]
+    $daysLimit: Int
   ) {
     createMqlQuery(
       input: {
@@ -30,6 +31,7 @@ const mutation = gql`
         resultFormat: TFD
         limit: $limit
         order: $order
+        daysLimit: $daysLimit
       }
     ) {
       id

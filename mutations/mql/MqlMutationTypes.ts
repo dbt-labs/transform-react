@@ -500,6 +500,7 @@ export type MutationDropCacheArgs = {
 /** Base mutation object exposed by GraphQL. */
 export type MutationUpdateMqlServerConfigArgs = {
   dwPassword?: Maybe<Scalars['String']>;
+  modeCreds?: Maybe<Scalars['String']>;
   mqlServerId?: Maybe<Scalars['Int']>;
   tfdApiKey?: Maybe<Scalars['String']>;
 };
@@ -585,6 +586,8 @@ export type CreateMqlQueryInput = {
   endTime?: Maybe<Scalars['String']>;
   /** If granularity is applied, trim start/end periods with incomplete date ranges or data. */
   trimIncompletePeriods?: Maybe<Scalars['Boolean']>;
+  /** Limit time dimension to a specific number of days, whether or not those days have data. */
+  daysLimit?: Maybe<Scalars['Int']>;
   clientMutationId?: Maybe<Scalars['String']>;
 };
 
@@ -671,6 +674,8 @@ export type MqlServerConfig = {
   tfdApiKey?: Maybe<Scalars['String']>;
   /** Password used to access the Data Warehouse. _Note:_ Stored securely using AWS Secrets Manager. */
   dwPassword?: Maybe<Scalars['String']>;
+  /** Mode bridge connection config. _Note:_ Stored securely using AWS Secrets Manager. */
+  modeCreds?: Maybe<Scalars['String']>;
 };
 
 /** Removes hosted MQL Server config using AWS Secrets Manager. */
@@ -705,6 +710,7 @@ export type CreateMqlQueryMutationVariables = Exact<{
   endTime?: Maybe<Scalars['String']>;
   limit?: Maybe<Scalars['LimitInput']>;
   order?: Maybe<Array<Scalars['String']> | Scalars['String']>;
+  daysLimit?: Maybe<Scalars['Int']>;
 }>;
 
 
@@ -730,7 +736,8 @@ export type CreateMqlQueryMutation = (
 
 export type UpdateMqlServerConfigMutationVariables = Exact<{
   mqlServerId: Scalars['Int'];
-  dwPassword: Scalars['String'];
+  dwPassword?: Maybe<Scalars['String']>;
+  modeCreds?: Maybe<Scalars['String']>;
   tfdApiKey: Scalars['String'];
 }>;
 

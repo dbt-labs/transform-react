@@ -1,10 +1,7 @@
 import { Client, useQuery, useMutation, CombinedError } from "urql";
 import { createContext } from "react";
 import buildMqlUrqlClient from "../../utils/builMqlUrqlClient";
-import {
-  SetMqlServerMutation,
-  SetMqlServerMutationVariables,
-} from "../../mutations/core/CoreApiMutationTypes";
+
 // TODO: Make this configurable when needed
 export const CORE_API_URL = "https://api.transformdata.io/graphql";
 

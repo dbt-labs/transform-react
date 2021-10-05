@@ -262,7 +262,7 @@ type Mutation {
   dropCache(confirm: String): DropCache
 
   """Stores hosted MQL Server config using AWS Secrets Manager."""
-  updateMqlServerConfig(dwPassword: String, mqlServerId: Int, tfdApiKey: String): UpdateMqlServerConfig
+  updateMqlServerConfig(dwPassword: String, modeCreds: String, mqlServerId: Int, tfdApiKey: String): UpdateMqlServerConfig
 
   """Removes hosted MQL Server config using AWS Secrets Manager."""
   revokeMqlServerConfig(mqlServerId: Int): RevokeMqlServerConfig
@@ -358,6 +358,11 @@ input CreateMqlQueryInput {
   If granularity is applied, trim start/end periods with incomplete date ranges or data.
   """
   trimIncompletePeriods: Boolean
+
+  """
+  Limit time dimension to a specific number of days, whether or not those days have data.
+  """
+  daysLimit: Int
   clientMutationId: String
 }
 
@@ -457,6 +462,11 @@ type MqlServerConfig {
   Password used to access the Data Warehouse. _Note:_ Stored securely using AWS Secrets Manager.
   """
   dwPassword: String
+
+  """
+  Mode bridge connection config. _Note:_ Stored securely using AWS Secrets Manager.
+  """
+  modeCreds: String
 }
 
 """Removes hosted MQL Server config using AWS Secrets Manager."""

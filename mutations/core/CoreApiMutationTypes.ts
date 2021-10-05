@@ -164,7 +164,6 @@ export type Organization = {
   logoUrl?: Maybe<Scalars['String']>;
   primaryConfigRepo: Scalars['String'];
   primaryConfigBranch: Scalars['String'];
-  mqlServerUrl?: Maybe<Scalars['String']>;
   sourceControlUrl?: Maybe<Scalars['String']>;
   mqlServerLogs?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['DateTime']>;
@@ -207,6 +206,7 @@ export type Organization = {
   totalActiveFeatures?: Maybe<Scalars['Int']>;
   requireMfa?: Maybe<Scalars['Boolean']>;
   allowMfaRememberBrowser?: Maybe<Scalars['Boolean']>;
+  mqlServerUrl?: Maybe<Scalars['String']>;
   activeFeatures?: Maybe<Array<Maybe<Feature>>>;
 };
 
@@ -322,6 +322,15 @@ export type OrganizationMetricsArgs = {
   pageSize?: Maybe<Scalars['Int']>;
   orderBy?: Maybe<MetricVersionOrderBy>;
   desc?: Maybe<Scalars['Boolean']>;
+};
+
+
+export type OrganizationTotalMetricsArgs = {
+  searchStr?: Maybe<Scalars['String']>;
+  searchColumns?: Maybe<Array<Maybe<MetricVersionStrColumn>>>;
+  names?: Maybe<Array<Maybe<Scalars['String']>>>;
+  tiers?: Maybe<Array<Maybe<MetricTier>>>;
+  types?: Maybe<Array<Maybe<MetricType>>>;
 };
 
 
@@ -480,8 +489,6 @@ export type UserRole = {
   createdAt?: Maybe<Scalars['DateTime']>;
   updatedAt?: Maybe<Scalars['DateTime']>;
   removedAt?: Maybe<Scalars['DateTime']>;
-  dateAdded?: Maybe<Scalars['Int']>;
-  dateRemoved?: Maybe<Scalars['Int']>;
   organization?: Maybe<Organization>;
   user?: Maybe<User>;
 };
@@ -495,7 +502,6 @@ export type UserPref = {
   prefValue: Scalars['String'];
   createdAt?: Maybe<Scalars['DateTime']>;
   updatedAt?: Maybe<Scalars['DateTime']>;
-  dateCreate?: Maybe<Scalars['Int']>;
   organization?: Maybe<Organization>;
   user?: Maybe<User>;
 };
@@ -514,8 +520,6 @@ export type Team = {
   updatedAt?: Maybe<Scalars['DateTime']>;
   deactivatedAt?: Maybe<Scalars['DateTime']>;
   description?: Maybe<Scalars['String']>;
-  createdTs?: Maybe<Scalars['Int']>;
-  deactivatedTs?: Maybe<Scalars['Int']>;
   createdByUser?: Maybe<User>;
   organization?: Maybe<Organization>;
   members?: Maybe<Array<Maybe<TeamMember>>>;
@@ -542,7 +546,7 @@ export type Team = {
 export type TeamMembersArgs = {
   pageNumber?: Maybe<Scalars['Int']>;
   pageSize?: Maybe<Scalars['Int']>;
-  orderBy?: Maybe<TeamMemberUserOrderBy>;
+  orderBy?: Maybe<UserUserOrderBy>;
   desc?: Maybe<Scalars['Boolean']>;
 };
 
@@ -584,21 +588,19 @@ export type TeamMember = {
   userId: Scalars['Int'];
   isTeamAdmin: Scalars['Boolean'];
   joinedAt?: Maybe<Scalars['DateTime']>;
-  joinedTs?: Maybe<Scalars['Int']>;
   organization?: Maybe<Organization>;
   team?: Maybe<Team>;
   user?: Maybe<User>;
 };
 
 /** An enumeration. */
-export enum TeamMemberUserOrderBy {
+export enum UserUserOrderBy {
   TeamMemberId = 'TeamMember_ID',
   TeamMemberTeamId = 'TeamMember_TEAM_ID',
   TeamMemberOrganizationId = 'TeamMember_ORGANIZATION_ID',
   TeamMemberUserId = 'TeamMember_USER_ID',
   TeamMemberIsTeamAdmin = 'TeamMember_IS_TEAM_ADMIN',
   TeamMemberJoinedAt = 'TeamMember_JOINED_AT',
-  TeamMemberJoinedTs = 'TeamMember_JOINED_TS',
   UserId = 'User_ID',
   UserOrganizationId = 'User_ORGANIZATION_ID',
   UserAuth0Id = 'User_AUTH0_ID',
@@ -732,7 +734,7 @@ export type MetricUserOwner = {
   __typename?: 'MetricUserOwner';
   id: Scalars['ID'];
   organizationId: Scalars['Int'];
-  orgMetricId?: Maybe<Scalars['Int']>;
+  orgMetricId: Scalars['Int'];
   userId: Scalars['Int'];
   createdAt?: Maybe<Scalars['DateTime']>;
   user?: Maybe<User>;
@@ -743,10 +745,9 @@ export type MetricTeamOwner = {
   __typename?: 'MetricTeamOwner';
   id: Scalars['ID'];
   organizationId: Scalars['Int'];
-  metricName?: Maybe<Scalars['String']>;
   teamId: Scalars['Int'];
   createdTs?: Maybe<Scalars['Int']>;
-  orgMetricId?: Maybe<Scalars['Int']>;
+  orgMetricId: Scalars['Int'];
   createdAt?: Maybe<Scalars['DateTime']>;
   team?: Maybe<Team>;
   organization?: Maybe<Organization>;
@@ -760,7 +761,7 @@ export type Metric = {
   description: Scalars['String'];
   tier: Scalars['Int'];
   metricType: Scalars['Int'];
-  metricId?: Maybe<Scalars['Int']>;
+  metricId: Scalars['Int'];
   params?: Maybe<Scalars['GenericScalar']>;
   createdAt: Scalars['DateTime'];
   hash: Scalars['String'];
@@ -934,8 +935,6 @@ export type MetricView = {
   userId: Scalars['ID'];
   metricId: Scalars['ID'];
   createdAt: Scalars['DateTime'];
-  metricName?: Maybe<Scalars['String']>;
-  viewedTs?: Maybe<Scalars['Int']>;
   organization?: Maybe<Organization>;
 };
 
@@ -952,10 +951,7 @@ export type Question = {
   notifiedAt?: Maybe<Scalars['DateTime']>;
   createdAt?: Maybe<Scalars['DateTime']>;
   updatedAt?: Maybe<Scalars['DateTime']>;
-  metricId?: Maybe<Scalars['Int']>;
-  resolvedTs?: Maybe<Scalars['Int']>;
-  createdTs?: Maybe<Scalars['Int']>;
-  metricName: Scalars['String'];
+  metricId: Scalars['Int'];
   organization?: Maybe<Organization>;
   replies?: Maybe<Array<Maybe<QuestionReply>>>;
   orgMetric?: Maybe<OrgMetric>;
@@ -967,6 +963,7 @@ export type Question = {
   likedByCurrentUser?: Maybe<Scalars['Boolean']>;
   totalReplies?: Maybe<Scalars['Int']>;
   currentUserIsAuthor?: Maybe<Scalars['Boolean']>;
+  metricName?: Maybe<Scalars['String']>;
   metric?: Maybe<Metric>;
 };
 
@@ -989,7 +986,6 @@ export type QuestionReply = {
   text: Scalars['String'];
   createdAt?: Maybe<Scalars['DateTime']>;
   updatedAt?: Maybe<Scalars['DateTime']>;
-  createdTs?: Maybe<Scalars['Int']>;
   organization?: Maybe<Organization>;
   author?: Maybe<User>;
   question?: Maybe<Question>;
@@ -1010,15 +1006,13 @@ export enum QuestionReplyOrderBy {
   AuthorId = 'AUTHOR_ID',
   Text = 'TEXT',
   CreatedAt = 'CREATED_AT',
-  UpdatedAt = 'UPDATED_AT',
-  CreatedTs = 'CREATED_TS'
+  UpdatedAt = 'UPDATED_AT'
 }
 
 /** An enumeration. */
 export enum QuestionStrColumn {
   Text = 'TEXT',
-  Priority = 'PRIORITY',
-  MetricName = 'METRIC_NAME'
+  Priority = 'PRIORITY'
 }
 
 /** An enumeration. */
@@ -1034,10 +1028,7 @@ export enum QuestionOrderBy {
   NotifiedAt = 'NOTIFIED_AT',
   CreatedAt = 'CREATED_AT',
   UpdatedAt = 'UPDATED_AT',
-  MetricId = 'METRIC_ID',
-  ResolvedTs = 'RESOLVED_TS',
-  CreatedTs = 'CREATED_TS',
-  MetricName = 'METRIC_NAME'
+  MetricId = 'METRIC_ID'
 }
 
 export type MetricApproval = {
@@ -1046,9 +1037,7 @@ export type MetricApproval = {
   organizationId: Scalars['Int'];
   approverId: Scalars['Int'];
   approvedAt?: Maybe<Scalars['DateTime']>;
-  metricId?: Maybe<Scalars['Int']>;
-  approvalTs?: Maybe<Scalars['Int']>;
-  metricName?: Maybe<Scalars['String']>;
+  metricId: Scalars['Int'];
   approver?: Maybe<User>;
   organization?: Maybe<Organization>;
 };
@@ -1068,9 +1057,6 @@ export type Annotation = {
   deletedAt?: Maybe<Scalars['DateTime']>;
   createdAt?: Maybe<Scalars['DateTime']>;
   updatedAt?: Maybe<Scalars['DateTime']>;
-  dateStart?: Maybe<Scalars['String']>;
-  dateEnd?: Maybe<Scalars['String']>;
-  timestampCreated?: Maybe<Scalars['Int']>;
   orgMetrics?: Maybe<Array<Maybe<OrgMetric>>>;
   author?: Maybe<User>;
   organization?: Maybe<Organization>;
@@ -1084,12 +1070,9 @@ export type MetricAnnotation = {
   id: Scalars['ID'];
   organizationId: Scalars['Int'];
   annotationId: Scalars['Int'];
-  metricId?: Maybe<Scalars['Int']>;
+  metricId: Scalars['Int'];
   createdAt?: Maybe<Scalars['DateTime']>;
   updatedAt?: Maybe<Scalars['DateTime']>;
-  metricName?: Maybe<Scalars['String']>;
-  dimensionName?: Maybe<Scalars['String']>;
-  dimensionValue?: Maybe<Scalars['String']>;
   organization?: Maybe<Organization>;
   annotation?: Maybe<Annotation>;
   orgMetric?: Maybe<OrgMetric>;
@@ -1125,9 +1108,7 @@ export enum AnnotationStrColumn {
   Title = 'TITLE',
   Text = 'TEXT',
   ExpectedImpact = 'EXPECTED_IMPACT',
-  Priority = 'PRIORITY',
-  DateStart = 'DATE_START',
-  DateEnd = 'DATE_END'
+  Priority = 'PRIORITY'
 }
 
 /** An enumeration. */
@@ -1144,10 +1125,7 @@ export enum AnnotationOrderBy {
   NotifiedAt = 'NOTIFIED_AT',
   DeletedAt = 'DELETED_AT',
   CreatedAt = 'CREATED_AT',
-  UpdatedAt = 'UPDATED_AT',
-  DateStart = 'DATE_START',
-  DateEnd = 'DATE_END',
-  TimestampCreated = 'TIMESTAMP_CREATED'
+  UpdatedAt = 'UPDATED_AT'
 }
 
 /** An enumeration. */
@@ -1274,8 +1252,6 @@ export enum TeamOrderBy {
   UpdatedAt = 'UPDATED_AT',
   DeactivatedAt = 'DEACTIVATED_AT',
   Description = 'DESCRIPTION',
-  CreatedTs = 'CREATED_TS',
-  DeactivatedTs = 'DEACTIVATED_TS',
   Views = 'VIEWS'
 }
 
@@ -1357,7 +1333,6 @@ export type ApiKey = {
   userId: Scalars['Int'];
   type: Scalars['String'];
   secretHash: Scalars['String'];
-  dateRevoked?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['DateTime']>;
   revokedAt?: Maybe<Scalars['DateTime']>;
   revokerId?: Maybe<Scalars['Int']>;
@@ -1383,7 +1358,6 @@ export enum ApiKeyOrderBy {
   UserId = 'USER_ID',
   Type = 'TYPE',
   SecretHash = 'SECRET_HASH',
-  DateRevoked = 'DATE_REVOKED',
   CreatedAt = 'CREATED_AT',
   RevokedAt = 'REVOKED_AT',
   RevokerId = 'REVOKER_ID',
@@ -1431,7 +1405,6 @@ export enum OrganizationStrColumn {
   LogoUrl = 'LOGO_URL',
   PrimaryConfigRepo = 'PRIMARY_CONFIG_REPO',
   PrimaryConfigBranch = 'PRIMARY_CONFIG_BRANCH',
-  MqlServerUrl = 'MQL_SERVER_URL',
   SourceControlUrl = 'SOURCE_CONTROL_URL',
   MqlServerLogs = 'MQL_SERVER_LOGS',
   Slug = 'SLUG'
@@ -1448,7 +1421,6 @@ export enum OrganizationOrderBy {
   LogoUrl = 'LOGO_URL',
   PrimaryConfigRepo = 'PRIMARY_CONFIG_REPO',
   PrimaryConfigBranch = 'PRIMARY_CONFIG_BRANCH',
-  MqlServerUrl = 'MQL_SERVER_URL',
   SourceControlUrl = 'SOURCE_CONTROL_URL',
   MqlServerLogs = 'MQL_SERVER_LOGS',
   UpdatedAt = 'UPDATED_AT',
