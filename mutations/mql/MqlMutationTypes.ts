@@ -710,6 +710,7 @@ export type CreateMqlQueryMutationVariables = Exact<{
   endTime?: Maybe<Scalars['String']>;
   limit?: Maybe<Scalars['LimitInput']>;
   order?: Maybe<Array<Scalars['String']> | Scalars['String']>;
+  daysLimit?: Maybe<Scalars['Int']>;
 }>;
 
 
