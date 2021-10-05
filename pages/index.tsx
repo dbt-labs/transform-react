@@ -24,7 +24,6 @@ export default function MqlContextDemo() {
   const query = useMqlQuery({
     queryInput,
     metricName: "question_replies",
-    limit: 365,
   });
   const { data, queryStatus, queryId } = query;
   return (
