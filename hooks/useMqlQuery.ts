@@ -96,7 +96,6 @@ type Action =
   | { type: "postQuerySuccess"; queryId: string }
   | { type: "postQueryCachedResultsSuccess";
       data: CreateMqlQueryMutation;
-      limit?: number;
       handleCombinedError: (e: CombinedError) => void;
     }
   | { type: "fetchResultsFail"; errorMessage: string }
@@ -105,7 +104,6 @@ type Action =
   | {
       type: "fetchResultsSuccess";
       data: FetchMqlTimeSeriesQuery;
-      limit?: number;
       handleCombinedError: (e: CombinedError) => void;
     };
 
@@ -254,7 +252,6 @@ function mqlQueryReducer(
 */
 type UseMqlQueryParams = {
   metricName: string;
-  limit?: number;
   queryInput?: CreateMqlQueryMutationVariables;
   skip?: boolean;
   retries?: number;
@@ -266,7 +263,6 @@ type UseMqlQueryParams = {
 export default function useMqlQuery({
   queryInput,
   metricName,
-  limit,
   skip,
   retries = 5,
 }: UseMqlQueryParams) {
@@ -309,13 +305,13 @@ export default function useMqlQuery({
         startTime: formState.startTime,
         endTime: formState.endTime,
         order: formState.order,
-        limit: formState.limit
+        limit: formState.limit,
+        daysLimit: formState.daysLimit
       }).then(({ data, error }) => {
         if (data?.createMqlQuery?.query?.status === MqlQueryStatus.Successful) {
           dispatch({
             type: "postQueryCachedResultsSuccess",
             data,
-            limit,
             handleCombinedError,
           });
         } else {
@@ -399,7 +395,6 @@ export default function useMqlQuery({
       dispatch({
         type: "fetchResultsSuccess",
         data,
-        limit,
         handleCombinedError,
       });
     }
@@ -464,7 +459,7 @@ export default function useMqlQuery({
 
       }
     }
-  }, [data, error, state.cancelledQueries, limit, handleCombinedError]);
+  }, [data, error, state.cancelledQueries, handleCombinedError]);
 
   return state;
 }
