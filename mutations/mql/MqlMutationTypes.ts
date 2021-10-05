@@ -735,7 +735,8 @@ export type CreateMqlQueryMutation = (
 
 export type UpdateMqlServerConfigMutationVariables = Exact<{
   mqlServerId: Scalars['Int'];
-  dwPassword: Scalars['String'];
+  dwPassword?: Maybe<Scalars['String']>;
+  modeCreds?: Maybe<Scalars['String']>;
   tfdApiKey: Scalars['String'];
 }>;
 
