@@ -358,6 +358,11 @@ input CreateMqlQueryInput {
   If granularity is applied, trim start/end periods with incomplete date ranges or data.
   """
   trimIncompletePeriods: Boolean
+
+  """
+  Limit time dimension to a specific number of days, whether or not those days have data.
+  """
+  daysLimit: Int
   clientMutationId: String
 }
 

@@ -586,6 +586,8 @@ export type CreateMqlQueryInput = {
   endTime?: Maybe<Scalars['String']>;
   /** If granularity is applied, trim start/end periods with incomplete date ranges or data. */
   trimIncompletePeriods?: Maybe<Scalars['Boolean']>;
+  /** Limit time dimension to a specific number of days, whether or not those days have data. */
+  daysLimit?: Maybe<Scalars['Int']>;
   clientMutationId?: Maybe<Scalars['String']>;
 };
 

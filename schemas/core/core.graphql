@@ -58,7 +58,6 @@ type Organization {
   logoUrl: String
   primaryConfigRepo: String!
   primaryConfigBranch: String!
-  mqlServerUrl: String
   sourceControlUrl: String
   mqlServerLogs: String
   updatedAt: DateTime
@@ -85,7 +84,7 @@ type Organization {
   totalQuestions: Int
   totalAnnotations: Int
   metrics(names: [String], tiers: [MetricTier], types: [MetricType], searchStr: String, searchColumns: [MetricVersionStrColumn], pageNumber: Int, pageSize: Int, orderBy: MetricVersionOrderBy, desc: Boolean): [Metric]
-  totalMetrics: Int
+  totalMetrics(searchStr: String, searchColumns: [MetricVersionStrColumn], names: [String], tiers: [MetricTier], types: [MetricType]): Int
   latestMqlHeartbeat: MqlHeartbeat
   totalUsers: Int
   totalTeams: Int
@@ -101,6 +100,7 @@ type Organization {
   totalActiveFeatures: Int
   requireMfa: Boolean
   allowMfaRememberBrowser: Boolean
+  mqlServerUrl: String
   activeFeatures: [Feature]
 }
 
@@ -156,8 +156,6 @@ type UserRole {
   createdAt: DateTime
   updatedAt: DateTime
   removedAt: DateTime
-  dateAdded: Int
-  dateRemoved: Int
   organization: Organization
   user: User
 }
@@ -170,7 +168,6 @@ type UserPref {
   prefValue: String!
   createdAt: DateTime
   updatedAt: DateTime
-  dateCreate: Int
   organization: Organization
   user: User
 }
@@ -188,11 +185,9 @@ type Team {
   updatedAt: DateTime
   deactivatedAt: DateTime
   description: String
-  createdTs: Int
-  deactivatedTs: Int
   createdByUser: User
   organization: Organization
-  members(pageNumber: Int, pageSize: Int, orderBy: TeamMemberUserOrderBy, desc: Boolean): [TeamMember]
+  members(pageNumber: Int, pageSize: Int, orderBy: UserUserOrderBy, desc: Boolean): [TeamMember]
   adminMembers: [TeamMember]
   memberUsers: [User]
   dashboards: [Dashboard]
@@ -219,21 +214,19 @@ type TeamMember {
   userId: Int!
   isTeamAdmin: Boolean!
   joinedAt: DateTime
-  joinedTs: Int
   organization: Organization
   team: Team
   user: User
 }
 
 """An enumeration."""
-enum TeamMemberUserOrderBy {
+enum UserUserOrderBy {
   TeamMember_ID
   TeamMember_TEAM_ID
   TeamMember_ORGANIZATION_ID
   TeamMember_USER_ID
   TeamMember_IS_TEAM_ADMIN
   TeamMember_JOINED_AT
-  TeamMember_JOINED_TS
   User_ID
   User_ORGANIZATION_ID
   User_AUTH0_ID
@@ -351,7 +344,7 @@ type OrgMetric {
 type MetricUserOwner {
   id: ID!
   organizationId: Int!
-  orgMetricId: Int
+  orgMetricId: Int!
   userId: Int!
   createdAt: DateTime
   user: User
@@ -361,10 +354,9 @@ type MetricUserOwner {
 type MetricTeamOwner {
   id: ID!
   organizationId: Int!
-  metricName: String
   teamId: Int!
   createdTs: Int
-  orgMetricId: Int
+  orgMetricId: Int!
   createdAt: DateTime
   team: Team
   organization: Organization
@@ -377,7 +369,7 @@ type Metric {
   description: String!
   tier: Int!
   metricType: Int!
-  metricId: Int
+  metricId: Int!
   params: GenericScalar
   createdAt: DateTime!
   hash: String!
@@ -495,8 +487,6 @@ type MetricView {
   userId: ID!
   metricId: ID!
   createdAt: DateTime!
-  metricName: String
-  viewedTs: Int
   organization: Organization
 }
 
@@ -512,10 +502,7 @@ type Question {
   notifiedAt: DateTime
   createdAt: DateTime
   updatedAt: DateTime
-  metricId: Int
-  resolvedTs: Int
-  createdTs: Int
-  metricName: String!
+  metricId: Int!
   organization: Organization
   replies(searchStr: String, searchColumns: [QuestionReplyStrColumn], pageNumber: Int, pageSize: Int, orderBy: QuestionReplyOrderBy, desc: Boolean): [QuestionReply]
   orgMetric: OrgMetric
@@ -527,6 +514,7 @@ type Question {
   likedByCurrentUser: Boolean
   totalReplies: Int
   currentUserIsAuthor: Boolean
+  metricName: String
   metric: Metric
 }
 
@@ -538,7 +526,6 @@ type QuestionReply {
   text: String!
   createdAt: DateTime
   updatedAt: DateTime
-  createdTs: Int
   organization: Organization
   author: User
   question: Question
@@ -560,14 +547,12 @@ enum QuestionReplyOrderBy {
   TEXT
   CREATED_AT
   UPDATED_AT
-  CREATED_TS
 }
 
 """An enumeration."""
 enum QuestionStrColumn {
   TEXT
   PRIORITY
-  METRIC_NAME
 }
 
 """An enumeration."""
@@ -584,9 +569,6 @@ enum QuestionOrderBy {
   CREATED_AT
   UPDATED_AT
   METRIC_ID
-  RESOLVED_TS
-  CREATED_TS
-  METRIC_NAME
 }
 
 type MetricApproval {
@@ -594,9 +576,7 @@ type MetricApproval {
   organizationId: Int!
   approverId: Int!
   approvedAt: DateTime
-  metricId: Int
-  approvalTs: Int
-  metricName: String
+  metricId: Int!
   approver: User
   organization: Organization
 }
@@ -615,9 +595,6 @@ type Annotation {
   deletedAt: DateTime
   createdAt: DateTime
   updatedAt: DateTime
-  dateStart: String
-  dateEnd: String
-  timestampCreated: Int
   orgMetrics: [OrgMetric]
   author: User
   organization: Organization
@@ -630,12 +607,9 @@ type MetricAnnotation {
   id: ID!
   organizationId: Int!
   annotationId: Int!
-  metricId: Int
+  metricId: Int!
   createdAt: DateTime
   updatedAt: DateTime
-  metricName: String
-  dimensionName: String
-  dimensionValue: String
   organization: Organization
   annotation: Annotation
   orgMetric: OrgMetric
@@ -677,8 +651,6 @@ enum AnnotationStrColumn {
   TEXT
   EXPECTED_IMPACT
   PRIORITY
-  DATE_START
-  DATE_END
 }
 
 """An enumeration."""
@@ -696,9 +668,6 @@ enum AnnotationOrderBy {
   DELETED_AT
   CREATED_AT
   UPDATED_AT
-  DATE_START
-  DATE_END
-  TIMESTAMP_CREATED
 }
 
 """An enumeration."""
@@ -814,8 +783,6 @@ enum TeamOrderBy {
   UPDATED_AT
   DEACTIVATED_AT
   DESCRIPTION
-  CREATED_TS
-  DEACTIVATED_TS
   VIEWS
 }
 
@@ -895,7 +862,6 @@ type ApiKey {
   userId: Int!
   type: String!
   secretHash: String!
-  dateRevoked: Int
   createdAt: DateTime
   revokedAt: DateTime
   revokerId: Int
@@ -921,7 +887,6 @@ enum ApiKeyOrderBy {
   USER_ID
   TYPE
   SECRET_HASH
-  DATE_REVOKED
   CREATED_AT
   REVOKED_AT
   REVOKER_ID
@@ -948,7 +913,6 @@ enum OrganizationStrColumn {
   LOGO_URL
   PRIMARY_CONFIG_REPO
   PRIMARY_CONFIG_BRANCH
-  MQL_SERVER_URL
   SOURCE_CONTROL_URL
   MQL_SERVER_LOGS
   SLUG
@@ -965,7 +929,6 @@ enum OrganizationOrderBy {
   LOGO_URL
   PRIMARY_CONFIG_REPO
   PRIMARY_CONFIG_BRANCH
-  MQL_SERVER_URL
   SOURCE_CONTROL_URL
   MQL_SERVER_LOGS
   UPDATED_AT
