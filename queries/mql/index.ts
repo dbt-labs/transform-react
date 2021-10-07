@@ -1,5 +1,6 @@
 export { default as FetchDimensionNames } from "./FetchDimensionNames";
 export { default as FetchDimensionNamesMultihop } from "./FetchDimensionNamesMultihop";
+export { default as FetchDimensions } from "./FetchDimensions";
 export { default as FetchDimensionValues } from "./FetchDimensionValues";
 export { default as FetchMqlQueryLogs } from "./FetchMQLQueryLogs";
 export { default as FetchMqlQueryLog } from "./FetchMQLQueryLog";
