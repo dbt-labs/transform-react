@@ -731,6 +731,25 @@ export type FetchDimensionValuesQuery = (
   )> }
 );
 
+export type FetchDimensionsQueryVariables = Exact<{
+  metricNames: Array<Scalars['String']> | Scalars['String'];
+}>;
+
+
+export type FetchDimensionsQuery = (
+  { __typename?: 'Query' }
+  & { dimensionsForMetrics?: Maybe<(
+    { __typename?: 'Dimensions' }
+    & { localDimensions?: Maybe<Array<Maybe<(
+      { __typename?: 'Dimension' }
+      & Pick<Dimension, 'name' | 'identifierName' | 'type' | 'isPrimaryTime' | 'values' | 'cardinality'>
+    )>>>, nonLocalDimensions?: Maybe<Array<Maybe<(
+      { __typename?: 'Dimension' }
+      & Pick<Dimension, 'name' | 'identifierName' | 'type' | 'isPrimaryTime' | 'values' | 'cardinality'>
+    )>>> }
+  )> }
+);
+
 export type FetchMqlQueryLogQueryVariables = Exact<{
   queryId: Scalars['ID'];
 }>;
