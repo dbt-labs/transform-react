@@ -50,6 +50,7 @@ export type Query = {
   dimensionNamesForMetrics?: Maybe<Array<Maybe<Scalars['String']>>>;
   dimensionNamesForMetricsMultihop?: Maybe<Array<Maybe<Scalars['String']>>>;
   dimensionsForMetrics?: Maybe<Dimensions>;
+  dimensionsForMetricsMultihop?: Maybe<Dimensions>;
   primaryTimeDimension?: Maybe<Dimension>;
   queries?: Maybe<Array<Maybe<MqlQuery>>>;
   healthReport?: Maybe<Array<Maybe<MqlServerHealthItem>>>;
@@ -166,6 +167,17 @@ export type QueryDimensionNamesForMetricsMultihopArgs = {
  * Each field defined below is accessible by the API, by calling the equivalent resolver.
  */
 export type QueryDimensionsForMetricsArgs = {
+  modelKey?: Maybe<ModelKeyInput>;
+  metricNames?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+
+/**
+ * Base Query object exposed by GraphQL for the MQL Server
+ *
+ * Each field defined below is accessible by the API, by calling the equivalent resolver.
+ */
+export type QueryDimensionsForMetricsMultihopArgs = {
   modelKey?: Maybe<ModelKeyInput>;
   metricNames?: Maybe<Array<Maybe<Scalars['String']>>>;
 };
@@ -417,6 +429,7 @@ export type Dimension = {
   __typename?: 'Dimension';
   name: Scalars['String'];
   identifierName?: Maybe<Scalars['String']>;
+  identifierNames?: Maybe<Array<Maybe<Scalars['String']>>>;
   type?: Maybe<DimensionType>;
   isPrimaryTime?: Maybe<Scalars['Boolean']>;
   values?: Maybe<Array<Scalars['String']>>;
