@@ -16,6 +16,7 @@ type Query {
   dimensionNamesForMetrics(modelKey: ModelKeyInput, metricNames: [String]): [String]
   dimensionNamesForMetricsMultihop(modelKey: ModelKeyInput, metricNames: [String]): [String]
   dimensionsForMetrics(modelKey: ModelKeyInput, metricNames: [String]): Dimensions
+  dimensionsForMetricsMultihop(modelKey: ModelKeyInput, metricNames: [String]): Dimensions
   primaryTimeDimension(modelKey: ModelKeyInput): Dimension
   queries(activeOnly: Boolean, status: MqlQueryStatus, metricNames: [String], dateRangeStart: Date, dateRangeEnd: Date, minExecutionSeconds: Float, maxExecutionSeconds: Float, userIds: [Int], limit: Int, offset: Int): [MqlQuery]
   healthReport: [MqlServerHealthItem]
@@ -217,6 +218,7 @@ type Dimensions {
 type Dimension {
   name: String!
   identifierName: String
+  identifierNames: [String]
   type: DimensionType
   isPrimaryTime: Boolean
   values: [String!]
