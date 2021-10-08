@@ -40,7 +40,9 @@ function MqlContextProvider({
         isAuthenticated={isAuthenticated}
         getToken={getToken}
         captureException={captureException}
+        // Can be used in local and staging env to override the coreApiUrl
         coreApiUrl={coreApiUrl || CORE_API_URL}
+        // Can be used in local and staging env to override the mqlServerUrl for the user that is stored in the BE.
         mqlServerUrlOverride={mqlServerUrlOverride}
       >
         {children}
