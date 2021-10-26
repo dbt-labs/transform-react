@@ -22,6 +22,8 @@ const query = gql`
       sql
       error
       errorTraceback
+      chartValueMin
+      chartValueMax
     }
   }
 `;
