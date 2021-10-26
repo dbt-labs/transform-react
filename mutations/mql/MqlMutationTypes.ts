@@ -734,7 +734,7 @@ export type CreateMqlQueryMutation = (
     & Pick<CreateMqlQueryPayload, 'id'>
     & { query?: Maybe<(
       { __typename?: 'MqlQuery' }
-      & Pick<MqlQuery, 'id' | 'status' | 'metrics' | 'dimensions' | 'error'>
+      & Pick<MqlQuery, 'id' | 'status' | 'metrics' | 'dimensions' | 'error' | 'chartValueMax' | 'chartValueMin'>
       & { result?: Maybe<Array<(
         { __typename?: 'MqlQueryResultSeries' }
         & Pick<MqlQueryResultSeries, 'seriesValue'>

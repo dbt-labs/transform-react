@@ -41,6 +41,8 @@ const mutation = gql`
         metrics
         dimensions
         error
+        chartValueMax
+        chartValueMin
         result {
           seriesValue
           data {
