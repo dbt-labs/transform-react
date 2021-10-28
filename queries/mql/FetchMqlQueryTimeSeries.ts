@@ -8,6 +8,8 @@ const query = gql`
       metrics
       dimensions
       error
+      chartValueMin
+      chartValueMax
       result {
         seriesValue
         data {
