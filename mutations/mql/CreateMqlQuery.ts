@@ -9,7 +9,6 @@ const mutation = gql`
     $addTimeSeries: Boolean
     $pctChange: PercentChange
     $timeGranularity: TimeGranularity
-    $granularity: Granularity # todo: remove granularity once Opendoor MQL server is updated beyond 642d0663e3a243dcabcd4dfe738a3d29a9b98394
     $startTime: String
     $endTime: String
     $limit: LimitInput
@@ -25,7 +24,6 @@ const mutation = gql`
         addTimeSeries: $addTimeSeries
         pctChange: $pctChange
         timeGranularity: $timeGranularity
-        granularity: $granularity
         startTime: $startTime
         endTime: $endTime
         resultFormat: TFD
