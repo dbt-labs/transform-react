@@ -1,12 +1,9 @@
 import { useEffect, useReducer, useContext } from "react";
 import { CombinedError } from "urql";
-
 import MqlContext from "../context/MqlContext/MqlContext";
-import CreateMqlQuery from "../mutations/mql/CreateMqlQuery";
 import {
   CreateMqlQueryMutation,
   CreateMqlQueryMutationVariables,
-  ConstraintInput,
 } from "../mutations/mql/MqlMutationTypes";
 import FetchMqlQueryTimeSeries from "../queries/mql/FetchMqlQueryTimeSeries";
 import {
@@ -14,42 +11,21 @@ import {
   FetchMqlTimeSeriesQueryVariables,
   MqlQueryStatus,
 } from "../queries/mql/MqlQueryTypes";
+import {shouldRetryAfterExpiredQuery, doRetryAfterExpiredQueryAction} from './actions';
+import useCreateMqlQuery from './utils/useCreateMqlQuery';
+import getErrorMessage from './utils/getErrorMessage';
 
 // This is the delay between the _response_ from the last query and the _start_ of the new query
 const QUERY_POLLING_MS = 400;
 
 // Length of time to wait before retrying when query fails
-const RETRY_POLLING_MS = 200;
+export const RETRY_POLLING_MS = 200;
 
 // Time in milliseconds to wait for a query to respond successfully before showing a slow loading message to the user.
 const LONG_FETCH_QUERY_ATTEMPT_MAX = 20000; // 20 seconds
 
 // As we keep track of prevoius queries, we don't want the list to grow unbounded in long running browser sessions
 const CANCELLED_QUERY_LIST_LENGTH = 10;
-
-const EMPTY_CONSTRAINT: ConstraintInput = { constraint: null };
-
-// This filters out invalid WHERE clauses the consequence of janky form state;
-function clearEmptyConstraints(where?: ConstraintInput | null | undefined) {
-  if (!where) return EMPTY_CONSTRAINT;
-  if (where.And) {
-    const newAnd = where.And.filter((val) => (val.values || []).length > 0);
-    return newAnd.length > 0 ? { ...where, And: newAnd } : EMPTY_CONSTRAINT;
-  }
-  // if (where.Or) {
-  //   const newOr = where.Or.filter((val) => (val.values || []).length > 0);
-  //   return newOr.length > 0 ? { ...where, Or: newOr } : EMPTY_CONSTRAINT;
-  // }
-
-  return where;
-}
-
-function getErrorMessage(e: CombinedError) {
-  if (e.message) return e.message;
-  if (e.networkError) return e.networkError.message;
-  if (e.graphQLErrors) return e.graphQLErrors[0].message;
-  return "Invalid MQL Query error message";
-}
 
 export type UseMqlQueryState = {
   // The number of times FetchMqlTimeSeriesQuery will retry if the initial query fails. Defaults to 0.
@@ -77,7 +53,7 @@ export type UseMqlQueryState = {
 
   errorMessage?: string;
 
-  // Used to know if createMQLQuery immediately returned results, and as such we don't need to use FetchMqlTimeSeries
+  doRetryAfterExpiredQuery: boolean;
 };
 
 const initialState: UseMqlQueryState = {
@@ -88,24 +64,37 @@ const initialState: UseMqlQueryState = {
   cancelledQueries: [],
   fetchStartTime: null,
   isTakingForever: false,
+  doRetryAfterExpiredQuery: false,
 };
 
-type Action =
+export type Action =
   | { type: "postQueryStart" }
-  | { type: "postQueryFail"; errorMessage: string }
-  | { type: "postQuerySuccess"; queryId: string }
+  | { type: "postQueryFail";
+      errorMessage: string
+    }
+  | { type: "postQuerySuccess";
+      queryId: string
+    }
   | { type: "postQueryCachedResultsSuccess";
       data: CreateMqlQueryMutation;
       handleCombinedError: (e: CombinedError) => void;
     }
-  | { type: "fetchResultsFail"; errorMessage: string }
+  | { type: "fetchResultsFail";
+      errorMessage: string
+    }
   | { type: "fetchResultsRunning" }
   | { type: "retryFetchResults" }
   | {
       type: "fetchResultsSuccess";
       data: FetchMqlTimeSeriesQuery;
       handleCombinedError: (e: CombinedError) => void;
-    };
+    }
+  | {
+    type: "fetchResultsExpiredQuery",
+    payload: {
+      retries: number
+    }
+  };
 
 /*
     At first glance, it is counter-intuitive that we should have a mix of the Reducer pattern
@@ -145,7 +134,7 @@ function mqlQueryReducer(
         isTakingForever: false,
         data: null,
         errorMessage: undefined,
-        retries: 0
+        retries: 0,
       };
     }
 
@@ -216,6 +205,8 @@ function mqlQueryReducer(
         isTakingForever: false,
         fetchStartTime: null,
         errorMessage: action.errorMessage,
+        doRetryAfterExpiredQuery: false,
+        retries: 0
       };
     }
 
@@ -230,7 +221,17 @@ function mqlQueryReducer(
       };
     }
 
-
+    case "fetchResultsExpiredQuery": {
+      return {
+        ...state,
+        queryId: null,
+        queryStatus: initialState.queryStatus,
+        data: null,
+        // retries: action.payload.retries,
+        errorMessage: undefined,
+        doRetryAfterExpiredQuery: true,
+      }
+    }
 
     default: {
       throw new Error();
@@ -268,79 +269,19 @@ export default function useMqlQuery({
 }: UseMqlQueryParams) {
   const {
     useQuery,
-    useMutation,
     handleCombinedError,
     mqlServerUrl,
   } = useContext(MqlContext);
-  const [state, dispatch] = useReducer(mqlQueryReducer, initialState);
-  // const isRunning =
-  //   state.queryStatus === MqlQueryStatus.Running ||
-  //   state.queryStatus === MqlQueryStatus.Pending;
 
-  const [{}, createMqlQuery] = useMutation<
-    CreateMqlQueryMutation,
-    CreateMqlQueryMutationVariables
-  >(CreateMqlQuery);
+  const [state, dispatch] = useReducer(mqlQueryReducer, initialState);
+  const {createMqlQuery} = useCreateMqlQuery({metricName, formState: queryInput, dispatch, state, retries})
 
   useEffect(() => {
     if (!metricName || !mqlServerUrl || skip) {
       return;
     }
-    let formState: CreateMqlQueryMutationVariables = {};
-    if (queryInput) {
-      formState = queryInput;
-    }
-
     dispatch({ type: "postQueryStart" });
-
-    const doCreateMqlQuery = (stateRetries: number) => {
-      createMqlQuery({
-        metrics: [metricName],
-        groupBy: formState.groupBy || [],
-        where: clearEmptyConstraints(formState.where),
-        pctChange: formState.pctChange,
-        timeGranularity: formState.timeGranularity,
-        granularity: formState.granularity,
-        addTimeSeries: true,
-        startTime: formState.startTime,
-        endTime: formState.endTime,
-        order: formState.order,
-        limit: formState.limit,
-        daysLimit: formState.daysLimit
-      }).then(({ data, error }) => {
-        if (data?.createMqlQuery?.query?.status === MqlQueryStatus.Successful) {
-          dispatch({
-            type: "postQueryCachedResultsSuccess",
-            data,
-            handleCombinedError,
-          });
-        } else {
-          if (data?.createMqlQuery?.id) {
-            dispatch({
-              type: "postQuerySuccess",
-              queryId: data?.createMqlQuery?.id,
-            });
-          } else if (error) {
-            if (retries > 0 && stateRetries !== retries && stateRetries < retries) {
-              setTimeout(() => {
-                dispatch({ type: "retryFetchResults" });
-                doCreateMqlQuery(stateRetries + 1);
-              }, RETRY_POLLING_MS)
-            } else {
-              dispatch({
-                type: "postQueryFail",
-                errorMessage: getErrorMessage(error),
-              });
-            }
-            handleCombinedError(error);
-          }
-        }
-
-      });
-    };
-
-    doCreateMqlQuery(state.retries)
-
+    createMqlQuery({stateRetries: state.retries})
 
   }, [queryInput, metricName, mqlServerUrl, skip]);
 
@@ -355,7 +296,7 @@ export default function useMqlQuery({
   >({
     query: FetchMqlQueryTimeSeries,
     variables: {
-      queryId: state.queryId || "",
+      queryId: state.queryId || ""
     },
     pause: _skip,
   });
@@ -369,7 +310,15 @@ export default function useMqlQuery({
 
   useEffect(() => {
     if (error) {
-      if (retries > 0 && state.retries !== retries) {
+      // if error is an expired query id, the mql server may have been restarted, restart the entire query.
+      if (shouldRetryAfterExpiredQuery({
+            errorMessage: error?.message,
+            doRetryAfterExpiredQuery: state.doRetryAfterExpiredQuery
+          })
+        ) {
+          dispatch(doRetryAfterExpiredQueryAction(retries));
+          createMqlQuery({stateRetries: state.retries})
+      } else if (retries > 0 && state.retries !== retries) {
         retry()
 
       } else {
