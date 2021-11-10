@@ -227,7 +227,6 @@ function mqlQueryReducer(
         queryId: null,
         queryStatus: initialState.queryStatus,
         data: null,
-        // retries: action.payload.retries,
         errorMessage: undefined,
         doRetryAfterExpiredQuery: true,
       }
