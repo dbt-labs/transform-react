@@ -300,6 +300,7 @@ export default function useMqlQuery({
     pause: _skip,
   });
 
+
   const retry = () => {
     setTimeout(() => {
       dispatch({ type: "retryFetchResults" });
@@ -316,7 +317,7 @@ export default function useMqlQuery({
           })
         ) {
           dispatch(doRetryAfterExpiredQueryAction(retries));
-          createMqlQuery({stateRetries: state.retries})
+          createMqlQuery({stateRetries: state.retries});
       } else if (retries > 0 && state.retries !== retries) {
         retry()
 
@@ -379,7 +380,6 @@ export default function useMqlQuery({
             json: error
           });
         } else {
-
           let jsonString: string;
           try {
             jsonString = JSON.stringify(data?.mqlQuery?.result);

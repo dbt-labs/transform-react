@@ -70,7 +70,7 @@ const useCreateMqlQuery = ({metricName, formState = {}, dispatch, state, retries
           if (retries > 0 && stateRetries !== retries && stateRetries < retries) {
             setTimeout(() => {
               dispatch({ type: "retryFetchResults" });
-              createMqlQuery({stateRetries: state.retries + 1});
+              createMqlQuery({stateRetries: stateRetries + 1});
             }, RETRY_POLLING_MS)
           } else {
             dispatch({
@@ -79,6 +79,7 @@ const useCreateMqlQuery = ({metricName, formState = {}, dispatch, state, retries
             });
           }
           handleCombinedError(error);
+
         }
       }
 
