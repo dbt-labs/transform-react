@@ -402,7 +402,7 @@ export default function useMqlQuery({
           }, {
             queryId: data?.mqlQuery?.id as string,
             queryStatus: data?.mqlQuery?.status as string,
-            json: jsonString || ""
+            json: jsonString
           });
         }
 
