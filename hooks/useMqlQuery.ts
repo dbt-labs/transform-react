@@ -382,7 +382,6 @@ export default function useMqlQuery({
         } else {
           let jsonString: string;
           try {
-            console.log('data', data)
             jsonString = JSON.stringify(data?.mqlQuery?.result);
           } catch (e) {
             jsonString = "Invalid data.mqlQuery.result";
