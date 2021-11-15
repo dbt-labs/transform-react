@@ -17,7 +17,6 @@ interface DoCreateMqlQueryArgs {
 }
 
 interface UseCreateMqlQueryArgs {
-  state: UseMqlQueryState;
   retries: number; // the number of retries passed as an arg from the client.
   metricName: string;
   formState?: CreateMqlQueryMutationVariables;
@@ -28,7 +27,7 @@ interface UseCreateMqlQuery {
   createMqlQuery: (args: DoCreateMqlQueryArgs) => void;
 }
 
-const useCreateMqlQuery = ({metricName, formState = {}, dispatch, state, retries}: UseCreateMqlQueryArgs): UseCreateMqlQuery => {
+const useCreateMqlQuery = ({metricName, formState = {}, dispatch, retries}: UseCreateMqlQueryArgs): UseCreateMqlQuery => {
   const {
     useMutation,
     handleCombinedError,
@@ -46,7 +45,6 @@ const useCreateMqlQuery = ({metricName, formState = {}, dispatch, state, retries
       where: clearEmptyConstraints(formState.where),
       pctChange: formState.pctChange,
       timeGranularity: formState.timeGranularity,
-      granularity: formState.granularity,
       addTimeSeries: true,
       startTime: formState.startTime,
       endTime: formState.endTime,

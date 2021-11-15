@@ -273,7 +273,7 @@ export default function useMqlQuery({
   } = useContext(MqlContext);
 
   const [state, dispatch] = useReducer(mqlQueryReducer, initialState);
-  const {createMqlQuery} = useCreateMqlQuery({metricName, formState: queryInput, dispatch, state, retries})
+  const {createMqlQuery} = useCreateMqlQuery({metricName, formState: queryInput, dispatch, retries})
 
   useEffect(() => {
     if (!metricName || !mqlServerUrl || skip) {
