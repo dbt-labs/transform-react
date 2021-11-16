@@ -40,17 +40,18 @@ const useCreateMqlQuery = ({metricName, formState = {}, dispatch, retries}: UseC
 
   const createMqlQuery = ({stateRetries}:DoCreateMqlQueryArgs) => {
     createMqlQueryMutation({
-      metrics: [metricName],
-      groupBy: formState.groupBy || [],
-      where: clearEmptyConstraints(formState.where),
-      pctChange: formState.pctChange,
-      timeGranularity: formState.timeGranularity,
       addTimeSeries: true,
-      startTime: formState.startTime,
+      daysLimit: formState.daysLimit,
       endTime: formState.endTime,
-      order: formState.order,
+      groupBy: formState.groupBy || [],
       limit: formState.limit,
-      daysLimit: formState.daysLimit
+      maxDimensionValues: formState.maxDimensionValues,
+      metrics: [metricName],
+      order: formState.order,
+      pctChange: formState.pctChange,
+      startTime: formState.startTime,
+      timeGranularity: formState.timeGranularity,
+      where: clearEmptyConstraints(formState.where),
     }).then(({ data, error }) => {
       if (data?.createMqlQuery?.query?.status === MqlQueryStatus.Successful) {
         dispatch({

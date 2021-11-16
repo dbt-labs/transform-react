@@ -17,7 +17,9 @@ type Query {
   dimensionNamesForMetricsMultihop(modelKey: ModelKeyInput, metricNames: [String]): [String]
   dimensionsForMetrics(modelKey: ModelKeyInput, metricNames: [String]): Dimensions
   dimensionsForMetricsMultihop(modelKey: ModelKeyInput, metricNames: [String]): Dimensions
+  dimensions(modelKey: ModelKeyInput): [Dimension!]
   primaryTimeDimension(modelKey: ModelKeyInput): Dimension
+  maxGranularityForMetrics(metricNames: [String]!, modelKey: ModelKeyInput): TimeGranularity
   queries(activeOnly: Boolean, status: MqlQueryStatus, metricNames: [String], dateRangeStart: Date, dateRangeEnd: Date, minExecutionSeconds: Float, maxExecutionSeconds: Float, userIds: [Int], limit: Int, offset: Int): [MqlQuery]
   healthReport: [MqlServerHealthItem]
 }
@@ -201,8 +203,40 @@ input ModelKeyInput {
 type Metric {
   name: String!
   measures: [String!]
+  typeParams: MetricTypeParams!
+  type: String!
+  constraint: String
   dimensions: [String!]
-  dimensionValues(modelKey: ModelKeyInput, dimensionName: String, startTime: String, endTime: String): [String]
+  dimensionObjects: [Dimension!]
+  dimensionValues(modelKey: ModelKeyInput, dimensionName: String, startTime: String, endTime: String, allowDynamicCache: Boolean): [String]
+}
+
+"""
+Metric Type Params. For measures references in type_params config, see the Metric object.
+"""
+type MetricTypeParams {
+  numerator: String
+  denominator: String
+  expr: String
+  window: String
+}
+
+type Dimension {
+  name: String!
+  elementName: String!
+  identifierName: String
+  identifierNames: [String]
+  type: DimensionType
+  isPrimaryTime: Boolean
+  timeGranularity: TimeGranularity
+  values: [String!]
+  cardinality: Int
+}
+
+"""Determines types values expected of dimension"""
+enum DimensionType {
+  CATEGORICAL
+  TIME
 }
 
 type Measure {
@@ -213,22 +247,6 @@ type Measure {
 type Dimensions {
   localDimensions(modelKey: ModelKeyInput, metricNames: [String]): [Dimension]
   nonLocalDimensions(modelKey: ModelKeyInput, metricNames: [String]): [Dimension]
-}
-
-type Dimension {
-  name: String!
-  identifierName: String
-  identifierNames: [String]
-  type: DimensionType
-  isPrimaryTime: Boolean
-  values: [String!]
-  cardinality: Int
-}
-
-"""Determines types values expected of dimension"""
-enum DimensionType {
-  CATEGORICAL
-  TIME
 }
 
 """
@@ -286,6 +304,7 @@ input CreateMqlMaterializationNewInput {
   startTime: String
   endTime: String
   outputTable: String
+  force: Boolean = false
   clientMutationId: String
 }
 
@@ -365,6 +384,16 @@ input CreateMqlQueryInput {
   Limit time dimension to a specific number of days, whether or not those days have data.
   """
   daysLimit: Int
+
+  """
+  Indicates if query can utilize Transform dynamic cache. May be set to False for expensive queries that should only be run if pre-materialized
+  """
+  allowDynamicCache: Boolean
+
+  """
+  Limit queries to a maximum number of dimension values. Primarily make charts readable.
+  """
+  maxDimensionValues: Int
   clientMutationId: String
 }
 
