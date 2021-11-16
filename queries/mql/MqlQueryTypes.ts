@@ -51,7 +51,9 @@ export type Query = {
   dimensionNamesForMetricsMultihop?: Maybe<Array<Maybe<Scalars['String']>>>;
   dimensionsForMetrics?: Maybe<Dimensions>;
   dimensionsForMetricsMultihop?: Maybe<Dimensions>;
+  dimensions?: Maybe<Array<Dimension>>;
   primaryTimeDimension?: Maybe<Dimension>;
+  maxGranularityForMetrics?: Maybe<TimeGranularity>;
   queries?: Maybe<Array<Maybe<MqlQuery>>>;
   healthReport?: Maybe<Array<Maybe<MqlServerHealthItem>>>;
 };
@@ -188,7 +190,28 @@ export type QueryDimensionsForMetricsMultihopArgs = {
  *
  * Each field defined below is accessible by the API, by calling the equivalent resolver.
  */
+export type QueryDimensionsArgs = {
+  modelKey?: Maybe<ModelKeyInput>;
+};
+
+
+/**
+ * Base Query object exposed by GraphQL for the MQL Server
+ *
+ * Each field defined below is accessible by the API, by calling the equivalent resolver.
+ */
 export type QueryPrimaryTimeDimensionArgs = {
+  modelKey?: Maybe<ModelKeyInput>;
+};
+
+
+/**
+ * Base Query object exposed by GraphQL for the MQL Server
+ *
+ * Each field defined below is accessible by the API, by calling the equivalent resolver.
+ */
+export type QueryMaxGranularityForMetricsArgs = {
+  metricNames: Array<Maybe<Scalars['String']>>;
   modelKey?: Maybe<ModelKeyInput>;
 };
 
@@ -389,7 +412,11 @@ export type Metric = {
   __typename?: 'Metric';
   name: Scalars['String'];
   measures?: Maybe<Array<Scalars['String']>>;
+  typeParams: MetricTypeParams;
+  type: Scalars['String'];
+  constraint?: Maybe<Scalars['String']>;
   dimensions?: Maybe<Array<Scalars['String']>>;
+  dimensionObjects?: Maybe<Array<Dimension>>;
   dimensionValues?: Maybe<Array<Maybe<Scalars['String']>>>;
 };
 
@@ -399,7 +426,36 @@ export type MetricDimensionValuesArgs = {
   dimensionName?: Maybe<Scalars['String']>;
   startTime?: Maybe<Scalars['String']>;
   endTime?: Maybe<Scalars['String']>;
+  allowDynamicCache?: Maybe<Scalars['Boolean']>;
 };
+
+/** Metric Type Params. For measures references in type_params config, see the Metric object. */
+export type MetricTypeParams = {
+  __typename?: 'MetricTypeParams';
+  numerator?: Maybe<Scalars['String']>;
+  denominator?: Maybe<Scalars['String']>;
+  expr?: Maybe<Scalars['String']>;
+  window?: Maybe<Scalars['String']>;
+};
+
+export type Dimension = {
+  __typename?: 'Dimension';
+  name: Scalars['String'];
+  elementName: Scalars['String'];
+  identifierName?: Maybe<Scalars['String']>;
+  identifierNames?: Maybe<Array<Maybe<Scalars['String']>>>;
+  type?: Maybe<DimensionType>;
+  isPrimaryTime?: Maybe<Scalars['Boolean']>;
+  timeGranularity?: Maybe<TimeGranularity>;
+  values?: Maybe<Array<Scalars['String']>>;
+  cardinality?: Maybe<Scalars['Int']>;
+};
+
+/** Determines types values expected of dimension */
+export enum DimensionType {
+  Categorical = 'CATEGORICAL',
+  Time = 'TIME'
+}
 
 export type Measure = {
   __typename?: 'Measure';
@@ -424,23 +480,6 @@ export type DimensionsNonLocalDimensionsArgs = {
   modelKey?: Maybe<ModelKeyInput>;
   metricNames?: Maybe<Array<Maybe<Scalars['String']>>>;
 };
-
-export type Dimension = {
-  __typename?: 'Dimension';
-  name: Scalars['String'];
-  identifierName?: Maybe<Scalars['String']>;
-  identifierNames?: Maybe<Array<Maybe<Scalars['String']>>>;
-  type?: Maybe<DimensionType>;
-  isPrimaryTime?: Maybe<Scalars['Boolean']>;
-  values?: Maybe<Array<Scalars['String']>>;
-  cardinality?: Maybe<Scalars['Int']>;
-};
-
-/** Determines types values expected of dimension */
-export enum DimensionType {
-  Categorical = 'CATEGORICAL',
-  Time = 'TIME'
-}
 
 
 export type MqlServerHealthItem = {
@@ -542,6 +581,7 @@ export type CreateMqlMaterializationNewInput = {
   startTime?: Maybe<Scalars['String']>;
   endTime?: Maybe<Scalars['String']>;
   outputTable?: Maybe<Scalars['String']>;
+  force?: Maybe<Scalars['Boolean']>;
   clientMutationId?: Maybe<Scalars['String']>;
 };
 
@@ -601,6 +641,10 @@ export type CreateMqlQueryInput = {
   trimIncompletePeriods?: Maybe<Scalars['Boolean']>;
   /** Limit time dimension to a specific number of days, whether or not those days have data. */
   daysLimit?: Maybe<Scalars['Int']>;
+  /** Indicates if query can utilize Transform dynamic cache. May be set to False for expensive queries that should only be run if pre-materialized */
+  allowDynamicCache?: Maybe<Scalars['Boolean']>;
+  /** Limit queries to a maximum number of dimension values. Primarily make charts readable. */
+  maxDimensionValues?: Maybe<Scalars['Int']>;
   clientMutationId?: Maybe<Scalars['String']>;
 };
 
