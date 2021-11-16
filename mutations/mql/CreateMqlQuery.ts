@@ -2,34 +2,36 @@ import { gql } from "urql";
 
 const mutation = gql`
   mutation CreateMqlQuery(
-    $modelKey: ModelKeyInput
-    $metrics: [String!]
-    $groupBy: [String!]
-    $where: ConstraintInput
     $addTimeSeries: Boolean
-    $pctChange: PercentChange
-    $timeGranularity: TimeGranularity
-    $startTime: String
+    $daysLimit: Int
     $endTime: String
+    $groupBy: [String!]
+    $maxDimensionValues: Int
+    $metrics: [String!]
+    $modelKey: ModelKeyInput
     $limit: LimitInput
     $order: [String!]
-    $daysLimit: Int
+    $pctChange: PercentChange
+    $startTime: String
+    $timeGranularity: TimeGranularity
+    $where: ConstraintInput
   ) {
     createMqlQuery(
       input: {
-        modelKey: $modelKey
-        metrics: $metrics
-        groupBy: $groupBy
-        where: $where
         addTimeSeries: $addTimeSeries
-        pctChange: $pctChange
-        timeGranularity: $timeGranularity
-        startTime: $startTime
-        endTime: $endTime
-        resultFormat: TFD
-        limit: $limit
-        order: $order
         daysLimit: $daysLimit
+        endTime: $endTime
+        groupBy: $groupBy
+        limit: $limit
+        maxDimensionValues: $maxDimensionValues
+        metrics: $metrics
+        modelKey: $modelKey
+        order: $order
+        pctChange: $pctChange
+        resultFormat: TFD
+        startTime: $startTime
+        timeGranularity: $timeGranularity
+        where: $where
       }
     ) {
       id
