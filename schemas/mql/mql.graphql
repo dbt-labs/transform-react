@@ -209,6 +209,7 @@ type Metric {
   dimensions: [String!]
   dimensionObjects: [Dimension!]
   dimensionValues(modelKey: ModelKeyInput, dimensionName: String, startTime: String, endTime: String, allowDynamicCache: Boolean): [String]
+  maxGranularity(modelKey: ModelKeyInput): TimeGranularity
 }
 
 """
@@ -365,9 +366,6 @@ input CreateMqlQueryInput {
   resultFormat: ResultFormat
   asTable: String
 
-  """Aggregate results by selected time period."""
-  granularity: Granularity
-
   """
   Calculate percentage changed from current time period to previous time period. Must also select granularity.
   """
@@ -444,14 +442,6 @@ enum CacheMode {
 """An enumeration."""
 enum ResultFormat {
   TFD
-}
-
-"""An enumeration."""
-enum Granularity {
-  DAILY
-  WEEKLY
-  MONTHLY
-  YEARLY
 }
 
 """An enumeration."""
