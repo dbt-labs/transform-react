@@ -418,6 +418,7 @@ export type Metric = {
   dimensions?: Maybe<Array<Scalars['String']>>;
   dimensionObjects?: Maybe<Array<Dimension>>;
   dimensionValues?: Maybe<Array<Maybe<Scalars['String']>>>;
+  maxGranularity?: Maybe<TimeGranularity>;
 };
 
 
@@ -427,6 +428,11 @@ export type MetricDimensionValuesArgs = {
   startTime?: Maybe<Scalars['String']>;
   endTime?: Maybe<Scalars['String']>;
   allowDynamicCache?: Maybe<Scalars['Boolean']>;
+};
+
+
+export type MetricMaxGranularityArgs = {
+  modelKey?: Maybe<ModelKeyInput>;
 };
 
 /** Metric Type Params. For measures references in type_params config, see the Metric object. */
@@ -631,8 +637,6 @@ export type CreateMqlQueryInput = {
   useResultCache?: Maybe<Scalars['Boolean']>;
   resultFormat?: Maybe<ResultFormat>;
   asTable?: Maybe<Scalars['String']>;
-  /** Aggregate results by selected time period. */
-  granularity?: Maybe<Granularity>;
   /** Calculate percentage changed from current time period to previous time period. Must also select granularity. */
   pctChange?: Maybe<PercentChange>;
   startTime?: Maybe<Scalars['String']>;
@@ -686,14 +690,6 @@ export enum CacheMode {
 /** An enumeration. */
 export enum ResultFormat {
   Tfd = 'TFD'
-}
-
-/** An enumeration. */
-export enum Granularity {
-  Daily = 'DAILY',
-  Weekly = 'WEEKLY',
-  Monthly = 'MONTHLY',
-  Yearly = 'YEARLY'
 }
 
 /** An enumeration. */
