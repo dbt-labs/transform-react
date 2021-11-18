@@ -786,22 +786,3 @@ export type CreateMqlQueryMutation = (
     )> }
   )> }
 );
-
-export type UpdateMqlServerConfigMutationVariables = Exact<{
-  mqlServerId: Scalars['Int'];
-  dwPassword?: Maybe<Scalars['String']>;
-  modeCreds?: Maybe<Scalars['String']>;
-  tfdApiKey: Scalars['String'];
-}>;
-
-
-export type UpdateMqlServerConfigMutation = (
-  { __typename?: 'Mutation' }
-  & { updateMqlServerConfig?: Maybe<(
-    { __typename?: 'UpdateMqlServerConfig' }
-    & { config?: Maybe<(
-      { __typename?: 'MqlServerConfig' }
-      & Pick<MqlServerConfig, 'mqlServerId' | 'modeCreds'>
-    )> }
-  )> }
-);
