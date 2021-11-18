@@ -233,20 +233,20 @@ type TeamMember {
 """An enumeration."""
 enum TeamMemberOrderBy {
   JOINED_AT
+  USER_ID
   TEAM_ID
   IS_TEAM_ADMIN
-  USER_ID
-  TeamMember_ORGANIZATION_ID
   TeamMember_ID
+  TeamMember_ORGANIZATION_ID
   User_ORGANIZATION_ID
+  USER_NAME
   EMAIL
   UPDATED_AT
-  PRIMARY_DASHBOARD_ID
-  AUTH0_ID
-  USER_NAME
+  CREATED_AT
   AVATAR_URL
   DEACTIVATED_AT
-  CREATED_AT
+  PRIMARY_DASHBOARD_ID
+  AUTH0_ID
 }
 
 type Dashboard {
@@ -546,12 +546,12 @@ enum QuestionReplyStrColumns {
 
 """An enumeration."""
 enum QuestionReplyOrderBy {
-  QUESTION_ID
   TEXT
-  ORGANIZATION_ID
-  UPDATED_AT
+  QUESTION_ID
   CREATED_AT
+  UPDATED_AT
   ID
+  ORGANIZATION_ID
   AUTHOR_ID
 }
 
@@ -563,18 +563,18 @@ enum QuestionStrColumns {
 
 """An enumeration."""
 enum QuestionOrderBy {
-  NOTIFIED_AT
-  METRIC_ID
-  PRIORITY
-  UPDATED_AT
-  RESOLVED
-  TEXT
-  ORGANIZATION_ID
-  AUTHOR_ID
-  RESOLVED_BY
-  CREATED_AT
   RESOLVED_AT
+  UPDATED_AT
+  PRIORITY
   ID
+  RESOLVED
+  ORGANIZATION_ID
+  TEXT
+  METRIC_ID
+  CREATED_AT
+  NOTIFIED_AT
+  RESOLVED_BY
+  AUTHOR_ID
 }
 
 type LockableParameter {
@@ -659,56 +659,56 @@ enum Priority {
 """An enumeration."""
 enum AnnotationStrColumns {
   TEXT
-  TITLE
   PRIORITY
   EXPECTED_IMPACT
+  TITLE
 }
 
 """An enumeration."""
 enum AnnotationOrderBy {
-  NOTIFIED_AT
-  TITLE
-  PRIORITY
-  EXPECTED_IMPACT
-  UPDATED_AT
   DATE_ENDED_AT
-  TEXT
+  TITLE
+  UPDATED_AT
+  PRIORITY
+  ID
   DELETED_AT
   ORGANIZATION_ID
-  AUTHOR_ID
+  TEXT
   CREATED_AT
-  ID
+  EXPECTED_IMPACT
+  NOTIFIED_AT
+  AUTHOR_ID
   DATE_STARTED_AT
 }
 
 """An enumeration."""
 enum DataSourceVersionStrColumns {
-  HASH
-  SQL_TABLE
   DESCRIPTION
-  NAME
   CONNECTION
+  SQL_TABLE
+  HASH
   SQL_QUERY
+  NAME
 }
 
 """An enumeration."""
 enum DataSourceVersionOrderBy {
-  MEASURES
-  NAME
-  CONNECTION
-  CONSTRAINT
-  DIMENSIONS
-  CREATED_AT
-  SQL_TABLE
   DESCRIPTION
-  SQL_QUERY
-  MUTABILITY
   IDENTIFIERS
-  ORGANIZATION_ID
-  OWNERS
   DATA_SOURCE_METADATA
-  HASH
+  CREATED_AT
+  OWNERS
+  MEASURES
+  SQL_TABLE
+  DIMENSIONS
+  NAME
   ID
+  ORGANIZATION_ID
+  MUTABILITY
+  CONSTRAINT
+  CONNECTION
+  HASH
+  SQL_QUERY
 }
 
 type SavedQuery {
@@ -731,40 +731,40 @@ type SavedQuery {
 
 """An enumeration."""
 enum MetricVersionStrColumns {
-  HASH
   DESCRIPTION
   DISPLAY_NAME
+  HASH
   VALUE_FORMAT
 }
 
 """An enumeration."""
 enum MetricVersionOrderBy {
   DESCRIPTION
-  TIER
-  ORG_DATA_SOURCE_ID
-  VIEWS
-  METADATA
-  ORGANIZATION_ID
-  METRIC_TYPE
-  PARAMS
-  SOURCE_DATA_SOURCE_VERSIONS
-  HASH
   DISPLAY_NAME
+  VIEWS
+  TIER
+  METADATA
   ID
+  ORG_DATA_SOURCE_ID
+  ORGANIZATION_ID
+  SOURCE_DATA_SOURCE_VERSIONS
+  PARAMS
+  HASH
+  METRIC_TYPE
   MetricVersion_METRIC_ID
   MetricVersion_CREATED_AT
   MetricMetadata_METRIC_ID
   MetricMetadata_CREATED_AT
+  TIER_LOCK
+  CREATED_BY
+  UPDATED_AT
+  EXTRA_FIELDS
+  UPDATED_BY
+  VALUE_FORMAT_LOCK
+  DESCRIPTION_LOCK
   VALUE_FORMAT
   DISPLAY_NAME_LOCK
-  UPDATED_BY
-  DESCRIPTION_LOCK
-  UPDATED_AT
   IS_NEW
-  TIER_LOCK
-  EXTRA_FIELDS
-  CREATED_BY
-  VALUE_FORMAT_LOCK
 }
 
 """An enumeration."""
@@ -774,74 +774,74 @@ enum SavedQueryStrColumns {
 
 """An enumeration."""
 enum SavedQueryOrderBy {
-  TITLE
   UPDATED_AT
+  TITLE
+  CREATED_BY
   OWNER_TEAM_ID
   DELETED_AT
-  ORGANIZATION_ID
-  SERIALIZED_QUERY
-  CREATED_BY
-  CREATED_AT
   ID
+  SERIALIZED_QUERY
+  ORGANIZATION_ID
+  CREATED_AT
 }
 
 """An enumeration."""
 enum TeamStrColumns {
-  NAME
   DESCRIPTION
-  THEME
+  NAME
   SLUG
+  THEME
 }
 
 """An enumeration."""
 enum TeamOrderBy {
   DESCRIPTION
+  VIEWS
+  THEME
+  CREATED_BY
   UPDATED_AT
   NAME
-  THEME
-  FEATURED_METRIC_COLLECTION_ID
-  VIEWS
-  ORGANIZATION_ID
-  PRIMARY_DASHBOARD_ID
   SLUG
-  CREATED_BY
-  DEACTIVATED_AT
-  CREATED_AT
   ID
+  ORGANIZATION_ID
+  CREATED_AT
+  FEATURED_METRIC_COLLECTION_ID
+  PRIMARY_DASHBOARD_ID
+  DEACTIVATED_AT
 }
 
 """An enumeration."""
 enum UserStrColumns {
+  USER_NAME
   AVATAR_URL
   EMAIL
   AUTH0_ID
-  USER_NAME
 }
 
 """An enumeration."""
 enum UserOrderBy {
+  USER_NAME
   EMAIL
   UPDATED_AT
+  ID
   ORGANIZATION_ID
-  AUTH0_ID
-  USER_NAME
-  PRIMARY_DASHBOARD_ID
+  CREATED_AT
   AVATAR_URL
   DEACTIVATED_AT
-  CREATED_AT
-  ID
+  PRIMARY_DASHBOARD_ID
+  AUTH0_ID
 }
 
 """An enumeration."""
 enum MetricCollectionMetricOrderBy {
-  METRIC_ID
+  EMPHASIS
+  POSITION
   UPDATED_AT
   METRIC_COLLECTION_ID
-  SAVED_QUERY_ID
-  POSITION
-  CREATED_AT
-  EMPHASIS
   ID
+  METRIC_ID
+  CREATED_AT
+  SAVED_QUERY_ID
 }
 
 type CollectionItem {
@@ -873,26 +873,26 @@ type TeamView {
 
 """An enumeration."""
 enum MetricCollectionStrColumns {
-  TITLE
   DESCRIPTION
   SLUG
+  TITLE
 }
 
 """An enumeration."""
 enum MetricCollectionOrderBy {
-  TITLE
   DESCRIPTION
-  UPDATED_AT
-  OWNER_TEAM_ID
   VIEWS
-  DELETED_AT
-  PRIMARY_DASHBOARD_ID
-  ORGANIZATION_ID
-  DEFAULT_EMPHASIS
-  SLUG
+  TITLE
+  UPDATED_AT
   CREATED_BY
-  CREATED_AT
+  SLUG
+  DELETED_AT
   ID
+  OWNER_TEAM_ID
+  ORGANIZATION_ID
+  CREATED_AT
+  DEFAULT_EMPHASIS
+  PRIMARY_DASHBOARD_ID
 }
 
 type ApiKey {
@@ -921,15 +921,15 @@ enum ApiKeyStrColumns {
 
 """An enumeration."""
 enum ApiKeyOrderBy {
-  SCOPE
-  REVOKER_ID
+  SECRET_HASH
+  USER_ID
+  TYPE
   REVOKED_AT
+  PREFIX
+  REVOKER_ID
   ORGANIZATION_ID
   CREATED_AT
-  PREFIX
-  SECRET_HASH
-  TYPE
-  USER_ID
+  SCOPE
   LAST_USED_AT
 }
 
@@ -947,28 +947,28 @@ type Feature {
 
 """An enumeration."""
 enum OrganizationStrColumns {
-  LOGO_URL
   PRIMARY_CONFIG_REPO
+  LOGO_URL
+  SOURCE_CONTROL_URL
+  NAME
   PRIMARY_CONFIG_BRANCH
   MQL_SERVER_LOGS
-  NAME
-  SOURCE_CONTROL_URL
 }
 
 """An enumeration."""
 enum OrganizationOrderBy {
+  TYPE
   LOGO_URL
-  PRIMARY_CONFIG_REPO
   UPDATED_AT
   NAME
+  ID
   IS_HOSTED
+  PRIMARY_CONFIG_REPO
+  CREATED_AT
+  DEACTIVATED_AT
   SOURCE_CONTROL_URL
   PRIMARY_CONFIG_BRANCH
   MQL_SERVER_LOGS
-  DEACTIVATED_AT
-  CREATED_AT
-  TYPE
-  ID
 }
 
 type OrgMqlServer {
@@ -1002,23 +1002,23 @@ type MqlHeartbeat {
 
 """An enumeration."""
 enum OrgMqlServerStrColumns {
-  CONFIG_SECRET
   NAME
+  CONFIG_SECRET
   DW_ENGINE
   URL
 }
 
 """An enumeration."""
 enum OrgMqlServerOrderBy {
+  CONFIG_SECRET
+  IS_ORG_DEFAULT
   UPDATED_AT
   NAME
-  IS_ORG_DEFAULT
-  CONFIG_SECRET
-  DW_ENGINE
-  URL
+  ID
   ORGANIZATION_ID
   CREATED_AT
-  ID
+  DW_ENGINE
+  URL
 }
 
 """An enumeration."""
@@ -1043,11 +1043,11 @@ enum FeatureStrColumns {
 
 """An enumeration."""
 enum FeatureOrderBy {
-  RETIRED_AT
+  CREATED_AT
   UPDATED_AT
   NAME
-  CREATED_AT
   ID
+  RETIRED_AT
 }
 
 """Wrapper to contain queries related to transform settings & configs."""
