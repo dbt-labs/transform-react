@@ -232,21 +232,21 @@ type TeamMember {
 
 """An enumeration."""
 enum TeamMemberOrderBy {
-  IS_TEAM_ADMIN
-  TEAM_ID
   JOINED_AT
+  TEAM_ID
+  IS_TEAM_ADMIN
   USER_ID
-  TeamMember_ID
   TeamMember_ORGANIZATION_ID
+  TeamMember_ID
   User_ORGANIZATION_ID
-  CREATED_AT
   EMAIL
-  AUTH0_ID
-  DEACTIVATED_AT
   UPDATED_AT
+  PRIMARY_DASHBOARD_ID
+  AUTH0_ID
   USER_NAME
   AVATAR_URL
-  PRIMARY_DASHBOARD_ID
+  DEACTIVATED_AT
+  CREATED_AT
 }
 
 type Dashboard {
@@ -546,13 +546,13 @@ enum QuestionReplyStrColumns {
 
 """An enumeration."""
 enum QuestionReplyOrderBy {
-  CREATED_AT
-  UPDATED_AT
   QUESTION_ID
-  AUTHOR_ID
-  ID
-  ORGANIZATION_ID
   TEXT
+  ORGANIZATION_ID
+  UPDATED_AT
+  CREATED_AT
+  ID
+  AUTHOR_ID
 }
 
 """An enumeration."""
@@ -563,18 +563,18 @@ enum QuestionStrColumns {
 
 """An enumeration."""
 enum QuestionOrderBy {
-  CREATED_AT
-  RESOLVED_AT
-  AUTHOR_ID
-  ID
-  ORGANIZATION_ID
+  NOTIFIED_AT
+  METRIC_ID
+  PRIORITY
+  UPDATED_AT
   RESOLVED
   TEXT
-  NOTIFIED_AT
-  UPDATED_AT
+  ORGANIZATION_ID
+  AUTHOR_ID
   RESOLVED_BY
-  PRIORITY
-  METRIC_ID
+  CREATED_AT
+  RESOLVED_AT
+  ID
 }
 
 type LockableParameter {
@@ -658,26 +658,26 @@ enum Priority {
 
 """An enumeration."""
 enum AnnotationStrColumns {
-  EXPECTED_IMPACT
   TEXT
-  PRIORITY
   TITLE
+  PRIORITY
+  EXPECTED_IMPACT
 }
 
 """An enumeration."""
 enum AnnotationOrderBy {
-  EXPECTED_IMPACT
-  CREATED_AT
+  NOTIFIED_AT
   TITLE
-  AUTHOR_ID
-  ID
-  ORGANIZATION_ID
+  PRIORITY
+  EXPECTED_IMPACT
+  UPDATED_AT
+  DATE_ENDED_AT
   TEXT
   DELETED_AT
-  NOTIFIED_AT
-  DATE_ENDED_AT
-  UPDATED_AT
-  PRIORITY
+  ORGANIZATION_ID
+  AUTHOR_ID
+  CREATED_AT
+  ID
   DATE_STARTED_AT
 }
 
@@ -685,30 +685,30 @@ enum AnnotationOrderBy {
 enum DataSourceVersionStrColumns {
   HASH
   SQL_TABLE
-  SQL_QUERY
-  NAME
   DESCRIPTION
+  NAME
   CONNECTION
+  SQL_QUERY
 }
 
 """An enumeration."""
 enum DataSourceVersionOrderBy {
-  MUTABILITY
-  OWNERS
-  DIMENSIONS
-  ID
-  DESCRIPTION
-  DATA_SOURCE_METADATA
-  IDENTIFIERS
-  SQL_TABLE
-  CREATED_AT
-  HASH
+  MEASURES
   NAME
-  ORGANIZATION_ID
   CONNECTION
   CONSTRAINT
+  DIMENSIONS
+  CREATED_AT
+  SQL_TABLE
+  DESCRIPTION
   SQL_QUERY
-  MEASURES
+  MUTABILITY
+  IDENTIFIERS
+  ORGANIZATION_ID
+  OWNERS
+  DATA_SOURCE_METADATA
+  HASH
+  ID
 }
 
 type SavedQuery {
@@ -731,40 +731,40 @@ type SavedQuery {
 
 """An enumeration."""
 enum MetricVersionStrColumns {
-  DESCRIPTION
   HASH
+  DESCRIPTION
   DISPLAY_NAME
   VALUE_FORMAT
 }
 
 """An enumeration."""
 enum MetricVersionOrderBy {
-  VIEWS
-  PARAMS
-  HASH
-  SOURCE_DATA_SOURCE_VERSIONS
-  ID
-  METADATA
   DESCRIPTION
-  ORGANIZATION_ID
-  METRIC_TYPE
   TIER
   ORG_DATA_SOURCE_ID
+  VIEWS
+  METADATA
+  ORGANIZATION_ID
+  METRIC_TYPE
+  PARAMS
+  SOURCE_DATA_SOURCE_VERSIONS
+  HASH
   DISPLAY_NAME
-  MetricVersion_CREATED_AT
+  ID
   MetricVersion_METRIC_ID
-  MetricMetadata_CREATED_AT
+  MetricVersion_CREATED_AT
   MetricMetadata_METRIC_ID
-  DESCRIPTION_LOCK
-  CREATED_BY
-  UPDATED_BY
-  EXTRA_FIELDS
-  TIER_LOCK
-  UPDATED_AT
+  MetricMetadata_CREATED_AT
   VALUE_FORMAT
-  VALUE_FORMAT_LOCK
   DISPLAY_NAME_LOCK
+  UPDATED_BY
+  DESCRIPTION_LOCK
+  UPDATED_AT
   IS_NEW
+  TIER_LOCK
+  EXTRA_FIELDS
+  CREATED_BY
+  VALUE_FORMAT_LOCK
 }
 
 """An enumeration."""
@@ -774,74 +774,74 @@ enum SavedQueryStrColumns {
 
 """An enumeration."""
 enum SavedQueryOrderBy {
-  CREATED_AT
-  CREATED_BY
   TITLE
-  ID
-  ORGANIZATION_ID
-  DELETED_AT
-  OWNER_TEAM_ID
   UPDATED_AT
+  OWNER_TEAM_ID
+  DELETED_AT
+  ORGANIZATION_ID
   SERIALIZED_QUERY
+  CREATED_BY
+  CREATED_AT
+  ID
 }
 
 """An enumeration."""
 enum TeamStrColumns {
   NAME
-  THEME
   DESCRIPTION
+  THEME
   SLUG
 }
 
 """An enumeration."""
 enum TeamOrderBy {
-  CREATED_BY
-  CREATED_AT
-  VIEWS
-  NAME
-  ID
-  ORGANIZATION_ID
   DESCRIPTION
-  SLUG
-  DEACTIVATED_AT
-  THEME
   UPDATED_AT
+  NAME
+  THEME
   FEATURED_METRIC_COLLECTION_ID
+  VIEWS
+  ORGANIZATION_ID
   PRIMARY_DASHBOARD_ID
+  SLUG
+  CREATED_BY
+  DEACTIVATED_AT
+  CREATED_AT
+  ID
 }
 
 """An enumeration."""
 enum UserStrColumns {
-  EMAIL
   AVATAR_URL
-  USER_NAME
+  EMAIL
   AUTH0_ID
+  USER_NAME
 }
 
 """An enumeration."""
 enum UserOrderBy {
+  EMAIL
+  UPDATED_AT
+  ORGANIZATION_ID
+  AUTH0_ID
+  USER_NAME
+  PRIMARY_DASHBOARD_ID
+  AVATAR_URL
+  DEACTIVATED_AT
   CREATED_AT
   ID
-  ORGANIZATION_ID
-  EMAIL
-  AUTH0_ID
-  DEACTIVATED_AT
-  UPDATED_AT
-  USER_NAME
-  AVATAR_URL
-  PRIMARY_DASHBOARD_ID
 }
 
 """An enumeration."""
 enum MetricCollectionMetricOrderBy {
-  CREATED_AT
-  ID
-  EMPHASIS
-  UPDATED_AT
-  POSITION
   METRIC_ID
-  SAVED_QUERY_ID
+  UPDATED_AT
   METRIC_COLLECTION_ID
+  SAVED_QUERY_ID
+  POSITION
+  CREATED_AT
+  EMPHASIS
+  ID
 }
 
 type CollectionItem {
@@ -873,26 +873,26 @@ type TeamView {
 
 """An enumeration."""
 enum MetricCollectionStrColumns {
+  TITLE
   DESCRIPTION
   SLUG
-  TITLE
 }
 
 """An enumeration."""
 enum MetricCollectionOrderBy {
-  CREATED_AT
-  CREATED_BY
-  VIEWS
   TITLE
-  ID
-  ORGANIZATION_ID
   DESCRIPTION
-  DELETED_AT
-  SLUG
-  OWNER_TEAM_ID
   UPDATED_AT
+  OWNER_TEAM_ID
+  VIEWS
+  DELETED_AT
   PRIMARY_DASHBOARD_ID
+  ORGANIZATION_ID
   DEFAULT_EMPHASIS
+  SLUG
+  CREATED_BY
+  CREATED_AT
+  ID
 }
 
 type ApiKey {
@@ -914,23 +914,23 @@ type ApiKey {
 """An enumeration."""
 enum ApiKeyStrColumns {
   PREFIX
-  SCOPE
-  TYPE
   SECRET_HASH
+  TYPE
+  SCOPE
 }
 
 """An enumeration."""
 enum ApiKeyOrderBy {
-  PREFIX
-  CREATED_AT
   SCOPE
-  SECRET_HASH
-  LAST_USED_AT
-  ORGANIZATION_ID
-  TYPE
-  REVOKED_AT
   REVOKER_ID
+  REVOKED_AT
+  ORGANIZATION_ID
+  CREATED_AT
+  PREFIX
+  SECRET_HASH
+  TYPE
   USER_ID
+  LAST_USED_AT
 }
 
 type Feature {
@@ -947,28 +947,28 @@ type Feature {
 
 """An enumeration."""
 enum OrganizationStrColumns {
-  MQL_SERVER_LOGS
   LOGO_URL
-  SOURCE_CONTROL_URL
   PRIMARY_CONFIG_REPO
-  NAME
   PRIMARY_CONFIG_BRANCH
+  MQL_SERVER_LOGS
+  NAME
+  SOURCE_CONTROL_URL
 }
 
 """An enumeration."""
 enum OrganizationOrderBy {
-  MQL_SERVER_LOGS
-  CREATED_AT
   LOGO_URL
   PRIMARY_CONFIG_REPO
-  NAME
-  ID
-  DEACTIVATED_AT
-  IS_HOSTED
   UPDATED_AT
-  TYPE
+  NAME
+  IS_HOSTED
   SOURCE_CONTROL_URL
   PRIMARY_CONFIG_BRANCH
+  MQL_SERVER_LOGS
+  DEACTIVATED_AT
+  CREATED_AT
+  TYPE
+  ID
 }
 
 type OrgMqlServer {
@@ -1002,23 +1002,23 @@ type MqlHeartbeat {
 
 """An enumeration."""
 enum OrgMqlServerStrColumns {
-  URL
-  NAME
   CONFIG_SECRET
+  NAME
   DW_ENGINE
+  URL
 }
 
 """An enumeration."""
 enum OrgMqlServerOrderBy {
-  CREATED_AT
-  URL
-  NAME
-  ID
-  ORGANIZATION_ID
-  CONFIG_SECRET
   UPDATED_AT
+  NAME
   IS_ORG_DEFAULT
+  CONFIG_SECRET
   DW_ENGINE
+  URL
+  ORGANIZATION_ID
+  CREATED_AT
+  ID
 }
 
 """An enumeration."""
@@ -1044,9 +1044,9 @@ enum FeatureStrColumns {
 """An enumeration."""
 enum FeatureOrderBy {
   RETIRED_AT
-  CREATED_AT
   UPDATED_AT
   NAME
+  CREATED_AT
   ID
 }
 
@@ -1108,6 +1108,12 @@ type Mutation {
   """Update fields on a User."""
   updateUserTest(avatarUrl: String, email: String, id: ID!, primaryDashboardId: ID, userName: String): UpdateUser
   setUserPreference(prefKey: String!, prefValue: String!, userId: ID): SetUserPreference
+
+  """Stores hosted MQL Server config using AWS Secrets Manager."""
+  updateMqlServerConfig(dwPassword: String, modeCreds: String, mqlServerId: Int, tfdApiKey: String): UpdateMqlServerConfig
+
+  """Removes hosted MQL Server config using AWS Secrets Manager."""
+  revokeMqlServerConfig(mqlServerId: Int): RevokeMqlServerConfig
   featuresCreate(name: String!): Feature
   featuresUpdate(id: ID!, name: String, retireFeature: Boolean): Feature
   featuresAddOrgs(featureId: ID!, organizationIds: [ID]!): Feature
@@ -1244,6 +1250,37 @@ type UpdateUser {
 
 type SetUserPreference {
   user: User
+}
+
+"""Stores hosted MQL Server config using AWS Secrets Manager."""
+type UpdateMqlServerConfig {
+  config: MqlServerConfig
+}
+
+"""MQL Server configuration for hosted MQL Servers"""
+type MqlServerConfig {
+  """MQL Server ID as stored in the Backend"""
+  mqlServerId: Int
+
+  """
+  Transform Data API Key. _Note:_ Stored securely using AWS Secrets Manager.
+  """
+  tfdApiKey: String
+
+  """
+  Password used to access the Data Warehouse. _Note:_ Stored securely using AWS Secrets Manager.
+  """
+  dwPassword: String
+
+  """
+  Mode bridge connection config. _Note:_ Stored securely using AWS Secrets Manager.
+  """
+  modeCreds: String
+}
+
+"""Removes hosted MQL Server config using AWS Secrets Manager."""
+type RevokeMqlServerConfig {
+  success: Boolean
 }
 
 """

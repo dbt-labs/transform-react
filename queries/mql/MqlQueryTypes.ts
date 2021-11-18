@@ -853,6 +853,19 @@ export type FetchMqlQueryLogsQuery = (
   )>>> }
 );
 
+export type FetchMetricMaxGranularityQueryVariables = Exact<{
+  metricName: Scalars['String'];
+}>;
+
+
+export type FetchMetricMaxGranularityQuery = (
+  { __typename?: 'Query' }
+  & { metricByName?: Maybe<(
+    { __typename?: 'Metric' }
+    & Pick<Metric, 'maxGranularity'>
+  )> }
+);
+
 export type FetchMqlQueryQueryVariables = Exact<{
   queryId: Scalars['ID'];
 }>;
