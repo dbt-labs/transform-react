@@ -5,10 +5,8 @@ type AuthState = {
   token: string;
 } | null;
 
-function buildGetAuth(getToken: () => Promise<string>) {
+function buildGetAuth(token?: string) {
   const getAuth = async ({ authState }: { authState: AuthState }) => {
-    // TODO: We could start parsing and evaluating this token to avoid having to fetch it each time
-    const token = await getToken();
 
     if (!authState) {
       if (token) {
@@ -49,9 +47,9 @@ function addAuthToOperation({
   });
 }
 
-export default function buildAuthExchange(getToken: () => Promise<string>) {
+export default function buildAuthExchange(token?: string) {
   return authExchange({
-    getAuth: buildGetAuth(getToken),
+    getAuth: buildGetAuth(token),
     addAuthToOperation,
   });
 }

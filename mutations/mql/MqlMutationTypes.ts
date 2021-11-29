@@ -511,10 +511,6 @@ export type Mutation = {
   materialize?: Maybe<Materialize>;
   /** Drop the MQL dynamic cache. Please avoid doing this unless there's a cache corruption issue. */
   dropCache?: Maybe<DropCache>;
-  /** Stores hosted MQL Server config using AWS Secrets Manager. */
-  updateMqlServerConfig?: Maybe<UpdateMqlServerConfig>;
-  /** Removes hosted MQL Server config using AWS Secrets Manager. */
-  revokeMqlServerConfig?: Maybe<RevokeMqlServerConfig>;
   /** Rewrites SQL containing an MQL(...) function invocation by expanding into generated SQL */
   rewriteMqlSql?: Maybe<RewriteMqlSql>;
 };
@@ -552,21 +548,6 @@ export type MutationMaterializeArgs = {
 /** Base mutation object exposed by GraphQL. */
 export type MutationDropCacheArgs = {
   confirm?: Maybe<Scalars['String']>;
-};
-
-
-/** Base mutation object exposed by GraphQL. */
-export type MutationUpdateMqlServerConfigArgs = {
-  dwPassword?: Maybe<Scalars['String']>;
-  modeCreds?: Maybe<Scalars['String']>;
-  mqlServerId?: Maybe<Scalars['Int']>;
-  tfdApiKey?: Maybe<Scalars['String']>;
-};
-
-
-/** Base mutation object exposed by GraphQL. */
-export type MutationRevokeMqlServerConfigArgs = {
-  mqlServerId?: Maybe<Scalars['Int']>;
 };
 
 
@@ -712,31 +693,6 @@ export type DropCache = {
   success?: Maybe<Scalars['Boolean']>;
 };
 
-/** Stores hosted MQL Server config using AWS Secrets Manager. */
-export type UpdateMqlServerConfig = {
-  __typename?: 'UpdateMqlServerConfig';
-  config?: Maybe<MqlServerConfig>;
-};
-
-/** MQL Server configuration for hosted MQL Servers */
-export type MqlServerConfig = {
-  __typename?: 'MqlServerConfig';
-  /** MQL Server ID as stored in the Backend */
-  mqlServerId?: Maybe<Scalars['Int']>;
-  /** Transform Data API Key. _Note:_ Stored securely using AWS Secrets Manager. */
-  tfdApiKey?: Maybe<Scalars['String']>;
-  /** Password used to access the Data Warehouse. _Note:_ Stored securely using AWS Secrets Manager. */
-  dwPassword?: Maybe<Scalars['String']>;
-  /** Mode bridge connection config. _Note:_ Stored securely using AWS Secrets Manager. */
-  modeCreds?: Maybe<Scalars['String']>;
-};
-
-/** Removes hosted MQL Server config using AWS Secrets Manager. */
-export type RevokeMqlServerConfig = {
-  __typename?: 'RevokeMqlServerConfig';
-  success?: Maybe<Scalars['Boolean']>;
-};
-
 /** Rewrites SQL containing an MQL(...) function invocation by expanding into generated SQL */
 export type RewriteMqlSql = {
   __typename?: 'RewriteMqlSql';
@@ -783,25 +739,6 @@ export type CreateMqlQueryMutation = (
           & Pick<TimeSeriesDatum, 'xDate' | 'y'>
         )>> }
       )>> }
-    )> }
-  )> }
-);
-
-export type UpdateMqlServerConfigMutationVariables = Exact<{
-  mqlServerId: Scalars['Int'];
-  dwPassword?: Maybe<Scalars['String']>;
-  modeCreds?: Maybe<Scalars['String']>;
-  tfdApiKey: Scalars['String'];
-}>;
-
-
-export type UpdateMqlServerConfigMutation = (
-  { __typename?: 'Mutation' }
-  & { updateMqlServerConfig?: Maybe<(
-    { __typename?: 'UpdateMqlServerConfig' }
-    & { config?: Maybe<(
-      { __typename?: 'MqlServerConfig' }
-      & Pick<MqlServerConfig, 'mqlServerId' | 'modeCreds'>
     )> }
   )> }
 );

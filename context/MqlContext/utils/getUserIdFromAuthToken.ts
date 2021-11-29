@@ -1,5 +1,5 @@
 function parseJwt(
-  token: string
+  token?: string
 ):
   | { ["https://hasura.io/jwt/claims"]: { ["x-hasura-user-id"]: string } }
   | false {
@@ -19,7 +19,7 @@ function parseJwt(
 
   return JSON.parse(jsonPayload);
 }
-const getUserIdFromToken = (token: string) => {
+const getUserIdFromToken = (token?: string) => {
   let parsedToken = parseJwt(token);
   if (parsedToken) {
     return parsedToken["https://hasura.io/jwt/claims"]["x-hasura-user-id"];
