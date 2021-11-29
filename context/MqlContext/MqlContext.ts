@@ -62,7 +62,7 @@ export type MqlContextType = {
   modalKeyOverrideLoading: boolean;
 
   mqlClient: Client;
-  getToken: () => Promise<string>;
+  token?: string;
   useQuery: typeof useQuery;
   useMutation: typeof useMutation;
   handleCombinedError: (e: CombinedError, context?: HandleCombinedErrorContext) => void;
@@ -76,8 +76,8 @@ export const MqlContextInitialState = {
   modelKey: null,
   setModelKey: () => Promise.resolve(),
   modalKeyOverrideLoading: false,
-  mqlClient: buildMqlUrqlClient(() => Promise.resolve(""), CORE_API_URL),
-  getToken: () => Promise.resolve(""),
+  mqlClient: buildMqlUrqlClient(CORE_API_URL),
+  token: undefined,
   useQuery,
   useMutation,
   handleCombinedError: (e: CombinedError, context?: HandleCombinedErrorContext) => {

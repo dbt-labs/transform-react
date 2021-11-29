@@ -282,12 +282,6 @@ type Mutation {
   """
   dropCache(confirm: String): DropCache
 
-  """Stores hosted MQL Server config using AWS Secrets Manager."""
-  updateMqlServerConfig(dwPassword: String, modeCreds: String, mqlServerId: Int, tfdApiKey: String): UpdateMqlServerConfig
-
-  """Removes hosted MQL Server config using AWS Secrets Manager."""
-  revokeMqlServerConfig(mqlServerId: Int): RevokeMqlServerConfig
-
   """
   Rewrites SQL containing an MQL(...) function invocation by expanding into generated SQL
   """
@@ -461,37 +455,6 @@ type Materialize {
 Drop the MQL dynamic cache. Please avoid doing this unless there's a cache corruption issue.
 """
 type DropCache {
-  success: Boolean
-}
-
-"""Stores hosted MQL Server config using AWS Secrets Manager."""
-type UpdateMqlServerConfig {
-  config: MqlServerConfig
-}
-
-"""MQL Server configuration for hosted MQL Servers"""
-type MqlServerConfig {
-  """MQL Server ID as stored in the Backend"""
-  mqlServerId: Int
-
-  """
-  Transform Data API Key. _Note:_ Stored securely using AWS Secrets Manager.
-  """
-  tfdApiKey: String
-
-  """
-  Password used to access the Data Warehouse. _Note:_ Stored securely using AWS Secrets Manager.
-  """
-  dwPassword: String
-
-  """
-  Mode bridge connection config. _Note:_ Stored securely using AWS Secrets Manager.
-  """
-  modeCreds: String
-}
-
-"""Removes hosted MQL Server config using AWS Secrets Manager."""
-type RevokeMqlServerConfig {
   success: Boolean
 }
 

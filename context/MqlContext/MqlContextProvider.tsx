@@ -13,12 +13,12 @@ import MqlContext, { HandleCombinedErrorContext, MqlContextType, CORE_API_URL } 
 import getUserIdFromAuthToken from "./utils/getUserIdFromAuthToken";
 
 type Props = {
-  getToken: () => Promise<string>;
   isAuthenticated: boolean;
   captureException?: (e: CombinedError, context: HandleCombinedErrorContext) => void;
   children: ReactNode;
   coreApiUrl?: string;
   mqlServerUrlOverride?: string;
+  token?: string;
 };
 
 /*
@@ -26,19 +26,19 @@ type Props = {
   for the sake of interacting with MQL Server and Model Key selection
 */
 function MqlContextProvider({
-  getToken,
+  token,
   children,
   isAuthenticated,
   captureException,
   coreApiUrl,
   mqlServerUrlOverride
 }: Props) {
-  const coreApiClient = buildMqlUrqlClient(getToken, coreApiUrl || CORE_API_URL);
+  const coreApiClient = buildMqlUrqlClient(coreApiUrl || CORE_API_URL, token);
   return (
     <Provider value={coreApiClient}>
       <MqlContextProviderInternal
         isAuthenticated={isAuthenticated}
-        getToken={getToken}
+        token={token}
         captureException={captureException}
         coreApiUrl={coreApiUrl || CORE_API_URL}
         mqlServerUrlOverride={mqlServerUrlOverride}
@@ -50,7 +50,7 @@ function MqlContextProvider({
 }
 
 function MqlContextProviderInternal({
-  getToken,
+  token,
   isAuthenticated,
   children,
   captureException,
@@ -100,7 +100,6 @@ function MqlContextProviderInternal({
 
   const setMqlServerThenRefetch = useCallback(
     async (newServerId: number) => {
-      const token = await getToken();
       // Note: newServerid is cast as a string because it is stored on the backend
       // as a User Preference, whose values are all strings.
       const userId = getUserIdFromAuthToken(token);
@@ -121,8 +120,8 @@ function MqlContextProviderInternal({
     Naturally, this is invalid, so we must check with the mqlServerUrl is present before initiating MQL Queries.
   */
   const mqlClient = buildMqlUrqlClient(
-    getToken,
-    mqlServerUrlData?.mqlServerUrl || coreApiUrl || CORE_API_URL
+    mqlServerUrlData?.mqlServerUrl || coreApiUrl || CORE_API_URL,
+    token,
   );
 
   const [mqlContext, setMqlContext] = useState<MqlContextType>({
@@ -134,7 +133,7 @@ function MqlContextProviderInternal({
     setModelKey: () => Promise.resolve(),
     modalKeyOverrideLoading: false,
     mqlClient,
-    getToken,
+    token,
     useQuery,
     useMutation,
     handleCombinedError,
@@ -154,8 +153,8 @@ function MqlContextProviderInternal({
         mqlServerUrlOverride !== mqlContext.mqlServerUrl
       ) {
         stateToUpdate.mqlClient = buildMqlUrqlClient(
-          getToken,
-          mqlServerUrlOverride
+          mqlServerUrlOverride,
+          token,
         );
       }
     } else {
@@ -167,8 +166,8 @@ function MqlContextProviderInternal({
         mqlServerUrlData?.mqlServerUrl !== mqlContext.mqlServerUrl
       ) {
         stateToUpdate.mqlClient = buildMqlUrqlClient(
-          getToken,
-          mqlServerUrlData?.mqlServerUrl
+          mqlServerUrlData?.mqlServerUrl,
+          token
         );
       }
     }
@@ -184,7 +183,7 @@ function MqlContextProviderInternal({
         ...stateToUpdate,
       });
     }
-  }, [mqlServerUrlData, getToken, mqlContext, mqlServerUrlOverride]);
+  }, [mqlServerUrlData, token, mqlContext, mqlServerUrlOverride]);
 
   return (
     <Provider value={mqlContext.mqlClient}>

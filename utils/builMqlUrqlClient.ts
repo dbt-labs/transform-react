@@ -8,11 +8,11 @@ function cleanUrl(url: string) {
 }
 
 export default function buildMqlUrqlClient(
-  getToken: () => Promise<string>,
-  url: string
+  url: string,
+  token?: string,
 ) {
   return createClient({
     url: cleanUrl(url),
-    exchanges: [dedupExchange, buildAuthExchange(getToken), fetchExchange],
+    exchanges: [dedupExchange, buildAuthExchange(token), fetchExchange],
   });
 }

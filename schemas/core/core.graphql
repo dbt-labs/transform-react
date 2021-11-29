@@ -232,21 +232,21 @@ type TeamMember {
 
 """An enumeration."""
 enum TeamMemberOrderBy {
-  JOINED_AT
-  USER_ID
   TEAM_ID
   IS_TEAM_ADMIN
-  TeamMember_ID
+  USER_ID
+  JOINED_AT
   TeamMember_ORGANIZATION_ID
+  TeamMember_ID
   User_ORGANIZATION_ID
-  USER_NAME
   EMAIL
+  USER_NAME
+  DEACTIVATED_AT
   UPDATED_AT
   CREATED_AT
-  AVATAR_URL
-  DEACTIVATED_AT
   PRIMARY_DASHBOARD_ID
   AUTH0_ID
+  AVATAR_URL
 }
 
 type Dashboard {
@@ -401,6 +401,7 @@ type Metric {
   totalQuestions: Int
   totalAnnotations: Int
   name: String
+  isNew: Boolean
   valueFormat: String
   tierWithLock: LockableParameter
   displayNameWithLock: LockableParameter
@@ -546,35 +547,35 @@ enum QuestionReplyStrColumns {
 
 """An enumeration."""
 enum QuestionReplyOrderBy {
-  TEXT
-  QUESTION_ID
-  CREATED_AT
-  UPDATED_AT
-  ID
   ORGANIZATION_ID
+  TEXT
   AUTHOR_ID
+  UPDATED_AT
+  CREATED_AT
+  ID
+  QUESTION_ID
 }
 
 """An enumeration."""
 enum QuestionStrColumns {
-  TEXT
   PRIORITY
+  TEXT
 }
 
 """An enumeration."""
 enum QuestionOrderBy {
   RESOLVED_AT
-  UPDATED_AT
-  PRIORITY
-  ID
-  RESOLVED
   ORGANIZATION_ID
   TEXT
-  METRIC_ID
+  AUTHOR_ID
+  UPDATED_AT
   CREATED_AT
+  METRIC_ID
+  ID
+  PRIORITY
   NOTIFIED_AT
   RESOLVED_BY
-  AUTHOR_ID
+  RESOLVED
 }
 
 type LockableParameter {
@@ -658,57 +659,57 @@ enum Priority {
 
 """An enumeration."""
 enum AnnotationStrColumns {
-  TEXT
   PRIORITY
   EXPECTED_IMPACT
+  TEXT
   TITLE
 }
 
 """An enumeration."""
 enum AnnotationOrderBy {
-  DATE_ENDED_AT
-  TITLE
-  UPDATED_AT
-  PRIORITY
-  ID
-  DELETED_AT
   ORGANIZATION_ID
   TEXT
-  CREATED_AT
-  EXPECTED_IMPACT
-  NOTIFIED_AT
+  DATE_ENDED_AT
   AUTHOR_ID
+  UPDATED_AT
+  CREATED_AT
+  ID
+  PRIORITY
+  EXPECTED_IMPACT
+  DELETED_AT
+  NOTIFIED_AT
   DATE_STARTED_AT
+  TITLE
 }
 
 """An enumeration."""
 enum DataSourceVersionStrColumns {
-  DESCRIPTION
-  CONNECTION
-  SQL_TABLE
-  HASH
   SQL_QUERY
   NAME
+  DESCRIPTION
+  HASH
+  CONNECTION
+  SQL_TABLE
 }
 
 """An enumeration."""
 enum DataSourceVersionOrderBy {
-  DESCRIPTION
-  IDENTIFIERS
-  DATA_SOURCE_METADATA
-  CREATED_AT
-  OWNERS
-  MEASURES
-  SQL_TABLE
-  DIMENSIONS
-  NAME
-  ID
-  ORGANIZATION_ID
-  MUTABILITY
   CONSTRAINT
-  CONNECTION
   HASH
+  CONNECTION
+  CREATED_AT
+  IDENTIFIERS
+  ID
+  MEASURES
+  DATA_SOURCE_METADATA
+  SQL_TABLE
+  ORGANIZATION_ID
+  NAME
+  DESCRIPTION
+  MUTABILITY
   SQL_QUERY
+  DIMENSIONS
+  OWNERS
 }
 
 type SavedQuery {
@@ -731,40 +732,40 @@ type SavedQuery {
 
 """An enumeration."""
 enum MetricVersionStrColumns {
-  DESCRIPTION
   DISPLAY_NAME
   HASH
+  DESCRIPTION
   VALUE_FORMAT
 }
 
 """An enumeration."""
 enum MetricVersionOrderBy {
-  DESCRIPTION
-  DISPLAY_NAME
-  VIEWS
-  TIER
-  METADATA
-  ID
-  ORG_DATA_SOURCE_ID
   ORGANIZATION_ID
-  SOURCE_DATA_SOURCE_VERSIONS
-  PARAMS
-  HASH
   METRIC_TYPE
-  MetricVersion_METRIC_ID
+  DESCRIPTION
+  METADATA
+  HASH
+  SOURCE_DATA_SOURCE_VERSIONS
+  VIEWS
+  ID
+  DISPLAY_NAME
+  PARAMS
+  TIER
+  ORG_DATA_SOURCE_ID
   MetricVersion_CREATED_AT
-  MetricMetadata_METRIC_ID
+  MetricVersion_METRIC_ID
   MetricMetadata_CREATED_AT
-  TIER_LOCK
-  CREATED_BY
-  UPDATED_AT
-  EXTRA_FIELDS
-  UPDATED_BY
-  VALUE_FORMAT_LOCK
-  DESCRIPTION_LOCK
-  VALUE_FORMAT
+  MetricMetadata_METRIC_ID
   DISPLAY_NAME_LOCK
+  UPDATED_AT
+  VALUE_FORMAT_LOCK
+  EXTRA_FIELDS
+  CREATED_BY
+  UPDATED_BY
+  VALUE_FORMAT
   IS_NEW
+  DESCRIPTION_LOCK
+  TIER_LOCK
 }
 
 """An enumeration."""
@@ -774,74 +775,74 @@ enum SavedQueryStrColumns {
 
 """An enumeration."""
 enum SavedQueryOrderBy {
-  UPDATED_AT
-  TITLE
-  CREATED_BY
-  OWNER_TEAM_ID
-  DELETED_AT
-  ID
-  SERIALIZED_QUERY
   ORGANIZATION_ID
+  SERIALIZED_QUERY
+  UPDATED_AT
   CREATED_AT
+  ID
+  DELETED_AT
+  OWNER_TEAM_ID
+  CREATED_BY
+  TITLE
 }
 
 """An enumeration."""
 enum TeamStrColumns {
-  DESCRIPTION
-  NAME
   SLUG
+  NAME
   THEME
+  DESCRIPTION
 }
 
 """An enumeration."""
 enum TeamOrderBy {
+  ORGANIZATION_ID
+  NAME
   DESCRIPTION
   VIEWS
-  THEME
-  CREATED_BY
-  UPDATED_AT
-  NAME
-  SLUG
-  ID
-  ORGANIZATION_ID
-  CREATED_AT
   FEATURED_METRIC_COLLECTION_ID
-  PRIMARY_DASHBOARD_ID
+  UPDATED_AT
   DEACTIVATED_AT
+  THEME
+  CREATED_AT
+  ID
+  PRIMARY_DASHBOARD_ID
+  SLUG
+  CREATED_BY
 }
 
 """An enumeration."""
 enum UserStrColumns {
-  USER_NAME
-  AVATAR_URL
-  EMAIL
   AUTH0_ID
+  EMAIL
+  AVATAR_URL
+  USER_NAME
 }
 
 """An enumeration."""
 enum UserOrderBy {
-  USER_NAME
-  EMAIL
-  UPDATED_AT
-  ID
   ORGANIZATION_ID
-  CREATED_AT
-  AVATAR_URL
+  EMAIL
+  USER_NAME
+  UPDATED_AT
   DEACTIVATED_AT
+  CREATED_AT
+  ID
   PRIMARY_DASHBOARD_ID
   AUTH0_ID
+  AVATAR_URL
 }
 
 """An enumeration."""
 enum MetricCollectionMetricOrderBy {
-  EMPHASIS
-  POSITION
   UPDATED_AT
+  CREATED_AT
+  METRIC_ID
   METRIC_COLLECTION_ID
   ID
-  METRIC_ID
-  CREATED_AT
+  POSITION
   SAVED_QUERY_ID
+  EMPHASIS
 }
 
 type CollectionItem {
@@ -873,26 +874,26 @@ type TeamView {
 
 """An enumeration."""
 enum MetricCollectionStrColumns {
-  DESCRIPTION
   SLUG
+  DESCRIPTION
   TITLE
 }
 
 """An enumeration."""
 enum MetricCollectionOrderBy {
+  ORGANIZATION_ID
   DESCRIPTION
   VIEWS
-  TITLE
   UPDATED_AT
-  CREATED_BY
-  SLUG
-  DELETED_AT
-  ID
-  OWNER_TEAM_ID
-  ORGANIZATION_ID
-  CREATED_AT
   DEFAULT_EMPHASIS
+  CREATED_AT
+  ID
+  DELETED_AT
   PRIMARY_DASHBOARD_ID
+  OWNER_TEAM_ID
+  SLUG
+  CREATED_BY
+  TITLE
 }
 
 type ApiKey {
@@ -913,24 +914,24 @@ type ApiKey {
 
 """An enumeration."""
 enum ApiKeyStrColumns {
-  PREFIX
   SECRET_HASH
+  PREFIX
   TYPE
   SCOPE
 }
 
 """An enumeration."""
 enum ApiKeyOrderBy {
-  SECRET_HASH
-  USER_ID
-  TYPE
-  REVOKED_AT
-  PREFIX
-  REVOKER_ID
+  LAST_USED_AT
   ORGANIZATION_ID
+  USER_ID
+  SECRET_HASH
   CREATED_AT
   SCOPE
-  LAST_USED_AT
+  REVOKER_ID
+  TYPE
+  PREFIX
+  REVOKED_AT
 }
 
 type Feature {
@@ -947,28 +948,28 @@ type Feature {
 
 """An enumeration."""
 enum OrganizationStrColumns {
-  PRIMARY_CONFIG_REPO
-  LOGO_URL
   SOURCE_CONTROL_URL
   NAME
-  PRIMARY_CONFIG_BRANCH
+  PRIMARY_CONFIG_REPO
   MQL_SERVER_LOGS
+  PRIMARY_CONFIG_BRANCH
+  LOGO_URL
 }
 
 """An enumeration."""
 enum OrganizationOrderBy {
-  TYPE
-  LOGO_URL
-  UPDATED_AT
   NAME
-  ID
-  IS_HOSTED
-  PRIMARY_CONFIG_REPO
-  CREATED_AT
+  UPDATED_AT
   DEACTIVATED_AT
-  SOURCE_CONTROL_URL
+  CREATED_AT
   PRIMARY_CONFIG_BRANCH
+  ID
+  LOGO_URL
+  PRIMARY_CONFIG_REPO
+  IS_HOSTED
+  TYPE
   MQL_SERVER_LOGS
+  SOURCE_CONTROL_URL
 }
 
 type OrgMqlServer {
@@ -980,10 +981,22 @@ type OrgMqlServer {
   url: String!
   isOrgDefault: Boolean
   configSecret: String
-  dwEngine: String
+  dwEngine: DWEngine
   heartbeats: [MqlHeartbeat]
   organization: Organization
   latestHeartbeat: MqlHeartbeat
+}
+
+"""An enumeration."""
+enum DWEngine {
+  PRESTO_HIVE
+  REDSHIFT
+  POSTGRESQL
+  LIVY
+  MYSQL
+  SNOWFLAKE
+  DATABRICKS
+  ATHENA
 }
 
 type MqlHeartbeat {
@@ -1002,21 +1015,20 @@ type MqlHeartbeat {
 
 """An enumeration."""
 enum OrgMqlServerStrColumns {
+  URL
   NAME
   CONFIG_SECRET
-  DW_ENGINE
-  URL
 }
 
 """An enumeration."""
 enum OrgMqlServerOrderBy {
-  CONFIG_SECRET
-  IS_ORG_DEFAULT
-  UPDATED_AT
-  NAME
-  ID
   ORGANIZATION_ID
+  NAME
+  UPDATED_AT
   CREATED_AT
+  IS_ORG_DEFAULT
+  ID
+  CONFIG_SECRET
   DW_ENGINE
   URL
 }
@@ -1043,11 +1055,11 @@ enum FeatureStrColumns {
 
 """An enumeration."""
 enum FeatureOrderBy {
-  CREATED_AT
-  UPDATED_AT
-  NAME
-  ID
   RETIRED_AT
+  NAME
+  UPDATED_AT
+  CREATED_AT
+  ID
 }
 
 """Wrapper to contain queries related to transform settings & configs."""
@@ -1142,7 +1154,7 @@ type Mutation {
   teamsRemoveAsMetricOwner(teamId: ID!, metricIds: [ID]): Team
   organizationsUpdate(id: ID!, name: String, logoUrl: String, primaryConfigRepo: String, primaryConfigBranch: String, sourceControlUrl: String, mqlServerLogs: String, isHosted: Boolean, orgType: GOrgType): Organization
   organizationsSetTierTooltip(organizationId: ID!, tooltip: String!, tier: MetricTier!): Organization
-  organizationsSetMfaPrefs(organizationId: ID!, requireMfa: Boolean, allowMfaRememberBrowser: Boolean): Organization
+  organizationsSetMfaPrefs(organizationId: ID!, mfaPref: MFAPref!): Organization
   organizationsSetAllowedEmailDomains(organizationId: ID!, allowedEmailDomains: [String]!): Organization
   organizationsDelete(id: ID!): Organization
   metricsApprove(metricId: ID!): Metric
@@ -1291,4 +1303,9 @@ input MetricCollectionItem {
   savedQueryId: ID
   emphasis: Int!
   position: Int!
+}
+
+input MFAPref {
+  requireMfa: Boolean!
+  allowMfaRememberBrowser: Boolean!
 }
