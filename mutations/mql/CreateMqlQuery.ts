@@ -14,6 +14,7 @@ const mutation = gql`
     $pctChange: PercentChange
     $startTime: String
     $timeGranularity: TimeGranularity
+    $trimIncompletePeriods: Boolean
     $where: ConstraintInput
   ) {
     createMqlQuery(
@@ -31,6 +32,7 @@ const mutation = gql`
         resultFormat: TFD
         startTime: $startTime
         timeGranularity: $timeGranularity
+        trimIncompletePeriods: $trimIncompletePeriods
         where: $where
       }
     ) {
