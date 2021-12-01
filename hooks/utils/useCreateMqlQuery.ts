@@ -51,6 +51,7 @@ const useCreateMqlQuery = ({metricName, formState = {}, dispatch, retries}: UseC
       pctChange: formState.pctChange,
       startTime: formState.startTime,
       timeGranularity: formState.timeGranularity,
+      trimIncompletePeriods: formState.trimIncompletePeriods,
       where: clearEmptyConstraints(formState.where),
     }).then(({ data, error }) => {
       if (data?.createMqlQuery?.query?.status === MqlQueryStatus.Successful) {
