@@ -719,6 +719,7 @@ export type CreateMqlQueryMutationVariables = Exact<{
   pctChange?: Maybe<PercentChange>;
   startTime?: Maybe<Scalars['String']>;
   timeGranularity?: Maybe<TimeGranularity>;
+  trimIncompletePeriods?: Maybe<Scalars['Boolean']>;
   where?: Maybe<ConstraintInput>;
 }>;
 

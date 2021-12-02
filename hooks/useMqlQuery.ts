@@ -243,7 +243,7 @@ function mqlQueryReducer(
   Here Be Dragons!
 
   If `queryInput` is provided, it *must* be stable for this to work.
-  That means if the value is calulated and generating a fresh object every render,
+  That means if the value is calculated and generating a fresh object every render,
   this will result in an infinite loop!
 
   So we are doing something that seems like it could be improved, which is that if the form is based on the URL,
