@@ -1,18 +1,18 @@
 import { useContext, Dispatch } from 'react';
-import MqlContext from "../../context/MqlContext/MqlContext";
-import CreateMqlQuery from "../../mutations/mql/CreateMqlQuery";
+import MqlContext from "../../../context/MqlContext/MqlContext";
+import CreateMqlQuery from "../../../mutations/mql/CreateMqlQuery";
 import {
   CreateMqlQueryMutation,
   CreateMqlQueryMutationVariables,
-} from "../../mutations/mql/MqlMutationTypes";
+} from "../../../mutations/mql/MqlMutationTypes";
 import clearEmptyConstraints from './clearEmptyConstraints';
-import { Action as UseMqlQueryAction, UseMqlQueryState, RETRY_POLLING_MS } from '../useMqlQuery'
-import getErrorMessage from './getErrorMessage';
+import { Action as UseMqlQueryAction, RETRY_POLLING_MS } from '../../reducers/mqlQueryReducer';
+import getErrorMessage from '../../utils/getErrorMessage';
 import {
   MqlQueryStatus,
-} from "../../queries/mql/MqlQueryTypes";
+} from "../../../queries/mql/MqlQueryTypes";
 
-interface DoCreateMqlQueryArgs {
+export interface DoCreateMqlQueryArgs {
   stateRetries: number
 }
 
@@ -20,7 +20,7 @@ interface UseCreateMqlQueryArgs {
   retries: number; // the number of retries passed as an arg from the client.
   metricName: string;
   formState?: CreateMqlQueryMutationVariables;
-  dispatch: Dispatch<UseMqlQueryAction>;
+  dispatch: Dispatch<UseMqlQueryAction<CreateMqlQueryMutation>>;
 }
 
 interface UseCreateMqlQuery {

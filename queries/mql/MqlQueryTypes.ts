@@ -56,6 +56,7 @@ export type Query = {
   maxGranularityForMetrics?: Maybe<TimeGranularity>;
   queries?: Maybe<Array<Maybe<MqlQuery>>>;
   healthReport?: Maybe<Array<Maybe<MqlServerHealthItem>>>;
+  validations?: Maybe<Validations>;
 };
 
 
@@ -234,6 +235,16 @@ export type QueryQueriesArgs = {
   offset?: Maybe<Scalars['Int']>;
 };
 
+
+/**
+ * Base Query object exposed by GraphQL for the MQL Server
+ *
+ * Each field defined below is accessible by the API, by calling the equivalent resolver.
+ */
+export type QueryValidationsArgs = {
+  modelKey?: Maybe<ModelKeyInput>;
+};
+
 /**
  * The MQL Query class is used to access the output of an MQL Query.
  *
@@ -331,6 +342,10 @@ export type MqlQueryResultSeries = {
   /** For queries without dimensional cuts, series_value will be `ALL`. For queries with dimensional cuts, one of these Result will be returned per dimension */
   seriesValue?: Maybe<Scalars['String']>;
   data?: Maybe<Array<ResultDatum>>;
+  isOtherCol?: Maybe<Scalars['Boolean']>;
+  value?: Maybe<Scalars['Float']>;
+  delta?: Maybe<Scalars['Float']>;
+  pctChange?: Maybe<Scalars['Float']>;
 };
 
 /** This interface is used to describe any type of MQL Query result data */
@@ -424,10 +439,12 @@ export type Metric = {
 
 export type MetricDimensionValuesArgs = {
   modelKey?: Maybe<ModelKeyInput>;
-  dimensionName?: Maybe<Scalars['String']>;
+  dimensionName: Scalars['String'];
   startTime?: Maybe<Scalars['String']>;
   endTime?: Maybe<Scalars['String']>;
   allowDynamicCache?: Maybe<Scalars['Boolean']>;
+  pageNumber?: Maybe<Scalars['Int']>;
+  pageSize?: Maybe<Scalars['Int']>;
 };
 
 
@@ -495,6 +512,12 @@ export type MqlServerHealthItem = {
   errorMessage?: Maybe<Scalars['String']>;
 };
 
+export type Validations = {
+  __typename?: 'Validations';
+  allIssues?: Maybe<Array<Scalars['String']>>;
+  dataSourceIssues?: Maybe<Array<Scalars['String']>>;
+};
+
 /** Base mutation object exposed by GraphQL. */
 export type Mutation = {
   __typename?: 'Mutation';
@@ -513,6 +536,10 @@ export type Mutation = {
   dropCache?: Maybe<DropCache>;
   /** Rewrites SQL containing an MQL(...) function invocation by expanding into generated SQL */
   rewriteMqlSql?: Maybe<RewriteMqlSql>;
+  /** For metric, get latest value, percent change from the previous granularity period, and delta between the two. */
+  queryLatestMetricChange?: Maybe<QueryLatestMetricChangePayload>;
+  /** Get percent change for given metric from start to end of date range (assuming daily granularity). */
+  pctChangeOverRange?: Maybe<PctChangeOverRangePayload>;
 };
 
 
@@ -554,6 +581,18 @@ export type MutationDropCacheArgs = {
 /** Base mutation object exposed by GraphQL. */
 export type MutationRewriteMqlSqlArgs = {
   sql: Scalars['String'];
+};
+
+
+/** Base mutation object exposed by GraphQL. */
+export type MutationQueryLatestMetricChangeArgs = {
+  input: QueryLatestMetricChangeInput;
+};
+
+
+/** Base mutation object exposed by GraphQL. */
+export type MutationPctChangeOverRangeArgs = {
+  input: PctChangeOverRangeInput;
 };
 
 export type CreateMqlMaterializationNewPayload = {
@@ -675,10 +714,12 @@ export enum ResultFormat {
 
 /** An enumeration. */
 export enum PercentChange {
+  Dod = 'DOD',
   Wow = 'WOW',
   Mom = 'MOM',
   Qoq = 'QOQ',
-  Yoy = 'YOY'
+  Yoy = 'YOY',
+  DateRange = 'DATE_RANGE'
 }
 
 export type Materialize = {
@@ -697,6 +738,34 @@ export type DropCache = {
 export type RewriteMqlSql = {
   __typename?: 'RewriteMqlSql';
   resultSql?: Maybe<Scalars['String']>;
+};
+
+/** For metric, get latest value, percent change from the previous granularity period, and delta between the two. */
+export type QueryLatestMetricChangePayload = {
+  __typename?: 'QueryLatestMetricChangePayload';
+  id: Scalars['ID'];
+  query?: Maybe<MqlQuery>;
+  clientMutationId?: Maybe<Scalars['String']>;
+};
+
+export type QueryLatestMetricChangeInput = {
+  metricName: Scalars['String'];
+  clientMutationId?: Maybe<Scalars['String']>;
+};
+
+/** Get percent change for given metric from start to end of date range (assuming daily granularity). */
+export type PctChangeOverRangePayload = {
+  __typename?: 'PctChangeOverRangePayload';
+  id: Scalars['ID'];
+  query?: Maybe<MqlQuery>;
+  clientMutationId?: Maybe<Scalars['String']>;
+};
+
+export type PctChangeOverRangeInput = {
+  metricName: Scalars['String'];
+  startTime: Scalars['String'];
+  endTime: Scalars['String'];
+  clientMutationId?: Maybe<Scalars['String']>;
 };
 
 /** MQL Query Result Data are expected to be plotted on a time series so this is the most common result type */
@@ -835,7 +904,10 @@ export type FetchMqlQueryQuery = (
     & { modelKey?: Maybe<(
       { __typename?: 'ModelKey' }
       & Pick<ModelKey, 'branch' | 'commit'>
-    )> }
+    )>, result?: Maybe<Array<(
+      { __typename?: 'MqlQueryResultSeries' }
+      & Pick<MqlQueryResultSeries, 'value' | 'delta' | 'pctChange'>
+    )>> }
   )> }
 );
 

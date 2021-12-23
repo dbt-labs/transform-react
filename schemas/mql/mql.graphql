@@ -22,6 +22,7 @@ type Query {
   maxGranularityForMetrics(metricNames: [String]!, modelKey: ModelKeyInput): TimeGranularity
   queries(activeOnly: Boolean, status: MqlQueryStatus, metricNames: [String], dateRangeStart: Date, dateRangeEnd: Date, minExecutionSeconds: Float, maxExecutionSeconds: Float, userIds: [Int], limit: Int, offset: Int): [MqlQuery]
   healthReport: [MqlServerHealthItem]
+  validations(modelKey: ModelKeyInput): Validations
 }
 
 """
@@ -107,6 +108,10 @@ type MqlQueryResultSeries {
   """
   seriesValue: String
   data: [ResultDatum!]
+  isOtherCol: Boolean
+  value: Float
+  delta: Float
+  pctChange: Float
 }
 
 """This interface is used to describe any type of MQL Query result data"""
@@ -208,7 +213,7 @@ type Metric {
   constraint: String
   dimensions: [String!]
   dimensionObjects: [Dimension!]
-  dimensionValues(modelKey: ModelKeyInput, dimensionName: String, startTime: String, endTime: String, allowDynamicCache: Boolean): [String]
+  dimensionValues(modelKey: ModelKeyInput, dimensionName: String!, startTime: String, endTime: String, allowDynamicCache: Boolean, pageNumber: Int, pageSize: Int): [String]
   maxGranularity(modelKey: ModelKeyInput): TimeGranularity
 }
 
@@ -263,6 +268,11 @@ type MqlServerHealthItem {
   errorMessage: String
 }
 
+type Validations {
+  allIssues: [String!]
+  dataSourceIssues: [String!]
+}
+
 """Base mutation object exposed by GraphQL."""
 type Mutation {
   createMqlMaterializationNew(input: CreateMqlMaterializationNewInput!): CreateMqlMaterializationNewPayload
@@ -286,6 +296,16 @@ type Mutation {
   Rewrites SQL containing an MQL(...) function invocation by expanding into generated SQL
   """
   rewriteMqlSql(sql: String!): RewriteMqlSql
+
+  """
+  For metric, get latest value, percent change from the previous granularity period, and delta between the two.
+  """
+  queryLatestMetricChange(input: QueryLatestMetricChangeInput!): QueryLatestMetricChangePayload
+
+  """
+  Get percent change for given metric from start to end of date range (assuming daily granularity).
+  """
+  pctChangeOverRange(input: PctChangeOverRangeInput!): PctChangeOverRangePayload
 }
 
 type CreateMqlMaterializationNewPayload {
@@ -440,10 +460,12 @@ enum ResultFormat {
 
 """An enumeration."""
 enum PercentChange {
+  DOD
   WOW
   MOM
   QOQ
   YOY
+  DATE_RANGE
 }
 
 type Materialize {
@@ -463,6 +485,36 @@ Rewrites SQL containing an MQL(...) function invocation by expanding into genera
 """
 type RewriteMqlSql {
   resultSql: String
+}
+
+"""
+For metric, get latest value, percent change from the previous granularity period, and delta between the two.
+"""
+type QueryLatestMetricChangePayload {
+  id: ID!
+  query: MqlQuery
+  clientMutationId: String
+}
+
+input QueryLatestMetricChangeInput {
+  metricName: String!
+  clientMutationId: String
+}
+
+"""
+Get percent change for given metric from start to end of date range (assuming daily granularity).
+"""
+type PctChangeOverRangePayload {
+  id: ID!
+  query: MqlQuery
+  clientMutationId: String
+}
+
+input PctChangeOverRangeInput {
+  metricName: String!
+  startTime: String!
+  endTime: String!
+  clientMutationId: String
 }
 
 """
