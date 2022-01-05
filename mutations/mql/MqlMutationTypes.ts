@@ -848,14 +848,10 @@ export type CreatePercentChangeMutation = (
     & Pick<PctChangeOverRangePayload, 'id'>
     & { query?: Maybe<(
       { __typename?: 'MqlQuery' }
-      & Pick<MqlQuery, 'id' | 'status' | 'metrics' | 'dimensions' | 'error' | 'chartValueMax' | 'chartValueMin'>
+      & Pick<MqlQuery, 'id' | 'status' | 'error' | 'chartValueMax' | 'chartValueMin'>
       & { result?: Maybe<Array<(
         { __typename?: 'MqlQueryResultSeries' }
-        & Pick<MqlQueryResultSeries, 'seriesValue'>
-        & { data?: Maybe<Array<(
-          { __typename?: 'TimeSeriesDatum' }
-          & Pick<TimeSeriesDatum, 'xDate' | 'y'>
-        )>> }
+        & Pick<MqlQueryResultSeries, 'value' | 'delta' | 'pctChange'>
       )>> }
     )> }
   )> }

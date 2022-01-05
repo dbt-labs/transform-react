@@ -497,10 +497,6 @@ export type User = {
   totalSavedQueries?: Maybe<Scalars['Int']>;
   totalViewedMetrics?: Maybe<Scalars['Int']>;
   totalMetricCollections?: Maybe<Scalars['Int']>;
-  viewedTeams?: Maybe<Array<Maybe<Team>>>;
-  totalViewedTeams?: Maybe<Scalars['Int']>;
-  viewedMetricCollections?: Maybe<Array<Maybe<MetricCollection>>>;
-  totalViewedMetricCollections?: Maybe<Scalars['Int']>;
   totalActiveFeatures?: Maybe<Scalars['Int']>;
   hasAcceptedLatestTermsOfService?: Maybe<Scalars['Boolean']>;
   acceptedTermsOfService?: Maybe<Scalars['Int']>;
@@ -550,28 +546,6 @@ export type UserSavedQueriesArgs = {
 
 
 export type UserMetricCollectionsArgs = {
-  searchStr?: Maybe<Scalars['String']>;
-  searchColumns?: Maybe<Array<Maybe<MetricCollectionStrColumns>>>;
-  orderBy?: Maybe<MetricCollectionOrderBy>;
-  desc?: Maybe<Scalars['Boolean']>;
-  orderBys?: Maybe<Array<Maybe<MetricCollectionOrderByInput>>>;
-  pageNumber?: Maybe<Scalars['Int']>;
-  pageSize?: Maybe<Scalars['Int']>;
-};
-
-
-export type UserViewedTeamsArgs = {
-  searchStr?: Maybe<Scalars['String']>;
-  searchColumns?: Maybe<Array<Maybe<TeamStrColumns>>>;
-  orderBy?: Maybe<TeamOrderBy>;
-  desc?: Maybe<Scalars['Boolean']>;
-  orderBys?: Maybe<Array<Maybe<TeamOrderByInput>>>;
-  pageNumber?: Maybe<Scalars['Int']>;
-  pageSize?: Maybe<Scalars['Int']>;
-};
-
-
-export type UserViewedMetricCollectionsArgs = {
   searchStr?: Maybe<Scalars['String']>;
   searchColumns?: Maybe<Array<Maybe<MetricCollectionStrColumns>>>;
   orderBy?: Maybe<MetricCollectionOrderBy>;
@@ -734,21 +708,21 @@ export type TeamMember = {
 
 /** An enumeration. */
 export enum TeamMemberOrderBy {
-  TeamId = 'TEAM_ID',
   UserId = 'USER_ID',
-  IsTeamAdmin = 'IS_TEAM_ADMIN',
   JoinedAt = 'JOINED_AT',
-  TeamMemberId = 'TeamMember_ID',
+  TeamId = 'TEAM_ID',
+  IsTeamAdmin = 'IS_TEAM_ADMIN',
   TeamMemberOrganizationId = 'TeamMember_ORGANIZATION_ID',
+  TeamMemberId = 'TeamMember_ID',
   UserOrganizationId = 'User_ORGANIZATION_ID',
-  PrimaryDashboardId = 'PRIMARY_DASHBOARD_ID',
-  UserName = 'USER_NAME',
-  Email = 'EMAIL',
-  UpdatedAt = 'UPDATED_AT',
   DeactivatedAt = 'DEACTIVATED_AT',
-  AvatarUrl = 'AVATAR_URL',
+  PrimaryDashboardId = 'PRIMARY_DASHBOARD_ID',
+  CreatedAt = 'CREATED_AT',
   Auth0Id = 'AUTH0_ID',
-  CreatedAt = 'CREATED_AT'
+  UpdatedAt = 'UPDATED_AT',
+  Email = 'EMAIL',
+  AvatarUrl = 'AVATAR_URL',
+  UserName = 'USER_NAME'
 }
 
 export type TeamMemberOrderByInput = {
@@ -1166,12 +1140,12 @@ export enum QuestionReplyStrColumns {
 /** An enumeration. */
 export enum QuestionReplyOrderBy {
   Id = 'ID',
-  Text = 'TEXT',
-  QuestionId = 'QUESTION_ID',
   UpdatedAt = 'UPDATED_AT',
-  CreatedAt = 'CREATED_AT',
+  QuestionId = 'QUESTION_ID',
   OrganizationId = 'ORGANIZATION_ID',
-  AuthorId = 'AUTHOR_ID'
+  AuthorId = 'AUTHOR_ID',
+  Text = 'TEXT',
+  CreatedAt = 'CREATED_AT'
 }
 
 export type QuestionReplyOrderByInput = {
@@ -1187,18 +1161,18 @@ export enum QuestionStrColumns {
 
 /** An enumeration. */
 export enum QuestionOrderBy {
-  Id = 'ID',
-  ResolvedAt = 'RESOLVED_AT',
-  ResolvedBy = 'RESOLVED_BY',
-  Text = 'TEXT',
-  UpdatedAt = 'UPDATED_AT',
-  AuthorId = 'AUTHOR_ID',
-  Priority = 'PRIORITY',
-  NotifiedAt = 'NOTIFIED_AT',
-  MetricId = 'METRIC_ID',
   Resolved = 'RESOLVED',
+  Priority = 'PRIORITY',
+  MetricId = 'METRIC_ID',
+  AuthorId = 'AUTHOR_ID',
+  ResolvedBy = 'RESOLVED_BY',
   CreatedAt = 'CREATED_AT',
-  OrganizationId = 'ORGANIZATION_ID'
+  Id = 'ID',
+  UpdatedAt = 'UPDATED_AT',
+  NotifiedAt = 'NOTIFIED_AT',
+  OrganizationId = 'ORGANIZATION_ID',
+  Text = 'TEXT',
+  ResolvedAt = 'RESOLVED_AT'
 }
 
 export type QuestionOrderByInput = {
@@ -1294,19 +1268,19 @@ export enum AnnotationStrColumns {
 
 /** An enumeration. */
 export enum AnnotationOrderBy {
-  Id = 'ID',
-  Text = 'TEXT',
-  DeletedAt = 'DELETED_AT',
-  UpdatedAt = 'UPDATED_AT',
-  DateStartedAt = 'DATE_STARTED_AT',
-  AuthorId = 'AUTHOR_ID',
-  ExpectedImpact = 'EXPECTED_IMPACT',
   Priority = 'PRIORITY',
-  DateEndedAt = 'DATE_ENDED_AT',
-  NotifiedAt = 'NOTIFIED_AT',
+  DateStartedAt = 'DATE_STARTED_AT',
   Title = 'TITLE',
+  DeletedAt = 'DELETED_AT',
+  AuthorId = 'AUTHOR_ID',
   CreatedAt = 'CREATED_AT',
-  OrganizationId = 'ORGANIZATION_ID'
+  ExpectedImpact = 'EXPECTED_IMPACT',
+  Id = 'ID',
+  UpdatedAt = 'UPDATED_AT',
+  NotifiedAt = 'NOTIFIED_AT',
+  OrganizationId = 'ORGANIZATION_ID',
+  Text = 'TEXT',
+  DateEndedAt = 'DATE_ENDED_AT'
 }
 
 export type AnnotationOrderByInput = {
@@ -1316,31 +1290,31 @@ export type AnnotationOrderByInput = {
 
 /** An enumeration. */
 export enum DataSourceVersionStrColumns {
-  SqlTable = 'SQL_TABLE',
-  Hash = 'HASH',
-  SqlQuery = 'SQL_QUERY',
-  Connection = 'CONNECTION',
   Description = 'DESCRIPTION',
-  Name = 'NAME'
+  Hash = 'HASH',
+  Connection = 'CONNECTION',
+  SqlTable = 'SQL_TABLE',
+  Name = 'NAME',
+  SqlQuery = 'SQL_QUERY'
 }
 
 /** An enumeration. */
 export enum DataSourceVersionOrderBy {
-  Id = 'ID',
-  Description = 'DESCRIPTION',
-  Connection = 'CONNECTION',
   Dimensions = 'DIMENSIONS',
-  Name = 'NAME',
+  Description = 'DESCRIPTION',
+  Mutability = 'MUTABILITY',
+  Identifiers = 'IDENTIFIERS',
   SqlTable = 'SQL_TABLE',
   Constraint = 'CONSTRAINT',
-  Identifiers = 'IDENTIFIERS',
-  SqlQuery = 'SQL_QUERY',
-  Owners = 'OWNERS',
-  Hash = 'HASH',
-  DataSourceMetadata = 'DATA_SOURCE_METADATA',
-  Measures = 'MEASURES',
-  Mutability = 'MUTABILITY',
   CreatedAt = 'CREATED_AT',
+  Name = 'NAME',
+  SqlQuery = 'SQL_QUERY',
+  DataSourceMetadata = 'DATA_SOURCE_METADATA',
+  Connection = 'CONNECTION',
+  Owners = 'OWNERS',
+  Measures = 'MEASURES',
+  Id = 'ID',
+  Hash = 'HASH',
   OrganizationId = 'ORGANIZATION_ID'
 }
 
@@ -1381,42 +1355,42 @@ export type SavedQueryMetricsArgs = {
 
 /** An enumeration. */
 export enum MetricVersionStrColumns {
-  Description = 'DESCRIPTION',
   DisplayName = 'DISPLAY_NAME',
+  Description = 'DESCRIPTION',
   Hash = 'HASH',
   ValueFormat = 'VALUE_FORMAT'
 }
 
 /** An enumeration. */
 export enum MetricVersionOrderBy {
-  Id = 'ID',
-  Hash = 'HASH',
   Description = 'DESCRIPTION',
-  OrgDataSourceId = 'ORG_DATA_SOURCE_ID',
   Metadata = 'METADATA',
-  Tier = 'TIER',
-  SourceDataSourceVersions = 'SOURCE_DATA_SOURCE_VERSIONS',
-  DisplayName = 'DISPLAY_NAME',
-  OrganizationId = 'ORGANIZATION_ID',
   Params = 'PARAMS',
-  Views = 'VIEWS',
   MetricType = 'METRIC_TYPE',
+  DisplayName = 'DISPLAY_NAME',
+  Id = 'ID',
+  SourceDataSourceVersions = 'SOURCE_DATA_SOURCE_VERSIONS',
+  Hash = 'HASH',
+  Tier = 'TIER',
+  OrganizationId = 'ORGANIZATION_ID',
+  OrgDataSourceId = 'ORG_DATA_SOURCE_ID',
+  Views = 'VIEWS',
   MetricVersionMetricId = 'MetricVersion_METRIC_ID',
   MetricVersionCreatedAt = 'MetricVersion_CREATED_AT',
   MetricMetadataMetricId = 'MetricMetadata_METRIC_ID',
   MetricMetadataCreatedAt = 'MetricMetadata_CREATED_AT',
-  IncreaseIsGoodLock = 'INCREASE_IS_GOOD_LOCK',
   CreatedBy = 'CREATED_BY',
-  UpdatedAt = 'UPDATED_AT',
-  DescriptionLock = 'DESCRIPTION_LOCK',
-  DisplayNameLock = 'DISPLAY_NAME_LOCK',
   ExtraFields = 'EXTRA_FIELDS',
   IsNew = 'IS_NEW',
-  ValueFormat = 'VALUE_FORMAT',
+  IncreaseIsGoodLock = 'INCREASE_IS_GOOD_LOCK',
   IncreaseIsGood = 'INCREASE_IS_GOOD',
   ValueFormatLock = 'VALUE_FORMAT_LOCK',
-  TierLock = 'TIER_LOCK',
-  UpdatedBy = 'UPDATED_BY'
+  DisplayNameLock = 'DISPLAY_NAME_LOCK',
+  UpdatedAt = 'UPDATED_AT',
+  DescriptionLock = 'DESCRIPTION_LOCK',
+  UpdatedBy = 'UPDATED_BY',
+  ValueFormat = 'VALUE_FORMAT',
+  TierLock = 'TIER_LOCK'
 }
 
 export type MetricVersionOrderByInput = {
@@ -1431,15 +1405,15 @@ export enum SavedQueryStrColumns {
 
 /** An enumeration. */
 export enum SavedQueryOrderBy {
-  Id = 'ID',
-  DeletedAt = 'DELETED_AT',
-  OwnerTeamId = 'OWNER_TEAM_ID',
-  CreatedBy = 'CREATED_BY',
-  UpdatedAt = 'UPDATED_AT',
   Title = 'TITLE',
-  SerializedQuery = 'SERIALIZED_QUERY',
+  DeletedAt = 'DELETED_AT',
   CreatedAt = 'CREATED_AT',
-  OrganizationId = 'ORGANIZATION_ID'
+  SerializedQuery = 'SERIALIZED_QUERY',
+  Id = 'ID',
+  UpdatedAt = 'UPDATED_AT',
+  OrganizationId = 'ORGANIZATION_ID',
+  OwnerTeamId = 'OWNER_TEAM_ID',
+  CreatedBy = 'CREATED_BY'
 }
 
 export type SavedQueryOrderByInput = {
@@ -1449,27 +1423,27 @@ export type SavedQueryOrderByInput = {
 
 /** An enumeration. */
 export enum TeamStrColumns {
-  Description = 'DESCRIPTION',
   Slug = 'SLUG',
+  Description = 'DESCRIPTION',
   Name = 'NAME',
   Theme = 'THEME'
 }
 
 /** An enumeration. */
 export enum TeamOrderBy {
-  Id = 'ID',
-  PrimaryDashboardId = 'PRIMARY_DASHBOARD_ID',
-  CreatedBy = 'CREATED_BY',
-  UpdatedAt = 'UPDATED_AT',
-  Description = 'DESCRIPTION',
+  Slug = 'SLUG',
   DeactivatedAt = 'DEACTIVATED_AT',
+  Description = 'DESCRIPTION',
+  PrimaryDashboardId = 'PRIMARY_DASHBOARD_ID',
+  CreatedAt = 'CREATED_AT',
   Theme = 'THEME',
-  Name = 'NAME',
+  Id = 'ID',
+  UpdatedAt = 'UPDATED_AT',
+  OrganizationId = 'ORGANIZATION_ID',
   FeaturedMetricCollectionId = 'FEATURED_METRIC_COLLECTION_ID',
   Views = 'VIEWS',
-  Slug = 'SLUG',
-  CreatedAt = 'CREATED_AT',
-  OrganizationId = 'ORGANIZATION_ID'
+  Name = 'NAME',
+  CreatedBy = 'CREATED_BY'
 }
 
 export type TeamOrderByInput = {
@@ -1479,24 +1453,24 @@ export type TeamOrderByInput = {
 
 /** An enumeration. */
 export enum UserStrColumns {
+  Auth0Id = 'AUTH0_ID',
   AvatarUrl = 'AVATAR_URL',
-  UserName = 'USER_NAME',
   Email = 'EMAIL',
-  Auth0Id = 'AUTH0_ID'
+  UserName = 'USER_NAME'
 }
 
 /** An enumeration. */
 export enum UserOrderBy {
-  Id = 'ID',
+  DeactivatedAt = 'DEACTIVATED_AT',
   PrimaryDashboardId = 'PRIMARY_DASHBOARD_ID',
-  UserName = 'USER_NAME',
+  CreatedAt = 'CREATED_AT',
+  Auth0Id = 'AUTH0_ID',
+  Id = 'ID',
   Email = 'EMAIL',
   UpdatedAt = 'UPDATED_AT',
-  DeactivatedAt = 'DEACTIVATED_AT',
+  OrganizationId = 'ORGANIZATION_ID',
   AvatarUrl = 'AVATAR_URL',
-  Auth0Id = 'AUTH0_ID',
-  CreatedAt = 'CREATED_AT',
-  OrganizationId = 'ORGANIZATION_ID'
+  UserName = 'USER_NAME'
 }
 
 export type UserOrderByInput = {
@@ -1506,14 +1480,14 @@ export type UserOrderByInput = {
 
 /** An enumeration. */
 export enum MetricCollectionMetricOrderBy {
-  Id = 'ID',
-  MetricCollectionId = 'METRIC_COLLECTION_ID',
-  SavedQueryId = 'SAVED_QUERY_ID',
-  UpdatedAt = 'UPDATED_AT',
-  Position = 'POSITION',
-  Emphasis = 'EMPHASIS',
   MetricId = 'METRIC_ID',
-  CreatedAt = 'CREATED_AT'
+  Emphasis = 'EMPHASIS',
+  CreatedAt = 'CREATED_AT',
+  Position = 'POSITION',
+  Id = 'ID',
+  UpdatedAt = 'UPDATED_AT',
+  SavedQueryId = 'SAVED_QUERY_ID',
+  MetricCollectionId = 'METRIC_COLLECTION_ID'
 }
 
 export type MetricCollectionMetricOrderByInput = {
@@ -1552,26 +1526,26 @@ export type TeamView = {
 
 /** An enumeration. */
 export enum MetricCollectionStrColumns {
-  Description = 'DESCRIPTION',
   Slug = 'SLUG',
+  Description = 'DESCRIPTION',
   Title = 'TITLE'
 }
 
 /** An enumeration. */
 export enum MetricCollectionOrderBy {
-  Id = 'ID',
-  PrimaryDashboardId = 'PRIMARY_DASHBOARD_ID',
-  DeletedAt = 'DELETED_AT',
-  OwnerTeamId = 'OWNER_TEAM_ID',
-  CreatedBy = 'CREATED_BY',
-  UpdatedAt = 'UPDATED_AT',
-  Description = 'DESCRIPTION',
-  DefaultEmphasis = 'DEFAULT_EMPHASIS',
-  Views = 'VIEWS',
-  Title = 'TITLE',
   Slug = 'SLUG',
+  Description = 'DESCRIPTION',
+  Title = 'TITLE',
+  DeletedAt = 'DELETED_AT',
+  PrimaryDashboardId = 'PRIMARY_DASHBOARD_ID',
   CreatedAt = 'CREATED_AT',
-  OrganizationId = 'ORGANIZATION_ID'
+  DefaultEmphasis = 'DEFAULT_EMPHASIS',
+  Id = 'ID',
+  UpdatedAt = 'UPDATED_AT',
+  OrganizationId = 'ORGANIZATION_ID',
+  OwnerTeamId = 'OWNER_TEAM_ID',
+  Views = 'VIEWS',
+  CreatedBy = 'CREATED_BY'
 }
 
 export type MetricCollectionOrderByInput = {
@@ -1600,22 +1574,22 @@ export type ApiKey = {
 export enum ApiKeyStrColumns {
   Type = 'TYPE',
   Scope = 'SCOPE',
-  Prefix = 'PREFIX',
-  SecretHash = 'SECRET_HASH'
+  SecretHash = 'SECRET_HASH',
+  Prefix = 'PREFIX'
 }
 
 /** An enumeration. */
 export enum ApiKeyOrderBy {
-  Prefix = 'PREFIX',
-  RevokerId = 'REVOKER_ID',
   UserId = 'USER_ID',
   SecretHash = 'SECRET_HASH',
-  LastUsedAt = 'LAST_USED_AT',
-  Scope = 'SCOPE',
-  Type = 'TYPE',
+  Prefix = 'PREFIX',
   CreatedAt = 'CREATED_AT',
+  Type = 'TYPE',
+  LastUsedAt = 'LAST_USED_AT',
+  RevokerId = 'REVOKER_ID',
+  RevokedAt = 'REVOKED_AT',
   OrganizationId = 'ORGANIZATION_ID',
-  RevokedAt = 'REVOKED_AT'
+  Scope = 'SCOPE'
 }
 
 export type ApiKeyOrderByInput = {
@@ -1660,28 +1634,28 @@ export type FeatureUsersArgs = {
 
 /** An enumeration. */
 export enum OrganizationStrColumns {
+  MqlServerLogs = 'MQL_SERVER_LOGS',
   PrimaryConfigRepo = 'PRIMARY_CONFIG_REPO',
   LogoUrl = 'LOGO_URL',
-  MqlServerLogs = 'MQL_SERVER_LOGS',
-  PrimaryConfigBranch = 'PRIMARY_CONFIG_BRANCH',
   SourceControlUrl = 'SOURCE_CONTROL_URL',
-  Name = 'NAME'
+  Name = 'NAME',
+  PrimaryConfigBranch = 'PRIMARY_CONFIG_BRANCH'
 }
 
 /** An enumeration. */
 export enum OrganizationOrderBy {
-  Id = 'ID',
-  LogoUrl = 'LOGO_URL',
-  MqlServerLogs = 'MQL_SERVER_LOGS',
-  UpdatedAt = 'UPDATED_AT',
-  SourceControlUrl = 'SOURCE_CONTROL_URL',
   DeactivatedAt = 'DEACTIVATED_AT',
-  Name = 'NAME',
   PrimaryConfigRepo = 'PRIMARY_CONFIG_REPO',
+  LogoUrl = 'LOGO_URL',
   IsHosted = 'IS_HOSTED',
-  Type = 'TYPE',
+  CreatedAt = 'CREATED_AT',
   PrimaryConfigBranch = 'PRIMARY_CONFIG_BRANCH',
-  CreatedAt = 'CREATED_AT'
+  MqlServerLogs = 'MQL_SERVER_LOGS',
+  Id = 'ID',
+  UpdatedAt = 'UPDATED_AT',
+  Type = 'TYPE',
+  SourceControlUrl = 'SOURCE_CONTROL_URL',
+  Name = 'NAME'
 }
 
 export type OrganizationOrderByInput = {
@@ -1764,16 +1738,16 @@ export enum OrgMqlServerStrColumns {
 
 /** An enumeration. */
 export enum OrgMqlServerOrderBy {
-  Id = 'ID',
-  DwEngine = 'DW_ENGINE',
   ConfigSecret = 'CONFIG_SECRET',
-  UpdatedAt = 'UPDATED_AT',
-  Name = 'NAME',
-  Url = 'URL',
-  IsOrgDefault = 'IS_ORG_DEFAULT',
-  DeploymentStatus = 'DEPLOYMENT_STATUS',
   CreatedAt = 'CREATED_AT',
-  OrganizationId = 'ORGANIZATION_ID'
+  IsOrgDefault = 'IS_ORG_DEFAULT',
+  Url = 'URL',
+  DwEngine = 'DW_ENGINE',
+  Id = 'ID',
+  UpdatedAt = 'UPDATED_AT',
+  DeploymentStatus = 'DEPLOYMENT_STATUS',
+  OrganizationId = 'ORGANIZATION_ID',
+  Name = 'NAME'
 }
 
 export type OrgMqlServerOrderByInput = {
@@ -1794,18 +1768,18 @@ export type OrgPref = {
 
 /** An enumeration. */
 export enum OrgPrefStrColumns {
-  PrefKey = 'PREF_KEY',
-  PrefValue = 'PREF_VALUE'
+  PrefValue = 'PREF_VALUE',
+  PrefKey = 'PREF_KEY'
 }
 
 /** An enumeration. */
 export enum OrgPrefOrderBy {
-  Id = 'ID',
   PrefValue = 'PREF_VALUE',
+  Id = 'ID',
   UpdatedAt = 'UPDATED_AT',
+  OrganizationId = 'ORGANIZATION_ID',
   PrefKey = 'PREF_KEY',
-  CreatedAt = 'CREATED_AT',
-  OrganizationId = 'ORGANIZATION_ID'
+  CreatedAt = 'CREATED_AT'
 }
 
 export type OrgPrefOrderByInput = {
@@ -1836,10 +1810,10 @@ export enum FeatureStrColumns {
 /** An enumeration. */
 export enum FeatureOrderBy {
   Id = 'ID',
-  CreatedAt = 'CREATED_AT',
   UpdatedAt = 'UPDATED_AT',
   RetiredAt = 'RETIRED_AT',
-  Name = 'NAME'
+  Name = 'NAME',
+  CreatedAt = 'CREATED_AT'
 }
 
 export type FeatureOrderByInput = {
