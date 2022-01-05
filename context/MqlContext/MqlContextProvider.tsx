@@ -78,7 +78,7 @@ function MqlContextProviderInternal({
 
     Because we cannot yet specify the desired model in the UI, we would always retrieve
     and then supply the current model key. But now the MQL Server considers the Model Key
-    optional. In its absense, it uses the current model.
+    optional. In its absence, it uses the current model.
 
     In the future, our UI will allow users to select a specific Model Key for querying,
     and at that point, we will update this code with a setModelKey mutation as we have
@@ -120,13 +120,13 @@ function MqlContextProviderInternal({
     Naturally, this is invalid, so we must check with the mqlServerUrl is present before initiating MQL Queries.
   */
   const mqlClient = buildMqlUrqlClient(
-    mqlServerUrlData?.mqlServerUrl || coreApiUrl || CORE_API_URL,
+    mqlServerUrlData?.myUser?.mqlServerUrl || coreApiUrl || CORE_API_URL,
     token,
   );
 
   const [mqlContext, setMqlContext] = useState<MqlContextType>({
     coreApiUrl: coreApiUrl || CORE_API_URL,
-    mqlServerUrl: mqlServerUrlData?.mqlServerUrl,
+    mqlServerUrl: mqlServerUrlData?.myUser?.mqlServerUrl,
     setMqlServer: setMqlServerThenRefetch,
     mqlServerOverrideLoading: fetching,
     modelKey: null,
@@ -139,11 +139,9 @@ function MqlContextProviderInternal({
     handleCombinedError,
   });
 
-
-
   useEffect(() => {
     const stateToUpdate: Partial<MqlContextType> = {};
-    const useOverride = !!mqlServerUrlOverride;
+    const useOverride = Boolean(mqlServerUrlOverride);
     if (useOverride && isAuthenticated) {
       if (mqlServerUrlOverride !== mqlContext.mqlServerUrl) {
         stateToUpdate.mqlServerUrl = mqlServerUrlOverride;
@@ -158,15 +156,15 @@ function MqlContextProviderInternal({
         );
       }
     } else {
-      if (mqlServerUrlData?.mqlServerUrl !== mqlContext.mqlServerUrl) {
-        stateToUpdate.mqlServerUrl = mqlServerUrlData?.mqlServerUrl;
+      if (mqlServerUrlData?.myUser?.mqlServerUrl !== mqlContext.mqlServerUrl) {
+        stateToUpdate.mqlServerUrl = mqlServerUrlData?.myUser?.mqlServerUrl;
       }
       if (
-        mqlServerUrlData?.mqlServerUrl &&
-        mqlServerUrlData?.mqlServerUrl !== mqlContext.mqlServerUrl
+        mqlServerUrlData?.myUser?.mqlServerUrl &&
+        mqlServerUrlData?.myUser?.mqlServerUrl !== mqlContext.mqlServerUrl
       ) {
         stateToUpdate.mqlClient = buildMqlUrqlClient(
-          mqlServerUrlData?.mqlServerUrl,
+          mqlServerUrlData?.myUser?.mqlServerUrl,
           token
         );
       }
