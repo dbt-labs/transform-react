@@ -24,6 +24,11 @@ const query = gql`
       errorTraceback
       chartValueMin
       chartValueMax
+      result {
+        value
+        delta
+        pctChange
+      }
     }
   }
 `;

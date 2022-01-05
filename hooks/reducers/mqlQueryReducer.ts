@@ -1,22 +1,11 @@
-import { useEffect, useReducer, useContext } from "react";
 import { CombinedError } from "urql";
-import MqlContext from "../context/MqlContext/MqlContext";
-import {
-  CreateMqlQueryMutation,
-  CreateMqlQueryMutationVariables,
-} from "../mutations/mql/MqlMutationTypes";
-import FetchMqlQueryTimeSeries from "../queries/mql/FetchMqlQueryTimeSeries";
 import {
   FetchMqlTimeSeriesQuery,
-  FetchMqlTimeSeriesQueryVariables,
   MqlQueryStatus,
-} from "../queries/mql/MqlQueryTypes";
-import {shouldRetryAfterExpiredQuery, doRetryAfterExpiredQueryAction} from './actions';
-import useCreateMqlQuery from './utils/useCreateMqlQuery';
-import getErrorMessage from './utils/getErrorMessage';
+} from "../../queries/mql/MqlQueryTypes";
 
 // This is the delay between the _response_ from the last query and the _start_ of the new query
-const QUERY_POLLING_MS = 400;
+export const QUERY_POLLING_MS = 400;
 
 // Length of time to wait before retrying when query fails
 export const RETRY_POLLING_MS = 200;
@@ -56,7 +45,7 @@ export type UseMqlQueryState = {
   doRetryAfterExpiredQuery: boolean;
 };
 
-const initialState: UseMqlQueryState = {
+export const initialState: UseMqlQueryState = {
   retries: 0,
   queryId: null,
   queryStatus: MqlQueryStatus.Pending,
@@ -67,7 +56,7 @@ const initialState: UseMqlQueryState = {
   doRetryAfterExpiredQuery: false,
 };
 
-export type Action =
+export type Action<CreateQueryDataType> =
   | { type: "postQueryStart" }
   | { type: "postQueryFail";
       errorMessage: string
@@ -76,7 +65,7 @@ export type Action =
       queryId: string
     }
   | { type: "postQueryCachedResultsSuccess";
-      data: CreateMqlQueryMutation;
+      data: CreateQueryDataType;
       handleCombinedError: (e: CombinedError) => void;
     }
   | { type: "fetchResultsFail";
@@ -96,7 +85,7 @@ export type Action =
     }
   };
 
-/*
+  /*
     At first glance, it is counter-intuitive that we should have a mix of the Reducer pattern
     and the Hook pattern. The explanation for this complexity is that we have several fetches
     that require coordination.
@@ -105,10 +94,10 @@ export type Action =
       3. None of this can take place until an MQL Server URL is supplied
     This reducer abstracts all this complexity.
 */
-function mqlQueryReducer(
+const mqlQueryReducer = <CreateQueryDataType extends unknown>(dataAccr: (data: CreateQueryDataType) => any) => (
   state: UseMqlQueryState,
-  action: Action
-): UseMqlQueryState {
+  action: Action<CreateQueryDataType>,
+): UseMqlQueryState => {
   switch (action.type) {
     case "postQueryStart": {
       // This condition is triggered when there is already a queryId being fetched.
@@ -161,7 +150,7 @@ function mqlQueryReducer(
         ...state,
         queryId: null,
         queryStatus: MqlQueryStatus.Successful,
-        data: action.data?.createMqlQuery?.query,
+        data: dataAccr(action.data),
         fetchStartTime: null,
         isTakingForever: false,
         errorMessage: undefined,
@@ -238,176 +227,4 @@ function mqlQueryReducer(
   }
 }
 
-/*
-  Please Beware!
-  Here Be Dragons!
-
-  If `queryInput` is provided, it *must* be stable for this to work.
-  That means if the value is calculated and generating a fresh object every render,
-  this will result in an infinite loop!
-
-  So we are doing something that seems like it could be improved, which is that if the form is based on the URL,
-  we pass in locationSearch, which is stable, and calculate the form state inside an effect. I know. Gross, right?
-  Is there a better approach?
-*/
-type UseMqlQueryParams = {
-  metricName: string;
-  queryInput?: CreateMqlQueryMutationVariables;
-  skip?: boolean;
-  retries?: number;
-};
-
-// This custom hook consists of two useHooks that should asynchronously handle all scenarios for this chained
-// data fetching we are doing. It should do it in a high performance way and in a way that is resilient to race conditions if the
-// user updates their request while a query is in flight
-export default function useMqlQuery({
-  queryInput,
-  metricName,
-  skip,
-  retries = 5,
-}: UseMqlQueryParams) {
-  const {
-    useQuery,
-    handleCombinedError,
-    mqlServerUrl,
-  } = useContext(MqlContext);
-
-  const [state, dispatch] = useReducer(mqlQueryReducer, initialState);
-  const {createMqlQuery} = useCreateMqlQuery({metricName, formState: queryInput, dispatch, retries})
-
-  useEffect(() => {
-    if (!metricName || !mqlServerUrl || skip) {
-      return;
-    }
-    dispatch({ type: "postQueryStart" });
-    createMqlQuery({stateRetries: state.retries})
-
-  }, [queryInput, metricName, mqlServerUrl, skip]);
-
-  const _skip =
-    skip ||
-    !state.queryId ||
-    state.cancelledQueries.includes(state.queryId); /* && !isRunning*/
-
-  const [{ data, error }, refetchMqlQuery] = useQuery<
-    FetchMqlTimeSeriesQuery,
-    FetchMqlTimeSeriesQueryVariables
-  >({
-    query: FetchMqlQueryTimeSeries,
-    variables: {
-      queryId: state.queryId || ""
-    },
-    pause: _skip,
-  });
-
-
-  const retry = () => {
-    setTimeout(() => {
-      dispatch({ type: "retryFetchResults" });
-      refetchMqlQuery();
-    }, RETRY_POLLING_MS);
-  }
-
-  useEffect(() => {
-    if (error) {
-      // if error is an expired query id, the mql server may have been restarted, restart the entire query.
-      if (shouldRetryAfterExpiredQuery({
-            errorMessage: error?.message,
-            doRetryAfterExpiredQuery: state.doRetryAfterExpiredQuery
-          })
-        ) {
-          dispatch(doRetryAfterExpiredQueryAction(retries));
-          createMqlQuery({stateRetries: state.retries});
-      } else if (retries > 0 && state.retries !== retries) {
-        retry()
-
-      } else {
-        dispatch({
-          type: "fetchResultsFail",
-          errorMessage: getErrorMessage(error),
-        });
-        handleCombinedError(error);
-      }
-
-      return;
-    }
-
-    if (!data?.mqlQuery) {
-      return;
-    }
-
-    const { status, id } = data.mqlQuery;
-    if (id && state.cancelledQueries.includes(id) /*&& !isRunning*/) {
-      return;
-    }
-    if (status === MqlQueryStatus.Successful) {
-      dispatch({
-        type: "fetchResultsSuccess",
-        data,
-        handleCombinedError,
-      });
-    }
-
-    if (
-      // isRunning ||
-      status === MqlQueryStatus.Running ||
-      status === MqlQueryStatus.Pending
-    ) {
-      window.setTimeout(() => {
-        dispatch({ type: "fetchResultsRunning" });
-        refetchMqlQuery();
-      }, QUERY_POLLING_MS);
-    }
-
-    if (status === MqlQueryStatus.Failed) {
-      if (retries > 0 && state.retries !== retries) {
-        retry()
-      } else {
-        if (data?.mqlQuery?.error) {
-          const {error} = data.mqlQuery;
-          dispatch({
-            type: "fetchResultsFail",
-            errorMessage: error,
-          });
-
-          handleCombinedError({
-            name: "Unknown Error",
-            message: error,
-            graphQLErrors: [],
-          }, {
-            queryId: data?.mqlQuery?.id as string,
-            queryStatus: data?.mqlQuery?.status as string,
-            json: error
-          });
-        } else {
-          let jsonString: string;
-          try {
-            jsonString = JSON.stringify(data?.mqlQuery?.result);
-          } catch (e) {
-            jsonString = "Invalid data.mqlQuery.result";
-          }
-
-          const errorMessage = `This query failed for an unknown reason.`;
-
-          dispatch({
-            type: "fetchResultsFail",
-            errorMessage,
-          });
-
-          handleCombinedError({
-            name: "Unknown Error",
-            message: errorMessage,
-            graphQLErrors: [],
-          }, {
-            queryId: data?.mqlQuery?.id as string,
-            queryStatus: data?.mqlQuery?.status as string,
-            json: jsonString
-          });
-        }
-
-      }
-    }
-  }, [data, error, state.cancelledQueries, handleCombinedError]);
-
-  return state;
-}
+export default mqlQueryReducer;

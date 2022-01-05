@@ -1,6 +1,6 @@
 import {
   ConstraintInput,
-} from "../../mutations/mql/MqlMutationTypes";
+} from "../../../mutations/mql/MqlMutationTypes";
 
 const EMPTY_CONSTRAINT: ConstraintInput = { constraint: null };
 
