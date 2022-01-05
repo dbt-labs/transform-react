@@ -89,7 +89,7 @@ function MqlContextProviderInternal({
     refetchMqlServerUrl,
   ] = useQuery<MqlServerUrlQueryType>({
     query: MqlServerUrlQuery,
-    pause: !isAuthenticated,
+    pause: !isAuthenticated || !token,
   });
   if (mqlServerUrlError) handleCombinedError(mqlServerUrlError);
 
