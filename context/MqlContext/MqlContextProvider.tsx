@@ -166,7 +166,6 @@ function MqlContextProviderInternal({
         );
       }
     } else if (externalConfig) {
-      console.log('CONFIG WORKS')
       if (externalConfig?.mqlServerUrl !== mqlContext.mqlServerUrl) {
         stateToUpdate.mqlServerUrl = externalConfig?.mqlServerUrl;
       }
@@ -177,7 +176,6 @@ function MqlContextProviderInternal({
         );
       }
     } else {
-      console.log('OH NO')
       if (mqlServerUrlData?.myUser?.mqlServerUrl !== mqlContext.mqlServerUrl) {
         stateToUpdate.mqlServerUrl = mqlServerUrlData?.myUser?.mqlServerUrl;
       }
