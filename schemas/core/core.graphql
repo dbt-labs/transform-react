@@ -242,21 +242,21 @@ type TeamMember {
 
 """An enumeration."""
 enum TeamMemberOrderBy {
-  USER_ID
-  JOINED_AT
   TEAM_ID
   IS_TEAM_ADMIN
-  TeamMember_ORGANIZATION_ID
+  JOINED_AT
+  USER_ID
   TeamMember_ID
+  TeamMember_ORGANIZATION_ID
   User_ORGANIZATION_ID
-  DEACTIVATED_AT
-  PRIMARY_DASHBOARD_ID
   CREATED_AT
   AUTH0_ID
-  UPDATED_AT
   EMAIL
-  AVATAR_URL
   USER_NAME
+  DEACTIVATED_AT
+  PRIMARY_DASHBOARD_ID
+  UPDATED_AT
+  AVATAR_URL
 }
 
 input TeamMemberOrderByInput {
@@ -571,13 +571,13 @@ enum QuestionReplyStrColumns {
 
 """An enumeration."""
 enum QuestionReplyOrderBy {
-  ID
-  UPDATED_AT
-  QUESTION_ID
+  CREATED_AT
+  TEXT
   ORGANIZATION_ID
   AUTHOR_ID
-  TEXT
-  CREATED_AT
+  ID
+  QUESTION_ID
+  UPDATED_AT
 }
 
 input QuestionReplyOrderByInput {
@@ -593,18 +593,18 @@ enum QuestionStrColumns {
 
 """An enumeration."""
 enum QuestionOrderBy {
+  CREATED_AT
+  RESOLVED_AT
+  AUTHOR_ID
+  ID
   RESOLVED
   PRIORITY
-  METRIC_ID
-  AUTHOR_ID
-  RESOLVED_BY
-  CREATED_AT
-  ID
-  UPDATED_AT
-  NOTIFIED_AT
   ORGANIZATION_ID
   TEXT
-  RESOLVED_AT
+  NOTIFIED_AT
+  METRIC_ID
+  UPDATED_AT
+  RESOLVED_BY
 }
 
 input QuestionOrderByInput {
@@ -693,27 +693,27 @@ enum Priority {
 
 """An enumeration."""
 enum AnnotationStrColumns {
-  EXPECTED_IMPACT
+  TITLE
   TEXT
   PRIORITY
-  TITLE
+  EXPECTED_IMPACT
 }
 
 """An enumeration."""
 enum AnnotationOrderBy {
+  CREATED_AT
+  AUTHOR_ID
+  ID
   PRIORITY
   DATE_STARTED_AT
-  TITLE
-  DELETED_AT
-  AUTHOR_ID
-  CREATED_AT
-  EXPECTED_IMPACT
-  ID
   UPDATED_AT
-  NOTIFIED_AT
-  ORGANIZATION_ID
-  TEXT
+  DELETED_AT
   DATE_ENDED_AT
+  TEXT
+  ORGANIZATION_ID
+  EXPECTED_IMPACT
+  NOTIFIED_AT
+  TITLE
 }
 
 input AnnotationOrderByInput {
@@ -723,32 +723,32 @@ input AnnotationOrderByInput {
 
 """An enumeration."""
 enum DataSourceVersionStrColumns {
-  DESCRIPTION
-  HASH
   CONNECTION
-  SQL_TABLE
+  HASH
+  DESCRIPTION
   NAME
+  SQL_TABLE
   SQL_QUERY
 }
 
 """An enumeration."""
 enum DataSourceVersionOrderBy {
-  DIMENSIONS
-  DESCRIPTION
+  CREATED_AT
+  HASH
+  OWNERS
+  ID
+  MEASURES
   MUTABILITY
-  IDENTIFIERS
   SQL_TABLE
   CONSTRAINT
-  CREATED_AT
-  NAME
-  SQL_QUERY
-  DATA_SOURCE_METADATA
   CONNECTION
-  OWNERS
-  MEASURES
-  ID
-  HASH
+  DIMENSIONS
+  DESCRIPTION
+  NAME
   ORGANIZATION_ID
+  IDENTIFIERS
+  DATA_SOURCE_METADATA
+  SQL_QUERY
 }
 
 input DataSourceVersionOrderByInput {
@@ -776,42 +776,42 @@ type SavedQuery {
 
 """An enumeration."""
 enum MetricVersionStrColumns {
+  HASH
   DISPLAY_NAME
   DESCRIPTION
-  HASH
   VALUE_FORMAT
 }
 
 """An enumeration."""
 enum MetricVersionOrderBy {
-  DESCRIPTION
-  METADATA
-  PARAMS
+  HASH
   METRIC_TYPE
-  DISPLAY_NAME
   ID
   SOURCE_DATA_SOURCE_VERSIONS
-  HASH
-  TIER
-  ORGANIZATION_ID
   ORG_DATA_SOURCE_ID
+  DESCRIPTION
+  ORGANIZATION_ID
+  DISPLAY_NAME
+  PARAMS
+  METADATA
+  TIER
   VIEWS
-  MetricVersion_METRIC_ID
   MetricVersion_CREATED_AT
-  MetricMetadata_METRIC_ID
+  MetricVersion_METRIC_ID
   MetricMetadata_CREATED_AT
-  CREATED_BY
-  EXTRA_FIELDS
-  IS_NEW
+  MetricMetadata_METRIC_ID
   INCREASE_IS_GOOD_LOCK
-  INCREASE_IS_GOOD
-  VALUE_FORMAT_LOCK
-  DISPLAY_NAME_LOCK
-  UPDATED_AT
+  IS_NEW
   DESCRIPTION_LOCK
-  UPDATED_BY
+  EXTRA_FIELDS
+  CREATED_BY
   VALUE_FORMAT
+  DISPLAY_NAME_LOCK
   TIER_LOCK
+  INCREASE_IS_GOOD
+  UPDATED_AT
+  VALUE_FORMAT_LOCK
+  UPDATED_BY
 }
 
 input MetricVersionOrderByInput {
@@ -826,15 +826,15 @@ enum SavedQueryStrColumns {
 
 """An enumeration."""
 enum SavedQueryOrderBy {
-  TITLE
-  DELETED_AT
   CREATED_AT
-  SERIALIZED_QUERY
   ID
-  UPDATED_AT
-  ORGANIZATION_ID
-  OWNER_TEAM_ID
   CREATED_BY
+  UPDATED_AT
+  DELETED_AT
+  ORGANIZATION_ID
+  SERIALIZED_QUERY
+  TITLE
+  OWNER_TEAM_ID
 }
 
 input SavedQueryOrderByInput {
@@ -844,27 +844,27 @@ input SavedQueryOrderByInput {
 
 """An enumeration."""
 enum TeamStrColumns {
-  SLUG
   DESCRIPTION
+  SLUG
   NAME
   THEME
 }
 
 """An enumeration."""
 enum TeamOrderBy {
-  SLUG
-  DEACTIVATED_AT
-  DESCRIPTION
-  PRIMARY_DASHBOARD_ID
   CREATED_AT
-  THEME
-  ID
-  UPDATED_AT
-  ORGANIZATION_ID
   FEATURED_METRIC_COLLECTION_ID
-  VIEWS
-  NAME
+  DEACTIVATED_AT
+  ID
+  SLUG
   CREATED_BY
+  DESCRIPTION
+  NAME
+  ORGANIZATION_ID
+  PRIMARY_DASHBOARD_ID
+  UPDATED_AT
+  THEME
+  VIEWS
 }
 
 input TeamOrderByInput {
@@ -882,16 +882,16 @@ enum UserStrColumns {
 
 """An enumeration."""
 enum UserOrderBy {
-  DEACTIVATED_AT
-  PRIMARY_DASHBOARD_ID
   CREATED_AT
   AUTH0_ID
-  ID
   EMAIL
-  UPDATED_AT
-  ORGANIZATION_ID
-  AVATAR_URL
   USER_NAME
+  DEACTIVATED_AT
+  ID
+  ORGANIZATION_ID
+  PRIMARY_DASHBOARD_ID
+  UPDATED_AT
+  AVATAR_URL
 }
 
 input UserOrderByInput {
@@ -901,13 +901,13 @@ input UserOrderByInput {
 
 """An enumeration."""
 enum MetricCollectionMetricOrderBy {
-  METRIC_ID
-  EMPHASIS
   CREATED_AT
+  EMPHASIS
   POSITION
-  ID
-  UPDATED_AT
   SAVED_QUERY_ID
+  ID
+  METRIC_ID
+  UPDATED_AT
   METRIC_COLLECTION_ID
 }
 
@@ -945,26 +945,26 @@ type TeamView {
 
 """An enumeration."""
 enum MetricCollectionStrColumns {
+  TITLE
   SLUG
   DESCRIPTION
-  TITLE
 }
 
 """An enumeration."""
 enum MetricCollectionOrderBy {
-  SLUG
-  DESCRIPTION
-  TITLE
-  DELETED_AT
-  PRIMARY_DASHBOARD_ID
   CREATED_AT
-  DEFAULT_EMPHASIS
   ID
+  SLUG
+  CREATED_BY
   UPDATED_AT
+  DELETED_AT
+  DESCRIPTION
+  DEFAULT_EMPHASIS
   ORGANIZATION_ID
+  PRIMARY_DASHBOARD_ID
+  TITLE
   OWNER_TEAM_ID
   VIEWS
-  CREATED_BY
 }
 
 input MetricCollectionOrderByInput {
@@ -990,24 +990,24 @@ type ApiKey {
 
 """An enumeration."""
 enum ApiKeyStrColumns {
-  TYPE
-  SCOPE
   SECRET_HASH
+  SCOPE
+  TYPE
   PREFIX
 }
 
 """An enumeration."""
 enum ApiKeyOrderBy {
+  CREATED_AT
+  REVOKER_ID
   USER_ID
   SECRET_HASH
-  PREFIX
-  CREATED_AT
-  TYPE
   LAST_USED_AT
-  REVOKER_ID
-  REVOKED_AT
-  ORGANIZATION_ID
+  PREFIX
   SCOPE
+  ORGANIZATION_ID
+  TYPE
+  REVOKED_AT
 }
 
 input ApiKeyOrderByInput {
@@ -1029,28 +1029,28 @@ type Feature {
 
 """An enumeration."""
 enum OrganizationStrColumns {
-  MQL_SERVER_LOGS
-  PRIMARY_CONFIG_REPO
-  LOGO_URL
   SOURCE_CONTROL_URL
+  MQL_SERVER_LOGS
   NAME
   PRIMARY_CONFIG_BRANCH
+  PRIMARY_CONFIG_REPO
+  LOGO_URL
 }
 
 """An enumeration."""
 enum OrganizationOrderBy {
-  DEACTIVATED_AT
-  PRIMARY_CONFIG_REPO
-  LOGO_URL
-  IS_HOSTED
   CREATED_AT
-  PRIMARY_CONFIG_BRANCH
   MQL_SERVER_LOGS
+  DEACTIVATED_AT
   ID
-  UPDATED_AT
-  TYPE
+  PRIMARY_CONFIG_BRANCH
+  PRIMARY_CONFIG_REPO
   SOURCE_CONTROL_URL
   NAME
+  UPDATED_AT
+  TYPE
+  IS_HOSTED
+  LOGO_URL
 }
 
 input OrganizationOrderByInput {
@@ -1123,23 +1123,23 @@ type DataWarehouseConfig {
 
 """An enumeration."""
 enum OrgMqlServerStrColumns {
-  URL
-  CONFIG_SECRET
   NAME
+  CONFIG_SECRET
+  URL
 }
 
 """An enumeration."""
 enum OrgMqlServerOrderBy {
-  CONFIG_SECRET
   CREATED_AT
-  IS_ORG_DEFAULT
-  URL
-  DW_ENGINE
   ID
-  UPDATED_AT
+  IS_ORG_DEFAULT
+  DW_ENGINE
   DEPLOYMENT_STATUS
-  ORGANIZATION_ID
   NAME
+  ORGANIZATION_ID
+  CONFIG_SECRET
+  URL
+  UPDATED_AT
 }
 
 input OrgMqlServerOrderByInput {
@@ -1159,18 +1159,18 @@ type OrgPref {
 
 """An enumeration."""
 enum OrgPrefStrColumns {
-  PREF_VALUE
   PREF_KEY
+  PREF_VALUE
 }
 
 """An enumeration."""
 enum OrgPrefOrderBy {
+  CREATED_AT
+  ORGANIZATION_ID
   PREF_VALUE
   ID
-  UPDATED_AT
-  ORGANIZATION_ID
   PREF_KEY
-  CREATED_AT
+  UPDATED_AT
 }
 
 input OrgPrefOrderByInput {
@@ -1200,11 +1200,11 @@ enum FeatureStrColumns {
 
 """An enumeration."""
 enum FeatureOrderBy {
+  CREATED_AT
+  NAME
   ID
   UPDATED_AT
   RETIRED_AT
-  NAME
-  CREATED_AT
 }
 
 input FeatureOrderByInput {
@@ -1266,7 +1266,6 @@ Mutation names will be converted from snake_case to camelCase automatically
 type Mutation {
   revokeApiKeyTest(prefix: String!): ApiKey
   createOrganizationTest(name: String!, primaryConfigRepo: String, primaryConfigBranch: String, mqlServerUrl: String, sourceControlUrl: String, mqlServerLogs: String, isHosted: Boolean, dwEngine: String, mqlServerName: String, requireMfa: Boolean, allowMfaRememberBrowser: Boolean, allowedEmailDomains: [String], orgType: GOrgType): Organization
-  logMqlLog(level: String, message: String, tags: [String!]): LogMQLLogs
   setOrgMqlServerConfigSecret(clientConfigSecretId: String, mqlServerId: Int): SetOrgMqlServerConfigSecretId
   sendMqlHeartbeat(mqlServerId: Int, sha: String!): SendMqlHeartbeat
   createAnnotationTest(dateEndedAt: Date!, dateStartedAt: Date!, expectedImpact: String!, metricInputs: [GMetricAnnotationInput]!, priority: Priority!, text: String!, title: String!): CreateAnnotation
@@ -1373,10 +1372,6 @@ enum GOrgType {
   TRIAL
   INTERNAL
   TEST
-}
-
-type LogMQLLogs {
-  ok: Boolean
 }
 
 type SetOrgMqlServerConfigSecretId {

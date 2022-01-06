@@ -17,6 +17,10 @@ type Props = {
   captureException?: (e: CombinedError, context: HandleCombinedErrorContext) => void;
   children: ReactNode;
   coreApiUrl?: string;
+  externalConfig?: {
+    mqlServerUrl?: string;
+    refetchMqlServerUrl?: () => void;
+  };
   mqlServerUrlOverride?: string;
   token?: string;
 };
@@ -31,6 +35,7 @@ function MqlContextProvider({
   isAuthenticated,
   captureException,
   coreApiUrl,
+  externalConfig,
   mqlServerUrlOverride
 }: Props) {
   const coreApiClient = buildMqlUrqlClient(coreApiUrl || CORE_API_URL, token);
@@ -41,6 +46,7 @@ function MqlContextProvider({
         token={token}
         captureException={captureException}
         coreApiUrl={coreApiUrl || CORE_API_URL}
+        externalConfig={externalConfig}
         mqlServerUrlOverride={mqlServerUrlOverride}
       >
         {children}
@@ -55,6 +61,7 @@ function MqlContextProviderInternal({
   children,
   captureException,
   coreApiUrl,
+  externalConfig,
   mqlServerUrlOverride
 }: Props) {
   // We do this because we want to allow the parent to provide a bespoke error handling function.
@@ -89,7 +96,7 @@ function MqlContextProviderInternal({
     refetchMqlServerUrl,
   ] = useQuery<MqlServerUrlQueryType>({
     query: MqlServerUrlQuery,
-    pause: !isAuthenticated || !token,
+    pause: Boolean(externalConfig) || !isAuthenticated,
   });
   if (mqlServerUrlError) handleCombinedError(mqlServerUrlError);
 
@@ -103,15 +110,18 @@ function MqlContextProviderInternal({
       // Note: newServerid is cast as a string because it is stored on the backend
       // as a User Preference, whose values are all strings.
       const userId = getUserIdFromAuthToken(token);
+      const refetch = externalConfig
+        ? externalConfig?.refetchMqlServerUrl
+        : refetchMqlServerUrl;
       if (userId) {
         return setMqlServer({
           newServerIdAsString: `${newServerId}`,
           userId,
-        }).then(refetchMqlServerUrl);
+        }).then(refetch);
       }
     },
 
-    [setMqlServer, refetchMqlServerUrl]
+    [externalConfig, setMqlServer, refetchMqlServerUrl]
   );
 
   /*
@@ -120,13 +130,13 @@ function MqlContextProviderInternal({
     Naturally, this is invalid, so we must check with the mqlServerUrl is present before initiating MQL Queries.
   */
   const mqlClient = buildMqlUrqlClient(
-    mqlServerUrlData?.myUser?.mqlServerUrl || coreApiUrl || CORE_API_URL,
+    externalConfig?.mqlServerUrl || mqlServerUrlData?.myUser?.mqlServerUrl || coreApiUrl || CORE_API_URL,
     token,
   );
 
   const [mqlContext, setMqlContext] = useState<MqlContextType>({
     coreApiUrl: coreApiUrl || CORE_API_URL,
-    mqlServerUrl: mqlServerUrlData?.myUser?.mqlServerUrl,
+    mqlServerUrl: externalConfig?.mqlServerUrl || mqlServerUrlData?.myUser?.mqlServerUrl,
     setMqlServer: setMqlServerThenRefetch,
     mqlServerOverrideLoading: fetching,
     modelKey: null,
@@ -155,7 +165,19 @@ function MqlContextProviderInternal({
           token,
         );
       }
+    } else if (externalConfig) {
+      console.log('CONFIG WORKS')
+      if (externalConfig?.mqlServerUrl !== mqlContext.mqlServerUrl) {
+        stateToUpdate.mqlServerUrl = externalConfig?.mqlServerUrl;
+      }
+      if (externalConfig?.mqlServerUrl && externalConfig?.mqlServerUrl !== mqlContext.mqlServerUrl) {
+        stateToUpdate.mqlClient = buildMqlUrqlClient(
+          externalConfig?.mqlServerUrl,
+          token
+        );
+      }
     } else {
+      console.log('OH NO')
       if (mqlServerUrlData?.myUser?.mqlServerUrl !== mqlContext.mqlServerUrl) {
         stateToUpdate.mqlServerUrl = mqlServerUrlData?.myUser?.mqlServerUrl;
       }
@@ -181,7 +203,7 @@ function MqlContextProviderInternal({
         ...stateToUpdate,
       });
     }
-  }, [mqlServerUrlData, token, mqlContext, mqlServerUrlOverride]);
+  }, [externalConfig, mqlServerUrlData, token, mqlContext, mqlServerUrlOverride]);
 
   return (
     <Provider value={mqlContext.mqlClient}>

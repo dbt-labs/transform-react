@@ -383,6 +383,7 @@ export enum QueryResultSource {
   DynamicCache = 'DYNAMIC_CACHE',
   DwMaterialization = 'DW_MATERIALIZATION',
   FastCache = 'FAST_CACHE',
+  Metricflow = 'METRICFLOW',
   NotApplicable = 'NOT_APPLICABLE',
   NotSpecified = 'NOT_SPECIFIED'
 }
@@ -445,6 +446,7 @@ export type MetricDimensionValuesArgs = {
   allowDynamicCache?: Maybe<Scalars['Boolean']>;
   pageNumber?: Maybe<Scalars['Int']>;
   pageSize?: Maybe<Scalars['Int']>;
+  searchStr?: Maybe<Scalars['String']>;
 };
 
 
