@@ -1,6 +1,7 @@
-import { useEffect, useReducer, useContext } from "react";
+import { useEffect, useReducer, useContext, useState } from "react";
 // import { CombinedError } from "urql";
 import MqlContext from "../../context/MqlContext/MqlContext";
+import { MqlQueryStatus } from "../../queries/mql/MqlQueryTypes";
 import {
   CreateMqlQueryMutation,
   CreateMqlQueryMutationVariables,
@@ -44,27 +45,27 @@ export default function useMqlQuery({
   const reducer = mqlQueryReducer<CreateMqlQueryMutation>((data: CreateMqlQueryMutation) => data?.createMqlQuery?.query);
   const [state, dispatch] = useReducer(reducer, initialState);
   const {createMqlQuery} = useCreateMqlQuery({metricName, formState: queryInput, dispatch, retries})
+  const [queryReruns, setQueryReruns] = useState(0);
 
   useEffect(() => {
     if (!metricName || !mqlServerUrl || skip) {
       return;
+    } else if (!state.queryId) {
+      dispatch({ type: "postQueryStart" }); 
+      createMqlQuery({stateRetries: state.retries});
+    } else if (state.queryId && !state.cancelledQueries.includes(state.queryId)) {
+      useFetchMqlTimeSeries<CreateMqlQueryMutation>({
+        state,
+        skip: false,
+        dispatch,
+        createQueryIdQuery: createMqlQuery,
+        retries
+      });
     }
-    dispatch({ type: "postQueryStart" });
-    createMqlQuery({stateRetries: state.retries});
-  }, [queryInput, metricName, mqlServerUrl, skip]);
+  }, [queryInput, metricName, mqlServerUrl, skip, queryReruns]);
 
-  const _skip =
-    skip ||
-    !state.queryId ||
-    state.cancelledQueries.includes(state.queryId); /* && !isRunning*/
-
-  useFetchMqlTimeSeries<CreateMqlQueryMutation>({
-    state,
-    skip: _skip,
-    dispatch,
-    createQueryIdQuery: createMqlQuery,
-    retries
-  });
-
+  if (state.queryStatus === MqlQueryStatus.Pending || state.queryStatus === MqlQueryStatus.Running) {
+    setQueryReruns(queryReruns + 1);
+  }
   return state;
 }
