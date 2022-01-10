@@ -43,6 +43,8 @@ export type UseMqlQueryState = {
   errorMessage?: string;
 
   doRetryAfterExpiredQuery: boolean;
+
+  retryWhileRunning?: () => void;
 };
 
 export const initialState: UseMqlQueryState = {
@@ -54,6 +56,7 @@ export const initialState: UseMqlQueryState = {
   fetchStartTime: null,
   isTakingForever: false,
   doRetryAfterExpiredQuery: false,
+  retryWhileRunning: undefined,
 };
 
 export type Action<CreateQueryDataType> =

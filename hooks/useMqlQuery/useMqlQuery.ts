@@ -58,7 +58,7 @@ export default function useMqlQuery({
     !state.queryId ||
     state.cancelledQueries.includes(state.queryId); /* && !isRunning*/
 
-  useFetchMqlTimeSeries<CreateMqlQueryMutation>({
+  const { retryWhileRunning } = useFetchMqlTimeSeries<CreateMqlQueryMutation>({
     state,
     skip: _skip,
     dispatch,
@@ -66,5 +66,8 @@ export default function useMqlQuery({
     retries
   });
 
-  return state;
+  return {
+    ...state,
+    retryWhileRunning,
+  };
 }
