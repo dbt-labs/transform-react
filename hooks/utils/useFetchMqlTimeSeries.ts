@@ -47,11 +47,9 @@ const useFetchMqlTimeSeries = <CreateQueryDataType>({
       dispatch({ type: "retryFetchResults" });
       refetchMqlQuery();
     }, RETRY_POLLING_MS);
-  }
+  };
 
   useEffect(() => {
-    let checkRunning: NodeJS.Timeout;
-
     if (error) {
       // if error is an expired query id, the mql server may have been restarted, restart the entire query.
       if (shouldRetryAfterExpiredQuery({
@@ -62,8 +60,7 @@ const useFetchMqlTimeSeries = <CreateQueryDataType>({
           dispatch(doRetryAfterExpiredQueryAction(retries));
           createQueryIdQuery({stateRetries: state.retries});
       } else if (retries > 0 && state.retries !== retries) {
-        retry()
-
+        retry();
       } else {
         dispatch({
           type: "fetchResultsFail",
@@ -84,19 +81,7 @@ const useFetchMqlTimeSeries = <CreateQueryDataType>({
       return;
     }
 
-    checkRunning = setInterval(() => {
-      if (
-        status === MqlQueryStatus.Running ||
-        status === MqlQueryStatus.Pending
-      ) {
-        dispatch({ type: "fetchResultsRunning" });
-        refetchMqlQuery();
-      }
-    }, QUERY_POLLING_MS);
-
     if (status === MqlQueryStatus.Successful) {
-      clearInterval(checkRunning);
-
       dispatch({
         type: "fetchResultsSuccess",
         data,
@@ -104,9 +89,17 @@ const useFetchMqlTimeSeries = <CreateQueryDataType>({
       });
     }
 
-    if (status === MqlQueryStatus.Failed) {
-      clearInterval(checkRunning);
+    if (
+      status === MqlQueryStatus.Running ||
+      status === MqlQueryStatus.Pending
+    ) {
+      setTimeout(() => {
+        dispatch({ type: "fetchResultsRunning"});
+        refetchMqlQuery();
+      }, QUERY_POLLING_MS);
+    }
 
+    if (status === MqlQueryStatus.Failed) {
       if (retries > 0 && state.retries !== retries) {
         retry()
       } else {
@@ -151,13 +144,8 @@ const useFetchMqlTimeSeries = <CreateQueryDataType>({
             json: jsonString
           });
         }
-
       }
     }
-
-    return () => {
-      clearInterval(checkRunning);
-    };
   }, [data, error, state.cancelledQueries, handleCombinedError]);
 }
 
