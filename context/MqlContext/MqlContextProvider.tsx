@@ -38,8 +38,7 @@ function MqlContextProvider({
   externalConfig,
   mqlServerUrlOverride
 }: Props) {
-  if (token) {
-    const coreApiClient = buildMqlUrqlClient(coreApiUrl || CORE_API_URL, token);
+  const coreApiClient = buildMqlUrqlClient(coreApiUrl || CORE_API_URL, token);
   return (
     <Provider value={coreApiClient}>
       <MqlContextProviderInternal
@@ -54,7 +53,6 @@ function MqlContextProvider({
       </MqlContextProviderInternal>
     </Provider>
   );
-  }
 }
 
 function MqlContextProviderInternal({
