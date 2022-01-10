@@ -92,7 +92,7 @@ const useFetchMqlTimeSeries = <CreateQueryDataType>({
         dispatch({ type: "fetchResultsRunning" });
         refetchMqlQuery();
       }
-    }, QUERY_POLLING_MS)
+    }, QUERY_POLLING_MS);
 
     if (status === MqlQueryStatus.Successful) {
       clearInterval(checkRunning);
