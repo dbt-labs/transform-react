@@ -33,20 +33,22 @@ function MqlContextProvider({
   coreApiUrl,
   mqlServerUrlOverride
 }: Props) {
-  const coreApiClient = buildMqlUrqlClient(coreApiUrl || CORE_API_URL, token);
-  return (
-    <Provider value={coreApiClient}>
-      <MqlContextProviderInternal
-        isAuthenticated={isAuthenticated}
-        token={token}
-        captureException={captureException}
-        coreApiUrl={coreApiUrl || CORE_API_URL}
-        mqlServerUrlOverride={mqlServerUrlOverride}
-      >
-        {children}
-      </MqlContextProviderInternal>
-    </Provider>
-  );
+  if (token) {
+    const coreApiClient = buildMqlUrqlClient(coreApiUrl || CORE_API_URL, token);
+    return (
+      <Provider value={coreApiClient}>
+        <MqlContextProviderInternal
+          isAuthenticated={isAuthenticated}
+          token={token}
+          captureException={captureException}
+          coreApiUrl={coreApiUrl || CORE_API_URL}
+          mqlServerUrlOverride={mqlServerUrlOverride}
+        >
+          {children}
+        </MqlContextProviderInternal>
+      </Provider>
+    );
+  }
 }
 
 function MqlContextProviderInternal({
