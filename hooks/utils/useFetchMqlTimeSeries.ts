@@ -49,6 +49,11 @@ const useFetchMqlTimeSeries = <CreateQueryDataType>({
     }, RETRY_POLLING_MS);
   };
 
+  const retryWhileRunning = () => {
+    dispatch({ type: "fetchResultsRunning"});
+    refetchMqlQuery();
+  };
+
   useEffect(() => {
     if (error) {
       // if error is an expired query id, the mql server may have been restarted, restart the entire query.
@@ -93,10 +98,7 @@ const useFetchMqlTimeSeries = <CreateQueryDataType>({
       status === MqlQueryStatus.Running ||
       status === MqlQueryStatus.Pending
     ) {
-      setTimeout(() => {
-        dispatch({ type: "fetchResultsRunning"});
-        refetchMqlQuery();
-      }, QUERY_POLLING_MS);
+      setTimeout(retryWhileRunning, QUERY_POLLING_MS);
     }
 
     if (status === MqlQueryStatus.Failed) {
@@ -147,6 +149,8 @@ const useFetchMqlTimeSeries = <CreateQueryDataType>({
       }
     }
   }, [data, error, state.cancelledQueries, handleCombinedError]);
+
+  return { retryWhileRunning };
 }
 
 export default useFetchMqlTimeSeries;
