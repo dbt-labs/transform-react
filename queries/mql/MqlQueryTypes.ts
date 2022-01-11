@@ -800,6 +800,9 @@ export type FetchDimensionNamesMultihopQuery = (
 export type FetchDimensionValuesQueryVariables = Exact<{
   metricName: Scalars['String'];
   dimensionName: Scalars['String'];
+  searchStr?: Maybe<Scalars['String']>;
+  pageNumber?: Maybe<Scalars['Int']>;
+  pageSize?: Maybe<Scalars['Int']>;
 }>;
 
 
