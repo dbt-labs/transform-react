@@ -44,6 +44,8 @@ export type UseMqlQueryState = {
 
   doRetryAfterExpiredQuery: boolean;
 
+  fetchResultsRunningCount: number;
+
   retryWhileRunning?: () => void;
 };
 
@@ -56,6 +58,7 @@ export const initialState: UseMqlQueryState = {
   fetchStartTime: null,
   isTakingForever: false,
   doRetryAfterExpiredQuery: false,
+  fetchResultsRunningCount: 0,
   retryWhileRunning: undefined,
 };
 
@@ -167,13 +170,17 @@ const mqlQueryReducer = <CreateQueryDataType extends unknown>(dataAccr: (data: C
       if (state.queryStatus !== MqlQueryStatus.Running && state.isTakingForever !== diff >= LONG_FETCH_QUERY_ATTEMPT_MAX && state.errorMessage !== undefined) {
         return {
           ...state,
+          fetchResultsRunningCount: state.fetchResultsRunningCount + 1,
           queryStatus: MqlQueryStatus.Running,
           isTakingForever: diff >= LONG_FETCH_QUERY_ATTEMPT_MAX,
           errorMessage: undefined,
         }
       }
       else {
-        return state;
+        return {
+          ...state,
+          fetchResultsRunningCount: state.fetchResultsRunningCount + 1,
+        };
       }
     }
 
