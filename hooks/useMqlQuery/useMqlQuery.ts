@@ -53,6 +53,10 @@ export default function useMqlQuery({
     createMqlQuery({stateRetries: state.retries});
   }, [queryInput, metricName, mqlServerUrl, skip]);
 
+  console.log(`useMqlQuery skip for ${metricName}:`, skip);
+  console.log(`useMqlQuery state.queryId for ${metricName}`, state.queryId);
+  console.log(`useMqlQuery state.cancelledQueryies for ${metricName}`, state.cancelledQueries);
+
   const _skip =
     skip ||
     !state.queryId ||

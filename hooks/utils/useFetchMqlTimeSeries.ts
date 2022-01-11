@@ -30,7 +30,7 @@ const useFetchMqlTimeSeries = <CreateQueryDataType>({
     handleCombinedError,
   } = useContext(MqlContext);
 
-  const [{ data, error }, refetchMqlQuery] = useQuery<
+  const [{ data, error, fetching}, refetchMqlQuery] = useQuery<
     FetchMqlTimeSeriesQuery,
     FetchMqlTimeSeriesQueryVariables
   >({
@@ -41,6 +41,9 @@ const useFetchMqlTimeSeries = <CreateQueryDataType>({
     pause: skip,
   });
 
+  console.log('FETCHING', fetching);
+  console.log('DATA', data);
+  console.log('ERROR', error);
 
   const retry = () => {
     setTimeout(() => {
