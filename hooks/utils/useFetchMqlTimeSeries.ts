@@ -98,6 +98,7 @@ const useFetchMqlTimeSeries = <CreateQueryDataType>({
       status === MqlQueryStatus.Running ||
       status === MqlQueryStatus.Pending
     ) {
+      console.log('RETRY_RUNNING_OR_PENDING', id);
       setTimeout(retryWhileRunning, QUERY_POLLING_MS);
     }
 
