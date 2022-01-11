@@ -98,6 +98,7 @@ const useFetchMqlTimeSeries = <CreateQueryDataType>({
       status === MqlQueryStatus.Running ||
       status === MqlQueryStatus.Pending
     ) {
+      console.log('RETRY_COUNT', state.fetchResultsRunningCount);
       console.log('RETRY_RUNNING_OR_PENDING', id);
       setTimeout(retryWhileRunning, QUERY_POLLING_MS);
     }
@@ -149,7 +150,7 @@ const useFetchMqlTimeSeries = <CreateQueryDataType>({
         }
       }
     }
-  }, [data, error, state.cancelledQueries, handleCombinedError]);
+  }, [data, error, state.cancelledQueries, state.fetchResultsRunningCount, handleCombinedError]);
 
   return { retryWhileRunning };
 }
