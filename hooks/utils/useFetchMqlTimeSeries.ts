@@ -54,7 +54,7 @@ const useFetchMqlTimeSeries = <CreateQueryDataType>({
 
   const retryWhileRunning = () => {
     dispatch({ type: "fetchResultsRunning"});
-    refetchMqlQuery();
+    refetchMqlQuery({ requestPolicy: 'network-only' });
   };
 
   useEffect(() => {
