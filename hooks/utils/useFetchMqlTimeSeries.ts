@@ -41,20 +41,11 @@ const useFetchMqlTimeSeries = <CreateQueryDataType>({
     pause: skip,
   });
 
-  console.log('FETCHING', fetching);
-  console.log('DATA', data);
-  console.log('ERROR', error);
-
   const retry = () => {
     setTimeout(() => {
       dispatch({ type: "retryFetchResults" });
       refetchMqlQuery();
     }, RETRY_POLLING_MS);
-  };
-
-  const retryWhileRunning = () => {
-    dispatch({ type: "fetchResultsRunning"});
-    refetchMqlQuery({ requestPolicy: 'network-only' });
   };
 
   useEffect(() => {
@@ -101,9 +92,10 @@ const useFetchMqlTimeSeries = <CreateQueryDataType>({
       status === MqlQueryStatus.Running ||
       status === MqlQueryStatus.Pending
     ) {
-      console.log('RETRY_COUNT', state.fetchResultsRunningCount);
-      console.log('RETRY_RUNNING_OR_PENDING', id);
-      setTimeout(retryWhileRunning, QUERY_POLLING_MS);
+      setTimeout(() => {
+        dispatch({ type: "fetchResultsRunning"});
+        refetchMqlQuery({ requestPolicy: 'network-only' });
+      }, QUERY_POLLING_MS);
     }
 
     if (status === MqlQueryStatus.Failed) {
@@ -153,9 +145,7 @@ const useFetchMqlTimeSeries = <CreateQueryDataType>({
         }
       }
     }
-  }, [data, error, state.cancelledQueries, state.fetchResultsRunningCount, handleCombinedError]);
-
-  return { retryWhileRunning };
+  }, [data, error, state.cancelledQueries, handleCombinedError]);
 }
 
 export default useFetchMqlTimeSeries;

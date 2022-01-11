@@ -53,16 +53,12 @@ export default function useMqlQuery({
     createMqlQuery({stateRetries: state.retries});
   }, [queryInput, metricName, mqlServerUrl, skip]);
 
-  console.log(`useMqlQuery skip for ${metricName}:`, skip);
-  console.log(`useMqlQuery state.queryId for ${metricName}`, state.queryId);
-  console.log(`useMqlQuery state.cancelledQueryies for ${metricName}`, state.cancelledQueries);
-
   const _skip =
     skip ||
     !state.queryId ||
     state.cancelledQueries.includes(state.queryId); /* && !isRunning*/
 
-  const { retryWhileRunning } = useFetchMqlTimeSeries<CreateMqlQueryMutation>({
+  useFetchMqlTimeSeries<CreateMqlQueryMutation>({
     state,
     skip: _skip,
     dispatch,
@@ -70,8 +66,5 @@ export default function useMqlQuery({
     retries
   });
 
-  return {
-    ...state,
-    retryWhileRunning,
-  };
+  return state;
 }
