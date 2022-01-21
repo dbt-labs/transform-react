@@ -434,6 +434,7 @@ export type Metric = {
   dimensions?: Maybe<Array<Scalars['String']>>;
   dimensionObjects?: Maybe<Array<Dimension>>;
   dimensionValues?: Maybe<Array<Maybe<Scalars['String']>>>;
+  totalDimensionValues?: Maybe<Scalars['Int']>;
   maxGranularity?: Maybe<TimeGranularity>;
 };
 
@@ -446,6 +447,16 @@ export type MetricDimensionValuesArgs = {
   allowDynamicCache?: Maybe<Scalars['Boolean']>;
   pageNumber?: Maybe<Scalars['Int']>;
   pageSize?: Maybe<Scalars['Int']>;
+  searchStr?: Maybe<Scalars['String']>;
+};
+
+
+export type MetricTotalDimensionValuesArgs = {
+  modelKey?: Maybe<ModelKeyInput>;
+  dimensionName: Scalars['String'];
+  startTime?: Maybe<Scalars['String']>;
+  endTime?: Maybe<Scalars['String']>;
+  allowDynamicCache?: Maybe<Scalars['Boolean']>;
   searchStr?: Maybe<Scalars['String']>;
 };
 
@@ -516,6 +527,7 @@ export type MqlServerHealthItem = {
 
 export type Validations = {
   __typename?: 'Validations';
+  modelKey?: Maybe<ModelKey>;
   allIssues?: Maybe<Array<Scalars['String']>>;
   dataSourceIssues?: Maybe<Array<Scalars['String']>>;
 };
@@ -810,7 +822,7 @@ export type FetchDimensionValuesQuery = (
   { __typename?: 'Query' }
   & { metricByName?: Maybe<(
     { __typename?: 'Metric' }
-    & Pick<Metric, 'dimensionValues'>
+    & Pick<Metric, 'dimensionValues' | 'totalDimensionValues'>
   )> }
 );
 

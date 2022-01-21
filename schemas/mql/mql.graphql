@@ -215,6 +215,7 @@ type Metric {
   dimensions: [String!]
   dimensionObjects: [Dimension!]
   dimensionValues(modelKey: ModelKeyInput, dimensionName: String!, startTime: String, endTime: String, allowDynamicCache: Boolean, pageNumber: Int, pageSize: Int, searchStr: String): [String]
+  totalDimensionValues(modelKey: ModelKeyInput, dimensionName: String!, startTime: String, endTime: String, allowDynamicCache: Boolean, searchStr: String): Int
   maxGranularity(modelKey: ModelKeyInput): TimeGranularity
 }
 
@@ -270,6 +271,7 @@ type MqlServerHealthItem {
 }
 
 type Validations {
+  modelKey: ModelKey
   allIssues: [String!]
   dataSourceIssues: [String!]
 }
