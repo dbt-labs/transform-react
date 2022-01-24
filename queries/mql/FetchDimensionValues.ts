@@ -15,6 +15,9 @@ const query = gql`
         pageNumber: $pageNumber
         pageSize: $pageSize
       )
+      totalDimensionValues(
+        dimensionName: $dimensionName
+      )
     }
   }
 `;
