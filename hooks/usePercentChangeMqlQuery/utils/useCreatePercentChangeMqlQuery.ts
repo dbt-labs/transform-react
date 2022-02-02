@@ -44,6 +44,10 @@ const useCreatePercentChange = ({queryInput, dispatch, retries}: UseCreatePercen
           data,
           handleCombinedError,
         });
+      } else if (data?.pctChangeOverRange?.query?.status === MqlQueryStatus.Pending || data?.pctChangeOverRange?.query?.status === MqlQueryStatus.Running) {
+        setTimeout(() => {
+          queryPercentChange({stateRetries: stateRetries});
+        }, RETRY_POLLING_MS)
       } else {
         if (data?.pctChangeOverRange?.id) {
           dispatch({
