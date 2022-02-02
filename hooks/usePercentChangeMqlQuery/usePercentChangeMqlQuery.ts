@@ -41,9 +41,12 @@ export default function usePercentChangeMqlQuery({
     mqlServerUrl,
   } = useContext(MqlContext);
 
-  const reducer = mqlQueryReducer<CreatePercentChangeMutation>((data: CreatePercentChangeMutation) => data?.pctChangeOverRange?.query);
+  const dataAccr = (data: CreatePercentChangeMutation) => {
+    return data?.pctChangeOverRange?.query
+  }
+
+  const reducer = mqlQueryReducer<CreatePercentChangeMutation>(dataAccr);
   const [state, dispatch] = useReducer(reducer, initialState);
-  console.log('queryInput', queryInput)
   const {queryPercentChange} = useCreatePercentChange({queryInput, dispatch, retries})
 
   useEffect(() => {
