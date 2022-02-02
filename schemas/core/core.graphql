@@ -73,12 +73,11 @@ type Organization {
   currentModel: [Model]
   teams(searchStr: String, searchColumns: [TeamStrColumns], orderBy: TeamOrderBy, desc: Boolean, orderBys: [TeamOrderByInput], pageNumber: Int, pageSize: Int): [Team]
   prefs(prefKey: String, searchStr: String, searchColumns: [OrgPrefStrColumns], orderBy: OrgPrefOrderBy, desc: Boolean, orderBys: [OrgPrefOrderByInput], pageNumber: Int, pageSize: Int): [OrgPref]
-  apiKeys: [ApiKey]
-  metricViews: [MetricView]
   savedQueries(searchStr: String, searchColumns: [SavedQueryStrColumns], orderBy: SavedQueryOrderBy, desc: Boolean, orderBys: [SavedQueryOrderByInput], pageNumber: Int, pageSize: Int): [SavedQuery]
-  teamViews: [TeamView]
   dashboards: [Dashboard]
   metricCollections(searchStr: String, searchColumns: [MetricCollectionStrColumns], orderBy: MetricCollectionOrderBy, desc: Boolean, orderBys: [MetricCollectionOrderByInput], pageNumber: Int, pageSize: Int): [MetricCollection]
+  metricViews: [MetricView]
+  teamViews: [TeamView]
   questions(searchStr: String, searchColumns: [QuestionStrColumns], orderBy: QuestionOrderBy, desc: Boolean, orderBys: [QuestionOrderByInput], pageNumber: Int, pageSize: Int): [Question]
   question(id: ID!): Question
   annotations(searchStr: String, searchColumns: [AnnotationStrColumns], orderBy: AnnotationOrderBy, desc: Boolean, orderBys: [AnnotationOrderByInput], pageNumber: Int, pageSize: Int): [Annotation]
@@ -110,6 +109,7 @@ type Organization {
   mqlServerConfig(id: ID!): DataWarehouseConfig
   incompleteOnboardingTasks: [String]
   samlConnectionName: String
+  preferredLogin: String
   sharedSlackChannelName: String
   primaryMqlServer: OrgMqlServer
   annotationsFeed(pageNumber: Int, pageSize: Int): [Annotation]
@@ -142,11 +142,11 @@ type User {
   teamMemberships: [TeamMember]
   dashboards: [Dashboard]
   primaryDashboard: Dashboard
-  apiKeys(activeOnly: Boolean, searchStr: String, searchColumns: [ApiKeyStrColumns], orderBy: ApiKeyOrderBy, desc: Boolean, orderBys: [ApiKeyOrderByInput], pageNumber: Int, pageSize: Int): [ApiKey]
   savedQueries(searchStr: String, searchColumns: [SavedQueryStrColumns], orderBy: SavedQueryOrderBy, desc: Boolean, orderBys: [SavedQueryOrderByInput], pageNumber: Int, pageSize: Int): [SavedQuery]
+  apiKeys(activeOnly: Boolean, searchStr: String, searchColumns: [ApiKeyStrColumns], orderBy: ApiKeyOrderBy, desc: Boolean, orderBys: [ApiKeyOrderByInput], pageNumber: Int, pageSize: Int): [ApiKey]
   organization: Organization
-  teamViews: [TeamView]
   metricCollections(searchStr: String, searchColumns: [MetricCollectionStrColumns], orderBy: MetricCollectionOrderBy, desc: Boolean, orderBys: [MetricCollectionOrderByInput], pageNumber: Int, pageSize: Int): [MetricCollection]
+  teamViews: [TeamView]
   mqlServerUrl: String
   activeRoles: [String]
   isAdmin: Boolean
@@ -157,10 +157,6 @@ type User {
   totalSavedQueries: Int
   totalViewedMetrics: Int
   totalMetricCollections: Int
-  viewedTeams(searchStr: String, searchColumns: [TeamStrColumns], orderBy: TeamOrderBy, desc: Boolean, orderBys: [TeamOrderByInput], pageNumber: Int, pageSize: Int): [Team]
-  totalViewedTeams: Int
-  viewedMetricCollections(searchStr: String, searchColumns: [MetricCollectionStrColumns], orderBy: MetricCollectionOrderBy, desc: Boolean, orderBys: [MetricCollectionOrderByInput], pageNumber: Int, pageSize: Int): [MetricCollection]
-  totalViewedMetricCollections: Int
   totalActiveFeatures: Int
   hasAcceptedLatestTermsOfService: Boolean
   acceptedTermsOfService: Int
@@ -219,8 +215,8 @@ type Team {
   primaryDashboard: Dashboard
   featuredMetricCollection: MetricCollection
   savedQueries(searchStr: String, searchColumns: [SavedQueryStrColumns], orderBy: SavedQueryOrderBy, desc: Boolean, orderBys: [SavedQueryOrderByInput], pageNumber: Int, pageSize: Int): [SavedQuery]
-  views: [TeamView]
   metricCollections(searchStr: String, searchColumns: [MetricCollectionStrColumns], orderBy: MetricCollectionOrderBy, desc: Boolean, orderBys: [MetricCollectionOrderByInput], pageNumber: Int, pageSize: Int): [MetricCollection]
+  views: [TeamView]
   teamAdminIds: [Int]
   userIsTeamAdmin: Boolean
   totalMetrics: Int
@@ -247,20 +243,20 @@ type TeamMember {
 """An enumeration."""
 enum TeamMemberOrderBy {
   TEAM_ID
-  USER_ID
   IS_TEAM_ADMIN
   JOINED_AT
+  USER_ID
   TeamMember_ID
   TeamMember_ORGANIZATION_ID
   User_ORGANIZATION_ID
-  PRIMARY_DASHBOARD_ID
-  USER_NAME
-  EMAIL
-  UPDATED_AT
   DEACTIVATED_AT
+  EMAIL
+  CREATED_AT
   AVATAR_URL
   AUTH0_ID
-  CREATED_AT
+  UPDATED_AT
+  USER_NAME
+  PRIMARY_DASHBOARD_ID
 }
 
 input TeamMemberOrderByInput {
@@ -278,16 +274,15 @@ type Dashboard {
   deletedAt: DateTime
   organization: Organization
   sections: [DashboardSection]
-  user: [User]
-  team: [Team]
+  teams: [Team]
 }
 
 type DashboardSection {
   id: ID!
   dashboardId: Int!
   dashboardSectionType: String!
-  items: [DashboardItem]
   dashboard: Dashboard
+  items: [DashboardItem]
 }
 
 type DashboardItem {
@@ -404,9 +399,6 @@ type MetricTeamOwner {
 type Metric {
   metadata_: JSONString!
   id: Int
-  displayName: String
-  description: String
-  tier: Int
   metricType: Int!
   metricId: Int!
   params: GenericScalar
@@ -421,6 +413,7 @@ type Metric {
   userOwners: [MetricUserOwner]
   teamOwners: [MetricTeamOwner]
   views: MetricView
+  userSubscribers: [MetricUserSubscription]
   questions(searchStr: String, searchColumns: [QuestionStrColumns], orderBy: QuestionOrderBy, desc: Boolean, orderBys: [QuestionOrderByInput], pageNumber: Int, pageSize: Int): [Question]
   resolvedQuestions: Question
   unresolvedQuestions: Question
@@ -429,7 +422,11 @@ type Metric {
   totalAnnotations: Int
   name: String
   isNew: Boolean
+  tier: Int
+  displayName: String
+  description: String
   valueFormat: String
+  extraFields: JSONString
   tierWithLock: LockableParameter
   displayNameWithLock: LockableParameter
   descriptionWithLock: LockableParameter
@@ -442,6 +439,7 @@ type Metric {
   totalRecentViewsForUser: Int
   userIsMetricOwner: Boolean
   userCanEdit: Boolean
+  userIsSubscriber: Boolean
   dataSources(searchStr: String, searchColumns: [DataSourceVersionStrColumns], orderBy: DataSourceVersionOrderBy, desc: Boolean, orderBys: [DataSourceVersionOrderByInput], pageNumber: Int, pageSize: Int): [DataSourceVersion]
   totalDataSources: Int
   savedQueries(searchStr: String, searchColumns: [SavedQueryStrColumns], orderBy: SavedQueryOrderBy, desc: Boolean, orderBys: [SavedQueryOrderByInput], pageNumber: Int, pageSize: Int): [SavedQuery]
@@ -524,6 +522,15 @@ type MetricView {
   organization: Organization
 }
 
+type MetricUserSubscription {
+  id: ID!
+  metricId: Int!
+  userId: Int!
+  createdAt: DateTime
+  deletedAt: DateTime
+  user: User
+}
+
 type Question {
   id: ID!
   organizationId: Int!
@@ -576,12 +583,12 @@ enum QuestionReplyStrColumns {
 """An enumeration."""
 enum QuestionReplyOrderBy {
   ID
-  TEXT
   QUESTION_ID
-  UPDATED_AT
   CREATED_AT
-  ORGANIZATION_ID
+  UPDATED_AT
   AUTHOR_ID
+  ORGANIZATION_ID
+  TEXT
 }
 
 input QuestionReplyOrderByInput {
@@ -591,24 +598,24 @@ input QuestionReplyOrderByInput {
 
 """An enumeration."""
 enum QuestionStrColumns {
-  TEXT
   PRIORITY
+  TEXT
 }
 
 """An enumeration."""
 enum QuestionOrderBy {
   ID
-  RESOLVED_AT
+  CREATED_AT
   RESOLVED_BY
-  TEXT
-  UPDATED_AT
   AUTHOR_ID
+  ORGANIZATION_ID
   PRIORITY
   NOTIFIED_AT
+  UPDATED_AT
   METRIC_ID
   RESOLVED
-  CREATED_AT
-  ORGANIZATION_ID
+  RESOLVED_AT
+  TEXT
 }
 
 input QuestionOrderByInput {
@@ -697,27 +704,27 @@ enum Priority {
 
 """An enumeration."""
 enum AnnotationStrColumns {
-  EXPECTED_IMPACT
-  TEXT
   PRIORITY
+  TEXT
   TITLE
+  EXPECTED_IMPACT
 }
 
 """An enumeration."""
 enum AnnotationOrderBy {
   ID
-  TEXT
-  DELETED_AT
-  UPDATED_AT
   DATE_STARTED_AT
-  AUTHOR_ID
-  EXPECTED_IMPACT
-  PRIORITY
-  DATE_ENDED_AT
-  NOTIFIED_AT
   TITLE
   CREATED_AT
+  AUTHOR_ID
   ORGANIZATION_ID
+  DATE_ENDED_AT
+  DELETED_AT
+  PRIORITY
+  NOTIFIED_AT
+  UPDATED_AT
+  TEXT
+  EXPECTED_IMPACT
 }
 
 input AnnotationOrderByInput {
@@ -727,32 +734,32 @@ input AnnotationOrderByInput {
 
 """An enumeration."""
 enum DataSourceVersionStrColumns {
-  SQL_TABLE
-  HASH
-  SQL_QUERY
-  CONNECTION
-  DESCRIPTION
   NAME
+  DESCRIPTION
+  HASH
+  CONNECTION
+  SQL_QUERY
+  SQL_TABLE
 }
 
 """An enumeration."""
 enum DataSourceVersionOrderBy {
-  ID
-  DESCRIPTION
-  CONNECTION
-  DIMENSIONS
   NAME
-  SQL_TABLE
-  CONSTRAINT
   IDENTIFIERS
-  SQL_QUERY
-  OWNERS
-  HASH
-  DATA_SOURCE_METADATA
-  MEASURES
-  MUTABILITY
   CREATED_AT
   ORGANIZATION_ID
+  OWNERS
+  DATA_SOURCE_METADATA
+  ID
+  CONSTRAINT
+  DIMENSIONS
+  SQL_TABLE
+  DESCRIPTION
+  MUTABILITY
+  CONNECTION
+  SQL_QUERY
+  HASH
+  MEASURES
 }
 
 input DataSourceVersionOrderByInput {
@@ -780,42 +787,42 @@ type SavedQuery {
 
 """An enumeration."""
 enum MetricVersionStrColumns {
-  DESCRIPTION
-  DISPLAY_NAME
   HASH
+  DESCRIPTION
   VALUE_FORMAT
+  DISPLAY_NAME
 }
 
 """An enumeration."""
 enum MetricVersionOrderBy {
-  ID
-  HASH
-  DESCRIPTION
-  ORG_DATA_SOURCE_ID
   METADATA
-  TIER
-  SOURCE_DATA_SOURCE_VERSIONS
-  DISPLAY_NAME
-  ORGANIZATION_ID
+  ID
+  ORG_DATA_SOURCE_ID
   PARAMS
+  ORGANIZATION_ID
   VIEWS
+  HASH
   METRIC_TYPE
+  SOURCE_DATA_SOURCE_VERSIONS
   MetricVersion_METRIC_ID
   MetricVersion_CREATED_AT
   MetricMetadata_METRIC_ID
   MetricMetadata_CREATED_AT
-  INCREASE_IS_GOOD_LOCK
-  CREATED_BY
-  UPDATED_AT
-  DESCRIPTION_LOCK
   DISPLAY_NAME_LOCK
-  EXTRA_FIELDS
-  IS_NEW
-  VALUE_FORMAT
-  INCREASE_IS_GOOD
+  INCREASE_IS_GOOD_LOCK
+  UPDATED_AT
+  DISPLAY_NAME
+  DESCRIPTION_LOCK
   VALUE_FORMAT_LOCK
-  TIER_LOCK
+  INCREASE_IS_GOOD
+  VALUE_FORMAT
   UPDATED_BY
+  TIER
+  DESCRIPTION
+  TIER_LOCK
+  CREATED_BY
+  IS_NEW
+  EXTRA_FIELDS
 }
 
 input MetricVersionOrderByInput {
@@ -831,14 +838,14 @@ enum SavedQueryStrColumns {
 """An enumeration."""
 enum SavedQueryOrderBy {
   ID
-  DELETED_AT
-  OWNER_TEAM_ID
-  CREATED_BY
-  UPDATED_AT
-  TITLE
   SERIALIZED_QUERY
   CREATED_AT
+  TITLE
   ORGANIZATION_ID
+  DELETED_AT
+  OWNER_TEAM_ID
+  UPDATED_AT
+  CREATED_BY
 }
 
 input SavedQueryOrderByInput {
@@ -848,27 +855,27 @@ input SavedQueryOrderByInput {
 
 """An enumeration."""
 enum TeamStrColumns {
-  DESCRIPTION
-  SLUG
   NAME
   THEME
+  SLUG
+  DESCRIPTION
 }
 
 """An enumeration."""
 enum TeamOrderBy {
-  ID
-  PRIMARY_DASHBOARD_ID
-  CREATED_BY
-  UPDATED_AT
-  DESCRIPTION
-  DEACTIVATED_AT
-  THEME
   NAME
-  FEATURED_METRIC_COLLECTION_ID
-  VIEWS
-  SLUG
+  ID
+  DEACTIVATED_AT
   CREATED_AT
   ORGANIZATION_ID
+  VIEWS
+  DESCRIPTION
+  FEATURED_METRIC_COLLECTION_ID
+  CREATED_BY
+  THEME
+  SLUG
+  UPDATED_AT
+  PRIMARY_DASHBOARD_ID
 }
 
 input TeamOrderByInput {
@@ -878,24 +885,24 @@ input TeamOrderByInput {
 
 """An enumeration."""
 enum UserStrColumns {
-  AVATAR_URL
+  AUTH0_ID
   USER_NAME
   EMAIL
-  AUTH0_ID
+  AVATAR_URL
 }
 
 """An enumeration."""
 enum UserOrderBy {
   ID
-  PRIMARY_DASHBOARD_ID
-  USER_NAME
-  EMAIL
-  UPDATED_AT
   DEACTIVATED_AT
-  AVATAR_URL
-  AUTH0_ID
+  EMAIL
   CREATED_AT
   ORGANIZATION_ID
+  PRIMARY_DASHBOARD_ID
+  AUTH0_ID
+  UPDATED_AT
+  USER_NAME
+  AVATAR_URL
 }
 
 input UserOrderByInput {
@@ -906,13 +913,13 @@ input UserOrderByInput {
 """An enumeration."""
 enum MetricCollectionMetricOrderBy {
   ID
-  METRIC_COLLECTION_ID
-  SAVED_QUERY_ID
-  UPDATED_AT
-  POSITION
   EMPHASIS
-  METRIC_ID
+  METRIC_COLLECTION_ID
   CREATED_AT
+  METRIC_ID
+  UPDATED_AT
+  SAVED_QUERY_ID
+  POSITION
 }
 
 input MetricCollectionMetricOrderByInput {
@@ -936,6 +943,35 @@ type CollectionItem {
   metric: Metric
 }
 
+"""An enumeration."""
+enum MetricCollectionStrColumns {
+  DESCRIPTION
+  TITLE
+  SLUG
+}
+
+"""An enumeration."""
+enum MetricCollectionOrderBy {
+  ID
+  CREATED_AT
+  TITLE
+  ORGANIZATION_ID
+  DEFAULT_EMPHASIS
+  VIEWS
+  DELETED_AT
+  DESCRIPTION
+  OWNER_TEAM_ID
+  UPDATED_AT
+  CREATED_BY
+  SLUG
+  PRIMARY_DASHBOARD_ID
+}
+
+input MetricCollectionOrderByInput {
+  orderBy: MetricCollectionOrderBy!
+  desc: Boolean
+}
+
 type TeamView {
   id: ID!
   teamId: Int!
@@ -945,35 +981,6 @@ type TeamView {
   organization: Organization
   team: Team
   user: User
-}
-
-"""An enumeration."""
-enum MetricCollectionStrColumns {
-  DESCRIPTION
-  SLUG
-  TITLE
-}
-
-"""An enumeration."""
-enum MetricCollectionOrderBy {
-  ID
-  PRIMARY_DASHBOARD_ID
-  DELETED_AT
-  OWNER_TEAM_ID
-  CREATED_BY
-  UPDATED_AT
-  DESCRIPTION
-  DEFAULT_EMPHASIS
-  VIEWS
-  TITLE
-  SLUG
-  CREATED_AT
-  ORGANIZATION_ID
-}
-
-input MetricCollectionOrderByInput {
-  orderBy: MetricCollectionOrderBy!
-  desc: Boolean
 }
 
 type ApiKey {
@@ -996,22 +1003,22 @@ type ApiKey {
 enum ApiKeyStrColumns {
   TYPE
   SCOPE
-  PREFIX
   SECRET_HASH
+  PREFIX
 }
 
 """An enumeration."""
 enum ApiKeyOrderBy {
-  PREFIX
-  REVOKER_ID
-  USER_ID
-  SECRET_HASH
   LAST_USED_AT
   SCOPE
-  TYPE
+  SECRET_HASH
   CREATED_AT
-  ORGANIZATION_ID
+  REVOKER_ID
+  PREFIX
   REVOKED_AT
+  ORGANIZATION_ID
+  USER_ID
+  TYPE
 }
 
 input ApiKeyOrderByInput {
@@ -1033,28 +1040,28 @@ type Feature {
 
 """An enumeration."""
 enum OrganizationStrColumns {
-  PRIMARY_CONFIG_REPO
-  LOGO_URL
+  NAME
   MQL_SERVER_LOGS
+  LOGO_URL
+  PRIMARY_CONFIG_REPO
   PRIMARY_CONFIG_BRANCH
   SOURCE_CONTROL_URL
-  NAME
 }
 
 """An enumeration."""
 enum OrganizationOrderBy {
+  NAME
   ID
+  DEACTIVATED_AT
   LOGO_URL
+  CREATED_AT
+  SOURCE_CONTROL_URL
+  TYPE
   MQL_SERVER_LOGS
   UPDATED_AT
-  SOURCE_CONTROL_URL
-  DEACTIVATED_AT
-  NAME
   PRIMARY_CONFIG_REPO
   IS_HOSTED
-  TYPE
   PRIMARY_CONFIG_BRANCH
-  CREATED_AT
 }
 
 input OrganizationOrderByInput {
@@ -1127,23 +1134,23 @@ type DataWarehouseConfig {
 
 """An enumeration."""
 enum OrgMqlServerStrColumns {
+  NAME
   URL
   CONFIG_SECRET
-  NAME
 }
 
 """An enumeration."""
 enum OrgMqlServerOrderBy {
-  ID
-  DW_ENGINE
-  CONFIG_SECRET
-  UPDATED_AT
   NAME
+  ID
   URL
-  IS_ORG_DEFAULT
-  DEPLOYMENT_STATUS
   CREATED_AT
+  CONFIG_SECRET
   ORGANIZATION_ID
+  IS_ORG_DEFAULT
+  DW_ENGINE
+  UPDATED_AT
+  DEPLOYMENT_STATUS
 }
 
 input OrgMqlServerOrderByInput {
@@ -1163,18 +1170,18 @@ type OrgPref {
 
 """An enumeration."""
 enum OrgPrefStrColumns {
-  PREF_KEY
   PREF_VALUE
+  PREF_KEY
 }
 
 """An enumeration."""
 enum OrgPrefOrderBy {
   ID
-  PREF_VALUE
   UPDATED_AT
-  PREF_KEY
   CREATED_AT
+  PREF_VALUE
   ORGANIZATION_ID
+  PREF_KEY
 }
 
 input OrgPrefOrderByInput {
@@ -1204,11 +1211,11 @@ enum FeatureStrColumns {
 
 """An enumeration."""
 enum FeatureOrderBy {
-  ID
-  CREATED_AT
-  UPDATED_AT
-  RETIRED_AT
   NAME
+  ID
+  UPDATED_AT
+  CREATED_AT
+  RETIRED_AT
 }
 
 input FeatureOrderByInput {
@@ -1270,7 +1277,6 @@ Mutation names will be converted from snake_case to camelCase automatically
 type Mutation {
   revokeApiKeyTest(prefix: String!): ApiKey
   createOrganizationTest(name: String!, primaryConfigRepo: String, primaryConfigBranch: String, mqlServerUrl: String, sourceControlUrl: String, mqlServerLogs: String, isHosted: Boolean, dwEngine: String, mqlServerName: String, requireMfa: Boolean, allowMfaRememberBrowser: Boolean, allowedEmailDomains: [String], orgType: GOrgType): Organization
-  logMqlLog(level: String, message: String, tags: [String!]): LogMQLLogs
   setOrgMqlServerConfigSecret(clientConfigSecretId: String, mqlServerId: Int): SetOrgMqlServerConfigSecretId
   sendMqlHeartbeat(mqlServerId: Int, sha: String!): SendMqlHeartbeat
   createAnnotationTest(dateEndedAt: Date!, dateStartedAt: Date!, expectedImpact: String!, metricInputs: [GMetricAnnotationInput]!, priority: Priority!, text: String!, title: String!): CreateAnnotation
@@ -1347,11 +1353,12 @@ type Mutation {
   organizationsUpdate(id: ID!, name: String, logoUrl: String, primaryConfigRepo: String, primaryConfigBranch: String, sourceControlUrl: String, mqlServerLogs: String, isHosted: Boolean, orgType: GOrgType): Organization
   organizationsCreateSharedSlack(orgId: ID!, emails: [String]!): Organization
   organizationsCreateSamlConnection(companyName: String!, signInUrl: String!, signingCertificate: String!, allowedEmailDomains: [String]!, orgId: ID): Organization
+  organizationsDisableOkta(orgId: ID): Organization
+  usersSetPasswordAfterSso(orgId: ID!, email: String!, password: String!): User
   organizationsSetTierTooltip(organizationId: ID!, tooltip: String!, tier: MetricTier!): Organization
   organizationsSetMfaPrefs(organizationId: ID!, mfaPref: MFAPref!): Organization
   organizationsSetPref(organizationId: ID!, prefKey: String!, prefValue: String!): Organization
   organizationsSetAllowedEmailDomains(organizationId: ID!, allowedEmailDomains: [String]!): Organization
-  organizationsDelete(id: ID!): Organization
   metricsApprove(metricId: ID!): Metric
   metricsLogView(metricId: ID!): MetricView
   metricCollectionsLogView(metricCollectionId: ID!): MetricCollectionView
@@ -1368,7 +1375,8 @@ type Mutation {
   sendInvites(emails: [String]!, organizationId: ID): Organization
   acceptTermsOfService(userId: ID!, versionId: ID!): User
   createTermsOfService(pdfUrl: String!): TermsOfServiceVersion
-  createSubscription(userId: ID!, metricId: ID!): User
+  createSubscription(metricId: ID!, userIds: [Int]): Metric
+  removeSubscription(metricId: ID!, userIds: [Int]): Metric
 }
 
 """An enumeration."""
@@ -1377,10 +1385,6 @@ enum GOrgType {
   TRIAL
   INTERNAL
   TEST
-}
-
-type LogMQLLogs {
-  ok: Boolean
 }
 
 type SetOrgMqlServerConfigSecretId {

@@ -168,8 +168,7 @@ const mqlQueryReducer = <CreateQueryDataType extends unknown>(dataAccr: (data: C
           isTakingForever: diff >= LONG_FETCH_QUERY_ATTEMPT_MAX,
           errorMessage: undefined,
         }
-      }
-      else {
+      } else {
         return state;
       }
     }

@@ -383,6 +383,7 @@ export enum QueryResultSource {
   DynamicCache = 'DYNAMIC_CACHE',
   DwMaterialization = 'DW_MATERIALIZATION',
   FastCache = 'FAST_CACHE',
+  Metricflow = 'METRICFLOW',
   NotApplicable = 'NOT_APPLICABLE',
   NotSpecified = 'NOT_SPECIFIED'
 }
@@ -433,6 +434,7 @@ export type Metric = {
   dimensions?: Maybe<Array<Scalars['String']>>;
   dimensionObjects?: Maybe<Array<Dimension>>;
   dimensionValues?: Maybe<Array<Maybe<Scalars['String']>>>;
+  totalDimensionValues?: Maybe<Scalars['Int']>;
   maxGranularity?: Maybe<TimeGranularity>;
 };
 
@@ -445,6 +447,17 @@ export type MetricDimensionValuesArgs = {
   allowDynamicCache?: Maybe<Scalars['Boolean']>;
   pageNumber?: Maybe<Scalars['Int']>;
   pageSize?: Maybe<Scalars['Int']>;
+  searchStr?: Maybe<Scalars['String']>;
+};
+
+
+export type MetricTotalDimensionValuesArgs = {
+  modelKey?: Maybe<ModelKeyInput>;
+  dimensionName: Scalars['String'];
+  startTime?: Maybe<Scalars['String']>;
+  endTime?: Maybe<Scalars['String']>;
+  allowDynamicCache?: Maybe<Scalars['Boolean']>;
+  searchStr?: Maybe<Scalars['String']>;
 };
 
 
@@ -514,6 +527,7 @@ export type MqlServerHealthItem = {
 
 export type Validations = {
   __typename?: 'Validations';
+  modelKey?: Maybe<ModelKey>;
   allIssues?: Maybe<Array<Scalars['String']>>;
   dataSourceIssues?: Maybe<Array<Scalars['String']>>;
 };
@@ -848,14 +862,10 @@ export type CreatePercentChangeMutation = (
     & Pick<PctChangeOverRangePayload, 'id'>
     & { query?: Maybe<(
       { __typename?: 'MqlQuery' }
-      & Pick<MqlQuery, 'id' | 'status' | 'metrics' | 'dimensions' | 'error' | 'chartValueMax' | 'chartValueMin'>
+      & Pick<MqlQuery, 'id' | 'status' | 'error' | 'chartValueMax' | 'chartValueMin'>
       & { result?: Maybe<Array<(
         { __typename?: 'MqlQueryResultSeries' }
-        & Pick<MqlQueryResultSeries, 'seriesValue'>
-        & { data?: Maybe<Array<(
-          { __typename?: 'TimeSeriesDatum' }
-          & Pick<TimeSeriesDatum, 'xDate' | 'y'>
-        )>> }
+        & Pick<MqlQueryResultSeries, 'value' | 'delta' | 'pctChange'>
       )>> }
     )> }
   )> }

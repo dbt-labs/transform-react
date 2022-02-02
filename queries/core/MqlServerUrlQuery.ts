@@ -2,7 +2,9 @@ import { gql } from "urql";
 
 const query = gql`
   query MqlServerUrl {
-    mqlServerUrl
+    myUser {
+      mqlServerUrl
+    }
   }
 `;
 

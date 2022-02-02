@@ -165,6 +165,7 @@ enum QueryResultSource {
   DYNAMIC_CACHE
   DW_MATERIALIZATION
   FAST_CACHE
+  METRICFLOW
   NOT_APPLICABLE
   NOT_SPECIFIED
 }
@@ -213,7 +214,8 @@ type Metric {
   constraint: String
   dimensions: [String!]
   dimensionObjects: [Dimension!]
-  dimensionValues(modelKey: ModelKeyInput, dimensionName: String!, startTime: String, endTime: String, allowDynamicCache: Boolean, pageNumber: Int, pageSize: Int): [String]
+  dimensionValues(modelKey: ModelKeyInput, dimensionName: String!, startTime: String, endTime: String, allowDynamicCache: Boolean, pageNumber: Int, pageSize: Int, searchStr: String): [String]
+  totalDimensionValues(modelKey: ModelKeyInput, dimensionName: String!, startTime: String, endTime: String, allowDynamicCache: Boolean, searchStr: String): Int
   maxGranularity(modelKey: ModelKeyInput): TimeGranularity
 }
 
@@ -269,6 +271,7 @@ type MqlServerHealthItem {
 }
 
 type Validations {
+  modelKey: ModelKey
   allIssues: [String!]
   dataSourceIssues: [String!]
 }

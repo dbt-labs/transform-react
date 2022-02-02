@@ -30,7 +30,7 @@ const useFetchMqlTimeSeries = <CreateQueryDataType>({
     handleCombinedError,
   } = useContext(MqlContext);
 
-  const [{ data, error }, refetchMqlQuery] = useQuery<
+  const [{ data, error, fetching}, refetchMqlQuery] = useQuery<
     FetchMqlTimeSeriesQuery,
     FetchMqlTimeSeriesQueryVariables
   >({
@@ -41,13 +41,12 @@ const useFetchMqlTimeSeries = <CreateQueryDataType>({
     pause: skip,
   });
 
-
   const retry = () => {
     setTimeout(() => {
       dispatch({ type: "retryFetchResults" });
       refetchMqlQuery();
     }, RETRY_POLLING_MS);
-  }
+  };
 
   useEffect(() => {
     if (error) {
@@ -60,8 +59,7 @@ const useFetchMqlTimeSeries = <CreateQueryDataType>({
           dispatch(doRetryAfterExpiredQueryAction(retries));
           createQueryIdQuery({stateRetries: state.retries});
       } else if (retries > 0 && state.retries !== retries) {
-        retry()
-
+        retry();
       } else {
         dispatch({
           type: "fetchResultsFail",
@@ -81,6 +79,7 @@ const useFetchMqlTimeSeries = <CreateQueryDataType>({
     if (id && state.cancelledQueries.includes(id) /*&& !isRunning*/) {
       return;
     }
+
     if (status === MqlQueryStatus.Successful) {
       dispatch({
         type: "fetchResultsSuccess",
@@ -90,13 +89,12 @@ const useFetchMqlTimeSeries = <CreateQueryDataType>({
     }
 
     if (
-      // isRunning ||
       status === MqlQueryStatus.Running ||
       status === MqlQueryStatus.Pending
     ) {
-      window.setTimeout(() => {
-        dispatch({ type: "fetchResultsRunning" });
-        refetchMqlQuery();
+      setTimeout(() => {
+        dispatch({ type: "fetchResultsRunning"});
+        refetchMqlQuery({ requestPolicy: 'network-only' });
       }, QUERY_POLLING_MS);
     }
 
@@ -145,7 +143,6 @@ const useFetchMqlTimeSeries = <CreateQueryDataType>({
             json: jsonString
           });
         }
-
       }
     }
   }, [data, error, state.cancelledQueries, handleCombinedError]);
