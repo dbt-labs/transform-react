@@ -8,6 +8,7 @@ import {
 import { Action, RETRY_POLLING_MS } from '../../reducers/mqlQueryReducer'
 import getErrorMessage from '../../utils/getErrorMessage';
 import {
+  FetchPercentChangeQuery,
   MqlQueryStatus,
 } from "../../../queries/mql/MqlQueryTypes";
 
@@ -18,7 +19,7 @@ interface DoCreatePercentChangeArgs {
 interface UseCreatePercentChangeArgs {
   retries: number; // the number of retries passed as an arg from the client.
   queryInput: CreatePercentChangeMutationVariables;
-  dispatch: Dispatch<Action<CreatePercentChangeMutation>>;
+  dispatch: Dispatch<Action<CreatePercentChangeMutation, FetchPercentChangeQuery>>;
 }
 
 interface UseCreatePercentChange {

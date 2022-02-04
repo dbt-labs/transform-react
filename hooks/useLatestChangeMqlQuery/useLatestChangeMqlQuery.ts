@@ -4,9 +4,13 @@ import {
   CreateLatestMetricChangeMutation,
   CreateLatestMetricChangeMutationVariables,
 } from "../../mutations/mql/MqlMutationTypes";
+import {
+  FetchLatestChangeQuery,
+} from "../../queries/mql/MqlQueryTypes";
+import FetchLatestChange from "../../queries/mql/FetchLatestChange";
 import useCreateLatestChangeMqlQuery from './utils/useCreateLatestChangeMqlQuery';
-import latestChangeReducer, { initialState, UseLatestMetricChangeQueryState } from './reducers/latestMetricChangeReducer';
-import useFetchMqlTimeSeries from '../utils/useFetchMqlTimeSeries';
+import mqlQueryReducer, { initialState, UseMqlQueryState } from '../reducers/mqlQueryReducer';
+import useFetchMqlQuery from '../utils/useFetchMqlQuery';
 
 /*
   Please Beware!
@@ -27,6 +31,8 @@ type UseLatestChangeMqlQueryParams = {
   retries?: number;
 };
 
+export type LatestChangeQueryState = UseMqlQueryState<FetchLatestChangeQuery>
+
 // This custom hook consists of two useHooks that should asynchronously handle all scenarios for this chained
 // data fetching we are doing. It should do it in a high performance way and in a way that is resilient to race conditions if the
 // user updates their request while a query is in flight
@@ -35,10 +41,10 @@ export default function useLatestChangeMqlQuery({
   metricName,
   skip,
   retries = 5,
-}: UseLatestChangeMqlQueryParams): UseLatestMetricChangeQueryState {
+}: UseLatestChangeMqlQueryParams): LatestChangeQueryState {
   const { mqlServerUrl, } = useContext(MqlContext);
-  // const dataAccr = (data: CreateLatestMetricChangeMutation) => data?.queryLatestMetricChange?.query
-  const reducer = latestChangeReducer();
+  const dataAccr = (data: CreateLatestMetricChangeMutation) => data?.queryLatestMetricChange?.query
+  const reducer = mqlQueryReducer<CreateLatestMetricChangeMutation, FetchLatestChangeQuery>(dataAccr);
   const [state, dispatch] = useReducer(reducer, initialState);
   const {queryLatestMetricChange} = useCreateLatestChangeMqlQuery({metricName, dispatch, retries})
 
@@ -57,12 +63,13 @@ export default function useLatestChangeMqlQuery({
     !state.queryId ||
     state.cancelledQueries.includes(state.queryId); /* && !isRunning*/
 
-    useFetchMqlTimeSeries<CreateLatestMetricChangeMutation>({
+    useFetchMqlQuery<CreateLatestMetricChangeMutation, FetchLatestChangeQuery>({
       state,
       skip: _skip,
       dispatch,
       createQueryIdQuery: queryLatestMetricChange,
-      retries
+      retries,
+      fetchDataQuery: FetchLatestChange
     });
 
   return state;

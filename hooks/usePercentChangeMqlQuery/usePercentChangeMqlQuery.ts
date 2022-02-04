@@ -1,13 +1,16 @@
 import { useEffect, useReducer, useContext } from "react";
-// import { CombinedError } from "urql";
 import MqlContext from "../../context/MqlContext/MqlContext";
 import {
+  CreatePercentChangeMutation,
   CreatePercentChangeMutationVariables,
 } from "../../mutations/mql/MqlMutationTypes";
+import {
+  FetchPercentChangeQuery,
+} from "../../queries/mql/MqlQueryTypes";
+import FetchPercentChange from "../../queries/mql/FetchPercentChange";
 import useCreatePercentChange from './utils/useCreatePercentChangeMqlQuery';
-import percentChangeReducer, { initialState } from './reducers/percentChangeReducer';
-// import useFetchMqlTimeSeries from './utils/useFetchMqlTimeSeries';
-import useFetchPercentChangeMqlQuery from './utils/useFetchPercentChangeMqlQuery'
+import mqlQueryReducer, { initialState, UseMqlQueryState } from '../reducers/mqlQueryReducer';
+import useFetchMqlQuery from '../utils/useFetchMqlQuery';
 
 /*
   Please Beware!
@@ -36,16 +39,16 @@ export default function usePercentChangeMqlQuery({
   metricName,
   skip,
   retries = 5,
-}: UsePercentChangeMqlQueryParams) {
+}: UsePercentChangeMqlQueryParams): UseMqlQueryState<FetchPercentChangeQuery> {
   const {
     mqlServerUrl,
   } = useContext(MqlContext);
 
-  // const dataAccr = (data: CreatePercentChangeMutation) => {
-  //   return data?.pctChangeOverRange?.query
-  // }
+  const dataAccr = (data: CreatePercentChangeMutation) => {
+    return data?.pctChangeOverRange?.query
+  }
 
-  const reducer = percentChangeReducer();
+  const reducer = mqlQueryReducer<CreatePercentChangeMutation, FetchPercentChangeQuery>(dataAccr);
   const [state, dispatch] = useReducer(reducer, initialState);
   const {queryPercentChange} = useCreatePercentChange({queryInput, dispatch, retries})
 
@@ -62,12 +65,13 @@ export default function usePercentChangeMqlQuery({
     !state.queryId ||
     state.cancelledQueries.includes(state.queryId); /* && !isRunning*/
 
-  useFetchPercentChangeMqlQuery({
+  useFetchMqlQuery<CreatePercentChangeMutation, FetchPercentChangeQuery>({
     state,
     skip: _skip,
     dispatch,
     createQueryIdQuery: queryPercentChange,
-    retries
+    retries,
+    fetchDataQuery: FetchPercentChange
   });
 
   return state;

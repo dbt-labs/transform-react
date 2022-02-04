@@ -5,9 +5,13 @@ import {
   CreateMqlQueryMutation,
   CreateMqlQueryMutationVariables,
 } from "../../mutations/mql/MqlMutationTypes";
-import useCreateMqlQuery, {DoCreateMqlQueryArgs} from './utils/useCreateMqlQuery';
+import {
+  FetchMqlTimeSeriesQuery,
+} from "../../queries/mql/MqlQueryTypes";
+import useCreateTimeSeriesMqlQuery from './utils/useCreateTimeSeriesMqlQuery';
 import mqlQueryReducer, { initialState } from '../reducers/mqlQueryReducer';
-import useFetchMqlTimeSeries from '../utils/useFetchMqlTimeSeries';
+import useFetchMqlQuery from '../utils/useFetchMqlQuery';
+import FetchMqlQueryTimeSeries from "../../queries/mql/FetchMqlQueryTimeSeries";
 
 /*
   Please Beware!
@@ -31,7 +35,7 @@ type UseMqlQueryParams = {
 // This custom hook consists of two useHooks that should asynchronously handle all scenarios for this chained
 // data fetching we are doing. It should do it in a high performance way and in a way that is resilient to race conditions if the
 // user updates their request while a query is in flight
-export default function useMqlQuery({
+export default function useTimeSeriesMqlQuery({
   queryInput,
   metricName,
   skip,
@@ -41,16 +45,18 @@ export default function useMqlQuery({
     mqlServerUrl,
   } = useContext(MqlContext);
 
-  const reducer = mqlQueryReducer<CreateMqlQueryMutation>((data: CreateMqlQueryMutation) => data?.createMqlQuery?.query);
+  const dataAccr = (data: CreateMqlQueryMutation) => data?.createMqlQuery?.query;
+
+  const reducer = mqlQueryReducer<CreateMqlQueryMutation, FetchMqlTimeSeriesQuery>(dataAccr);
   const [state, dispatch] = useReducer(reducer, initialState);
-  const {createMqlQuery} = useCreateMqlQuery({metricName, formState: queryInput, dispatch, retries})
+  const {createTimeSeriesMqlQuery} = useCreateTimeSeriesMqlQuery({metricName, formState: queryInput, dispatch, retries})
 
   useEffect(() => {
     if (!metricName || !mqlServerUrl || skip) {
       return;
     }
     dispatch({ type: "postQueryStart" });
-    createMqlQuery({stateRetries: state.retries});
+    createTimeSeriesMqlQuery({stateRetries: state.retries});
   }, [queryInput, metricName, mqlServerUrl, skip]);
 
   const _skip =
@@ -58,12 +64,13 @@ export default function useMqlQuery({
     !state.queryId ||
     state.cancelledQueries.includes(state.queryId); /* && !isRunning*/
 
-  useFetchMqlTimeSeries<CreateMqlQueryMutation>({
+  useFetchMqlQuery<CreateMqlQueryMutation, FetchMqlTimeSeriesQuery>({
     state,
     skip: _skip,
     dispatch,
-    createQueryIdQuery: createMqlQuery,
-    retries
+    createQueryIdQuery: createTimeSeriesMqlQuery,
+    retries,
+    fetchDataQuery: FetchMqlQueryTimeSeries
   });
 
   return state;

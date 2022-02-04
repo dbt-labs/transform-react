@@ -1,40 +1,44 @@
 import { useEffect, useContext, Dispatch } from "react";
-import MqlContext from "../../../context/MqlContext/MqlContext";
-import FetchMqlQueryTimeSeries from "../../../queries/mql/FetchMqlQueryTimeSeries";
+import MqlContext from "../../context/MqlContext/MqlContext";
 import {
-  FetchLatestChangeQuery,
-  FetchLatestChangeQueryVariables,
   MqlQueryStatus,
-} from "../../../queries/mql/MqlQueryTypes";
-import {shouldRetryAfterExpiredQuery, doRetryAfterExpiredQueryAction} from '../../actions';
-import getErrorMessage from '../../utils/getErrorMessage';
-import {Action, UseLatestMetricChangeQueryState, QUERY_POLLING_MS, RETRY_POLLING_MS} from '../reducers/latestMetricChangeReducer';
+} from "../../queries/mql/MqlQueryTypes";
+import { TypedDocumentNode } from 'urql'
+import {shouldRetryAfterExpiredQuery, doRetryAfterExpiredQueryAction} from '../actions';
+import getErrorMessage from '../utils/getErrorMessage';
+import {Action, UseMqlQueryState, QUERY_POLLING_MS, RETRY_POLLING_MS} from '../reducers/mqlQueryReducer';
 
-interface UseFetchMqlTimeSeriesArgs {
-  state: UseLatestMetricChangeQueryState;
-  skip: boolean;
-  dispatch: Dispatch<Action>
-  createQueryIdQuery: ({stateRetries}: {stateRetries: number}) => void;
-  retries: number;
+interface FetchDataVars {
+  queryId: string;
 }
 
-const useFetchLatestChangeMqlQuery = ({
+interface UseFetchMqlTimeSeriesArgs<CreateQueryDataType, FetchDataType extends {mqlQuery?: any}> {
+  state: UseMqlQueryState<FetchDataType>;
+  skip: boolean;
+  dispatch: Dispatch<Action<CreateQueryDataType, FetchDataType>>
+  createQueryIdQuery: ({stateRetries}: {stateRetries: number}) => void;
+  retries: number;
+  fetchDataQuery: TypedDocumentNode
+}
+
+const useFetchMqlQuery = <CreateQueryDataType, FetchDataType extends {mqlQuery?: any}>({
   state,
   skip,
   dispatch,
   createQueryIdQuery,
-  retries
-}: UseFetchMqlTimeSeriesArgs) => {
+  retries,
+  fetchDataQuery
+}: UseFetchMqlTimeSeriesArgs<CreateQueryDataType, FetchDataType>) => {
   const {
     useQuery,
     handleCombinedError,
   } = useContext(MqlContext);
 
-  const [{ data, error }, refetchMqlQuery] = useQuery<
-    FetchLatestChangeQuery,
-    FetchLatestChangeQueryVariables
+  const [{ data, error}, refetchMqlQuery] = useQuery<
+    FetchDataType,
+    FetchDataVars
   >({
-    query: FetchMqlQueryTimeSeries,
+    query: fetchDataQuery, //FetchMqlQueryTimeSeries,
     variables: {
       queryId: state.queryId || ""
     },
@@ -103,7 +107,7 @@ const useFetchLatestChangeMqlQuery = ({
         retry()
       } else {
         if (data?.mqlQuery?.error) {
-          const { error } = data.mqlQuery;
+          const {error} = data.mqlQuery;
           dispatch({
             type: "fetchResultsFail",
             errorMessage: error,
@@ -148,4 +152,4 @@ const useFetchLatestChangeMqlQuery = ({
   }, [data, error, state.cancelledQueries, handleCombinedError]);
 }
 
-export default useFetchLatestChangeMqlQuery;
+export default useFetchMqlQuery;
