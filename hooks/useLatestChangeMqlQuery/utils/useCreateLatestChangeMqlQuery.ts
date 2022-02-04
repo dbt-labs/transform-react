@@ -46,6 +46,10 @@ const useCreateLatestMetricChange = ({metricName, dispatch, retries}: UseCreateL
           data,
           handleCombinedError,
         });
+      } else if (data?.queryLatestMetricChange?.query?.status === MqlQueryStatus.Pending || data?.queryLatestMetricChange?.query?.status === MqlQueryStatus.Running) {
+        setTimeout(() => {
+          queryLatestMetricChange({stateRetries: stateRetries});
+        }, RETRY_POLLING_MS)
       } else {
         if (data?.queryLatestMetricChange?.id) {
           dispatch({
