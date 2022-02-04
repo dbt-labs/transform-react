@@ -23,6 +23,7 @@ type Query {
   queries(activeOnly: Boolean, status: MqlQueryStatus, metricNames: [String], dateRangeStart: Date, dateRangeEnd: Date, minExecutionSeconds: Float, maxExecutionSeconds: Float, userIds: [Int], limit: Int, offset: Int): [MqlQuery]
   healthReport: [MqlServerHealthItem]
   validations(modelKey: ModelKeyInput): Validations
+  flagIsEnabled(flag: String!): Boolean
 }
 
 """
@@ -112,6 +113,7 @@ type MqlQueryResultSeries {
   value: Float
   delta: Float
   pctChange: Float
+  xDate: DateTime
 }
 
 """This interface is used to describe any type of MQL Query result data"""
@@ -125,6 +127,11 @@ GraphQL scalar value that could be:
 String, Boolean, Int, Float, List or Object.
 """
 scalar GenericScalar
+
+"""
+Wrapper around Graphene DateTime that is capable of handling string dates
+"""
+scalar DateTime
 
 """Object type for Tabular data used to populate Pandas DataFrames"""
 type MqlQueryTabularResult {
@@ -152,11 +159,6 @@ enum PandasJsonOrient {
   VALUES
   TABLE
 }
-
-"""
-Wrapper around Graphene DateTime that is capable of handling string dates
-"""
-scalar DateTime
 
 """
 Different ways that a query result could have been computed or retrieved.
@@ -274,6 +276,7 @@ type Validations {
   modelKey: ModelKey
   allIssues: [String!]
   dataSourceIssues: [String!]
+  metricIssues: [String!]
 }
 
 """Base mutation object exposed by GraphQL."""
