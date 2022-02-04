@@ -2,12 +2,12 @@ import { useEffect, useReducer, useContext } from "react";
 // import { CombinedError } from "urql";
 import MqlContext from "../../context/MqlContext/MqlContext";
 import {
-  CreatePercentChangeMutation,
   CreatePercentChangeMutationVariables,
 } from "../../mutations/mql/MqlMutationTypes";
 import useCreatePercentChange from './utils/useCreatePercentChangeMqlQuery';
-import mqlQueryReducer, { initialState } from '../reducers/mqlQueryReducer';
-import useFetchMqlTimeSeries from '../utils/useFetchMqlTimeSeries';
+import percentChangeReducer, { initialState } from './reducers/percentChangeReducer';
+// import useFetchMqlTimeSeries from './utils/useFetchMqlTimeSeries';
+import useFetchPercentChangeMqlQuery from './utils/useFetchPercentChangeMqlQuery'
 
 /*
   Please Beware!
@@ -41,11 +41,11 @@ export default function usePercentChangeMqlQuery({
     mqlServerUrl,
   } = useContext(MqlContext);
 
-  const dataAccr = (data: CreatePercentChangeMutation) => {
-    return data?.pctChangeOverRange?.query
-  }
+  // const dataAccr = (data: CreatePercentChangeMutation) => {
+  //   return data?.pctChangeOverRange?.query
+  // }
 
-  const reducer = mqlQueryReducer<CreatePercentChangeMutation>(dataAccr);
+  const reducer = percentChangeReducer();
   const [state, dispatch] = useReducer(reducer, initialState);
   const {queryPercentChange} = useCreatePercentChange({queryInput, dispatch, retries})
 
@@ -62,7 +62,7 @@ export default function usePercentChangeMqlQuery({
     !state.queryId ||
     state.cancelledQueries.includes(state.queryId); /* && !isRunning*/
 
-  useFetchMqlTimeSeries<CreatePercentChangeMutation>({
+  useFetchPercentChangeMqlQuery({
     state,
     skip: _skip,
     dispatch,

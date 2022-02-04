@@ -877,6 +877,23 @@ export type FetchDimensionsMultihopQuery = (
   )> }
 );
 
+export type FetchLatestChangeQueryVariables = Exact<{
+  queryId: Scalars['ID'];
+}>;
+
+
+export type FetchLatestChangeQuery = (
+  { __typename?: 'Query' }
+  & { mqlQuery?: Maybe<(
+    { __typename?: 'MqlQuery' }
+    & Pick<MqlQuery, 'id' | 'status' | 'error'>
+    & { result?: Maybe<Array<(
+      { __typename?: 'MqlQueryResultSeries' }
+      & Pick<MqlQueryResultSeries, 'value' | 'delta' | 'pctChange'>
+    )>> }
+  )> }
+);
+
 export type FetchMqlQueryLogQueryVariables = Exact<{
   queryId: Scalars['ID'];
 }>;
@@ -958,6 +975,23 @@ export type FetchMqlTimeSeriesQuery = (
         { __typename?: 'TimeSeriesDatum' }
         & Pick<TimeSeriesDatum, 'xDate' | 'y'>
       )>> }
+    )>> }
+  )> }
+);
+
+export type FetchPercentChangeQueryVariables = Exact<{
+  queryId: Scalars['ID'];
+}>;
+
+
+export type FetchPercentChangeQuery = (
+  { __typename?: 'Query' }
+  & { mqlQuery?: Maybe<(
+    { __typename?: 'MqlQuery' }
+    & Pick<MqlQuery, 'id' | 'status' | 'error' | 'chartValueMax' | 'chartValueMin'>
+    & { result?: Maybe<Array<(
+      { __typename?: 'MqlQueryResultSeries' }
+      & Pick<MqlQueryResultSeries, 'value' | 'delta' | 'pctChange'>
     )>> }
   )> }
 );

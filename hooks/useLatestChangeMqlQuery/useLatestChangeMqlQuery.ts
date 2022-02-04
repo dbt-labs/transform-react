@@ -5,7 +5,7 @@ import {
   CreateLatestMetricChangeMutationVariables,
 } from "../../mutations/mql/MqlMutationTypes";
 import useCreateLatestChangeMqlQuery from './utils/useCreateLatestChangeMqlQuery';
-import mqlQueryReducer, { initialState } from '../reducers/mqlQueryReducer';
+import latestChangeReducer, { initialState, UseLatestMetricChangeQueryState } from './reducers/latestMetricChangeReducer';
 import useFetchMqlTimeSeries from '../utils/useFetchMqlTimeSeries';
 
 /*
@@ -35,10 +35,10 @@ export default function useLatestChangeMqlQuery({
   metricName,
   skip,
   retries = 5,
-}: UseLatestChangeMqlQueryParams) {
+}: UseLatestChangeMqlQueryParams): UseLatestMetricChangeQueryState {
   const { mqlServerUrl, } = useContext(MqlContext);
-
-  const reducer = mqlQueryReducer<CreateLatestMetricChangeMutation>((data: CreateLatestMetricChangeMutation) => data?.queryLatestMetricChange?.query);
+  // const dataAccr = (data: CreateLatestMetricChangeMutation) => data?.queryLatestMetricChange?.query
+  const reducer = latestChangeReducer();
   const [state, dispatch] = useReducer(reducer, initialState);
   const {queryLatestMetricChange} = useCreateLatestChangeMqlQuery({metricName, dispatch, retries})
 
