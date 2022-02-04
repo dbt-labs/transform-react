@@ -57,6 +57,7 @@ export type Query = {
   queries?: Maybe<Array<Maybe<MqlQuery>>>;
   healthReport?: Maybe<Array<Maybe<MqlServerHealthItem>>>;
   validations?: Maybe<Validations>;
+  flagIsEnabled?: Maybe<Scalars['Boolean']>;
 };
 
 
@@ -245,6 +246,16 @@ export type QueryValidationsArgs = {
   modelKey?: Maybe<ModelKeyInput>;
 };
 
+
+/**
+ * Base Query object exposed by GraphQL for the MQL Server
+ *
+ * Each field defined below is accessible by the API, by calling the equivalent resolver.
+ */
+export type QueryFlagIsEnabledArgs = {
+  flag: Scalars['String'];
+};
+
 /**
  * The MQL Query class is used to access the output of an MQL Query.
  *
@@ -346,12 +357,14 @@ export type MqlQueryResultSeries = {
   value?: Maybe<Scalars['Float']>;
   delta?: Maybe<Scalars['Float']>;
   pctChange?: Maybe<Scalars['Float']>;
+  xDate?: Maybe<Scalars['DateTime']>;
 };
 
 /** This interface is used to describe any type of MQL Query result data */
 export type ResultDatum = {
   y?: Maybe<Scalars['GenericScalar']>;
 };
+
 
 
 /** Object type for Tabular data used to populate Pandas DataFrames */
@@ -376,7 +389,6 @@ export enum PandasJsonOrient {
   Values = 'VALUES',
   Table = 'TABLE'
 }
-
 
 /** Different ways that a query result could have been computed or retrieved. */
 export enum QueryResultSource {
@@ -530,6 +542,7 @@ export type Validations = {
   modelKey?: Maybe<ModelKey>;
   allIssues?: Maybe<Array<Scalars['String']>>;
   dataSourceIssues?: Maybe<Array<Scalars['String']>>;
+  metricIssues?: Maybe<Array<Scalars['String']>>;
 };
 
 /** Base mutation object exposed by GraphQL. */
@@ -864,6 +877,23 @@ export type FetchDimensionsMultihopQuery = (
   )> }
 );
 
+export type FetchLatestChangeQueryVariables = Exact<{
+  queryId: Scalars['ID'];
+}>;
+
+
+export type FetchLatestChangeQuery = (
+  { __typename?: 'Query' }
+  & { mqlQuery?: Maybe<(
+    { __typename?: 'MqlQuery' }
+    & Pick<MqlQuery, 'id' | 'status' | 'error'>
+    & { result?: Maybe<Array<(
+      { __typename?: 'MqlQueryResultSeries' }
+      & Pick<MqlQueryResultSeries, 'value' | 'delta' | 'pctChange'>
+    )>> }
+  )> }
+);
+
 export type FetchMqlQueryLogQueryVariables = Exact<{
   queryId: Scalars['ID'];
 }>;
@@ -945,6 +975,23 @@ export type FetchMqlTimeSeriesQuery = (
         { __typename?: 'TimeSeriesDatum' }
         & Pick<TimeSeriesDatum, 'xDate' | 'y'>
       )>> }
+    )>> }
+  )> }
+);
+
+export type FetchPercentChangeQueryVariables = Exact<{
+  queryId: Scalars['ID'];
+}>;
+
+
+export type FetchPercentChangeQuery = (
+  { __typename?: 'Query' }
+  & { mqlQuery?: Maybe<(
+    { __typename?: 'MqlQuery' }
+    & Pick<MqlQuery, 'id' | 'status' | 'error' | 'chartValueMax' | 'chartValueMin'>
+    & { result?: Maybe<Array<(
+      { __typename?: 'MqlQueryResultSeries' }
+      & Pick<MqlQueryResultSeries, 'value' | 'delta' | 'pctChange'>
     )>> }
   )> }
 );

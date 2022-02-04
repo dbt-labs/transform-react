@@ -9,6 +9,7 @@ import clearEmptyConstraints from './clearEmptyConstraints';
 import { Action as UseMqlQueryAction, RETRY_POLLING_MS } from '../../reducers/mqlQueryReducer';
 import getErrorMessage from '../../utils/getErrorMessage';
 import {
+  FetchMqlTimeSeriesQuery,
   MqlQueryStatus,
 } from "../../../queries/mql/MqlQueryTypes";
 
@@ -20,14 +21,14 @@ interface UseCreateMqlQueryArgs {
   retries: number; // the number of retries passed as an arg from the client.
   metricName: string;
   formState?: CreateMqlQueryMutationVariables;
-  dispatch: Dispatch<UseMqlQueryAction<CreateMqlQueryMutation>>;
+  dispatch: Dispatch<UseMqlQueryAction<CreateMqlQueryMutation, FetchMqlTimeSeriesQuery>>;
 }
 
 interface UseCreateMqlQuery {
-  createMqlQuery: (args: DoCreateMqlQueryArgs) => void;
+  createTimeSeriesMqlQuery: (args: DoCreateMqlQueryArgs) => void;
 }
 
-const useCreateMqlQuery = ({metricName, formState = {}, dispatch, retries}: UseCreateMqlQueryArgs): UseCreateMqlQuery => {
+const useCreateTimeSeriesMqlQuery = ({metricName, formState = {}, dispatch, retries}: UseCreateMqlQueryArgs): UseCreateMqlQuery => {
   const {
     useMutation,
     handleCombinedError,
@@ -38,7 +39,7 @@ const useCreateMqlQuery = ({metricName, formState = {}, dispatch, retries}: UseC
     CreateMqlQueryMutationVariables
   >(CreateMqlQuery);
 
-  const createMqlQuery = ({stateRetries}:DoCreateMqlQueryArgs) => {
+  const createTimeSeriesMqlQuery = ({stateRetries}:DoCreateMqlQueryArgs) => {
     createMqlQueryMutation({
       addTimeSeries: true,
       daysLimit: formState.daysLimit,
@@ -70,7 +71,7 @@ const useCreateMqlQuery = ({metricName, formState = {}, dispatch, retries}: UseC
           if (retries > 0 && stateRetries !== retries && stateRetries < retries) {
             setTimeout(() => {
               dispatch({ type: "retryFetchResults" });
-              createMqlQuery({stateRetries: stateRetries + 1});
+              createTimeSeriesMqlQuery({stateRetries: stateRetries + 1});
             }, RETRY_POLLING_MS)
           } else {
             dispatch({
@@ -87,10 +88,10 @@ const useCreateMqlQuery = ({metricName, formState = {}, dispatch, retries}: UseC
   };
 
   return {
-    createMqlQuery
+    createTimeSeriesMqlQuery
   }
 }
 
 
 
-export default useCreateMqlQuery;
+export default useCreateTimeSeriesMqlQuery;

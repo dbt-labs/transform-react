@@ -1,6 +1,5 @@
 import { CombinedError } from "urql";
 import {
-  FetchMqlTimeSeriesQuery,
   MqlQueryStatus,
 } from "../../queries/mql/MqlQueryTypes";
 
@@ -16,7 +15,7 @@ const LONG_FETCH_QUERY_ATTEMPT_MAX = 20000; // 20 seconds
 // As we keep track of prevoius queries, we don't want the list to grow unbounded in long running browser sessions
 const CANCELLED_QUERY_LIST_LENGTH = 10;
 
-export type UseMqlQueryState = {
+export type UseMqlQueryState<FetchQueryDataType extends {mqlQuery?: any}> = {
   // The number of times FetchMqlTimeSeriesQuery will retry if the initial query fails. Defaults to 0.
   retries: number;
 
@@ -27,7 +26,8 @@ export type UseMqlQueryState = {
   queryStatus: MqlQueryStatus;
 
   // This is the formatted chart data ready for rendering by the chart
-  data?: FetchMqlTimeSeriesQuery["mqlQuery"] | null;
+  // data?: FetchMqlTimeSeriesQuery["mqlQuery"] | null;
+  data?: FetchQueryDataType['mqlQuery'] | null;
 
   // As we have subsequent queries triggered by changes in the UI, this allows us to keep track of previous requests to avoid race conditions
   // We cap the list at 10. It's only intended to handle scenarios where the user makes a series of requests while a series of requests is
@@ -45,7 +45,7 @@ export type UseMqlQueryState = {
   doRetryAfterExpiredQuery: boolean;
 };
 
-export const initialState: UseMqlQueryState = {
+export const initialState: UseMqlQueryState<{}> = {
   retries: 0,
   queryId: null,
   queryStatus: MqlQueryStatus.Pending,
@@ -56,7 +56,7 @@ export const initialState: UseMqlQueryState = {
   doRetryAfterExpiredQuery: false,
 };
 
-export type Action<CreateQueryDataType> =
+export type Action<CreateQueryDataType, FetchQueryDataType> =
   | { type: "postQueryStart" }
   | { type: "postQueryFail";
       errorMessage: string
@@ -75,7 +75,7 @@ export type Action<CreateQueryDataType> =
   | { type: "retryFetchResults" }
   | {
       type: "fetchResultsSuccess";
-      data: FetchMqlTimeSeriesQuery;
+      data: FetchQueryDataType;
       handleCombinedError: (e: CombinedError) => void;
     }
   | {
@@ -94,10 +94,10 @@ export type Action<CreateQueryDataType> =
       3. None of this can take place until an MQL Server URL is supplied
     This reducer abstracts all this complexity.
 */
-const mqlQueryReducer = <CreateQueryDataType extends unknown>(dataAccr: (data: CreateQueryDataType) => any) => (
-  state: UseMqlQueryState,
-  action: Action<CreateQueryDataType>,
-): UseMqlQueryState => {
+const mqlQueryReducer = <CreateQueryDataType extends unknown, FetchQueryDataType extends {mqlQuery?: any}>(dataAccr: (data: CreateQueryDataType) => FetchQueryDataType['mqlQuery']) => (
+  state: UseMqlQueryState<FetchQueryDataType>,
+  action: Action<CreateQueryDataType, FetchQueryDataType>,
+): UseMqlQueryState<FetchQueryDataType> => {
   switch (action.type) {
     case "postQueryStart": {
       // This condition is triggered when there is already a queryId being fetched.

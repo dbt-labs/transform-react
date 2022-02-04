@@ -21,6 +21,7 @@ type Query {
   transformConfig: TransformConfig
   emailCanSignUp(email: String!): Boolean
   dwHealthCheck(snowflakeConnectionDetails: SnowflakeConnectionInput, redshiftConnectionDetails: RedshiftConnectionInput, bigQueryConnectionDetails: BigQueryConnectionInput): [MqlServerHealthItem]
+  flagIsEnabled(flag: String!): Boolean
 }
 
 """A wrapper for the response we get from Auth0's user profile API"""
@@ -113,6 +114,8 @@ type Organization {
   sharedSlackChannelName: String
   primaryMqlServer: OrgMqlServer
   annotationsFeed(pageNumber: Int, pageSize: Int): [Annotation]
+  samlConnectionId: String
+  samlSignatureCert: String
   activeFeatures: [Feature]
 }
 
@@ -162,6 +165,8 @@ type User {
   acceptedTermsOfService: Int
   totalFeaturedMetrics: Int
   totalSubscribedMetrics: Int
+  latestInAppNotifications(pageNumber: Int, pageSize: Int): [Notification]
+  totalUndeliveredInAppNotifications: Int
   viewedMetrics(searchStr: String, searchColumns: [MetricVersionStrColumns], orderBy: MetricVersionOrderBy, desc: Boolean, orderBys: [MetricVersionOrderByInput], pageNumber: Int, pageSize: Int): [Metric]
   newMetrics(searchStr: String, searchColumns: [MetricVersionStrColumns], orderBy: MetricVersionOrderBy, desc: Boolean, orderBys: [MetricVersionOrderByInput], pageNumber: Int, pageSize: Int): [Metric]
   activeFeatures: [Feature]
@@ -242,21 +247,21 @@ type TeamMember {
 
 """An enumeration."""
 enum TeamMemberOrderBy {
-  TEAM_ID
   IS_TEAM_ADMIN
+  TEAM_ID
   JOINED_AT
   USER_ID
   TeamMember_ID
   TeamMember_ORGANIZATION_ID
   User_ORGANIZATION_ID
+  AVATAR_URL
   DEACTIVATED_AT
   EMAIL
   CREATED_AT
-  AVATAR_URL
-  AUTH0_ID
-  UPDATED_AT
   USER_NAME
   PRIMARY_DASHBOARD_ID
+  UPDATED_AT
+  AUTH0_ID
 }
 
 input TeamMemberOrderByInput {
@@ -582,13 +587,13 @@ enum QuestionReplyStrColumns {
 
 """An enumeration."""
 enum QuestionReplyOrderBy {
-  ID
-  QUESTION_ID
-  CREATED_AT
-  UPDATED_AT
-  AUTHOR_ID
-  ORGANIZATION_ID
   TEXT
+  AUTHOR_ID
+  UPDATED_AT
+  QUESTION_ID
+  ORGANIZATION_ID
+  ID
+  CREATED_AT
 }
 
 input QuestionReplyOrderByInput {
@@ -598,24 +603,24 @@ input QuestionReplyOrderByInput {
 
 """An enumeration."""
 enum QuestionStrColumns {
-  PRIORITY
   TEXT
+  PRIORITY
 }
 
 """An enumeration."""
 enum QuestionOrderBy {
-  ID
-  CREATED_AT
-  RESOLVED_BY
   AUTHOR_ID
-  ORGANIZATION_ID
-  PRIORITY
+  TEXT
+  RESOLVED_BY
+  ID
   NOTIFIED_AT
+  CREATED_AT
+  PRIORITY
+  RESOLVED_AT
   UPDATED_AT
+  ORGANIZATION_ID
   METRIC_ID
   RESOLVED
-  RESOLVED_AT
-  TEXT
 }
 
 input QuestionOrderByInput {
@@ -704,27 +709,27 @@ enum Priority {
 
 """An enumeration."""
 enum AnnotationStrColumns {
-  PRIORITY
-  TEXT
   TITLE
+  TEXT
   EXPECTED_IMPACT
+  PRIORITY
 }
 
 """An enumeration."""
 enum AnnotationOrderBy {
-  ID
-  DATE_STARTED_AT
-  TITLE
-  CREATED_AT
-  AUTHOR_ID
-  ORGANIZATION_ID
-  DATE_ENDED_AT
-  DELETED_AT
-  PRIORITY
-  NOTIFIED_AT
-  UPDATED_AT
   TEXT
+  AUTHOR_ID
+  DELETED_AT
+  DATE_STARTED_AT
+  ID
+  NOTIFIED_AT
+  CREATED_AT
+  PRIORITY
+  DATE_ENDED_AT
+  TITLE
   EXPECTED_IMPACT
+  UPDATED_AT
+  ORGANIZATION_ID
 }
 
 input AnnotationOrderByInput {
@@ -735,30 +740,30 @@ input AnnotationOrderByInput {
 """An enumeration."""
 enum DataSourceVersionStrColumns {
   NAME
+  CONNECTION
   DESCRIPTION
   HASH
-  CONNECTION
   SQL_QUERY
   SQL_TABLE
 }
 
 """An enumeration."""
 enum DataSourceVersionOrderBy {
-  NAME
-  IDENTIFIERS
-  CREATED_AT
-  ORGANIZATION_ID
   OWNERS
-  DATA_SOURCE_METADATA
-  ID
-  CONSTRAINT
+  NAME
   DIMENSIONS
-  SQL_TABLE
-  DESCRIPTION
-  MUTABILITY
-  CONNECTION
-  SQL_QUERY
   HASH
+  SQL_QUERY
+  MUTABILITY
+  CREATED_AT
+  IDENTIFIERS
+  CONNECTION
+  DESCRIPTION
+  ID
+  SQL_TABLE
+  CONSTRAINT
+  DATA_SOURCE_METADATA
+  ORGANIZATION_ID
   MEASURES
 }
 
@@ -788,41 +793,41 @@ type SavedQuery {
 """An enumeration."""
 enum MetricVersionStrColumns {
   HASH
+  DISPLAY_NAME
   DESCRIPTION
   VALUE_FORMAT
-  DISPLAY_NAME
 }
 
 """An enumeration."""
 enum MetricVersionOrderBy {
-  METADATA
-  ID
-  ORG_DATA_SOURCE_ID
-  PARAMS
-  ORGANIZATION_ID
-  VIEWS
   HASH
-  METRIC_TYPE
+  ID
+  VIEWS
   SOURCE_DATA_SOURCE_VERSIONS
+  PARAMS
+  METRIC_TYPE
+  ORGANIZATION_ID
+  ORG_DATA_SOURCE_ID
+  METADATA
   MetricVersion_METRIC_ID
   MetricVersion_CREATED_AT
   MetricMetadata_METRIC_ID
   MetricMetadata_CREATED_AT
-  DISPLAY_NAME_LOCK
-  INCREASE_IS_GOOD_LOCK
-  UPDATED_AT
-  DISPLAY_NAME
   DESCRIPTION_LOCK
-  VALUE_FORMAT_LOCK
   INCREASE_IS_GOOD
-  VALUE_FORMAT
-  UPDATED_BY
+  VALUE_FORMAT_LOCK
   TIER
-  DESCRIPTION
-  TIER_LOCK
-  CREATED_BY
+  VALUE_FORMAT
   IS_NEW
+  TIER_LOCK
+  DISPLAY_NAME_LOCK
+  UPDATED_BY
   EXTRA_FIELDS
+  DESCRIPTION
+  DISPLAY_NAME
+  INCREASE_IS_GOOD_LOCK
+  CREATED_BY
+  UPDATED_AT
 }
 
 input MetricVersionOrderByInput {
@@ -837,15 +842,15 @@ enum SavedQueryStrColumns {
 
 """An enumeration."""
 enum SavedQueryOrderBy {
-  ID
-  SERIALIZED_QUERY
-  CREATED_AT
-  TITLE
-  ORGANIZATION_ID
   DELETED_AT
+  ID
+  CREATED_AT
   OWNER_TEAM_ID
-  UPDATED_AT
   CREATED_BY
+  TITLE
+  SERIALIZED_QUERY
+  UPDATED_AT
+  ORGANIZATION_ID
 }
 
 input SavedQueryOrderByInput {
@@ -864,18 +869,18 @@ enum TeamStrColumns {
 """An enumeration."""
 enum TeamOrderBy {
   NAME
-  ID
-  DEACTIVATED_AT
-  CREATED_AT
-  ORGANIZATION_ID
-  VIEWS
   DESCRIPTION
-  FEATURED_METRIC_COLLECTION_ID
-  CREATED_BY
-  THEME
+  DEACTIVATED_AT
+  ID
   SLUG
-  UPDATED_AT
+  THEME
+  CREATED_AT
+  VIEWS
+  CREATED_BY
   PRIMARY_DASHBOARD_ID
+  UPDATED_AT
+  FEATURED_METRIC_COLLECTION_ID
+  ORGANIZATION_ID
 }
 
 input TeamOrderByInput {
@@ -893,16 +898,16 @@ enum UserStrColumns {
 
 """An enumeration."""
 enum UserOrderBy {
-  ID
+  AVATAR_URL
   DEACTIVATED_AT
+  ID
   EMAIL
   CREATED_AT
-  ORGANIZATION_ID
-  PRIMARY_DASHBOARD_ID
-  AUTH0_ID
-  UPDATED_AT
   USER_NAME
-  AVATAR_URL
+  PRIMARY_DASHBOARD_ID
+  UPDATED_AT
+  ORGANIZATION_ID
+  AUTH0_ID
 }
 
 input UserOrderByInput {
@@ -912,14 +917,14 @@ input UserOrderByInput {
 
 """An enumeration."""
 enum MetricCollectionMetricOrderBy {
-  ID
-  EMPHASIS
-  METRIC_COLLECTION_ID
-  CREATED_AT
-  METRIC_ID
-  UPDATED_AT
-  SAVED_QUERY_ID
   POSITION
+  ID
+  CREATED_AT
+  METRIC_COLLECTION_ID
+  UPDATED_AT
+  METRIC_ID
+  SAVED_QUERY_ID
+  EMPHASIS
 }
 
 input MetricCollectionMetricOrderByInput {
@@ -945,26 +950,26 @@ type CollectionItem {
 
 """An enumeration."""
 enum MetricCollectionStrColumns {
-  DESCRIPTION
   TITLE
   SLUG
+  DESCRIPTION
 }
 
 """An enumeration."""
 enum MetricCollectionOrderBy {
+  DESCRIPTION
+  DELETED_AT
   ID
   CREATED_AT
+  SLUG
+  VIEWS
+  OWNER_TEAM_ID
+  CREATED_BY
   TITLE
+  PRIMARY_DASHBOARD_ID
+  UPDATED_AT
   ORGANIZATION_ID
   DEFAULT_EMPHASIS
-  VIEWS
-  DELETED_AT
-  DESCRIPTION
-  OWNER_TEAM_ID
-  UPDATED_AT
-  CREATED_BY
-  SLUG
-  PRIMARY_DASHBOARD_ID
 }
 
 input MetricCollectionOrderByInput {
@@ -1002,28 +1007,111 @@ type ApiKey {
 """An enumeration."""
 enum ApiKeyStrColumns {
   TYPE
+  PREFIX
   SCOPE
   SECRET_HASH
-  PREFIX
 }
 
 """An enumeration."""
 enum ApiKeyOrderBy {
-  LAST_USED_AT
-  SCOPE
-  SECRET_HASH
-  CREATED_AT
   REVOKER_ID
-  PREFIX
-  REVOKED_AT
-  ORGANIZATION_ID
-  USER_ID
   TYPE
+  SECRET_HASH
+  LAST_USED_AT
+  PREFIX
+  CREATED_AT
+  USER_ID
+  ORGANIZATION_ID
+  REVOKED_AT
+  SCOPE
 }
 
 input ApiKeyOrderByInput {
   orderBy: ApiKeyOrderBy!
   desc: Boolean
+}
+
+type Notification {
+  id: ID!
+  alertId: Int!
+  userId: Int!
+  alertNotificationRuleId: Int!
+  deliveredAt: DateTime
+  createdAt: DateTime!
+  alertNotificationRule: AlertNotificationRule
+  alert: Alert
+}
+
+type AlertNotificationRule {
+  id: ID!
+  alertRuleId: Int
+  type: AlertNotificationRuleType!
+  channel: NotificationChannel!
+  cadence: NotificationCadence!
+  createdAt: DateTime!
+  createdBy: Int
+  updatedAt: DateTime!
+  deletedAt: DateTime
+  config: JSONString
+  alertRule: AlertRule
+}
+
+"""An enumeration."""
+enum AlertNotificationRuleType {
+  INDIVIDUAL
+  SUBSCRIBER
+  OWNER
+}
+
+"""An enumeration."""
+enum NotificationChannel {
+  IN_APP
+  EMAIL
+}
+
+"""An enumeration."""
+enum NotificationCadence {
+  INSTANT
+}
+
+type AlertRule {
+  id: ID!
+  metricId: Int
+  type: AlertRuleType!
+  config: JSONString!
+  createdAt: DateTime!
+  createdBy: Int!
+  updatedAt: DateTime!
+  updatedBy: Int!
+  deletedAt: DateTime
+  deletedBy: Int
+  metricUserSubscribers: [MetricUserSubscription]
+  metricTeamOwners: [MetricTeamOwner]
+  metricUserOwners: [MetricUserOwner]
+  alertNotificationRules: [AlertNotificationRule]
+  orgMetric: OrgMetric
+  userCanEdit: Boolean
+}
+
+"""An enumeration."""
+enum AlertRuleType {
+  METADATA_CHANGE
+  VALUE_CHANGE
+}
+
+type Alert {
+  id: ID!
+  alertRuleId: Int!
+  status: AlertStatus!
+  data: JSONString
+  detectedAt: DateTime!
+  createdAt: DateTime!
+}
+
+"""An enumeration."""
+enum AlertStatus {
+  CREATED
+  ACKNOWLEDGED
 }
 
 type Feature {
@@ -1040,28 +1128,28 @@ type Feature {
 
 """An enumeration."""
 enum OrganizationStrColumns {
-  NAME
   MQL_SERVER_LOGS
-  LOGO_URL
+  NAME
   PRIMARY_CONFIG_REPO
+  LOGO_URL
   PRIMARY_CONFIG_BRANCH
   SOURCE_CONTROL_URL
 }
 
 """An enumeration."""
 enum OrganizationOrderBy {
-  NAME
-  ID
-  DEACTIVATED_AT
-  LOGO_URL
-  CREATED_AT
-  SOURCE_CONTROL_URL
-  TYPE
   MQL_SERVER_LOGS
-  UPDATED_AT
+  NAME
+  TYPE
   PRIMARY_CONFIG_REPO
+  LOGO_URL
+  DEACTIVATED_AT
+  ID
+  CREATED_AT
   IS_HOSTED
+  UPDATED_AT
   PRIMARY_CONFIG_BRANCH
+  SOURCE_CONTROL_URL
 }
 
 input OrganizationOrderByInput {
@@ -1134,22 +1222,22 @@ type DataWarehouseConfig {
 
 """An enumeration."""
 enum OrgMqlServerStrColumns {
+  CONFIG_SECRET
   NAME
   URL
-  CONFIG_SECRET
 }
 
 """An enumeration."""
 enum OrgMqlServerOrderBy {
-  NAME
-  ID
-  URL
-  CREATED_AT
-  CONFIG_SECRET
-  ORGANIZATION_ID
   IS_ORG_DEFAULT
+  CONFIG_SECRET
+  NAME
+  URL
+  ID
+  CREATED_AT
   DW_ENGINE
   UPDATED_AT
+  ORGANIZATION_ID
   DEPLOYMENT_STATUS
 }
 
@@ -1176,11 +1264,11 @@ enum OrgPrefStrColumns {
 
 """An enumeration."""
 enum OrgPrefOrderBy {
-  ID
   UPDATED_AT
-  CREATED_AT
-  PREF_VALUE
   ORGANIZATION_ID
+  PREF_VALUE
+  ID
+  CREATED_AT
   PREF_KEY
 }
 
@@ -1212,8 +1300,8 @@ enum FeatureStrColumns {
 """An enumeration."""
 enum FeatureOrderBy {
   NAME
-  ID
   UPDATED_AT
+  ID
   CREATED_AT
   RETIRED_AT
 }
@@ -1248,7 +1336,7 @@ input SnowflakeConnectionInput {
   password: String!
   database: String!
   schema: String!
-  warehouse: String
+  warehouse: String!
   role: String
 }
 
@@ -1323,7 +1411,7 @@ type Mutation {
   """
   Stores environment variables required to spin up the MQL server into AWS Secrets Manager.
   """
-  setMqlServerEnvConfig(bigQueryConnectionDetails: BigQueryConnectionInput, redshiftConnectionDetails: RedshiftConnectionInput, snowflakeConnectionDetails: SnowflakeConnectionInput): SetMqlServerEnvConfig
+  setMqlServerEnvConfig(bigQueryConnectionDetails: BigQueryConnectionInput, deployServer: Boolean, redshiftConnectionDetails: RedshiftConnectionInput, snowflakeConnectionDetails: SnowflakeConnectionInput): SetMqlServerEnvConfig
   featuresCreate(name: String!): Feature
   featuresUpdate(id: ID!, name: String, retireFeature: Boolean): Feature
   featuresAddOrgs(featureId: ID!, organizationIds: [ID]!): Feature
@@ -1377,6 +1465,11 @@ type Mutation {
   createTermsOfService(pdfUrl: String!): TermsOfServiceVersion
   createSubscription(metricId: ID!, userIds: [Int]): Metric
   removeSubscription(metricId: ID!, userIds: [Int]): Metric
+  markNotificationsDelivered(notificationIds: [ID]!): Boolean
+  addAlertRule(metricId: ID!, alertRuleType: GAlertRuleType!, config: JSONString): AlertRule
+  addAlertNotificationRule(alertRuleId: ID!, alertNotificationRuleType: GAlertNotificationRuleType!, channel: GNotificationChannel!, config: JSONString): AlertNotificationRule
+  updateAlertRule(alertRuleId: ID!, metricId: ID!, alertRuleType: GAlertRuleType!, config: JSONString): AlertRule
+  removeAlertRule(alertRuleId: ID!): AlertRule
 }
 
 """An enumeration."""
@@ -1521,4 +1614,23 @@ input MFAPref {
 enum GOwnerType {
   business
   technical
+}
+
+"""An enumeration."""
+enum GAlertRuleType {
+  METADATA_CHANGE
+  VALUE_CHANGE
+}
+
+"""An enumeration."""
+enum GAlertNotificationRuleType {
+  INDIVIDUAL
+  SUBSCRIBER
+  OWNER
+}
+
+"""An enumeration."""
+enum GNotificationChannel {
+  IN_APP
+  EMAIL
 }

@@ -11,7 +11,6 @@ const mutation = gql`
           delta
           pctChange
         }
-
       }
     }
   }

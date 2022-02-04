@@ -8,6 +8,7 @@ import {
 import { Action, RETRY_POLLING_MS } from '../../reducers/mqlQueryReducer';
 import getErrorMessage from '../../utils/getErrorMessage';
 import {
+  FetchLatestChangeQuery,
   MqlQueryStatus,
 } from "../../../queries/mql/MqlQueryTypes";
 
@@ -18,7 +19,7 @@ interface DoCreateLatestMetricChangeArgs {
 interface UseCreateLatestMetricChangeArgs {
   retries: number; // the number of retries passed as an arg from the client.
   metricName: string;
-  dispatch: Dispatch<Action<CreateLatestMetricChangeMutation>>;
+  dispatch: Dispatch<Action<CreateLatestMetricChangeMutation, FetchLatestChangeQuery>>;
 }
 
 interface UseCreateLatestMetricChange {

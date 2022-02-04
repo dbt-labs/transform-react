@@ -1,40 +1,44 @@
 import { useEffect, useContext, Dispatch } from "react";
 import MqlContext from "../../context/MqlContext/MqlContext";
-import FetchMqlQueryTimeSeries from "../../queries/mql/FetchMqlQueryTimeSeries";
 import {
-  FetchMqlTimeSeriesQuery,
-  FetchMqlTimeSeriesQueryVariables,
   MqlQueryStatus,
 } from "../../queries/mql/MqlQueryTypes";
+import { TypedDocumentNode } from 'urql'
 import {shouldRetryAfterExpiredQuery, doRetryAfterExpiredQueryAction} from '../actions';
 import getErrorMessage from '../utils/getErrorMessage';
 import {Action, UseMqlQueryState, QUERY_POLLING_MS, RETRY_POLLING_MS} from '../reducers/mqlQueryReducer';
 
-interface UseFetchMqlTimeSeriesArgs<CreateQueryDataType> {
-  state: UseMqlQueryState;
-  skip: boolean;
-  dispatch: Dispatch<Action<CreateQueryDataType>>
-  createQueryIdQuery: ({stateRetries}: {stateRetries: number}) => void;
-  retries: number;
+interface FetchDataVars {
+  queryId: string;
 }
 
-const useFetchMqlTimeSeries = <CreateQueryDataType>({
+interface UseFetchMqlTimeSeriesArgs<CreateQueryDataType, FetchDataType extends {mqlQuery?: any}> {
+  state: UseMqlQueryState<FetchDataType>;
+  skip: boolean;
+  dispatch: Dispatch<Action<CreateQueryDataType, FetchDataType>>
+  createQueryIdQuery: ({stateRetries}: {stateRetries: number}) => void;
+  retries: number;
+  fetchDataQuery: TypedDocumentNode
+}
+
+const useFetchMqlQuery = <CreateQueryDataType, FetchDataType extends {mqlQuery?: any}>({
   state,
   skip,
   dispatch,
   createQueryIdQuery,
-  retries
-}: UseFetchMqlTimeSeriesArgs<CreateQueryDataType>) => {
+  retries,
+  fetchDataQuery
+}: UseFetchMqlTimeSeriesArgs<CreateQueryDataType, FetchDataType>) => {
   const {
     useQuery,
     handleCombinedError,
   } = useContext(MqlContext);
 
-  const [{ data, error, fetching}, refetchMqlQuery] = useQuery<
-    FetchMqlTimeSeriesQuery,
-    FetchMqlTimeSeriesQueryVariables
+  const [{ data, error}, refetchMqlQuery] = useQuery<
+    FetchDataType,
+    FetchDataVars
   >({
-    query: FetchMqlQueryTimeSeries,
+    query: fetchDataQuery, //FetchMqlQueryTimeSeries,
     variables: {
       queryId: state.queryId || ""
     },
@@ -148,4 +152,4 @@ const useFetchMqlTimeSeries = <CreateQueryDataType>({
   }, [data, error, state.cancelledQueries, handleCombinedError]);
 }
 
-export default useFetchMqlTimeSeries;
+export default useFetchMqlQuery;
