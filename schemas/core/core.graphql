@@ -247,20 +247,20 @@ type TeamMember {
 
 """An enumeration."""
 enum TeamMemberOrderBy {
-  IS_TEAM_ADMIN
-  TEAM_ID
   JOINED_AT
   USER_ID
+  TEAM_ID
+  IS_TEAM_ADMIN
   TeamMember_ID
   TeamMember_ORGANIZATION_ID
   User_ORGANIZATION_ID
-  AVATAR_URL
-  DEACTIVATED_AT
-  EMAIL
+  PRIMARY_DASHBOARD_ID
   CREATED_AT
   USER_NAME
-  PRIMARY_DASHBOARD_ID
+  DEACTIVATED_AT
+  EMAIL
   UPDATED_AT
+  AVATAR_URL
   AUTH0_ID
 }
 
@@ -587,13 +587,13 @@ enum QuestionReplyStrColumns {
 
 """An enumeration."""
 enum QuestionReplyOrderBy {
-  TEXT
-  AUTHOR_ID
-  UPDATED_AT
-  QUESTION_ID
-  ORGANIZATION_ID
   ID
   CREATED_AT
+  TEXT
+  QUESTION_ID
+  ORGANIZATION_ID
+  UPDATED_AT
+  AUTHOR_ID
 }
 
 input QuestionReplyOrderByInput {
@@ -609,18 +609,18 @@ enum QuestionStrColumns {
 
 """An enumeration."""
 enum QuestionOrderBy {
-  AUTHOR_ID
-  TEXT
-  RESOLVED_BY
-  ID
-  NOTIFIED_AT
   CREATED_AT
-  PRIORITY
-  RESOLVED_AT
-  UPDATED_AT
-  ORGANIZATION_ID
   METRIC_ID
+  TEXT
+  RESOLVED_AT
+  ORGANIZATION_ID
+  UPDATED_AT
+  NOTIFIED_AT
+  PRIORITY
+  ID
   RESOLVED
+  RESOLVED_BY
+  AUTHOR_ID
 }
 
 input QuestionOrderByInput {
@@ -709,27 +709,27 @@ enum Priority {
 
 """An enumeration."""
 enum AnnotationStrColumns {
-  TITLE
   TEXT
+  TITLE
   EXPECTED_IMPACT
   PRIORITY
 }
 
 """An enumeration."""
 enum AnnotationOrderBy {
-  TEXT
-  AUTHOR_ID
-  DELETED_AT
   DATE_STARTED_AT
-  ID
-  NOTIFIED_AT
   CREATED_AT
-  PRIORITY
-  DATE_ENDED_AT
-  TITLE
+  TEXT
+  ORGANIZATION_ID
   EXPECTED_IMPACT
   UPDATED_AT
-  ORGANIZATION_ID
+  NOTIFIED_AT
+  TITLE
+  ID
+  PRIORITY
+  DATE_ENDED_AT
+  AUTHOR_ID
+  DELETED_AT
 }
 
 input AnnotationOrderByInput {
@@ -739,32 +739,32 @@ input AnnotationOrderByInput {
 
 """An enumeration."""
 enum DataSourceVersionStrColumns {
-  NAME
-  CONNECTION
-  DESCRIPTION
-  HASH
-  SQL_QUERY
   SQL_TABLE
+  SQL_QUERY
+  CONNECTION
+  HASH
+  DESCRIPTION
+  NAME
 }
 
 """An enumeration."""
 enum DataSourceVersionOrderBy {
   OWNERS
-  NAME
-  DIMENSIONS
-  HASH
-  SQL_QUERY
-  MUTABILITY
-  CREATED_AT
-  IDENTIFIERS
-  CONNECTION
-  DESCRIPTION
-  ID
   SQL_TABLE
-  CONSTRAINT
-  DATA_SOURCE_METADATA
-  ORGANIZATION_ID
+  SQL_QUERY
+  CREATED_AT
+  HASH
+  IDENTIFIERS
   MEASURES
+  ID
+  CONNECTION
+  MUTABILITY
+  CONSTRAINT
+  ORGANIZATION_ID
+  NAME
+  DATA_SOURCE_METADATA
+  DESCRIPTION
+  DIMENSIONS
 }
 
 input DataSourceVersionOrderByInput {
@@ -800,34 +800,34 @@ enum MetricVersionStrColumns {
 
 """An enumeration."""
 enum MetricVersionOrderBy {
-  HASH
-  ID
-  VIEWS
-  SOURCE_DATA_SOURCE_VERSIONS
-  PARAMS
-  METRIC_TYPE
-  ORGANIZATION_ID
-  ORG_DATA_SOURCE_ID
   METADATA
-  MetricVersion_METRIC_ID
+  HASH
+  METRIC_TYPE
+  PARAMS
+  ORGANIZATION_ID
+  ID
+  SOURCE_DATA_SOURCE_VERSIONS
+  VIEWS
+  ORG_DATA_SOURCE_ID
   MetricVersion_CREATED_AT
-  MetricMetadata_METRIC_ID
+  MetricVersion_METRIC_ID
   MetricMetadata_CREATED_AT
-  DESCRIPTION_LOCK
-  INCREASE_IS_GOOD
-  VALUE_FORMAT_LOCK
-  TIER
-  VALUE_FORMAT
-  IS_NEW
-  TIER_LOCK
-  DISPLAY_NAME_LOCK
-  UPDATED_BY
-  EXTRA_FIELDS
-  DESCRIPTION
-  DISPLAY_NAME
+  MetricMetadata_METRIC_ID
   INCREASE_IS_GOOD_LOCK
-  CREATED_BY
   UPDATED_AT
+  VALUE_FORMAT
+  UPDATED_BY
+  INCREASE_IS_GOOD
+  TIER_LOCK
+  DESCRIPTION_LOCK
+  TIER
+  EXTRA_FIELDS
+  DISPLAY_NAME_LOCK
+  VALUE_FORMAT_LOCK
+  DISPLAY_NAME
+  IS_NEW
+  CREATED_BY
+  DESCRIPTION
 }
 
 input MetricVersionOrderByInput {
@@ -842,15 +842,15 @@ enum SavedQueryStrColumns {
 
 """An enumeration."""
 enum SavedQueryOrderBy {
-  DELETED_AT
-  ID
   CREATED_AT
-  OWNER_TEAM_ID
-  CREATED_BY
-  TITLE
-  SERIALIZED_QUERY
-  UPDATED_AT
   ORGANIZATION_ID
+  UPDATED_AT
+  OWNER_TEAM_ID
+  TITLE
+  ID
+  CREATED_BY
+  SERIALIZED_QUERY
+  DELETED_AT
 }
 
 input SavedQueryOrderByInput {
@@ -860,27 +860,27 @@ input SavedQueryOrderByInput {
 
 """An enumeration."""
 enum TeamStrColumns {
-  NAME
-  THEME
   SLUG
   DESCRIPTION
+  NAME
+  THEME
 }
 
 """An enumeration."""
 enum TeamOrderBy {
-  NAME
-  DESCRIPTION
-  DEACTIVATED_AT
-  ID
-  SLUG
-  THEME
-  CREATED_AT
-  VIEWS
-  CREATED_BY
   PRIMARY_DASHBOARD_ID
-  UPDATED_AT
-  FEATURED_METRIC_COLLECTION_ID
+  CREATED_AT
+  DEACTIVATED_AT
+  VIEWS
   ORGANIZATION_ID
+  UPDATED_AT
+  NAME
+  THEME
+  ID
+  FEATURED_METRIC_COLLECTION_ID
+  SLUG
+  CREATED_BY
+  DESCRIPTION
 }
 
 input TeamOrderByInput {
@@ -890,23 +890,23 @@ input TeamOrderByInput {
 
 """An enumeration."""
 enum UserStrColumns {
-  AUTH0_ID
   USER_NAME
-  EMAIL
   AVATAR_URL
+  AUTH0_ID
+  EMAIL
 }
 
 """An enumeration."""
 enum UserOrderBy {
-  AVATAR_URL
-  DEACTIVATED_AT
-  ID
-  EMAIL
+  PRIMARY_DASHBOARD_ID
   CREATED_AT
   USER_NAME
-  PRIMARY_DASHBOARD_ID
-  UPDATED_AT
+  DEACTIVATED_AT
   ORGANIZATION_ID
+  EMAIL
+  UPDATED_AT
+  ID
+  AVATAR_URL
   AUTH0_ID
 }
 
@@ -918,13 +918,13 @@ input UserOrderByInput {
 """An enumeration."""
 enum MetricCollectionMetricOrderBy {
   POSITION
-  ID
   CREATED_AT
-  METRIC_COLLECTION_ID
-  UPDATED_AT
   METRIC_ID
   SAVED_QUERY_ID
   EMPHASIS
+  UPDATED_AT
+  ID
+  METRIC_COLLECTION_ID
 }
 
 input MetricCollectionMetricOrderByInput {
@@ -950,26 +950,26 @@ type CollectionItem {
 
 """An enumeration."""
 enum MetricCollectionStrColumns {
-  TITLE
   SLUG
+  TITLE
   DESCRIPTION
 }
 
 """An enumeration."""
 enum MetricCollectionOrderBy {
+  PRIMARY_DASHBOARD_ID
+  CREATED_AT
+  VIEWS
+  ORGANIZATION_ID
+  UPDATED_AT
+  OWNER_TEAM_ID
+  TITLE
+  ID
+  DEFAULT_EMPHASIS
+  SLUG
+  CREATED_BY
   DESCRIPTION
   DELETED_AT
-  ID
-  CREATED_AT
-  SLUG
-  VIEWS
-  OWNER_TEAM_ID
-  CREATED_BY
-  TITLE
-  PRIMARY_DASHBOARD_ID
-  UPDATED_AT
-  ORGANIZATION_ID
-  DEFAULT_EMPHASIS
 }
 
 input MetricCollectionOrderByInput {
@@ -1008,22 +1008,22 @@ type ApiKey {
 enum ApiKeyStrColumns {
   TYPE
   PREFIX
-  SCOPE
   SECRET_HASH
+  SCOPE
 }
 
 """An enumeration."""
 enum ApiKeyOrderBy {
   REVOKER_ID
-  TYPE
-  SECRET_HASH
-  LAST_USED_AT
   PREFIX
   CREATED_AT
   USER_ID
+  TYPE
   ORGANIZATION_ID
-  REVOKED_AT
+  LAST_USED_AT
   SCOPE
+  SECRET_HASH
+  REVOKED_AT
 }
 
 input ApiKeyOrderByInput {
@@ -1128,28 +1128,28 @@ type Feature {
 
 """An enumeration."""
 enum OrganizationStrColumns {
-  MQL_SERVER_LOGS
-  NAME
-  PRIMARY_CONFIG_REPO
   LOGO_URL
   PRIMARY_CONFIG_BRANCH
+  MQL_SERVER_LOGS
   SOURCE_CONTROL_URL
+  NAME
+  PRIMARY_CONFIG_REPO
 }
 
 """An enumeration."""
 enum OrganizationOrderBy {
-  MQL_SERVER_LOGS
-  NAME
-  TYPE
-  PRIMARY_CONFIG_REPO
-  LOGO_URL
-  DEACTIVATED_AT
-  ID
   CREATED_AT
-  IS_HOSTED
-  UPDATED_AT
-  PRIMARY_CONFIG_BRANCH
+  DEACTIVATED_AT
+  MQL_SERVER_LOGS
+  TYPE
   SOURCE_CONTROL_URL
+  NAME
+  UPDATED_AT
+  LOGO_URL
+  ID
+  PRIMARY_CONFIG_BRANCH
+  IS_HOSTED
+  PRIMARY_CONFIG_REPO
 }
 
 input OrganizationOrderByInput {
@@ -1222,23 +1222,23 @@ type DataWarehouseConfig {
 
 """An enumeration."""
 enum OrgMqlServerStrColumns {
-  CONFIG_SECRET
   NAME
   URL
+  CONFIG_SECRET
 }
 
 """An enumeration."""
 enum OrgMqlServerOrderBy {
+  CREATED_AT
   IS_ORG_DEFAULT
-  CONFIG_SECRET
+  ORGANIZATION_ID
+  UPDATED_AT
   NAME
+  CONFIG_SECRET
+  DEPLOYMENT_STATUS
   URL
   ID
-  CREATED_AT
   DW_ENGINE
-  UPDATED_AT
-  ORGANIZATION_ID
-  DEPLOYMENT_STATUS
 }
 
 input OrgMqlServerOrderByInput {
@@ -1258,18 +1258,18 @@ type OrgPref {
 
 """An enumeration."""
 enum OrgPrefStrColumns {
-  PREF_VALUE
   PREF_KEY
+  PREF_VALUE
 }
 
 """An enumeration."""
 enum OrgPrefOrderBy {
-  UPDATED_AT
-  ORGANIZATION_ID
+  PREF_KEY
   PREF_VALUE
   ID
   CREATED_AT
-  PREF_KEY
+  ORGANIZATION_ID
+  UPDATED_AT
 }
 
 input OrgPrefOrderByInput {
@@ -1299,11 +1299,11 @@ enum FeatureStrColumns {
 
 """An enumeration."""
 enum FeatureOrderBy {
-  NAME
-  UPDATED_AT
   ID
   CREATED_AT
   RETIRED_AT
+  UPDATED_AT
+  NAME
 }
 
 input FeatureOrderByInput {
@@ -1470,6 +1470,9 @@ type Mutation {
   addAlertNotificationRule(alertRuleId: ID!, alertNotificationRuleType: GAlertNotificationRuleType!, channel: GNotificationChannel!, config: JSONString): AlertNotificationRule
   updateAlertRule(alertRuleId: ID!, metricId: ID!, alertRuleType: GAlertRuleType!, config: JSONString): AlertRule
   removeAlertRule(alertRuleId: ID!): AlertRule
+  removeAlertNotificationRule(alertNotificationRuleId: ID!): AlertNotificationRule
+  addAlertNotificationRuleForCurrentUser(alertRuleId: ID!, channel: GNotificationChannel!, config: JSONString): AlertNotificationRule
+  removeAlertNotificationRuleForCurrentUser(alertNotificationRuleId: ID!): AlertNotificationRule
 }
 
 """An enumeration."""
