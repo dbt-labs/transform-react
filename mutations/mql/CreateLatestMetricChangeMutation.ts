@@ -7,6 +7,7 @@ const mutation = gql`
       query {
         status
         result {
+          xDate
           value
           delta
           pctChange

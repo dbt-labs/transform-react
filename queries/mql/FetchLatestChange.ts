@@ -7,6 +7,7 @@ const query = gql`
       status
       error
       result {
+        xDate
         value
         delta
         pctChange

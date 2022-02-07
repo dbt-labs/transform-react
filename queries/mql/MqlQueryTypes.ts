@@ -543,6 +543,7 @@ export type Validations = {
   allIssues?: Maybe<Array<Scalars['String']>>;
   dataSourceIssues?: Maybe<Array<Scalars['String']>>;
   metricIssues?: Maybe<Array<Scalars['String']>>;
+  dimensionIssues?: Maybe<Array<Scalars['String']>>;
 };
 
 /** Base mutation object exposed by GraphQL. */
@@ -889,7 +890,7 @@ export type FetchLatestChangeQuery = (
     & Pick<MqlQuery, 'id' | 'status' | 'error'>
     & { result?: Maybe<Array<(
       { __typename?: 'MqlQueryResultSeries' }
-      & Pick<MqlQueryResultSeries, 'value' | 'delta' | 'pctChange'>
+      & Pick<MqlQueryResultSeries, 'xDate' | 'value' | 'delta' | 'pctChange'>
     )>> }
   )> }
 );

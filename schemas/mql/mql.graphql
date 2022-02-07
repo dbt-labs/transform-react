@@ -277,6 +277,7 @@ type Validations {
   allIssues: [String!]
   dataSourceIssues: [String!]
   metricIssues: [String!]
+  dimensionIssues: [String!]
 }
 
 """Base mutation object exposed by GraphQL."""
