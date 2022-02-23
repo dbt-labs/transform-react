@@ -356,7 +356,7 @@ export type MqlQueryResultSeries = {
   isOtherCol?: Maybe<Scalars['Boolean']>;
   value?: Maybe<Scalars['Float']>;
   delta?: Maybe<Scalars['Float']>;
-  pctChange?: Maybe<Scalars['Float']>;
+  pctChange?: Maybe<Scalars['GenericScalar']>;
   xDate?: Maybe<Scalars['DateTime']>;
 };
 
@@ -697,6 +697,8 @@ export type CreateMqlQueryInput = {
   allowDynamicCache?: Maybe<Scalars['Boolean']>;
   /** Limit queries to a maximum number of dimension values. Primarily make charts readable. */
   maxDimensionValues?: Maybe<Scalars['Int']>;
+  /** Include date boundaries in postprocessed results, even if there is no result data for those dates. */
+  includeDateBoundaries?: Maybe<Scalars['Boolean']>;
   clientMutationId?: Maybe<Scalars['String']>;
 };
 
@@ -829,6 +831,7 @@ export type CreateMqlQueryMutationVariables = Exact<{
   daysLimit?: Maybe<Scalars['Int']>;
   endTime?: Maybe<Scalars['String']>;
   groupBy?: Maybe<Array<Scalars['String']> | Scalars['String']>;
+  includeDateBoundaries?: Maybe<Scalars['Boolean']>;
   maxDimensionValues?: Maybe<Scalars['Int']>;
   metrics?: Maybe<Array<Scalars['String']> | Scalars['String']>;
   modelKey?: Maybe<ModelKeyInput>;
