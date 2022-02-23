@@ -112,7 +112,7 @@ type MqlQueryResultSeries {
   isOtherCol: Boolean
   value: Float
   delta: Float
-  pctChange: Float
+  pctChange: GenericScalar
   xDate: DateTime
 }
 
@@ -413,6 +413,11 @@ input CreateMqlQueryInput {
   Limit queries to a maximum number of dimension values. Primarily make charts readable.
   """
   maxDimensionValues: Int
+
+  """
+  Include date boundaries in postprocessed results, even if there is no result data for those dates.
+  """
+  includeDateBoundaries: Boolean
   clientMutationId: String
 }
 

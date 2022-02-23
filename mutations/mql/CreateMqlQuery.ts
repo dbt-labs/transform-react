@@ -6,6 +6,7 @@ const mutation = gql`
     $daysLimit: Int
     $endTime: String
     $groupBy: [String!]
+    $includeDateBoundaries: Boolean
     $maxDimensionValues: Int
     $metrics: [String!]
     $modelKey: ModelKeyInput
@@ -23,6 +24,7 @@ const mutation = gql`
         daysLimit: $daysLimit
         endTime: $endTime
         groupBy: $groupBy
+        includeDateBoundaries:$ includeDateBoundaries
         limit: $limit
         maxDimensionValues: $maxDimensionValues
         metrics: $metrics
