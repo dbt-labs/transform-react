@@ -24,7 +24,7 @@ const mutation = gql`
         daysLimit: $daysLimit
         endTime: $endTime
         groupBy: $groupBy
-        includeDateBoundaries:$ includeDateBoundaries
+        includeDateBoundaries: $includeDateBoundaries
         limit: $limit
         maxDimensionValues: $maxDimensionValues
         metrics: $metrics
