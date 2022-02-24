@@ -38,13 +38,13 @@ const useCreateTimeSeriesMqlQuery = ({metricName, formState = {}, dispatch, retr
     CreateMqlQueryMutation,
     CreateMqlQueryMutationVariables
   >(CreateMqlQuery);
-
   const createTimeSeriesMqlQuery = ({stateRetries}:DoCreateMqlQueryArgs) => {
     createMqlQueryMutation({
       addTimeSeries: true,
       daysLimit: formState.daysLimit,
       endTime: formState.endTime,
       groupBy: formState.groupBy || [],
+      includeDateBoundaries: formState.includeDateBoundaries,
       limit: formState.limit,
       maxDimensionValues: formState.maxDimensionValues,
       metrics: [metricName],
