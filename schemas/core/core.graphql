@@ -252,21 +252,21 @@ type TeamMember {
 
 """An enumeration."""
 enum TeamMemberOrderBy {
-  IS_TEAM_ADMIN
   JOINED_AT
-  TEAM_ID
+  IS_TEAM_ADMIN
   USER_ID
+  TEAM_ID
   TeamMember_ORGANIZATION_ID
   TeamMember_ID
   User_ORGANIZATION_ID
-  AVATAR_URL
-  USER_NAME
-  DEACTIVATED_AT
-  CREATED_AT
   EMAIL
-  AUTH0_ID
+  DEACTIVATED_AT
   UPDATED_AT
   PRIMARY_DASHBOARD_ID
+  AVATAR_URL
+  CREATED_AT
+  AUTH0_ID
+  USER_NAME
 }
 
 input TeamMemberOrderByInput {
@@ -592,13 +592,13 @@ enum QuestionReplyStrColumns {
 
 """An enumeration."""
 enum QuestionReplyOrderBy {
-  TEXT
-  ID
-  CREATED_AT
-  ORGANIZATION_ID
-  UPDATED_AT
   QUESTION_ID
+  CREATED_AT
+  UPDATED_AT
+  TEXT
+  ORGANIZATION_ID
   AUTHOR_ID
+  ID
 }
 
 input QuestionReplyOrderByInput {
@@ -615,17 +615,17 @@ enum QuestionStrColumns {
 """An enumeration."""
 enum QuestionOrderBy {
   RESOLVED_AT
+  PRIORITY
+  RESOLVED_BY
+  UPDATED_AT
+  TEXT
+  ORGANIZATION_ID
+  AUTHOR_ID
   ID
   RESOLVED
+  CREATED_AT
   METRIC_ID
   NOTIFIED_AT
-  AUTHOR_ID
-  TEXT
-  CREATED_AT
-  RESOLVED_BY
-  PRIORITY
-  ORGANIZATION_ID
-  UPDATED_AT
 }
 
 input QuestionOrderByInput {
@@ -714,27 +714,27 @@ enum Priority {
 
 """An enumeration."""
 enum AnnotationStrColumns {
-  EXPECTED_IMPACT
+  PRIORITY
   TEXT
   TITLE
-  PRIORITY
+  EXPECTED_IMPACT
 }
 
 """An enumeration."""
 enum AnnotationOrderBy {
+  PRIORITY
+  DATE_ENDED_AT
+  UPDATED_AT
+  TEXT
+  ORGANIZATION_ID
+  AUTHOR_ID
   ID
   DELETED_AT
-  UPDATED_AT
   DATE_STARTED_AT
-  NOTIFIED_AT
-  AUTHOR_ID
-  PRIORITY
-  TEXT
-  TITLE
-  DATE_ENDED_AT
-  EXPECTED_IMPACT
-  ORGANIZATION_ID
   CREATED_AT
+  TITLE
+  EXPECTED_IMPACT
+  NOTIFIED_AT
 }
 
 input AnnotationOrderByInput {
@@ -744,32 +744,32 @@ input AnnotationOrderByInput {
 
 """An enumeration."""
 enum DataSourceVersionStrColumns {
-  SQL_QUERY
-  NAME
   DESCRIPTION
+  SQL_QUERY
   SQL_TABLE
-  CONNECTION
+  NAME
   HASH
+  CONNECTION
 }
 
 """An enumeration."""
 enum DataSourceVersionOrderBy {
-  CONSTRAINT
-  DATA_SOURCE_METADATA
-  NAME
   DIMENSIONS
   OWNERS
-  SQL_TABLE
-  HASH
-  MUTABILITY
+  ORGANIZATION_ID
   CREATED_AT
   CONNECTION
-  IDENTIFIERS
-  ID
-  SQL_QUERY
   DESCRIPTION
-  ORGANIZATION_ID
+  CONSTRAINT
+  SQL_TABLE
+  DATA_SOURCE_METADATA
   MEASURES
+  HASH
+  ID
+  IDENTIFIERS
+  SQL_QUERY
+  NAME
+  MUTABILITY
 }
 
 input DataSourceVersionOrderByInput {
@@ -799,40 +799,40 @@ type SavedQuery {
 enum MetricVersionStrColumns {
   HASH
   DESCRIPTION
-  DISPLAY_NAME
   VALUE_FORMAT
+  DISPLAY_NAME
 }
 
 """An enumeration."""
 enum MetricVersionOrderBy {
-  ID
-  PARAMS
-  SOURCE_DATA_SOURCE_VERSIONS
-  ORG_DATA_SOURCE_ID
-  HASH
-  VIEWS
   METRIC_TYPE
-  ORGANIZATION_ID
   METADATA
-  MetricVersion_METRIC_ID
+  SOURCE_DATA_SOURCE_VERSIONS
+  ORGANIZATION_ID
+  HASH
+  ID
+  ORG_DATA_SOURCE_ID
+  PARAMS
+  VIEWS
   MetricVersion_CREATED_AT
-  MetricMetadata_METRIC_ID
+  MetricVersion_METRIC_ID
   MetricMetadata_CREATED_AT
-  IS_NEW
-  INCREASE_IS_GOOD
-  TIER_LOCK
-  VALUE_FORMAT_LOCK
-  EXTRA_FIELDS
-  VALUE_FORMAT
-  CREATED_BY
+  MetricMetadata_METRIC_ID
   DISPLAY_NAME_LOCK
-  DESCRIPTION
   DISPLAY_NAME
-  TIER
   DESCRIPTION_LOCK
-  UPDATED_BY
-  UPDATED_AT
+  VALUE_FORMAT
+  IS_NEW
+  TIER
   INCREASE_IS_GOOD_LOCK
+  CREATED_BY
+  DESCRIPTION
+  UPDATED_BY
+  VALUE_FORMAT_LOCK
+  UPDATED_AT
+  EXTRA_FIELDS
+  TIER_LOCK
+  INCREASE_IS_GOOD
 }
 
 input MetricVersionOrderByInput {
@@ -848,14 +848,14 @@ enum SavedQueryStrColumns {
 """An enumeration."""
 enum SavedQueryOrderBy {
   OWNER_TEAM_ID
-  ID
-  DELETED_AT
-  CREATED_BY
   SERIALIZED_QUERY
-  TITLE
-  CREATED_AT
-  ORGANIZATION_ID
   UPDATED_AT
+  DELETED_AT
+  ORGANIZATION_ID
+  ID
+  CREATED_AT
+  TITLE
+  CREATED_BY
 }
 
 input SavedQueryOrderByInput {
@@ -865,27 +865,27 @@ input SavedQueryOrderByInput {
 
 """An enumeration."""
 enum TeamStrColumns {
-  DESCRIPTION
-  SLUG
-  THEME
   NAME
+  DESCRIPTION
+  THEME
+  SLUG
 }
 
 """An enumeration."""
 enum TeamOrderBy {
-  ID
-  NAME
-  CREATED_BY
-  SLUG
-  FEATURED_METRIC_COLLECTION_ID
-  DEACTIVATED_AT
-  VIEWS
-  THEME
-  CREATED_AT
   DESCRIPTION
-  ORGANIZATION_ID
+  DEACTIVATED_AT
+  FEATURED_METRIC_COLLECTION_ID
   UPDATED_AT
+  ORGANIZATION_ID
   PRIMARY_DASHBOARD_ID
+  ID
+  CREATED_AT
+  THEME
+  SLUG
+  NAME
+  VIEWS
+  CREATED_BY
 }
 
 input TeamOrderByInput {
@@ -895,24 +895,24 @@ input TeamOrderByInput {
 
 """An enumeration."""
 enum UserStrColumns {
-  AUTH0_ID
-  USER_NAME
   AVATAR_URL
   EMAIL
+  AUTH0_ID
+  USER_NAME
 }
 
 """An enumeration."""
 enum UserOrderBy {
+  EMAIL
+  DEACTIVATED_AT
+  UPDATED_AT
+  ORGANIZATION_ID
+  PRIMARY_DASHBOARD_ID
   ID
   AVATAR_URL
-  USER_NAME
-  DEACTIVATED_AT
   CREATED_AT
-  EMAIL
   AUTH0_ID
-  ORGANIZATION_ID
-  UPDATED_AT
-  PRIMARY_DASHBOARD_ID
+  USER_NAME
 }
 
 input UserOrderByInput {
@@ -922,14 +922,14 @@ input UserOrderByInput {
 
 """An enumeration."""
 enum MetricCollectionMetricOrderBy {
-  EMPHASIS
-  ID
-  METRIC_ID
-  METRIC_COLLECTION_ID
   SAVED_QUERY_ID
-  POSITION
-  CREATED_AT
+  METRIC_COLLECTION_ID
   UPDATED_AT
+  POSITION
+  ID
+  CREATED_AT
+  METRIC_ID
+  EMPHASIS
 }
 
 input MetricCollectionMetricOrderByInput {
@@ -963,18 +963,18 @@ enum MetricCollectionStrColumns {
 """An enumeration."""
 enum MetricCollectionOrderBy {
   OWNER_TEAM_ID
-  ID
-  DELETED_AT
-  DEFAULT_EMPHASIS
-  CREATED_BY
-  SLUG
-  VIEWS
-  TITLE
-  CREATED_AT
   DESCRIPTION
-  ORGANIZATION_ID
   UPDATED_AT
+  DELETED_AT
+  ORGANIZATION_ID
   PRIMARY_DASHBOARD_ID
+  ID
+  DEFAULT_EMPHASIS
+  CREATED_AT
+  SLUG
+  TITLE
+  VIEWS
+  CREATED_BY
 }
 
 input MetricCollectionOrderByInput {
@@ -1011,24 +1011,24 @@ type ApiKey {
 
 """An enumeration."""
 enum ApiKeyStrColumns {
-  PREFIX
-  TYPE
-  SCOPE
   SECRET_HASH
+  TYPE
+  PREFIX
+  SCOPE
 }
 
 """An enumeration."""
 enum ApiKeyOrderBy {
   SECRET_HASH
-  REVOKER_ID
   PREFIX
-  LAST_USED_AT
+  REVOKER_ID
+  TYPE
+  ORGANIZATION_ID
+  CREATED_AT
   USER_ID
+  LAST_USED_AT
   REVOKED_AT
   SCOPE
-  CREATED_AT
-  ORGANIZATION_ID
-  TYPE
 }
 
 input ApiKeyOrderByInput {
@@ -1144,28 +1144,28 @@ type Feature {
 
 """An enumeration."""
 enum OrganizationStrColumns {
-  SOURCE_CONTROL_URL
-  PRIMARY_CONFIG_BRANCH
+  LOGO_URL
   NAME
   PRIMARY_CONFIG_REPO
   MQL_SERVER_LOGS
-  LOGO_URL
+  SOURCE_CONTROL_URL
+  PRIMARY_CONFIG_BRANCH
 }
 
 """An enumeration."""
 enum OrganizationOrderBy {
-  ID
-  SOURCE_CONTROL_URL
-  NAME
-  LOGO_URL
-  DEACTIVATED_AT
-  PRIMARY_CONFIG_BRANCH
   IS_HOSTED
-  CREATED_AT
+  DEACTIVATED_AT
+  LOGO_URL
   PRIMARY_CONFIG_REPO
   UPDATED_AT
-  TYPE
   MQL_SERVER_LOGS
+  TYPE
+  ID
+  PRIMARY_CONFIG_BRANCH
+  CREATED_AT
+  NAME
+  SOURCE_CONTROL_URL
 }
 
 input OrganizationOrderByInput {
@@ -1238,23 +1238,23 @@ type DataWarehouseConfig {
 
 """An enumeration."""
 enum OrgMqlServerStrColumns {
-  CONFIG_SECRET
-  URL
   NAME
+  URL
+  CONFIG_SECRET
 }
 
 """An enumeration."""
 enum OrgMqlServerOrderBy {
+  IS_ORG_DEFAULT
+  UPDATED_AT
+  ORGANIZATION_ID
+  CONFIG_SECRET
   ID
+  DW_ENGINE
+  CREATED_AT
   DEPLOYMENT_STATUS
   NAME
   URL
-  CONFIG_SECRET
-  IS_ORG_DEFAULT
-  DW_ENGINE
-  CREATED_AT
-  ORGANIZATION_ID
-  UPDATED_AT
 }
 
 input OrgMqlServerOrderByInput {
@@ -1274,18 +1274,18 @@ type OrgPref {
 
 """An enumeration."""
 enum OrgPrefStrColumns {
-  PREF_KEY
   PREF_VALUE
+  PREF_KEY
 }
 
 """An enumeration."""
 enum OrgPrefOrderBy {
-  PREF_KEY
-  ID
   CREATED_AT
+  PREF_KEY
   PREF_VALUE
   ORGANIZATION_ID
   UPDATED_AT
+  ID
 }
 
 input OrgPrefOrderByInput {
@@ -1326,11 +1326,11 @@ enum FeatureStrColumns {
 
 """An enumeration."""
 enum FeatureOrderBy {
-  ID
   CREATED_AT
+  RETIRED_AT
   NAME
   UPDATED_AT
-  RETIRED_AT
+  ID
 }
 
 input FeatureOrderByInput {
@@ -1511,7 +1511,6 @@ type Mutation {
   organizationsCreateSharedSlack(orgId: ID!, emails: [String]!): Organization
   organizationsCreateSamlConnection(companyName: String!, signInUrl: String!, signingCertificate: String!, allowedEmailDomains: [String]!, orgId: ID): Organization
   organizationsDisableOkta(orgId: ID): Organization
-  usersSetPasswordAfterSso(orgId: ID!, email: String!, password: String!): User
   organizationsSetTierTooltip(organizationId: ID!, tooltip: String!, tier: MetricTier!): Organization
   organizationsSetMfaPrefs(organizationId: ID!, mfaPref: MFAPref!): Organization
   organizationsSetPref(organizationId: ID!, prefKey: String!, prefValue: String!): Organization
