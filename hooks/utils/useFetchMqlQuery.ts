@@ -6,7 +6,7 @@ import {
 import { TypedDocumentNode } from 'urql'
 import {shouldRetryAfterExpiredQuery, doRetryAfterExpiredQueryAction} from '../actions';
 import getErrorMessage from '../utils/getErrorMessage';
-import {Action, UseMqlQueryState, QUERY_POLLING_MS, RETRY_POLLING_MS} from '../reducers/mqlQueryReducer';
+import {Action, UseMqlQueryState, QUERY_POLLING_MS, getRetryPollingMS} from '../reducers/mqlQueryReducer';
 
 interface FetchDataVars {
   queryId: string;
@@ -49,7 +49,7 @@ const useFetchMqlQuery = <CreateQueryDataType, FetchDataType extends {mqlQuery?:
     setTimeout(() => {
       dispatch({ type: "retryFetchResults" });
       refetchMqlQuery();
-    }, RETRY_POLLING_MS);
+    }, getRetryPollingMS());
   };
 
   useEffect(() => {

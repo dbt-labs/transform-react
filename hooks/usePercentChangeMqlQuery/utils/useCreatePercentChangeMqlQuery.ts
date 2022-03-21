@@ -5,7 +5,7 @@ import {
   CreatePercentChangeMutation,
   CreatePercentChangeMutationVariables,
 } from "../../../mutations/mql/MqlMutationTypes";
-import { Action, RETRY_POLLING_MS } from '../../reducers/mqlQueryReducer'
+import { Action, getRetryPollingMS } from '../../reducers/mqlQueryReducer'
 import getErrorMessage from '../../utils/getErrorMessage';
 import {
   FetchPercentChangeQuery,
@@ -57,7 +57,7 @@ const useCreatePercentChange = ({queryInput, dispatch, retries}: UseCreatePercen
             setTimeout(() => {
               dispatch({ type: "retryFetchResults" });
               queryPercentChange({stateRetries: stateRetries + 1});
-            }, RETRY_POLLING_MS)
+            }, getRetryPollingMS())
           } else {
             dispatch({
               type: "postQueryFail",
