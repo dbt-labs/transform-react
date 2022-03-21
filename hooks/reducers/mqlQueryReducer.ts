@@ -7,7 +7,10 @@ import {
 export const QUERY_POLLING_MS = 400;
 
 // Length of time to wait before retrying when query fails
-export const RETRY_POLLING_MS = 200;
+export const RETRY_POLLING_MS = 350;
+export const getRetryPollingMS = (base: number = RETRY_POLLING_MS, buffer: number = 400) => {
+  return base + Math.floor(Math.random() * buffer);
+}
 
 // Time in milliseconds to wait for a query to respond successfully before showing a slow loading message to the user.
 const LONG_FETCH_QUERY_ATTEMPT_MAX = 20000; // 20 seconds

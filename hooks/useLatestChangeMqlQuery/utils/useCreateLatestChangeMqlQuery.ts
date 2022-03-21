@@ -5,7 +5,7 @@ import {
   CreateLatestMetricChangeMutation,
   CreateLatestMetricChangeMutationVariables,
 } from "../../../mutations/mql/MqlMutationTypes";
-import { Action, RETRY_POLLING_MS } from '../../reducers/mqlQueryReducer';
+import { Action, getRetryPollingMS } from '../../reducers/mqlQueryReducer';
 import getErrorMessage from '../../utils/getErrorMessage';
 import {
   FetchLatestChangeQuery,
@@ -59,7 +59,7 @@ const useCreateLatestMetricChange = ({metricName, dispatch, retries}: UseCreateL
             setTimeout(() => {
               dispatch({ type: "retryFetchResults" });
               queryLatestMetricChange({stateRetries: stateRetries + 1});
-            }, RETRY_POLLING_MS)
+            }, getRetryPollingMS())
           } else {
             dispatch({
               type: "postQueryFail",

@@ -6,7 +6,7 @@ import {
   CreateMqlQueryMutationVariables,
 } from "../../../mutations/mql/MqlMutationTypes";
 import clearEmptyConstraints from './clearEmptyConstraints';
-import { Action as UseMqlQueryAction, RETRY_POLLING_MS } from '../../reducers/mqlQueryReducer';
+import { Action as UseMqlQueryAction, getRetryPollingMS } from '../../reducers/mqlQueryReducer';
 import getErrorMessage from '../../utils/getErrorMessage';
 import {
   FetchMqlTimeSeriesQuery,
@@ -72,7 +72,7 @@ const useCreateTimeSeriesMqlQuery = ({metricName, formState = {}, dispatch, retr
             setTimeout(() => {
               dispatch({ type: "retryFetchResults" });
               createTimeSeriesMqlQuery({stateRetries: stateRetries + 1});
-            }, RETRY_POLLING_MS)
+            }, getRetryPollingMS())
           } else {
             dispatch({
               type: "postQueryFail",
