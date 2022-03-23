@@ -10,6 +10,7 @@ import {Action, UseMqlQueryState, QUERY_POLLING_MS, getRetryPollingMS} from '../
 
 interface FetchDataVars {
   queryId: string;
+  attemptNum: number;
 }
 
 interface UseFetchMqlTimeSeriesArgs<CreateQueryDataType, FetchDataType extends {mqlQuery?: any}> {
