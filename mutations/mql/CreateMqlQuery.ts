@@ -3,6 +3,7 @@ import { gql } from "urql";
 const mutation = gql`
   mutation CreateMqlQuery(
     $addTimeSeries: Boolean
+    $attemptNum: Int!
     $daysLimit: Int
     $endTime: String
     $groupBy: [String!]
@@ -21,6 +22,7 @@ const mutation = gql`
     createMqlQuery(
       input: {
         addTimeSeries: $addTimeSeries
+        attemptNum: $attemptNum
         daysLimit: $daysLimit
         endTime: $endTime
         groupBy: $groupBy

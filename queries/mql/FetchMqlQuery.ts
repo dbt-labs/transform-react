@@ -1,8 +1,8 @@
 import { gql } from "urql";
 
 const query = gql`
-  query FetchMqlQuery($queryId: ID!) {
-    mqlQuery(id: $queryId) {
+  query FetchMqlQuery($queryId: ID!, $attemptNum: Int) {
+    mqlQuery(id: $queryId, attemptNum: $attemptNum) {
       id
       modelKey {
         #organization

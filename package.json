@@ -1,6 +1,6 @@
 {
   "name": "@transform-data/transform-react",
-  "version": "1.25.2",
+  "version": "1.25.3",
   "description": "React components and hooks for querying Transform's MQL Server",
   "repository": {
     "type": "git",
@@ -30,7 +30,8 @@
     "start": "next start",
     "schema:mql": "node scripts/schemaMql.js",
     "schema:core": "node scripts/schemaCore.js",
-    "schema": "yarn run schema:mql && yarn run schema:core"
+    "schema": "yarn run schema:mql && yarn run schema:core",
+    "types": "yarn schema && yarn codegen"
   },
   "bugs": {
     "url": "https://github.com/transform-data/transform-react/issues"

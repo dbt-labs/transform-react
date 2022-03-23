@@ -58,6 +58,7 @@ export type Query = {
   healthReport?: Maybe<Array<Maybe<MqlServerHealthItem>>>;
   validations?: Maybe<Validations>;
   flagIsEnabled?: Maybe<Scalars['Boolean']>;
+  dbtModelMeta?: Maybe<DbtModelMeta>;
 };
 
 
@@ -78,6 +79,7 @@ export type QueryBoomArgs = {
  */
 export type QueryMqlQueryArgs = {
   id: Scalars['ID'];
+  attemptNum?: Maybe<Scalars['Int']>;
 };
 
 
@@ -254,6 +256,16 @@ export type QueryValidationsArgs = {
  */
 export type QueryFlagIsEnabledArgs = {
   flag: Scalars['String'];
+};
+
+
+/**
+ * Base Query object exposed by GraphQL for the MQL Server
+ *
+ * Each field defined below is accessible by the API, by calling the equivalent resolver.
+ */
+export type QueryDbtModelMetaArgs = {
+  dataSourceName?: Maybe<Scalars['String']>;
 };
 
 /**
@@ -546,6 +558,19 @@ export type Validations = {
   dimensionIssues?: Maybe<Array<Scalars['String']>>;
 };
 
+/** The meta information we track of dbt models */
+export type DbtModelMeta = {
+  __typename?: 'DbtModelMeta';
+  eventName?: Maybe<Scalars['String']>;
+  eventTimestamp?: Maybe<Scalars['DateTime']>;
+  eventSchema?: Maybe<Scalars['String']>;
+  eventModel?: Maybe<Scalars['String']>;
+  eventUser?: Maybe<Scalars['String']>;
+  eventTarget?: Maybe<Scalars['String']>;
+  eventIsFullRefresh?: Maybe<Scalars['Boolean']>;
+  invocationId?: Maybe<Scalars['String']>;
+};
+
 /** Base mutation object exposed by GraphQL. */
 export type Mutation = {
   __typename?: 'Mutation';
@@ -566,6 +591,8 @@ export type Mutation = {
   rewriteMqlSql?: Maybe<RewriteMqlSql>;
   /** For metric, get latest value, percent change from the previous granularity period, and delta between the two. */
   queryLatestMetricChange?: Maybe<QueryLatestMetricChangePayload>;
+  /** For time period, get latest value, percent change from the previous granularity period, and delta between the two. */
+  queryMetricChange?: Maybe<QueryMetricChangePayload>;
   /** Get percent change for given metric from start to end of date range (assuming daily granularity). */
   pctChangeOverRange?: Maybe<PctChangeOverRangePayload>;
 };
@@ -615,6 +642,12 @@ export type MutationRewriteMqlSqlArgs = {
 /** Base mutation object exposed by GraphQL. */
 export type MutationQueryLatestMetricChangeArgs = {
   input: QueryLatestMetricChangeInput;
+};
+
+
+/** Base mutation object exposed by GraphQL. */
+export type MutationQueryMetricChangeArgs = {
+  input: QueryMetricChangeInput;
 };
 
 
@@ -699,6 +732,8 @@ export type CreateMqlQueryInput = {
   maxDimensionValues?: Maybe<Scalars['Int']>;
   /** Include date boundaries in postprocessed results, even if there is no result data for those dates. */
   includeDateBoundaries?: Maybe<Scalars['Boolean']>;
+  /** Used for marking retries, optionally pass param to track attempt number. */
+  attemptNum?: Maybe<Scalars['Int']>;
   clientMutationId?: Maybe<Scalars['String']>;
 };
 
@@ -783,6 +818,20 @@ export type QueryLatestMetricChangeInput = {
   clientMutationId?: Maybe<Scalars['String']>;
 };
 
+/** For time period, get latest value, percent change from the previous granularity period, and delta between the two. */
+export type QueryMetricChangePayload = {
+  __typename?: 'QueryMetricChangePayload';
+  id: Scalars['ID'];
+  query?: Maybe<MqlQuery>;
+  clientMutationId?: Maybe<Scalars['String']>;
+};
+
+export type QueryMetricChangeInput = {
+  metricName: Scalars['String'];
+  timeConstraint?: Maybe<Scalars['String']>;
+  clientMutationId?: Maybe<Scalars['String']>;
+};
+
 /** Get percent change for given metric from start to end of date range (assuming daily granularity). */
 export type PctChangeOverRangePayload = {
   __typename?: 'PctChangeOverRangePayload';
@@ -828,6 +877,7 @@ export type CreateLatestMetricChangeMutation = (
 
 export type CreateMqlQueryMutationVariables = Exact<{
   addTimeSeries?: Maybe<Scalars['Boolean']>;
+  attemptNum: Scalars['Int'];
   daysLimit?: Maybe<Scalars['Int']>;
   endTime?: Maybe<Scalars['String']>;
   groupBy?: Maybe<Array<Scalars['String']> | Scalars['String']>;

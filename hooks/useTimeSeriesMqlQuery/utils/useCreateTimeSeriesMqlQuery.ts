@@ -41,6 +41,7 @@ const useCreateTimeSeriesMqlQuery = ({metricName, formState = {}, dispatch, retr
   const createTimeSeriesMqlQuery = ({stateRetries}:DoCreateMqlQueryArgs) => {
     createMqlQueryMutation({
       addTimeSeries: true,
+      attemptNum: stateRetries,
       daysLimit: formState.daysLimit,
       endTime: formState.endTime,
       groupBy: formState.groupBy || [],
