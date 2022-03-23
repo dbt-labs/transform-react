@@ -6,7 +6,14 @@ Each field defined below is accessible by the API, by calling the equivalent res
 type Query {
   version: String
   boom(raise_: Boolean): Boolean
-  mqlQuery(id: ID!): MqlQuery
+  mqlQuery(
+    id: ID!
+
+    """
+    Used for marking retries, optionally pass param to track attempt number.
+    """
+    attemptNum: Int
+  ): MqlQuery
   sourceQuery(id: ID!): String
   materializations(modelKey: ModelKeyInput): [Materialization!]
   metrics(modelKey: ModelKeyInput): [Metric!]
@@ -24,6 +31,7 @@ type Query {
   healthReport: [MqlServerHealthItem]
   validations(modelKey: ModelKeyInput): Validations
   flagIsEnabled(flag: String!): Boolean
+  dbtModelMeta(dataSourceName: String): DbtModelMeta
 }
 
 """
@@ -280,6 +288,18 @@ type Validations {
   dimensionIssues: [String!]
 }
 
+"""The meta information we track of dbt models"""
+type DbtModelMeta {
+  eventName: String
+  eventTimestamp: DateTime
+  eventSchema: String
+  eventModel: String
+  eventUser: String
+  eventTarget: String
+  eventIsFullRefresh: Boolean
+  invocationId: String
+}
+
 """Base mutation object exposed by GraphQL."""
 type Mutation {
   createMqlMaterializationNew(input: CreateMqlMaterializationNewInput!): CreateMqlMaterializationNewPayload
@@ -308,6 +328,11 @@ type Mutation {
   For metric, get latest value, percent change from the previous granularity period, and delta between the two.
   """
   queryLatestMetricChange(input: QueryLatestMetricChangeInput!): QueryLatestMetricChangePayload
+
+  """
+  For time period, get latest value, percent change from the previous granularity period, and delta between the two.
+  """
+  queryMetricChange(input: QueryMetricChangeInput!): QueryMetricChangePayload
 
   """
   Get percent change for given metric from start to end of date range (assuming daily granularity).
@@ -418,6 +443,11 @@ input CreateMqlQueryInput {
   Include date boundaries in postprocessed results, even if there is no result data for those dates.
   """
   includeDateBoundaries: Boolean
+
+  """
+  Used for marking retries, optionally pass param to track attempt number.
+  """
+  attemptNum: Int
   clientMutationId: String
 }
 
@@ -510,6 +540,21 @@ type QueryLatestMetricChangePayload {
 
 input QueryLatestMetricChangeInput {
   metricName: String!
+  clientMutationId: String
+}
+
+"""
+For time period, get latest value, percent change from the previous granularity period, and delta between the two.
+"""
+type QueryMetricChangePayload {
+  id: ID!
+  query: MqlQuery
+  clientMutationId: String
+}
+
+input QueryMetricChangeInput {
+  metricName: String!
+  timeConstraint: String
   clientMutationId: String
 }
 
