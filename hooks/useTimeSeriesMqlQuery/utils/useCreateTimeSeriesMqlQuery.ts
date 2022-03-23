@@ -20,7 +20,7 @@ export interface DoCreateMqlQueryArgs {
 interface UseCreateMqlQueryArgs {
   retries: number; // the number of retries passed as an arg from the client.
   metricName: string;
-  formState?: CreateMqlQueryMutationVariables;
+  formState?: Omit<CreateMqlQueryMutationVariables, 'attemptNum'>;
   dispatch: Dispatch<UseMqlQueryAction<CreateMqlQueryMutation, FetchMqlTimeSeriesQuery>>;
 }
 

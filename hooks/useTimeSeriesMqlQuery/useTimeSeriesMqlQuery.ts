@@ -27,7 +27,7 @@ import FetchMqlQueryTimeSeries from "../../queries/mql/FetchMqlQueryTimeSeries";
 */
 type UseMqlQueryParams = {
   metricName: string;
-  queryInput?: CreateMqlQueryMutationVariables;
+  queryInput?: Omit<CreateMqlQueryMutationVariables, 'attemptNum'>;
   skip?: boolean;
   retries?: number;
 };
