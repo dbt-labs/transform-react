@@ -43,6 +43,7 @@ const mutation = gql`
       id
       query {
         id
+        createdAt
         status
         metrics
         dimensions
