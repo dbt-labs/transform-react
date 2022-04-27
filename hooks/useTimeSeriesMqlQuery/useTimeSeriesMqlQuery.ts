@@ -9,7 +9,7 @@ import {
   FetchMqlTimeSeriesQuery,
 } from "../../queries/mql/MqlQueryTypes";
 import useCreateTimeSeriesMqlQuery from './utils/useCreateTimeSeriesMqlQuery';
-import mqlQueryReducer, { initialState } from '../reducers/mqlQueryReducer';
+import mqlQueryReducer, { initialState, UseMqlQueryState } from '../reducers/mqlQueryReducer';
 import useFetchMqlQuery from '../utils/useFetchMqlQuery';
 import FetchMqlQueryTimeSeries from "../../queries/mql/FetchMqlQueryTimeSeries";
 
@@ -31,6 +31,8 @@ type UseMqlQueryParams = {
   skip?: boolean;
   retries?: number;
 };
+
+export type UseTimeSeriesMqlQuery = UseMqlQueryState<FetchMqlTimeSeriesQuery>
 
 // This custom hook consists of two useHooks that should asynchronously handle all scenarios for this chained
 // data fetching we are doing. It should do it in a high performance way and in a way that is resilient to race conditions if the
