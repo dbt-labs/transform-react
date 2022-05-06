@@ -31,7 +31,7 @@ type Query {
   healthReport: [MqlServerHealthItem]
   validations(modelKey: ModelKeyInput): Validations
   flagIsEnabled(flag: String!): Boolean
-  dbtModelMeta(dataSourceName: String): DbtModelMeta
+  dbtModelMeta(dataSourceNames: [String]): [DbtModelMeta]
 }
 
 """
@@ -86,6 +86,11 @@ type MqlQuery {
   logsByLine(fromLine: Int, maxLines: Int): String
   chartValueMin: Float
   chartValueMax: Float
+  latestResultValues: [QueryResultValue]
+  whereConstraint: String
+  requestedGranularity: TimeGranularity
+  timeComparison: PercentChange
+  timeConstraint: TimeConstraint
 }
 
 """API Output definition for a Model Key"""
@@ -201,6 +206,32 @@ enum MqlQueryUserFriendlyErrorType {
   UNKNOWN
 }
 
+"""Represents a row of query results for one pivot value."""
+type QueryResultValue {
+  date: DateTime
+  label: String
+  value: Float
+}
+
+"""An enumeration."""
+enum PercentChange {
+  DOD
+  WOW
+  MOM
+  QOQ
+  YOY
+  DATE_RANGE
+}
+
+"""Represents a time range with inclusive start / stop endpoints."""
+type TimeConstraint {
+  dimensionName: String
+  timeFormat: String
+  start: String
+  stop: String
+  timeGranularity: TimeGranularity
+}
+
 type Materialization {
   name: String!
   metrics: [String!]
@@ -227,6 +258,8 @@ type Metric {
   dimensionValues(modelKey: ModelKeyInput, dimensionName: String!, startTime: String, endTime: String, allowDynamicCache: Boolean, pageNumber: Int, pageSize: Int, searchStr: String): [String]
   totalDimensionValues(modelKey: ModelKeyInput, dimensionName: String!, startTime: String, endTime: String, allowDynamicCache: Boolean, searchStr: String): Int
   maxGranularity(modelKey: ModelKeyInput): TimeGranularity
+  newDataIsAvailable(afterDatetime: DateTime!, modelKey: ModelKeyInput): Boolean
+  canLimitDimensionValues(modelKey: ModelKeyInput): Boolean
 }
 
 """
@@ -290,14 +323,17 @@ type Validations {
 
 """The meta information we track of dbt models"""
 type DbtModelMeta {
-  eventName: String
-  eventTimestamp: DateTime
-  eventSchema: String
-  eventModel: String
-  eventUser: String
-  eventTarget: String
-  eventIsFullRefresh: Boolean
-  invocationId: String
+  timestamp: DateTime
+  schema: String!
+  model: String!
+  user: String
+  target: String
+  isFullRefresh: Boolean
+  gitSha: String
+  projectId: String
+  projectName: String
+  jobId: String
+  runId: String
 }
 
 """Base mutation object exposed by GraphQL."""
@@ -500,16 +536,6 @@ enum ResultFormat {
   TFD
 }
 
-"""An enumeration."""
-enum PercentChange {
-  DOD
-  WOW
-  MOM
-  QOQ
-  YOY
-  DATE_RANGE
-}
-
 type Materialize {
   schema: String
   table: String
@@ -540,6 +566,11 @@ type QueryLatestMetricChangePayload {
 
 input QueryLatestMetricChangeInput {
   metricName: String!
+
+  """
+  Calculate percentage changed from the latest time period to previous time period.
+  """
+  pctChange: PercentChange
   clientMutationId: String
 }
 

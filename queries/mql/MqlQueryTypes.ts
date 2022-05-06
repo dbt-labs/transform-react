@@ -58,7 +58,7 @@ export type Query = {
   healthReport?: Maybe<Array<Maybe<MqlServerHealthItem>>>;
   validations?: Maybe<Validations>;
   flagIsEnabled?: Maybe<Scalars['Boolean']>;
-  dbtModelMeta?: Maybe<DbtModelMeta>;
+  dbtModelMeta?: Maybe<Array<Maybe<DbtModelMeta>>>;
 };
 
 
@@ -265,7 +265,7 @@ export type QueryFlagIsEnabledArgs = {
  * Each field defined below is accessible by the API, by calling the equivalent resolver.
  */
 export type QueryDbtModelMetaArgs = {
-  dataSourceName?: Maybe<Scalars['String']>;
+  dataSourceNames?: Maybe<Array<Maybe<Scalars['String']>>>;
 };
 
 /**
@@ -308,6 +308,11 @@ export type MqlQuery = {
   logsByLine?: Maybe<Scalars['String']>;
   chartValueMin?: Maybe<Scalars['Float']>;
   chartValueMax?: Maybe<Scalars['Float']>;
+  latestResultValues?: Maybe<Array<Maybe<QueryResultValue>>>;
+  whereConstraint?: Maybe<Scalars['String']>;
+  requestedGranularity?: Maybe<TimeGranularity>;
+  timeComparison?: Maybe<PercentChange>;
+  timeConstraint?: Maybe<TimeConstraint>;
 };
 
 
@@ -432,6 +437,34 @@ export enum MqlQueryUserFriendlyErrorType {
   Unknown = 'UNKNOWN'
 }
 
+/** Represents a row of query results for one pivot value. */
+export type QueryResultValue = {
+  __typename?: 'QueryResultValue';
+  date?: Maybe<Scalars['DateTime']>;
+  label?: Maybe<Scalars['String']>;
+  value?: Maybe<Scalars['Float']>;
+};
+
+/** An enumeration. */
+export enum PercentChange {
+  Dod = 'DOD',
+  Wow = 'WOW',
+  Mom = 'MOM',
+  Qoq = 'QOQ',
+  Yoy = 'YOY',
+  DateRange = 'DATE_RANGE'
+}
+
+/** Represents a time range with inclusive start / stop endpoints. */
+export type TimeConstraint = {
+  __typename?: 'TimeConstraint';
+  dimensionName?: Maybe<Scalars['String']>;
+  timeFormat?: Maybe<Scalars['String']>;
+  start?: Maybe<Scalars['String']>;
+  stop?: Maybe<Scalars['String']>;
+  timeGranularity?: Maybe<TimeGranularity>;
+};
+
 export type Materialization = {
   __typename?: 'Materialization';
   name: Scalars['String'];
@@ -460,6 +493,8 @@ export type Metric = {
   dimensionValues?: Maybe<Array<Maybe<Scalars['String']>>>;
   totalDimensionValues?: Maybe<Scalars['Int']>;
   maxGranularity?: Maybe<TimeGranularity>;
+  newDataIsAvailable?: Maybe<Scalars['Boolean']>;
+  canLimitDimensionValues?: Maybe<Scalars['Boolean']>;
 };
 
 
@@ -486,6 +521,17 @@ export type MetricTotalDimensionValuesArgs = {
 
 
 export type MetricMaxGranularityArgs = {
+  modelKey?: Maybe<ModelKeyInput>;
+};
+
+
+export type MetricNewDataIsAvailableArgs = {
+  afterDatetime: Scalars['DateTime'];
+  modelKey?: Maybe<ModelKeyInput>;
+};
+
+
+export type MetricCanLimitDimensionValuesArgs = {
   modelKey?: Maybe<ModelKeyInput>;
 };
 
@@ -561,14 +607,17 @@ export type Validations = {
 /** The meta information we track of dbt models */
 export type DbtModelMeta = {
   __typename?: 'DbtModelMeta';
-  eventName?: Maybe<Scalars['String']>;
-  eventTimestamp?: Maybe<Scalars['DateTime']>;
-  eventSchema?: Maybe<Scalars['String']>;
-  eventModel?: Maybe<Scalars['String']>;
-  eventUser?: Maybe<Scalars['String']>;
-  eventTarget?: Maybe<Scalars['String']>;
-  eventIsFullRefresh?: Maybe<Scalars['Boolean']>;
-  invocationId?: Maybe<Scalars['String']>;
+  timestamp?: Maybe<Scalars['DateTime']>;
+  schema: Scalars['String'];
+  model: Scalars['String'];
+  user?: Maybe<Scalars['String']>;
+  target?: Maybe<Scalars['String']>;
+  isFullRefresh?: Maybe<Scalars['Boolean']>;
+  gitSha?: Maybe<Scalars['String']>;
+  projectId?: Maybe<Scalars['String']>;
+  projectName?: Maybe<Scalars['String']>;
+  jobId?: Maybe<Scalars['String']>;
+  runId?: Maybe<Scalars['String']>;
 };
 
 /** Base mutation object exposed by GraphQL. */
@@ -777,16 +826,6 @@ export enum ResultFormat {
   Tfd = 'TFD'
 }
 
-/** An enumeration. */
-export enum PercentChange {
-  Dod = 'DOD',
-  Wow = 'WOW',
-  Mom = 'MOM',
-  Qoq = 'QOQ',
-  Yoy = 'YOY',
-  DateRange = 'DATE_RANGE'
-}
-
 export type Materialize = {
   __typename?: 'Materialize';
   schema?: Maybe<Scalars['String']>;
@@ -815,6 +854,8 @@ export type QueryLatestMetricChangePayload = {
 
 export type QueryLatestMetricChangeInput = {
   metricName: Scalars['String'];
+  /** Calculate percentage changed from the latest time period to previous time period. */
+  pctChange?: Maybe<PercentChange>;
   clientMutationId?: Maybe<Scalars['String']>;
 };
 
@@ -975,6 +1016,19 @@ export type FetchMqlQueryLogsQuery = (
     { __typename?: 'MqlQuery' }
     & Pick<MqlQuery, 'id' | 'status' | 'completedAt' | 'startedAt' | 'metrics'>
   )>>> }
+);
+
+export type FetchMetricCanLimitDimensionsQueryVariables = Exact<{
+  metricName: Scalars['String'];
+}>;
+
+
+export type FetchMetricCanLimitDimensionsQuery = (
+  { __typename?: 'Query' }
+  & { metricByName?: Maybe<(
+    { __typename?: 'Metric' }
+    & Pick<Metric, 'canLimitDimensionValues'>
+  )> }
 );
 
 export type FetchMetricMaxGranularityQueryVariables = Exact<{
