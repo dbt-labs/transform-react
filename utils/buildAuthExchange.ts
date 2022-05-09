@@ -19,7 +19,7 @@ function buildGetAuth(token?: string) {
   return getAuth;
 }
 
-function addAuthToOperation({
+const addAuthToOperation = (clientVersion: string) => ({
   authState,
   operation,
 }: {
@@ -42,14 +42,16 @@ function addAuthToOperation({
       headers: {
         ...fetchOptions.headers,
         Authorization: authState.token,
+        'X-Transform-Client': 'frontend',
+        "X-Transform-Client-Version": clientVersion
       },
     },
   });
 }
 
-export default function buildAuthExchange(token?: string) {
+export default function buildAuthExchange(token?: string, clientVersion: string) {
   return authExchange({
     getAuth: buildGetAuth(token),
-    addAuthToOperation,
+    addAuthToOperation: addAuthToOperation(clientVersion),
   });
 }
