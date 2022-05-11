@@ -7,12 +7,17 @@ function cleanUrl(url: string) {
   return `${url}/graphql`;
 }
 
-export default function buildMqlUrqlClient(
-  url: string,
+export default function buildMqlUrqlClient({
+  clientVersion,
+  mqlUrl,
+  token
+}: {
+  clientVersion: string,
+  mqlUrl: string,
   token?: string,
-) {
+}) {
   return createClient({
-    url: cleanUrl(url),
-    exchanges: [dedupExchange, buildAuthExchange(token), fetchExchange],
+    url: cleanUrl(mqlUrl),
+    exchanges: [dedupExchange, buildAuthExchange(token, clientVersion), fetchExchange],
   });
 }

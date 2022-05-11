@@ -16,6 +16,7 @@ type Props = {
   isAuthenticated: boolean;
   captureException?: (e: CombinedError, context: HandleCombinedErrorContext) => void;
   children: ReactNode;
+  clientVersion: string;
   coreApiUrl?: string;
   externalConfig?: {
     mqlServerUrl?: string;
@@ -34,17 +35,19 @@ function MqlContextProvider({
   children,
   isAuthenticated,
   captureException,
+  clientVersion,
   coreApiUrl,
   externalConfig,
   mqlServerUrlOverride
 }: Props) {
-  const coreApiClient = buildMqlUrqlClient(coreApiUrl || CORE_API_URL, token);
+  const coreApiClient = buildMqlUrqlClient({clientVersion, mqlUrl: coreApiUrl || CORE_API_URL, token});
   return (
     <Provider value={coreApiClient}>
       <MqlContextProviderInternal
         isAuthenticated={isAuthenticated}
         token={token}
         captureException={captureException}
+        clientVersion={clientVersion}
         coreApiUrl={coreApiUrl || CORE_API_URL}
         externalConfig={externalConfig}
         mqlServerUrlOverride={mqlServerUrlOverride}
@@ -60,6 +63,7 @@ function MqlContextProviderInternal({
   isAuthenticated,
   children,
   captureException,
+  clientVersion,
   coreApiUrl,
   externalConfig,
   mqlServerUrlOverride
@@ -129,10 +133,11 @@ function MqlContextProviderInternal({
     This is because it throws an error to build an urql client without a URL.
     Naturally, this is invalid, so we must check with the mqlServerUrl is present before initiating MQL Queries.
   */
-  const mqlClient = buildMqlUrqlClient(
-    externalConfig?.mqlServerUrl || mqlServerUrlData?.myUser?.mqlServerUrl || coreApiUrl || CORE_API_URL,
-    token,
-  );
+  const mqlClient = buildMqlUrqlClient({
+    clientVersion,
+    mqlUrl: externalConfig?.mqlServerUrl || mqlServerUrlData?.myUser?.mqlServerUrl || coreApiUrl || CORE_API_URL,
+    token
+  });
 
   const [mqlContext, setMqlContext] = useState<MqlContextType>({
     coreApiUrl: coreApiUrl || CORE_API_URL,
@@ -160,20 +165,22 @@ function MqlContextProviderInternal({
         mqlServerUrlOverride &&
         mqlServerUrlOverride !== mqlContext.mqlServerUrl
       ) {
-        stateToUpdate.mqlClient = buildMqlUrqlClient(
-          mqlServerUrlOverride,
-          token,
-        );
+        stateToUpdate.mqlClient = buildMqlUrqlClient({
+          clientVersion,
+          mqlUrl: mqlServerUrlOverride,
+          token
+        });
       }
     } else if (externalConfig) {
       if (externalConfig?.mqlServerUrl !== mqlContext.mqlServerUrl) {
         stateToUpdate.mqlServerUrl = externalConfig?.mqlServerUrl;
       }
       if (externalConfig?.mqlServerUrl && externalConfig?.mqlServerUrl !== mqlContext.mqlServerUrl) {
-        stateToUpdate.mqlClient = buildMqlUrqlClient(
-          externalConfig?.mqlServerUrl,
+        stateToUpdate.mqlClient = buildMqlUrqlClient({
+          clientVersion,
+          mqlUrl: externalConfig?.mqlServerUrl,
           token
-        );
+        });
       }
     } else {
       if (mqlServerUrlData?.myUser?.mqlServerUrl !== mqlContext.mqlServerUrl) {
@@ -183,10 +190,11 @@ function MqlContextProviderInternal({
         mqlServerUrlData?.myUser?.mqlServerUrl &&
         mqlServerUrlData?.myUser?.mqlServerUrl !== mqlContext.mqlServerUrl
       ) {
-        stateToUpdate.mqlClient = buildMqlUrqlClient(
-          mqlServerUrlData?.myUser?.mqlServerUrl,
+        stateToUpdate.mqlClient = buildMqlUrqlClient({
+          clientVersion,
+          mqlUrl: mqlServerUrlData?.myUser?.mqlServerUrl,
           token
-        );
+        });
       }
     }
 
@@ -202,7 +210,7 @@ function MqlContextProviderInternal({
       });
     }
   }, [externalConfig, mqlServerUrlData, token, mqlContext, mqlServerUrlOverride]);
-
+  console.log('clientVersion', clientVersion)
   return (
     <Provider value={mqlContext.mqlClient}>
       <MqlContext.Provider value={mqlContext}>{children}</MqlContext.Provider>
