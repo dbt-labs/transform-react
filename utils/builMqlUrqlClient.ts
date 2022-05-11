@@ -18,6 +18,6 @@ export default function buildMqlUrqlClient({
 }) {
   return createClient({
     url: cleanUrl(mqlUrl),
-    exchanges: [dedupExchange, buildAuthExchange(token, clientVersion), fetchExchange],
+    exchanges: [dedupExchange, buildAuthExchange(clientVersion, token), fetchExchange],
   });
 }

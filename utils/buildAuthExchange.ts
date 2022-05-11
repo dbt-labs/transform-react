@@ -25,7 +25,7 @@ const addAuthToOperation = (clientVersion: string) => ({
 }: {
   authState: AuthState;
   operation: Operation;
-}) {
+}) => {
   if (!authState || !authState.token) {
     return operation;
   }
@@ -49,7 +49,7 @@ const addAuthToOperation = (clientVersion: string) => ({
   });
 }
 
-export default function buildAuthExchange(token?: string, clientVersion: string) {
+export default function buildAuthExchange(clientVersion: string, token?: string) {
   return authExchange({
     getAuth: buildGetAuth(token),
     addAuthToOperation: addAuthToOperation(clientVersion),
