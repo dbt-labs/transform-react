@@ -46,7 +46,6 @@ export default function useTimeSeriesMqlQuery({
   const {
     mqlServerUrl,
   } = useContext(MqlContext);
-
   const dataAccr = (data: CreateMqlQueryMutation) => data?.createMqlQuery?.query;
 
   const reducer = mqlQueryReducer<CreateMqlQueryMutation, FetchMqlTimeSeriesQuery>(dataAccr);
