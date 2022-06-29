@@ -4,6 +4,7 @@ const query = gql`
   query FetchMqlTimeSeries($queryId: ID!) {
     mqlQuery(id: $queryId) {
       id
+      dbId
       status
       metrics
       dimensions

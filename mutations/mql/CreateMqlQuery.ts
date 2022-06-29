@@ -43,6 +43,7 @@ const mutation = gql`
       id
       query {
         id
+        dbId
         createdAt
         status
         metrics
