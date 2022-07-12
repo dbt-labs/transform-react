@@ -20,13 +20,14 @@ type Query {
   metricByName(modelKey: ModelKeyInput, name: String!): Metric
   measures(modelKey: ModelKeyInput): [Measure!]
   measureByName(modelKey: ModelKeyInput, name: String!): Measure
-  dimensionNamesForMetrics(modelKey: ModelKeyInput, metricNames: [String]): [String]
-  dimensionNamesForMetricsMultihop(modelKey: ModelKeyInput, metricNames: [String]): [String]
-  dimensionsForMetrics(modelKey: ModelKeyInput, metricNames: [String]): Dimensions
-  dimensionsForMetricsMultihop(modelKey: ModelKeyInput, metricNames: [String]): Dimensions
+  dimensionNamesForMetrics(modelKey: ModelKeyInput, metricNames: [String], excludeProperties: [DimensionProperty]): [String]
+  dimensionsForMetrics(modelKey: ModelKeyInput, metricNames: [String], excludeProperties: [DimensionProperty]): Dimensions
+  dimensionNamesForMetricsMultihop(modelKey: ModelKeyInput, metricNames: [String]): [String] @deprecated(reason: "Use `dimensionNamesForMetrics`.")
+  dimensionsForMetricsMultihop(modelKey: ModelKeyInput, metricNames: [String]): Dimensions @deprecated(reason: "Use `dimensionsForMetrics`.")
   dimensions(modelKey: ModelKeyInput): [Dimension!]
   primaryTimeDimension(modelKey: ModelKeyInput): Dimension
   maxGranularityForMetrics(metricNames: [String]!, modelKey: ModelKeyInput): TimeGranularity
+  queryableGranularitiesForMetrics(metricNames: [String]!, modelKey: ModelKeyInput, pctChange: PercentChange): [TimeGranularity]
   queries(activeOnly: Boolean, status: MqlQueryStatus, metricNames: [String], dateRangeStart: Date, dateRangeEnd: Date, minExecutionSeconds: Float, maxExecutionSeconds: Float, userIds: [Int], limit: Int, offset: Int): [MqlQuery]
   healthReport: [MqlServerHealthItem]
   validations(modelKey: ModelKeyInput): Validations
@@ -89,8 +90,14 @@ type MqlQuery {
   latestResultValues: [QueryResultValue]
   whereConstraint: String
   requestedGranularity: TimeGranularity
+  groupBy: [String]
+  maxDimensionValues: Int
+  constraint: Constraint
   timeComparison: PercentChange
   timeConstraint: TimeConstraint
+  numPostprocessedResults: Int
+  dbId: Int
+  warnings: [String]
 }
 
 """API Output definition for a Model Key"""
@@ -101,11 +108,7 @@ type ModelKey {
   commit: String!
 }
 
-"""
-The status of queries submitted for execution in the query manager.
-
-Note: Obviously we need to link this from the version in query_manager.
-"""
+"""The status of queries submitted for execution in the query manager."""
 enum MqlQueryStatus {
   PENDING
   RUNNING
@@ -213,6 +216,27 @@ type QueryResultValue {
   value: Float
 }
 
+"""Represents a where constraint used in a query."""
+type Constraint {
+  constraint: SingleConstraint
+  And: [SingleConstraint!]
+}
+
+"""Actual `where` clauses to be applied"""
+type SingleConstraint {
+  constraintType: AtomicConstraintType
+  dimensionName: String
+  values: [String]
+  start: String
+  stop: String
+}
+
+"""Current possible values for constraints"""
+enum AtomicConstraintType {
+  SET
+  RANGE
+}
+
 """An enumeration."""
 enum PercentChange {
   DOD
@@ -254,7 +278,7 @@ type Metric {
   type: String!
   constraint: String
   dimensions: [String!]
-  dimensionObjects: [Dimension!]
+  dimensionObjects(modelKey: ModelKeyInput): [Dimension!]
   dimensionValues(modelKey: ModelKeyInput, dimensionName: String!, startTime: String, endTime: String, allowDynamicCache: Boolean, pageNumber: Int, pageSize: Int, searchStr: String): [String]
   totalDimensionValues(modelKey: ModelKeyInput, dimensionName: String!, startTime: String, endTime: String, allowDynamicCache: Boolean, searchStr: String): Int
   maxGranularity(modelKey: ModelKeyInput): TimeGranularity
@@ -277,15 +301,15 @@ type Dimension {
   elementName: String!
   identifierName: String
   identifierNames: [String]
-  type: DimensionType
+  type: DimensionTypeForDescription
   isPrimaryTime: Boolean
   timeGranularity: TimeGranularity
   values: [String!]
   cardinality: Int
 }
 
-"""Determines types values expected of dimension"""
-enum DimensionType {
+"""Describes the type of dimension in QueryableDimensionDescription."""
+enum DimensionTypeForDescription {
   CATEGORICAL
   TIME
 }
@@ -293,6 +317,17 @@ enum DimensionType {
 type Measure {
   name: String!
   dataSources: [String!]
+}
+
+"""An enumeration."""
+enum DimensionProperty {
+  LOCAL_LINKED_PRIMARY_TIME
+  LOCAL
+  LOCAL_LINKED
+  JOINED
+  MULTI_HOP
+  DERIVED_TIME_GRANULARITY
+  INTERSECTED
 }
 
 type Dimensions {
@@ -348,6 +383,11 @@ type Mutation {
   The full query object is also returned in case we have a result available synchronously (stored the result cache)
   """
   createMqlQuery(input: CreateMqlQueryInput!): CreateMqlQueryPayload
+
+  """
+  Initiate an MQL Query based on just the DB id. We'll build out the parameters from the DB record.
+  """
+  createMqlQueryFromDbId(input: CreateMqlQueryFromDbIdInput!): CreateMqlQueryFromDbIdPayload
   materialize(asTable: String, cacheMode: CacheMode, groupBy: [String!], metrics: [String!], modelKey: ModelKeyInput, where: String): Materialize @deprecated(reason: "Moving to async implementation (CreateMqlMaterializationNew)")
 
   """
@@ -374,6 +414,9 @@ type Mutation {
   Get percent change for given metric from start to end of date range (assuming daily granularity).
   """
   pctChangeOverRange(input: PctChangeOverRangeInput!): PctChangeOverRangePayload
+
+  """Invalidate cache for a given metric."""
+  invalidateCacheForMetric(metricName: String!, modelKey: ModelKeyInput): InvalidateCacheForMetric
 }
 
 type CreateMqlMaterializationNewPayload {
@@ -504,12 +547,6 @@ input SingleConstraintInput {
   stop: String
 }
 
-"""Current possible values for constraints"""
-enum AtomicConstraintType {
-  SET
-  RANGE
-}
-
 """
 Limit is a GraphQL Scalar that can take in inf or positive integers.
 
@@ -534,6 +571,26 @@ enum CacheMode {
 """An enumeration."""
 enum ResultFormat {
   TFD
+}
+
+"""
+Initiate an MQL Query based on just the DB id. We'll build out the parameters from the DB record.
+"""
+type CreateMqlQueryFromDbIdPayload {
+  id: ID!
+  query: MqlQuery
+  clientMutationId: String
+}
+
+input CreateMqlQueryFromDbIdInput {
+  """ID for query logged to DB."""
+  dbId: Int!
+
+  """
+  Used for marking retries, optionally pass param to track attempt number.
+  """
+  attemptNum: Int
+  clientMutationId: String
 }
 
 type Materialize {
@@ -603,6 +660,11 @@ input PctChangeOverRangeInput {
   startTime: String!
   endTime: String!
   clientMutationId: String
+}
+
+"""Invalidate cache for a given metric."""
+type InvalidateCacheForMetric {
+  success: String
 }
 
 """

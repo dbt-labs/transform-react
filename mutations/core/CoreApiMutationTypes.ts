@@ -266,6 +266,10 @@ export type Organization = {
   allIntegrations?: Maybe<Array<Maybe<Integration>>>;
   pendingInvites?: Maybe<Array<Maybe<Invite>>>;
   integration?: Maybe<Integration>;
+  modelFromModelKey?: Maybe<Model>;
+  boards?: Maybe<Array<Maybe<Board>>>;
+  totalBoards?: Maybe<Scalars['Int']>;
+  board?: Maybe<Board>;
   activeFeatures?: Maybe<Array<Maybe<Feature>>>;
 };
 
@@ -322,6 +326,7 @@ export type OrganizationPrefsArgs = {
 
 
 export type OrganizationSavedQueriesArgs = {
+  onlyPublicAndMine?: Maybe<Scalars['Boolean']>;
   searchStr?: Maybe<Scalars['String']>;
   searchColumns?: Maybe<Array<Maybe<SavedQueryStrColumns>>>;
   orderBy?: Maybe<SavedQueryOrderBy>;
@@ -470,6 +475,13 @@ export type OrganizationMetricCollectionArgs = {
 };
 
 
+export type OrganizationTotalSavedQueriesArgs = {
+  searchStr?: Maybe<Scalars['String']>;
+  searchColumns?: Maybe<Array<Maybe<SavedQueryStrColumns>>>;
+  onlyPublicAndMine?: Maybe<Scalars['Boolean']>;
+};
+
+
 export type OrganizationTierTooltipsArgs = {
   tiers: Array<Maybe<Scalars['Int']>>;
 };
@@ -522,6 +534,35 @@ export type OrganizationPendingInvitesArgs = {
 
 export type OrganizationIntegrationArgs = {
   integrationType: GIntegrationType;
+};
+
+
+export type OrganizationModelFromModelKeyArgs = {
+  repo: Scalars['String'];
+  branch: Scalars['String'];
+  commit: Scalars['String'];
+};
+
+
+export type OrganizationBoardsArgs = {
+  searchStr?: Maybe<Scalars['String']>;
+  searchColumns?: Maybe<Array<Maybe<BoardStrColumns>>>;
+  orderBy?: Maybe<BoardOrderBy>;
+  desc?: Maybe<Scalars['Boolean']>;
+  orderBys?: Maybe<Array<Maybe<BoardOrderByInput>>>;
+  pageNumber?: Maybe<Scalars['Int']>;
+  pageSize?: Maybe<Scalars['Int']>;
+};
+
+
+export type OrganizationTotalBoardsArgs = {
+  searchStr?: Maybe<Scalars['String']>;
+  searchColumns?: Maybe<Array<Maybe<BoardStrColumns>>>;
+};
+
+
+export type OrganizationBoardArgs = {
+  id: Scalars['Int'];
 };
 
 /** An enumeration. */
@@ -577,6 +618,10 @@ export type User = {
   generalAlertNotificationRules?: Maybe<Array<Maybe<AlertNotificationRule>>>;
   dismissedOnboardingCards?: Maybe<Scalars['Boolean']>;
   isSubscribedToChannels?: Maybe<Scalars['GenericScalar']>;
+  boards?: Maybe<Array<Maybe<Board>>>;
+  totalBoards?: Maybe<Scalars['Int']>;
+  boardsWithSubscribedMetrics?: Maybe<Array<Maybe<Board>>>;
+  totalBoardsWithSubscribedMetrics?: Maybe<Scalars['Int']>;
   viewedMetrics?: Maybe<Array<Maybe<Metric>>>;
   newMetrics?: Maybe<Array<Maybe<Metric>>>;
   activeFeatures?: Maybe<Array<Maybe<Feature>>>;
@@ -636,6 +681,40 @@ export type UserLatestInAppNotificationsArgs = {
   notifIdsAlreadyShown?: Maybe<Array<Maybe<Scalars['ID']>>>;
   pageNumber?: Maybe<Scalars['Int']>;
   pageSize?: Maybe<Scalars['Int']>;
+};
+
+
+export type UserBoardsArgs = {
+  searchStr?: Maybe<Scalars['String']>;
+  searchColumns?: Maybe<Array<Maybe<BoardStrColumns>>>;
+  orderBy?: Maybe<BoardOrderBy>;
+  desc?: Maybe<Scalars['Boolean']>;
+  orderBys?: Maybe<Array<Maybe<BoardOrderByInput>>>;
+  pageNumber?: Maybe<Scalars['Int']>;
+  pageSize?: Maybe<Scalars['Int']>;
+};
+
+
+export type UserTotalBoardsArgs = {
+  searchStr?: Maybe<Scalars['String']>;
+  searchColumns?: Maybe<Array<Maybe<BoardStrColumns>>>;
+};
+
+
+export type UserBoardsWithSubscribedMetricsArgs = {
+  searchStr?: Maybe<Scalars['String']>;
+  searchColumns?: Maybe<Array<Maybe<BoardStrColumns>>>;
+  orderBy?: Maybe<BoardOrderBy>;
+  desc?: Maybe<Scalars['Boolean']>;
+  orderBys?: Maybe<Array<Maybe<BoardOrderByInput>>>;
+  pageNumber?: Maybe<Scalars['Int']>;
+  pageSize?: Maybe<Scalars['Int']>;
+};
+
+
+export type UserTotalBoardsWithSubscribedMetricsArgs = {
+  searchStr?: Maybe<Scalars['String']>;
+  searchColumns?: Maybe<Array<Maybe<BoardStrColumns>>>;
 };
 
 
@@ -791,21 +870,22 @@ export type TeamMember = {
 
 /** An enumeration. */
 export enum TeamMemberOrderBy {
-  TeamId = 'TEAM_ID',
-  JoinedAt = 'JOINED_AT',
-  UserId = 'USER_ID',
-  IsTeamAdmin = 'IS_TEAM_ADMIN',
-  TeamMemberId = 'TeamMember_ID',
-  TeamMemberOrganizationId = 'TeamMember_ORGANIZATION_ID',
-  UserOrganizationId = 'User_ORGANIZATION_ID',
-  UserName = 'USER_NAME',
-  UpdatedAt = 'UPDATED_AT',
-  Auth0Id = 'AUTH0_ID',
-  CreatedAt = 'CREATED_AT',
-  AvatarUrl = 'AVATAR_URL',
   Email = 'EMAIL',
-  PrimaryDashboardId = 'PRIMARY_DASHBOARD_ID',
-  DeactivatedAt = 'DEACTIVATED_AT'
+  Id = 'ID',
+  IsTeamAdmin = 'IS_TEAM_ADMIN',
+  JoinedAt = 'JOINED_AT',
+  OrganizationId = 'ORGANIZATION_ID',
+  TeamId = 'TEAM_ID',
+  UserId = 'USER_ID',
+  UserAuth0Id = 'User__AUTH0_ID',
+  UserAvatarUrl = 'User__AVATAR_URL',
+  UserCreatedAt = 'User__CREATED_AT',
+  UserDeactivatedAt = 'User__DEACTIVATED_AT',
+  UserEmail = 'User__EMAIL',
+  UserOrganizationId = 'User__ORGANIZATION_ID',
+  UserPrimaryDashboardId = 'User__PRIMARY_DASHBOARD_ID',
+  UserUpdatedAt = 'User__UPDATED_AT',
+  UserUserName = 'User__USER_NAME'
 }
 
 export type TeamMemberOrderByInput = {
@@ -977,6 +1057,7 @@ export type Metric = {
   metadata_: Scalars['JSONString'];
   id?: Maybe<Scalars['Int']>;
   metricType: Scalars['Int'];
+  metricTypeStr?: Maybe<Scalars['String']>;
   metricId: Scalars['Int'];
   params?: Maybe<Scalars['GenericScalar']>;
   createdAt: Scalars['DateTime'];
@@ -1038,6 +1119,8 @@ export type Metric = {
   defaultDaysLimit?: Maybe<Scalars['Int']>;
   valueChangeAlert?: Maybe<Alert>;
   valueChangeAlerts?: Maybe<Array<Maybe<Alert>>>;
+  totalValueChangeAlerts?: Maybe<Scalars['Int']>;
+  isCurrent?: Maybe<Scalars['Boolean']>;
 };
 
 
@@ -1079,6 +1162,7 @@ export type MetricDataSourcesArgs = {
 
 
 export type MetricSavedQueriesArgs = {
+  onlyPublicAndMine?: Maybe<Scalars['Boolean']>;
   searchStr?: Maybe<Scalars['String']>;
   searchColumns?: Maybe<Array<Maybe<SavedQueryStrColumns>>>;
   orderBy?: Maybe<SavedQueryOrderBy>;
@@ -1086,6 +1170,13 @@ export type MetricSavedQueriesArgs = {
   orderBys?: Maybe<Array<Maybe<SavedQueryOrderByInput>>>;
   pageNumber?: Maybe<Scalars['Int']>;
   pageSize?: Maybe<Scalars['Int']>;
+};
+
+
+export type MetricTotalSavedQueriesArgs = {
+  searchStr?: Maybe<Scalars['String']>;
+  searchColumns?: Maybe<Array<Maybe<SavedQueryStrColumns>>>;
+  onlyPublicAndMine?: Maybe<Scalars['Boolean']>;
 };
 
 
@@ -1279,13 +1370,13 @@ export enum QuestionReplyStrColumns {
 
 /** An enumeration. */
 export enum QuestionReplyOrderBy {
-  UpdatedAt = 'UPDATED_AT',
-  CreatedAt = 'CREATED_AT',
-  Text = 'TEXT',
-  Id = 'ID',
-  QuestionId = 'QUESTION_ID',
   AuthorId = 'AUTHOR_ID',
-  OrganizationId = 'ORGANIZATION_ID'
+  CreatedAt = 'CREATED_AT',
+  Id = 'ID',
+  OrganizationId = 'ORGANIZATION_ID',
+  QuestionId = 'QUESTION_ID',
+  Text = 'TEXT',
+  UpdatedAt = 'UPDATED_AT'
 }
 
 export type QuestionReplyOrderByInput = {
@@ -1301,18 +1392,18 @@ export enum QuestionStrColumns {
 
 /** An enumeration. */
 export enum QuestionOrderBy {
-  NotifiedAt = 'NOTIFIED_AT',
-  UpdatedAt = 'UPDATED_AT',
-  CreatedAt = 'CREATED_AT',
-  ResolvedAt = 'RESOLVED_AT',
   AuthorId = 'AUTHOR_ID',
-  ResolvedBy = 'RESOLVED_BY',
-  Resolved = 'RESOLVED',
-  Text = 'TEXT',
-  Priority = 'PRIORITY',
-  MetricId = 'METRIC_ID',
+  CreatedAt = 'CREATED_AT',
   Id = 'ID',
-  OrganizationId = 'ORGANIZATION_ID'
+  MetricId = 'METRIC_ID',
+  NotifiedAt = 'NOTIFIED_AT',
+  OrganizationId = 'ORGANIZATION_ID',
+  Priority = 'PRIORITY',
+  Resolved = 'RESOLVED',
+  ResolvedAt = 'RESOLVED_AT',
+  ResolvedBy = 'RESOLVED_BY',
+  Text = 'TEXT',
+  UpdatedAt = 'UPDATED_AT'
 }
 
 export type QuestionOrderByInput = {
@@ -1400,27 +1491,27 @@ export enum Priority {
 
 /** An enumeration. */
 export enum AnnotationStrColumns {
-  Title = 'TITLE',
   ExpectedImpact = 'EXPECTED_IMPACT',
   Priority = 'PRIORITY',
-  Text = 'TEXT'
+  Text = 'TEXT',
+  Title = 'TITLE'
 }
 
 /** An enumeration. */
 export enum AnnotationOrderBy {
-  NotifiedAt = 'NOTIFIED_AT',
-  UpdatedAt = 'UPDATED_AT',
+  AuthorId = 'AUTHOR_ID',
   CreatedAt = 'CREATED_AT',
   DateEndedAt = 'DATE_ENDED_AT',
-  Title = 'TITLE',
-  ExpectedImpact = 'EXPECTED_IMPACT',
-  DeletedAt = 'DELETED_AT',
-  AuthorId = 'AUTHOR_ID',
   DateStartedAt = 'DATE_STARTED_AT',
-  Text = 'TEXT',
-  Priority = 'PRIORITY',
+  DeletedAt = 'DELETED_AT',
+  ExpectedImpact = 'EXPECTED_IMPACT',
   Id = 'ID',
-  OrganizationId = 'ORGANIZATION_ID'
+  NotifiedAt = 'NOTIFIED_AT',
+  OrganizationId = 'ORGANIZATION_ID',
+  Priority = 'PRIORITY',
+  Text = 'TEXT',
+  Title = 'TITLE',
+  UpdatedAt = 'UPDATED_AT'
 }
 
 export type AnnotationOrderByInput = {
@@ -1430,34 +1521,34 @@ export type AnnotationOrderByInput = {
 
 /** An enumeration. */
 export enum DataSourceVersionStrColumns {
-  SqlTable = 'SQL_TABLE',
-  Description = 'DESCRIPTION',
-  Name = 'NAME',
-  DbtModel = 'DBT_MODEL',
   Connection = 'CONNECTION',
+  DbtModel = 'DBT_MODEL',
+  Description = 'DESCRIPTION',
   Hash = 'HASH',
-  SqlQuery = 'SQL_QUERY'
+  Name = 'NAME',
+  SqlQuery = 'SQL_QUERY',
+  SqlTable = 'SQL_TABLE'
 }
 
 /** An enumeration. */
 export enum DataSourceVersionOrderBy {
-  Measures = 'MEASURES',
-  Description = 'DESCRIPTION',
-  Identifiers = 'IDENTIFIERS',
-  Owners = 'OWNERS',
-  DbtModel = 'DBT_MODEL',
   Connection = 'CONNECTION',
-  Id = 'ID',
-  Dimensions = 'DIMENSIONS',
-  DataSourceMetadata = 'DATA_SOURCE_METADATA',
-  SqlTable = 'SQL_TABLE',
+  Constraint = 'CONSTRAINT',
   CreatedAt = 'CREATED_AT',
+  DataSourceMetadata = 'DATA_SOURCE_METADATA',
+  DbtModel = 'DBT_MODEL',
+  Description = 'DESCRIPTION',
+  Dimensions = 'DIMENSIONS',
+  Hash = 'HASH',
+  Id = 'ID',
+  Identifiers = 'IDENTIFIERS',
+  Measures = 'MEASURES',
   Mutability = 'MUTABILITY',
   Name = 'NAME',
-  Constraint = 'CONSTRAINT',
-  Hash = 'HASH',
+  OrganizationId = 'ORGANIZATION_ID',
+  Owners = 'OWNERS',
   SqlQuery = 'SQL_QUERY',
-  OrganizationId = 'ORGANIZATION_ID'
+  SqlTable = 'SQL_TABLE'
 }
 
 export type DataSourceVersionOrderByInput = {
@@ -1476,12 +1567,21 @@ export type SavedQuery = {
   createdBy: Scalars['Int'];
   ownerTeamId?: Maybe<Scalars['Int']>;
   serializedQuery?: Maybe<Scalars['GenericScalar']>;
+  queryId?: Maybe<Scalars['Int']>;
+  isPrivate: Scalars['Boolean'];
   createdByUser?: Maybe<User>;
   organization?: Maybe<Organization>;
   ownerTeam?: Maybe<Team>;
   orgMetrics?: Maybe<Array<Maybe<OrgMetric>>>;
+  dbQuery?: Maybe<MqlQuery>;
   totalMetrics?: Maybe<Scalars['Int']>;
+  userCanEditContent?: Maybe<Scalars['Boolean']>;
+  userCanDeactivate?: Maybe<Scalars['Boolean']>;
+  userCanChangeOwner?: Maybe<Scalars['Boolean']>;
   metrics?: Maybe<Array<Maybe<Metric>>>;
+  metricsNotCurrent?: Maybe<Array<Maybe<Metric>>>;
+  otherUsersBoardsUsingSavedQuery?: Maybe<Array<Maybe<Board>>>;
+  boardsUsingSavedQuery?: Maybe<Array<Maybe<Board>>>;
 };
 
 
@@ -1495,44 +1595,106 @@ export type SavedQueryMetricsArgs = {
   pageSize?: Maybe<Scalars['Int']>;
 };
 
+export type MqlQuery = {
+  __typename?: 'MQLQuery';
+  id: Scalars['ID'];
+  organizationId: Scalars['Int'];
+  mfQueryParamsId: Scalars['Int'];
+  ppQueryParamsId: Scalars['Int'];
+  startedAt?: Maybe<Scalars['DateTime']>;
+  endedAt?: Maybe<Scalars['DateTime']>;
+  createdBy: Scalars['Int'];
+  status: MqlQueryStatus;
+  cacheMode?: Maybe<CacheMode>;
+  useResultCache: Scalars['Boolean'];
+  allowDynamicCache: Scalars['Boolean'];
+  tableId?: Maybe<Scalars['String']>;
+  error?: Maybe<Scalars['String']>;
+  errorTraceback?: Maybe<Scalars['String']>;
+  userFriendlyErrorType?: Maybe<MqlQueryUserFriendlyErrorType>;
+  createdAt: Scalars['DateTime'];
+};
+
+/** The status of queries submitted for execution in the query manager. */
+export enum MqlQueryStatus {
+  Pending = 'PENDING',
+  Running = 'RUNNING',
+  Successful = 'SUCCESSFUL',
+  Failed = 'FAILED',
+  UnhandledException = 'UNHANDLED_EXCEPTION',
+  Unknown = 'UNKNOWN'
+}
+
+/**
+ * Options for the SemanticLayer cache.
+ *
+ *     Tables in a specified schema in the same data warehouse contain measure / dimension combinations that can be used to
+ *     speed up queries for different measure / dimension combinations.
+ */
+export enum CacheMode {
+  Read = 'READ',
+  Readwrite = 'READWRITE',
+  Write = 'WRITE',
+  Ignore = 'IGNORE'
+}
+
+/** User friendly error types to return with MqlQuery */
+export enum MqlQueryUserFriendlyErrorType {
+  DbError = 'DB_ERROR',
+  UnableToSatisfyQueryError = 'UNABLE_TO_SATISFY_QUERY_ERROR',
+  Unknown = 'UNKNOWN'
+}
+
 /** An enumeration. */
 export enum MetricVersionStrColumns {
-  Hash = 'HASH',
+  Description = 'DESCRIPTION',
   DisplayName = 'DISPLAY_NAME',
-  ValueFormat = 'VALUE_FORMAT',
-  Description = 'DESCRIPTION'
+  Hash = 'HASH',
+  MetricTypeStr = 'METRIC_TYPE_STR',
+  MetricMetadataDescription = 'MetricMetadata__DESCRIPTION',
+  MetricMetadataDisplayName = 'MetricMetadata__DISPLAY_NAME',
+  MetricMetadataValueFormat = 'MetricMetadata__VALUE_FORMAT',
+  OrgMetricName = 'OrgMetric__NAME'
 }
 
 /** An enumeration. */
 export enum MetricVersionOrderBy {
-  Id = 'ID',
-  OrgDataSourceId = 'ORG_DATA_SOURCE_ID',
-  Views = 'VIEWS',
-  Metadata = 'METADATA',
-  Params = 'PARAMS',
-  MetricType = 'METRIC_TYPE',
-  Hash = 'HASH',
-  SourceDataSourceVersions = 'SOURCE_DATA_SOURCE_VERSIONS',
-  OrganizationId = 'ORGANIZATION_ID',
-  MetricVersionMetricId = 'MetricVersion_METRIC_ID',
-  MetricVersionCreatedAt = 'MetricVersion_CREATED_AT',
-  MetricMetadataMetricId = 'MetricMetadata_METRIC_ID',
-  MetricMetadataCreatedAt = 'MetricMetadata_CREATED_AT',
-  DisplayName = 'DISPLAY_NAME',
+  CreatedAt = 'CREATED_AT',
   Description = 'DESCRIPTION',
-  UpdatedBy = 'UPDATED_BY',
-  Tier = 'TIER',
-  TierLock = 'TIER_LOCK',
-  DescriptionLock = 'DESCRIPTION_LOCK',
-  IncreaseIsGood = 'INCREASE_IS_GOOD',
-  IsNew = 'IS_NEW',
-  ValueFormat = 'VALUE_FORMAT',
-  UpdatedAt = 'UPDATED_AT',
-  ExtraFields = 'EXTRA_FIELDS',
-  IncreaseIsGoodLock = 'INCREASE_IS_GOOD_LOCK',
-  DisplayNameLock = 'DISPLAY_NAME_LOCK',
-  ValueFormatLock = 'VALUE_FORMAT_LOCK',
-  CreatedBy = 'CREATED_BY'
+  DisplayName = 'DISPLAY_NAME',
+  Hash = 'HASH',
+  Id = 'ID',
+  Metadata = 'METADATA',
+  MetricId = 'METRIC_ID',
+  MetricType = 'METRIC_TYPE',
+  MetricTypeStr = 'METRIC_TYPE_STR',
+  MetricMetadataCreatedAt = 'MetricMetadata__CREATED_AT',
+  MetricMetadataCreatedBy = 'MetricMetadata__CREATED_BY',
+  MetricMetadataDescription = 'MetricMetadata__DESCRIPTION',
+  MetricMetadataDescriptionLock = 'MetricMetadata__DESCRIPTION_LOCK',
+  MetricMetadataDisplayName = 'MetricMetadata__DISPLAY_NAME',
+  MetricMetadataDisplayNameLock = 'MetricMetadata__DISPLAY_NAME_LOCK',
+  MetricMetadataExtraFields = 'MetricMetadata__EXTRA_FIELDS',
+  MetricMetadataIncreaseIsGood = 'MetricMetadata__INCREASE_IS_GOOD',
+  MetricMetadataIncreaseIsGoodLock = 'MetricMetadata__INCREASE_IS_GOOD_LOCK',
+  MetricMetadataIsNew = 'MetricMetadata__IS_NEW',
+  MetricMetadataIsPrivate = 'MetricMetadata__IS_PRIVATE',
+  MetricMetadataMetricId = 'MetricMetadata__METRIC_ID',
+  MetricMetadataTier = 'MetricMetadata__TIER',
+  MetricMetadataTierLock = 'MetricMetadata__TIER_LOCK',
+  MetricMetadataUpdatedAt = 'MetricMetadata__UPDATED_AT',
+  MetricMetadataUpdatedBy = 'MetricMetadata__UPDATED_BY',
+  MetricMetadataValueFormat = 'MetricMetadata__VALUE_FORMAT',
+  MetricMetadataValueFormatLock = 'MetricMetadata__VALUE_FORMAT_LOCK',
+  OrganizationId = 'ORGANIZATION_ID',
+  OrgDataSourceId = 'ORG_DATA_SOURCE_ID',
+  OrgMetricCreatedAt = 'OrgMetric__CREATED_AT',
+  OrgMetricId = 'OrgMetric__ID',
+  OrgMetricName = 'OrgMetric__NAME',
+  OrgMetricOrganizationId = 'OrgMetric__ORGANIZATION_ID',
+  Params = 'PARAMS',
+  SourceDataSourceVersions = 'SOURCE_DATA_SOURCE_VERSIONS',
+  Views = 'VIEWS'
 }
 
 export type MetricVersionOrderByInput = {
@@ -1540,22 +1702,137 @@ export type MetricVersionOrderByInput = {
   desc?: Maybe<Scalars['Boolean']>;
 };
 
+export type Board = {
+  __typename?: 'Board';
+  id: Scalars['ID'];
+  organizationId?: Maybe<Scalars['Int']>;
+  title?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['DateTime']>;
+  updatedAt?: Maybe<Scalars['DateTime']>;
+  deletedAt?: Maybe<Scalars['DateTime']>;
+  owner?: Maybe<User>;
+  userCanEditContent?: Maybe<Scalars['Boolean']>;
+  userCanDeactivate?: Maybe<Scalars['Boolean']>;
+  items?: Maybe<Array<BoardItem>>;
+};
+
+export type BoardItem = {
+  __typename?: 'BoardItem';
+  id: Scalars['ID'];
+  boardId?: Maybe<Scalars['Int']>;
+  parentItemId?: Maybe<Scalars['Int']>;
+  type?: Maybe<BoardItemType>;
+  x?: Maybe<Scalars['Int']>;
+  y?: Maybe<Scalars['Int']>;
+  width?: Maybe<Scalars['Int']>;
+  height?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['DateTime']>;
+  updatedAt?: Maybe<Scalars['DateTime']>;
+  board?: Maybe<Board>;
+  orgMetric?: Maybe<OrgMetric>;
+  savedQuery?: Maybe<SavedQuery>;
+  config?: Maybe<BoardItemConfig>;
+  children?: Maybe<Array<Maybe<BoardItem>>>;
+  metric?: Maybe<Metric>;
+};
+
+/**
+ * Board item types.
+ *
+ *     Can be:
+ *     - Group: has a title/description and is represents a section
+ *     - Metric chart: displays data for a metric's default query
+ *     - Saved query chart: displays data for a saved query
+ */
+export enum BoardItemType {
+  Group = 'GROUP',
+  MetricChart = 'METRIC_CHART',
+  SavedQueryChart = 'SAVED_QUERY_CHART'
+}
+
+export type BoardItemConfig = GroupItemConfig | AreaChartConfig | LineChartConfig | TableConfig | BarChartConfig;
+
+export type GroupItemConfig = {
+  __typename?: 'GroupItemConfig';
+  type?: Maybe<Scalars['String']>;
+  title?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
+};
+
+export type AreaChartConfig = {
+  __typename?: 'AreaChartConfig';
+  type?: Maybe<Scalars['String']>;
+  /** Shows the value in percentage or not */
+  shareOf?: Maybe<Scalars['Boolean']>;
+};
+
+export type LineChartConfig = {
+  __typename?: 'LineChartConfig';
+  type?: Maybe<Scalars['String']>;
+};
+
+export type TableConfig = {
+  __typename?: 'TableConfig';
+  type?: Maybe<Scalars['String']>;
+  /** Determines how many items in one page */
+  pageSize?: Maybe<Scalars['Int']>;
+};
+
+export type BarChartConfig = {
+  __typename?: 'BarChartConfig';
+  type?: Maybe<Scalars['String']>;
+  /** Renders as a grouped barchart or a stacked barchart */
+  grouped?: Maybe<Scalars['Boolean']>;
+  /** Shows the value in percentage or not */
+  shareOf?: Maybe<Scalars['Boolean']>;
+};
+
 /** An enumeration. */
 export enum SavedQueryStrColumns {
+  MetricMetadataDescription = 'MetricMetadata__DESCRIPTION',
+  MetricMetadataDisplayName = 'MetricMetadata__DISPLAY_NAME',
+  MetricMetadataValueFormat = 'MetricMetadata__VALUE_FORMAT',
+  OrgMetricName = 'OrgMetric__NAME',
   Title = 'TITLE'
 }
 
 /** An enumeration. */
 export enum SavedQueryOrderBy {
-  UpdatedAt = 'UPDATED_AT',
   CreatedAt = 'CREATED_AT',
-  OwnerTeamId = 'OWNER_TEAM_ID',
-  Title = 'TITLE',
-  DeletedAt = 'DELETED_AT',
-  SerializedQuery = 'SERIALIZED_QUERY',
-  Id = 'ID',
   CreatedBy = 'CREATED_BY',
-  OrganizationId = 'ORGANIZATION_ID'
+  DeletedAt = 'DELETED_AT',
+  Id = 'ID',
+  IsPrivate = 'IS_PRIVATE',
+  MetricMetadataCreatedAt = 'MetricMetadata__CREATED_AT',
+  MetricMetadataCreatedBy = 'MetricMetadata__CREATED_BY',
+  MetricMetadataDescription = 'MetricMetadata__DESCRIPTION',
+  MetricMetadataDescriptionLock = 'MetricMetadata__DESCRIPTION_LOCK',
+  MetricMetadataDisplayName = 'MetricMetadata__DISPLAY_NAME',
+  MetricMetadataDisplayNameLock = 'MetricMetadata__DISPLAY_NAME_LOCK',
+  MetricMetadataExtraFields = 'MetricMetadata__EXTRA_FIELDS',
+  MetricMetadataIncreaseIsGood = 'MetricMetadata__INCREASE_IS_GOOD',
+  MetricMetadataIncreaseIsGoodLock = 'MetricMetadata__INCREASE_IS_GOOD_LOCK',
+  MetricMetadataIsNew = 'MetricMetadata__IS_NEW',
+  MetricMetadataIsPrivate = 'MetricMetadata__IS_PRIVATE',
+  MetricMetadataMetricId = 'MetricMetadata__METRIC_ID',
+  MetricMetadataTier = 'MetricMetadata__TIER',
+  MetricMetadataTierLock = 'MetricMetadata__TIER_LOCK',
+  MetricMetadataUpdatedAt = 'MetricMetadata__UPDATED_AT',
+  MetricMetadataUpdatedBy = 'MetricMetadata__UPDATED_BY',
+  MetricMetadataValueFormat = 'MetricMetadata__VALUE_FORMAT',
+  MetricMetadataValueFormatLock = 'MetricMetadata__VALUE_FORMAT_LOCK',
+  OrganizationId = 'ORGANIZATION_ID',
+  OwnerTeamId = 'OWNER_TEAM_ID',
+  OrgMetricCreatedAt = 'OrgMetric__CREATED_AT',
+  OrgMetricId = 'OrgMetric__ID',
+  OrgMetricName = 'OrgMetric__NAME',
+  OrgMetricOrganizationId = 'OrgMetric__ORGANIZATION_ID',
+  QueryId = 'QUERY_ID',
+  SerializedQuery = 'SERIALIZED_QUERY',
+  Title = 'TITLE',
+  UpdatedAt = 'UPDATED_AT'
 }
 
 export type SavedQueryOrderByInput = {
@@ -1565,27 +1842,27 @@ export type SavedQueryOrderByInput = {
 
 /** An enumeration. */
 export enum TeamStrColumns {
-  Theme = 'THEME',
   Description = 'DESCRIPTION',
+  Name = 'NAME',
   Slug = 'SLUG',
-  Name = 'NAME'
+  Theme = 'THEME'
 }
 
 /** An enumeration. */
 export enum TeamOrderBy {
-  Theme = 'THEME',
-  UpdatedAt = 'UPDATED_AT',
   CreatedAt = 'CREATED_AT',
-  Description = 'DESCRIPTION',
-  Views = 'VIEWS',
-  Slug = 'SLUG',
-  Name = 'NAME',
-  FeaturedMetricCollectionId = 'FEATURED_METRIC_COLLECTION_ID',
-  Id = 'ID',
-  PrimaryDashboardId = 'PRIMARY_DASHBOARD_ID',
   CreatedBy = 'CREATED_BY',
   DeactivatedAt = 'DEACTIVATED_AT',
-  OrganizationId = 'ORGANIZATION_ID'
+  Description = 'DESCRIPTION',
+  FeaturedMetricCollectionId = 'FEATURED_METRIC_COLLECTION_ID',
+  Id = 'ID',
+  Name = 'NAME',
+  OrganizationId = 'ORGANIZATION_ID',
+  PrimaryDashboardId = 'PRIMARY_DASHBOARD_ID',
+  Slug = 'SLUG',
+  Theme = 'THEME',
+  UpdatedAt = 'UPDATED_AT',
+  Views = 'VIEWS'
 }
 
 export type TeamOrderByInput = {
@@ -1595,24 +1872,24 @@ export type TeamOrderByInput = {
 
 /** An enumeration. */
 export enum UserStrColumns {
-  AvatarUrl = 'AVATAR_URL',
-  UserName = 'USER_NAME',
   Auth0Id = 'AUTH0_ID',
-  Email = 'EMAIL'
+  AvatarUrl = 'AVATAR_URL',
+  Email = 'EMAIL',
+  UserName = 'USER_NAME'
 }
 
 /** An enumeration. */
 export enum UserOrderBy {
-  UserName = 'USER_NAME',
-  UpdatedAt = 'UPDATED_AT',
   Auth0Id = 'AUTH0_ID',
-  CreatedAt = 'CREATED_AT',
   AvatarUrl = 'AVATAR_URL',
+  CreatedAt = 'CREATED_AT',
+  DeactivatedAt = 'DEACTIVATED_AT',
   Email = 'EMAIL',
   Id = 'ID',
+  OrganizationId = 'ORGANIZATION_ID',
   PrimaryDashboardId = 'PRIMARY_DASHBOARD_ID',
-  DeactivatedAt = 'DEACTIVATED_AT',
-  OrganizationId = 'ORGANIZATION_ID'
+  UpdatedAt = 'UPDATED_AT',
+  UserName = 'USER_NAME'
 }
 
 export type UserOrderByInput = {
@@ -1725,14 +2002,14 @@ export enum AlertStatus {
 /** An enumeration. */
 export enum AlertOrderBy {
   AlertRuleId = 'ALERT_RULE_ID',
-  QuestionId = 'QUESTION_ID',
-  DetectedAt = 'DETECTED_AT',
-  CreatedAt = 'CREATED_AT',
   AnnotationId = 'ANNOTATION_ID',
-  QuestionReplyId = 'QUESTION_REPLY_ID',
-  Status = 'STATUS',
+  CreatedAt = 'CREATED_AT',
   Data = 'DATA',
-  Id = 'ID'
+  DetectedAt = 'DETECTED_AT',
+  Id = 'ID',
+  QuestionId = 'QUESTION_ID',
+  QuestionReplyId = 'QUESTION_REPLY_ID',
+  Status = 'STATUS'
 }
 
 export type AlertOrderByInput = {
@@ -1742,14 +2019,14 @@ export type AlertOrderByInput = {
 
 /** An enumeration. */
 export enum MetricCollectionMetricOrderBy {
-  UpdatedAt = 'UPDATED_AT',
   CreatedAt = 'CREATED_AT',
-  SavedQueryId = 'SAVED_QUERY_ID',
-  MetricCollectionId = 'METRIC_COLLECTION_ID',
-  Position = 'POSITION',
   Emphasis = 'EMPHASIS',
+  Id = 'ID',
+  MetricCollectionId = 'METRIC_COLLECTION_ID',
   MetricId = 'METRIC_ID',
-  Id = 'ID'
+  Position = 'POSITION',
+  SavedQueryId = 'SAVED_QUERY_ID',
+  UpdatedAt = 'UPDATED_AT'
 }
 
 export type MetricCollectionMetricOrderByInput = {
@@ -1776,26 +2053,26 @@ export type CollectionItem = {
 
 /** An enumeration. */
 export enum MetricCollectionStrColumns {
-  Title = 'TITLE',
   Description = 'DESCRIPTION',
-  Slug = 'SLUG'
+  Slug = 'SLUG',
+  Title = 'TITLE'
 }
 
 /** An enumeration. */
 export enum MetricCollectionOrderBy {
-  UpdatedAt = 'UPDATED_AT',
   CreatedAt = 'CREATED_AT',
-  OwnerTeamId = 'OWNER_TEAM_ID',
-  Description = 'DESCRIPTION',
-  Title = 'TITLE',
-  DeletedAt = 'DELETED_AT',
-  Views = 'VIEWS',
-  DefaultEmphasis = 'DEFAULT_EMPHASIS',
-  Slug = 'SLUG',
-  Id = 'ID',
-  PrimaryDashboardId = 'PRIMARY_DASHBOARD_ID',
   CreatedBy = 'CREATED_BY',
-  OrganizationId = 'ORGANIZATION_ID'
+  DefaultEmphasis = 'DEFAULT_EMPHASIS',
+  DeletedAt = 'DELETED_AT',
+  Description = 'DESCRIPTION',
+  Id = 'ID',
+  OrganizationId = 'ORGANIZATION_ID',
+  OwnerTeamId = 'OWNER_TEAM_ID',
+  PrimaryDashboardId = 'PRIMARY_DASHBOARD_ID',
+  Slug = 'SLUG',
+  Title = 'TITLE',
+  UpdatedAt = 'UPDATED_AT',
+  Views = 'VIEWS'
 }
 
 export type MetricCollectionOrderByInput = {
@@ -1834,24 +2111,24 @@ export type ApiKey = {
 
 /** An enumeration. */
 export enum ApiKeyStrColumns {
-  Type = 'TYPE',
   Prefix = 'PREFIX',
   Scope = 'SCOPE',
-  SecretHash = 'SECRET_HASH'
+  SecretHash = 'SECRET_HASH',
+  Type = 'TYPE'
 }
 
 /** An enumeration. */
 export enum ApiKeyOrderBy {
-  RevokerId = 'REVOKER_ID',
   CreatedAt = 'CREATED_AT',
-  UserId = 'USER_ID',
-  Type = 'TYPE',
-  Scope = 'SCOPE',
-  RevokedAt = 'REVOKED_AT',
   LastUsedAt = 'LAST_USED_AT',
+  OrganizationId = 'ORGANIZATION_ID',
   Prefix = 'PREFIX',
+  RevokedAt = 'REVOKED_AT',
+  RevokerId = 'REVOKER_ID',
+  Scope = 'SCOPE',
   SecretHash = 'SECRET_HASH',
-  OrganizationId = 'ORGANIZATION_ID'
+  Type = 'TYPE',
+  UserId = 'USER_ID'
 }
 
 export type ApiKeyOrderByInput = {
@@ -1878,6 +2155,29 @@ export type Notification = {
   numChildNotifications?: Maybe<Scalars['Int']>;
   subscriptionInviter?: Maybe<User>;
   subscribedToMetric?: Maybe<Metric>;
+};
+
+/** An enumeration. */
+export enum BoardStrColumns {
+  Description = 'DESCRIPTION',
+  Title = 'TITLE'
+}
+
+/** An enumeration. */
+export enum BoardOrderBy {
+  CreatedAt = 'CREATED_AT',
+  CreatedBy = 'CREATED_BY',
+  DeletedAt = 'DELETED_AT',
+  Description = 'DESCRIPTION',
+  Id = 'ID',
+  OrganizationId = 'ORGANIZATION_ID',
+  Title = 'TITLE',
+  UpdatedAt = 'UPDATED_AT'
+}
+
+export type BoardOrderByInput = {
+  orderBy: BoardOrderBy;
+  desc?: Maybe<Scalars['Boolean']>;
 };
 
 export type Feature = {
@@ -1917,28 +2217,28 @@ export type FeatureUsersArgs = {
 
 /** An enumeration. */
 export enum OrganizationStrColumns {
-  MqlServerLogs = 'MQL_SERVER_LOGS',
-  PrimaryConfigRepo = 'PRIMARY_CONFIG_REPO',
-  Name = 'NAME',
-  SourceControlUrl = 'SOURCE_CONTROL_URL',
   LogoUrl = 'LOGO_URL',
-  PrimaryConfigBranch = 'PRIMARY_CONFIG_BRANCH'
+  MqlServerLogs = 'MQL_SERVER_LOGS',
+  Name = 'NAME',
+  PrimaryConfigBranch = 'PRIMARY_CONFIG_BRANCH',
+  PrimaryConfigRepo = 'PRIMARY_CONFIG_REPO',
+  SourceControlUrl = 'SOURCE_CONTROL_URL'
 }
 
 /** An enumeration. */
 export enum OrganizationOrderBy {
-  UpdatedAt = 'UPDATED_AT',
   CreatedAt = 'CREATED_AT',
-  MqlServerLogs = 'MQL_SERVER_LOGS',
+  DeactivatedAt = 'DEACTIVATED_AT',
+  Id = 'ID',
   IsHosted = 'IS_HOSTED',
-  SourceControlUrl = 'SOURCE_CONTROL_URL',
   LogoUrl = 'LOGO_URL',
-  Type = 'TYPE',
+  MqlServerLogs = 'MQL_SERVER_LOGS',
+  Name = 'NAME',
   PrimaryConfigBranch = 'PRIMARY_CONFIG_BRANCH',
   PrimaryConfigRepo = 'PRIMARY_CONFIG_REPO',
-  Name = 'NAME',
-  Id = 'ID',
-  DeactivatedAt = 'DEACTIVATED_AT'
+  SourceControlUrl = 'SOURCE_CONTROL_URL',
+  Type = 'TYPE',
+  UpdatedAt = 'UPDATED_AT'
 }
 
 export type OrganizationOrderByInput = {
@@ -2010,23 +2310,23 @@ export type DataWarehouseConfig = {
 
 /** An enumeration. */
 export enum OrgMqlServerStrColumns {
-  Url = 'URL',
   ConfigSecret = 'CONFIG_SECRET',
-  Name = 'NAME'
+  Name = 'NAME',
+  Url = 'URL'
 }
 
 /** An enumeration. */
 export enum OrgMqlServerOrderBy {
-  IsOrgDefault = 'IS_ORG_DEFAULT',
-  UpdatedAt = 'UPDATED_AT',
+  ConfigSecret = 'CONFIG_SECRET',
   CreatedAt = 'CREATED_AT',
   DeploymentStatus = 'DEPLOYMENT_STATUS',
-  ConfigSecret = 'CONFIG_SECRET',
-  Name = 'NAME',
-  Url = 'URL',
   DwEngine = 'DW_ENGINE',
   Id = 'ID',
-  OrganizationId = 'ORGANIZATION_ID'
+  IsOrgDefault = 'IS_ORG_DEFAULT',
+  Name = 'NAME',
+  OrganizationId = 'ORGANIZATION_ID',
+  UpdatedAt = 'UPDATED_AT',
+  Url = 'URL'
 }
 
 export type OrgMqlServerOrderByInput = {
@@ -2053,12 +2353,12 @@ export enum OrgPrefStrColumns {
 
 /** An enumeration. */
 export enum OrgPrefOrderBy {
-  UpdatedAt = 'UPDATED_AT',
   CreatedAt = 'CREATED_AT',
+  Id = 'ID',
+  OrganizationId = 'ORGANIZATION_ID',
   PrefKey = 'PREF_KEY',
   PrefValue = 'PREF_VALUE',
-  Id = 'ID',
-  OrganizationId = 'ORGANIZATION_ID'
+  UpdatedAt = 'UPDATED_AT'
 }
 
 export type OrgPrefOrderByInput = {
@@ -2182,13 +2482,13 @@ export enum IntegrationStrColumns {
 
 /** An enumeration. */
 export enum IntegrationOrderBy {
-  Status = 'STATUS',
   CreatedAt = 'CREATED_AT',
-  Type = 'TYPE',
-  Id = 'ID',
   CreatedBy = 'CREATED_BY',
   DeactivatedAt = 'DEACTIVATED_AT',
-  OrganizationId = 'ORGANIZATION_ID'
+  Id = 'ID',
+  OrganizationId = 'ORGANIZATION_ID',
+  Status = 'STATUS',
+  Type = 'TYPE'
 }
 
 export type IntegrationOrderByInput = {
@@ -2216,14 +2516,14 @@ export enum InviteStrColumns {
 
 /** An enumeration. */
 export enum InviteOrderBy {
-  InvitedBy = 'INVITED_BY',
-  RedeemedAt = 'REDEEMED_AT',
-  UpdatedAt = 'UPDATED_AT',
   CreatedAt = 'CREATED_AT',
-  ExpiresAt = 'EXPIRES_AT',
   Email = 'EMAIL',
+  ExpiresAt = 'EXPIRES_AT',
   Id = 'ID',
-  OrganizationId = 'ORGANIZATION_ID'
+  InvitedBy = 'INVITED_BY',
+  OrganizationId = 'ORGANIZATION_ID',
+  RedeemedAt = 'REDEEMED_AT',
+  UpdatedAt = 'UPDATED_AT'
 }
 
 export type InviteOrderByInput = {
@@ -2252,11 +2552,11 @@ export enum FeatureStrColumns {
 
 /** An enumeration. */
 export enum FeatureOrderBy {
-  UpdatedAt = 'UPDATED_AT',
   CreatedAt = 'CREATED_AT',
-  Name = 'NAME',
   Id = 'ID',
-  RetiredAt = 'RETIRED_AT'
+  Name = 'NAME',
+  RetiredAt = 'RETIRED_AT',
+  UpdatedAt = 'UPDATED_AT'
 }
 
 export type FeatureOrderByInput = {
@@ -2421,6 +2721,7 @@ export type Mutation = {
   organizationsSetPref?: Maybe<Organization>;
   organizationsDeletePref?: Maybe<Organization>;
   organizationsSetAllowedEmailDomains?: Maybe<Organization>;
+  organizationsDeactivate?: Maybe<Organization>;
   metricsApprove?: Maybe<Metric>;
   metricsLogView?: Maybe<MetricView>;
   metricCollectionsLogView?: Maybe<MetricCollectionView>;
@@ -2433,6 +2734,8 @@ export type Mutation = {
   metricsUpdateMetadata?: Maybe<Metric>;
   savedQueryCreate?: Maybe<SavedQuery>;
   savedQueryUpdate?: Maybe<SavedQuery>;
+  createSavedQuery?: Maybe<SavedQuery>;
+  updateSavedQuery?: Maybe<SavedQuery>;
   savedQueryDeactivate?: Maybe<SavedQuery>;
   sendInvites?: Maybe<Organization>;
   acceptTermsOfService?: Maybe<User>;
@@ -2465,6 +2768,10 @@ export type Mutation = {
   bulkSubscribeAlertRules?: Maybe<User>;
   bulkUnsubscribeAlertRules?: Maybe<User>;
   createTransformServiceUser?: Maybe<User>;
+  boardsCreate?: Maybe<Board>;
+  boardsUpdate?: Maybe<Board>;
+  boardsDeactivate?: Maybe<Board>;
+  boardsAddSavedQuery?: Maybe<Array<Maybe<Board>>>;
 };
 
 
@@ -3215,6 +3522,18 @@ export type MutationOrganizationsSetAllowedEmailDomainsArgs = {
  * Mutation names will be converted from snake_case to camelCase automatically
  * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
  */
+export type MutationOrganizationsDeactivateArgs = {
+  orgId: Scalars['ID'];
+  reactivate?: Maybe<Scalars['Boolean']>;
+};
+
+
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationMetricsApproveArgs = {
   metricId: Scalars['ID'];
 };
@@ -3348,6 +3667,7 @@ export type MutationSavedQueryCreateArgs = {
   serializedQuery: Scalars['GenericScalar'];
   metricIds?: Maybe<Array<Maybe<Scalars['ID']>>>;
   ownerTeamId?: Maybe<Scalars['ID']>;
+  isPrivate?: Maybe<Scalars['Boolean']>;
 };
 
 
@@ -3364,6 +3684,35 @@ export type MutationSavedQueryUpdateArgs = {
   ownerTeamId?: Maybe<Scalars['Int']>;
   serializedQuery?: Maybe<Scalars['GenericScalar']>;
   metricIds?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  isPrivate?: Maybe<Scalars['Boolean']>;
+};
+
+
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
+export type MutationCreateSavedQueryArgs = {
+  title: Scalars['String'];
+  queryId: Scalars['Int'];
+  isPrivate?: Maybe<Scalars['Boolean']>;
+};
+
+
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
+export type MutationUpdateSavedQueryArgs = {
+  id: Scalars['Int'];
+  title?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['Int']>;
+  isPrivate?: Maybe<Scalars['Boolean']>;
+  queryId?: Maybe<Scalars['Int']>;
 };
 
 
@@ -3700,6 +4049,7 @@ export type MutationBulkSubscribeAlertRulesArgs = {
   channels: Array<Maybe<GNotificationChannel>>;
   alertRuleTypes: Array<Maybe<GAlertRuleType>>;
   userId: Scalars['Int'];
+  metricId?: Maybe<Scalars['Int']>;
 };
 
 
@@ -3713,6 +4063,7 @@ export type MutationBulkUnsubscribeAlertRulesArgs = {
   channels: Array<Maybe<GNotificationChannel>>;
   alertRuleTypes: Array<Maybe<GAlertRuleType>>;
   userId: Scalars['Int'];
+  metricId?: Maybe<Scalars['Int']>;
 };
 
 
@@ -3724,6 +4075,55 @@ export type MutationBulkUnsubscribeAlertRulesArgs = {
  */
 export type MutationCreateTransformServiceUserArgs = {
   orgId: Scalars['ID'];
+};
+
+
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
+export type MutationBoardsCreateArgs = {
+  title: Scalars['String'];
+  description?: Maybe<Scalars['String']>;
+};
+
+
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
+export type MutationBoardsUpdateArgs = {
+  id: Scalars['Int'];
+  title?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
+  items?: Maybe<Array<Maybe<BoardItemInput>>>;
+};
+
+
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
+export type MutationBoardsDeactivateArgs = {
+  id: Scalars['Int'];
+};
+
+
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
+export type MutationBoardsAddSavedQueryArgs = {
+  savedQueryId: Scalars['Int'];
+  boardIds: Array<Maybe<Scalars['Int']>>;
 };
 
 /** An enumeration. */
@@ -3993,6 +4393,62 @@ export enum GIntegrationStatus {
   Requested = 'REQUESTED',
   Completed = 'COMPLETED'
 }
+
+export type BoardItemInput = {
+  config: BoardItemConfigInput;
+  x?: Maybe<Scalars['Int']>;
+  y?: Maybe<Scalars['Int']>;
+  width?: Maybe<Scalars['Int']>;
+  height?: Maybe<Scalars['Int']>;
+};
+
+/** Input union for board items. Exactly one of the fields must be non-null */
+export type BoardItemConfigInput = {
+  savedQuery?: Maybe<SavedQueryItemConfigInput>;
+  metric?: Maybe<MetricItemConfigInput>;
+  group?: Maybe<GroupItemConfigInput>;
+};
+
+export type SavedQueryItemConfigInput = {
+  savedQueryId: Scalars['Int'];
+  chartConfig?: Maybe<ChartConfigInput>;
+};
+
+/** Input union for board chart config. Exactly one of the fields must be non-null */
+export type ChartConfigInput = {
+  lineConfig?: Maybe<LineConfigInput>;
+  barConfig?: Maybe<BarConfigInput>;
+  tableConfig?: Maybe<TableConfigInput>;
+  areaConfig?: Maybe<AreaConfigInput>;
+};
+
+export type LineConfigInput = {
+  doNotUseThisArgument?: Maybe<Scalars['Boolean']>;
+};
+
+export type BarConfigInput = {
+  grouped: Scalars['Boolean'];
+  shareOf: Scalars['Boolean'];
+};
+
+export type TableConfigInput = {
+  pageSize: Scalars['Int'];
+};
+
+export type AreaConfigInput = {
+  shareOf: Scalars['Boolean'];
+};
+
+export type MetricItemConfigInput = {
+  metricId: Scalars['Int'];
+  chartConfig?: Maybe<ChartConfigInput>;
+};
+
+export type GroupItemConfigInput = {
+  title?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
+  children?: Maybe<Array<BoardItemInput>>;
+};
 
 export type SetMqlServerMutationVariables = Exact<{
   newServerIdAsString: Scalars['String'];
