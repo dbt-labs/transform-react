@@ -48,12 +48,15 @@ export type Query = {
   measures?: Maybe<Array<Measure>>;
   measureByName?: Maybe<Measure>;
   dimensionNamesForMetrics?: Maybe<Array<Maybe<Scalars['String']>>>;
-  dimensionNamesForMetricsMultihop?: Maybe<Array<Maybe<Scalars['String']>>>;
   dimensionsForMetrics?: Maybe<Dimensions>;
+  /** @deprecated Use `dimensionNamesForMetrics`. */
+  dimensionNamesForMetricsMultihop?: Maybe<Array<Maybe<Scalars['String']>>>;
+  /** @deprecated Use `dimensionsForMetrics`. */
   dimensionsForMetricsMultihop?: Maybe<Dimensions>;
   dimensions?: Maybe<Array<Dimension>>;
   primaryTimeDimension?: Maybe<Dimension>;
   maxGranularityForMetrics?: Maybe<TimeGranularity>;
+  queryableGranularitiesForMetrics?: Maybe<Array<Maybe<TimeGranularity>>>;
   queries?: Maybe<Array<Maybe<MqlQuery>>>;
   healthReport?: Maybe<Array<Maybe<MqlServerHealthItem>>>;
   validations?: Maybe<Validations>;
@@ -153,17 +156,7 @@ export type QueryMeasureByNameArgs = {
 export type QueryDimensionNamesForMetricsArgs = {
   modelKey?: Maybe<ModelKeyInput>;
   metricNames?: Maybe<Array<Maybe<Scalars['String']>>>;
-};
-
-
-/**
- * Base Query object exposed by GraphQL for the MQL Server
- *
- * Each field defined below is accessible by the API, by calling the equivalent resolver.
- */
-export type QueryDimensionNamesForMetricsMultihopArgs = {
-  modelKey?: Maybe<ModelKeyInput>;
-  metricNames?: Maybe<Array<Maybe<Scalars['String']>>>;
+  excludeProperties?: Maybe<Array<Maybe<DimensionProperty>>>;
 };
 
 
@@ -173,6 +166,18 @@ export type QueryDimensionNamesForMetricsMultihopArgs = {
  * Each field defined below is accessible by the API, by calling the equivalent resolver.
  */
 export type QueryDimensionsForMetricsArgs = {
+  modelKey?: Maybe<ModelKeyInput>;
+  metricNames?: Maybe<Array<Maybe<Scalars['String']>>>;
+  excludeProperties?: Maybe<Array<Maybe<DimensionProperty>>>;
+};
+
+
+/**
+ * Base Query object exposed by GraphQL for the MQL Server
+ *
+ * Each field defined below is accessible by the API, by calling the equivalent resolver.
+ */
+export type QueryDimensionNamesForMetricsMultihopArgs = {
   modelKey?: Maybe<ModelKeyInput>;
   metricNames?: Maybe<Array<Maybe<Scalars['String']>>>;
 };
@@ -217,6 +222,18 @@ export type QueryPrimaryTimeDimensionArgs = {
 export type QueryMaxGranularityForMetricsArgs = {
   metricNames: Array<Maybe<Scalars['String']>>;
   modelKey?: Maybe<ModelKeyInput>;
+};
+
+
+/**
+ * Base Query object exposed by GraphQL for the MQL Server
+ *
+ * Each field defined below is accessible by the API, by calling the equivalent resolver.
+ */
+export type QueryQueryableGranularitiesForMetricsArgs = {
+  metricNames: Array<Maybe<Scalars['String']>>;
+  modelKey?: Maybe<ModelKeyInput>;
+  pctChange?: Maybe<PercentChange>;
 };
 
 
@@ -311,8 +328,14 @@ export type MqlQuery = {
   latestResultValues?: Maybe<Array<Maybe<QueryResultValue>>>;
   whereConstraint?: Maybe<Scalars['String']>;
   requestedGranularity?: Maybe<TimeGranularity>;
+  groupBy?: Maybe<Array<Maybe<Scalars['String']>>>;
+  maxDimensionValues?: Maybe<Scalars['Int']>;
+  constraint?: Maybe<Constraint>;
   timeComparison?: Maybe<PercentChange>;
   timeConstraint?: Maybe<TimeConstraint>;
+  numPostprocessedResults?: Maybe<Scalars['Int']>;
+  dbId?: Maybe<Scalars['Int']>;
+  warnings?: Maybe<Array<Maybe<Scalars['String']>>>;
 };
 
 
@@ -350,11 +373,7 @@ export type ModelKey = {
   commit: Scalars['String'];
 };
 
-/**
- * The status of queries submitted for execution in the query manager.
- *
- * Note: Obviously we need to link this from the version in query_manager.
- */
+/** The status of queries submitted for execution in the query manager. */
 export enum MqlQueryStatus {
   Pending = 'PENDING',
   Running = 'RUNNING',
@@ -445,6 +464,29 @@ export type QueryResultValue = {
   value?: Maybe<Scalars['Float']>;
 };
 
+/** Represents a where constraint used in a query. */
+export type Constraint = {
+  __typename?: 'Constraint';
+  constraint?: Maybe<SingleConstraint>;
+  And?: Maybe<Array<SingleConstraint>>;
+};
+
+/** Actual `where` clauses to be applied */
+export type SingleConstraint = {
+  __typename?: 'SingleConstraint';
+  constraintType?: Maybe<AtomicConstraintType>;
+  dimensionName?: Maybe<Scalars['String']>;
+  values?: Maybe<Array<Maybe<Scalars['String']>>>;
+  start?: Maybe<Scalars['String']>;
+  stop?: Maybe<Scalars['String']>;
+};
+
+/** Current possible values for constraints */
+export enum AtomicConstraintType {
+  Set = 'SET',
+  Range = 'RANGE'
+}
+
 /** An enumeration. */
 export enum PercentChange {
   Dod = 'DOD',
@@ -495,6 +537,11 @@ export type Metric = {
   maxGranularity?: Maybe<TimeGranularity>;
   newDataIsAvailable?: Maybe<Scalars['Boolean']>;
   canLimitDimensionValues?: Maybe<Scalars['Boolean']>;
+};
+
+
+export type MetricDimensionObjectsArgs = {
+  modelKey?: Maybe<ModelKeyInput>;
 };
 
 
@@ -550,15 +597,15 @@ export type Dimension = {
   elementName: Scalars['String'];
   identifierName?: Maybe<Scalars['String']>;
   identifierNames?: Maybe<Array<Maybe<Scalars['String']>>>;
-  type?: Maybe<DimensionType>;
+  type?: Maybe<DimensionTypeForDescription>;
   isPrimaryTime?: Maybe<Scalars['Boolean']>;
   timeGranularity?: Maybe<TimeGranularity>;
   values?: Maybe<Array<Scalars['String']>>;
   cardinality?: Maybe<Scalars['Int']>;
 };
 
-/** Determines types values expected of dimension */
-export enum DimensionType {
+/** Describes the type of dimension in QueryableDimensionDescription. */
+export enum DimensionTypeForDescription {
   Categorical = 'CATEGORICAL',
   Time = 'TIME'
 }
@@ -568,6 +615,17 @@ export type Measure = {
   name: Scalars['String'];
   dataSources?: Maybe<Array<Scalars['String']>>;
 };
+
+/** An enumeration. */
+export enum DimensionProperty {
+  LocalLinkedPrimaryTime = 'LOCAL_LINKED_PRIMARY_TIME',
+  Local = 'LOCAL',
+  LocalLinked = 'LOCAL_LINKED',
+  Joined = 'JOINED',
+  MultiHop = 'MULTI_HOP',
+  DerivedTimeGranularity = 'DERIVED_TIME_GRANULARITY',
+  Intersected = 'INTERSECTED'
+}
 
 export type Dimensions = {
   __typename?: 'Dimensions';
@@ -632,6 +690,8 @@ export type Mutation = {
    * The full query object is also returned in case we have a result available synchronously (stored the result cache)
    */
   createMqlQuery?: Maybe<CreateMqlQueryPayload>;
+  /** Initiate an MQL Query based on just the DB id. We'll build out the parameters from the DB record. */
+  createMqlQueryFromDbId?: Maybe<CreateMqlQueryFromDbIdPayload>;
   /** @deprecated Moving to async implementation (CreateMqlMaterializationNew) */
   materialize?: Maybe<Materialize>;
   /** Drop the MQL dynamic cache. Please avoid doing this unless there's a cache corruption issue. */
@@ -644,6 +704,8 @@ export type Mutation = {
   queryMetricChange?: Maybe<QueryMetricChangePayload>;
   /** Get percent change for given metric from start to end of date range (assuming daily granularity). */
   pctChangeOverRange?: Maybe<PctChangeOverRangePayload>;
+  /** Invalidate cache for a given metric. */
+  invalidateCacheForMetric?: Maybe<InvalidateCacheForMetric>;
 };
 
 
@@ -662,6 +724,12 @@ export type MutationCreateMqlDropMaterializationArgs = {
 /** Base mutation object exposed by GraphQL. */
 export type MutationCreateMqlQueryArgs = {
   input: CreateMqlQueryInput;
+};
+
+
+/** Base mutation object exposed by GraphQL. */
+export type MutationCreateMqlQueryFromDbIdArgs = {
+  input: CreateMqlQueryFromDbIdInput;
 };
 
 
@@ -703,6 +771,13 @@ export type MutationQueryMetricChangeArgs = {
 /** Base mutation object exposed by GraphQL. */
 export type MutationPctChangeOverRangeArgs = {
   input: PctChangeOverRangeInput;
+};
+
+
+/** Base mutation object exposed by GraphQL. */
+export type MutationInvalidateCacheForMetricArgs = {
+  metricName: Scalars['String'];
+  modelKey?: Maybe<ModelKeyInput>;
 };
 
 export type CreateMqlMaterializationNewPayload = {
@@ -801,12 +876,6 @@ export type SingleConstraintInput = {
   stop?: Maybe<Scalars['String']>;
 };
 
-/** Current possible values for constraints */
-export enum AtomicConstraintType {
-  Set = 'SET',
-  Range = 'RANGE'
-}
-
 
 /**
  * Options for the SemanticLayer cache.
@@ -825,6 +894,22 @@ export enum CacheMode {
 export enum ResultFormat {
   Tfd = 'TFD'
 }
+
+/** Initiate an MQL Query based on just the DB id. We'll build out the parameters from the DB record. */
+export type CreateMqlQueryFromDbIdPayload = {
+  __typename?: 'CreateMqlQueryFromDbIdPayload';
+  id: Scalars['ID'];
+  query?: Maybe<MqlQuery>;
+  clientMutationId?: Maybe<Scalars['String']>;
+};
+
+export type CreateMqlQueryFromDbIdInput = {
+  /** ID for query logged to DB. */
+  dbId: Scalars['Int'];
+  /** Used for marking retries, optionally pass param to track attempt number. */
+  attemptNum?: Maybe<Scalars['Int']>;
+  clientMutationId?: Maybe<Scalars['String']>;
+};
 
 export type Materialize = {
   __typename?: 'Materialize';
@@ -886,6 +971,12 @@ export type PctChangeOverRangeInput = {
   startTime: Scalars['String'];
   endTime: Scalars['String'];
   clientMutationId?: Maybe<Scalars['String']>;
+};
+
+/** Invalidate cache for a given metric. */
+export type InvalidateCacheForMetric = {
+  __typename?: 'InvalidateCacheForMetric';
+  success?: Maybe<Scalars['String']>;
 };
 
 /** MQL Query Result Data are expected to be plotted on a time series so this is the most common result type */
@@ -1074,7 +1165,7 @@ export type FetchMqlTimeSeriesQuery = (
   { __typename?: 'Query' }
   & { mqlQuery?: Maybe<(
     { __typename?: 'MqlQuery' }
-    & Pick<MqlQuery, 'id' | 'status' | 'metrics' | 'dimensions' | 'error' | 'chartValueMin' | 'chartValueMax'>
+    & Pick<MqlQuery, 'id' | 'dbId' | 'status' | 'metrics' | 'dimensions' | 'error' | 'chartValueMin' | 'chartValueMax'>
     & { result?: Maybe<Array<(
       { __typename?: 'MqlQueryResultSeries' }
       & Pick<MqlQueryResultSeries, 'seriesValue'>
