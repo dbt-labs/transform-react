@@ -1047,6 +1047,44 @@ export type CreateMqlQueryMutation = (
   )> }
 );
 
+export type CreateMqlQueryFromDbIdMutationVariables = Exact<{
+  attemptNum: Scalars['Int'];
+  dbId: Scalars['Int'];
+}>;
+
+
+export type CreateMqlQueryFromDbIdMutation = (
+  { __typename?: 'Mutation' }
+  & { createMqlQueryFromDbId?: Maybe<(
+    { __typename?: 'CreateMqlQueryFromDbIdPayload' }
+    & Pick<CreateMqlQueryFromDbIdPayload, 'id'>
+    & { query?: Maybe<(
+      { __typename?: 'MqlQuery' }
+      & Pick<MqlQuery, 'id' | 'dbId' | 'createdAt' | 'status' | 'metrics' | 'dimensions' | 'error' | 'chartValueMax' | 'chartValueMin' | 'whereConstraint' | 'requestedGranularity' | 'groupBy' | 'maxDimensionValues' | 'timeComparison' | 'numPostprocessedResults'>
+      & { constraint?: Maybe<(
+        { __typename?: 'Constraint' }
+        & { constraint?: Maybe<(
+          { __typename?: 'SingleConstraint' }
+          & Pick<SingleConstraint, 'constraintType' | 'dimensionName' | 'values' | 'start' | 'stop'>
+        )>, And?: Maybe<Array<(
+          { __typename?: 'SingleConstraint' }
+          & Pick<SingleConstraint, 'constraintType' | 'dimensionName' | 'values' | 'start' | 'stop'>
+        )>> }
+      )>, timeConstraint?: Maybe<(
+        { __typename?: 'TimeConstraint' }
+        & Pick<TimeConstraint, 'dimensionName' | 'timeFormat' | 'start' | 'stop' | 'timeGranularity'>
+      )>, result?: Maybe<Array<(
+        { __typename?: 'MqlQueryResultSeries' }
+        & Pick<MqlQueryResultSeries, 'seriesValue'>
+        & { data?: Maybe<Array<(
+          { __typename?: 'TimeSeriesDatum' }
+          & Pick<TimeSeriesDatum, 'xDate' | 'y'>
+        )>> }
+      )>> }
+    )> }
+  )> }
+);
+
 export type CreatePercentChangeMutationVariables = Exact<{
   metricName: Scalars['String'];
   startTime: Scalars['String'];
