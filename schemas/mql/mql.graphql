@@ -95,6 +95,7 @@ type MqlQuery {
   maxDimensionValues: Int
   constraint: Constraint
   timeComparison: PercentChange
+  trimIncompletePeriods: Boolean
   timeConstraint: TimeConstraint
   numPostprocessedResults: Int
   dbId: Int
@@ -394,7 +395,7 @@ type Mutation {
   This mutation is used to initiate an MQL Query.
   
   The primary return value is a queryId that can be used to fetch the query status, errors, and results.
-  The full query object is also returned in case we have a result available synchronously (stored the result cache)
+  The full query object is also returned in case we have a result available synchronously (stored in the result cache).
   """
   createMqlQuery(input: CreateMqlQueryInput!): CreateMqlQueryPayload
 
@@ -465,7 +466,7 @@ input CreateMqlDropMaterializationInput {
 This mutation is used to initiate an MQL Query.
 
 The primary return value is a queryId that can be used to fetch the query status, errors, and results.
-The full query object is also returned in case we have a result available synchronously (stored the result cache)
+The full query object is also returned in case we have a result available synchronously (stored in the result cache).
 """
 type CreateMqlQueryPayload {
   id: ID!

@@ -24,6 +24,7 @@ export type MqlContextType = {
     URL for the user and is not optional.
   */
   mqlServerUrl?: string | null;
+  mqlServerUrlLoading: boolean;
 
   /*
     This function is used to set the MQL Server URL override to a value available for
@@ -71,6 +72,7 @@ export type MqlContextType = {
 export const MqlContextInitialState = {
   coreApiUrl: CORE_API_URL,
   mqlServerUrl: null,
+  mqlServerUrlLoading: true,
   setMqlServer: () => Promise.resolve(),
   mqlServerOverrideLoading: false,
   modelKey: null,
