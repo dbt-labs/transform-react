@@ -139,7 +139,7 @@ function MqlContextProviderInternal({
     token
   });
 
-  const [mqlContext, _setMqlContext] = useState<MqlContextType>({
+  const [mqlContext, setMqlContext] = useState<MqlContextType>({
     coreApiUrl: coreApiUrl || CORE_API_URL,
     mqlServerUrl: externalConfig?.mqlServerUrl || mqlServerUrlData?.myUser?.mqlServerUrl,
     mqlServerUrlLoading: !externalConfig?.mqlServerUrl && !mqlServerUrlData?.myUser?.mqlServerUrl && !mqlServerUrlOverride,
@@ -154,10 +154,6 @@ function MqlContextProviderInternal({
     useMutation,
     handleCombinedError,
   });
-
-  const setMqlContext = useCallback((newState) => {
-    _setMqlContext(newState)
-  }, [])
 
   useEffect(() => {
     const stateToUpdate: Partial<MqlContextType> = {};
