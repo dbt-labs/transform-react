@@ -130,6 +130,7 @@ type Organization {
   boards(searchStr: String, searchColumns: [BoardStrColumns], orderBy: BoardOrderBy, desc: Boolean, orderBys: [BoardOrderByInput], pageNumber: Int, pageSize: Int): [Board]
   totalBoards(searchStr: String, searchColumns: [BoardStrColumns]): Int
   board(id: Int!): Board
+  availableChartTypes(numDimensions: Int!, numMetrics: Int!): [GChartType]
   activeFeatures: [Feature]
 }
 
@@ -842,6 +843,7 @@ type SavedQuery {
   serializedQuery: GenericScalar
   queryId: Int
   isPrivate: Boolean!
+  chartType: ChartType
   createdByUser: User
   organization: Organization
   ownerTeam: Team
@@ -851,10 +853,23 @@ type SavedQuery {
   userCanEditContent: Boolean
   userCanDeactivate: Boolean
   userCanChangeOwner: Boolean
+  availableChartTypes: [GChartType]
   metrics(searchStr: String, searchColumns: [MetricVersionStrColumns], orderBy: MetricVersionOrderBy, desc: Boolean, orderBys: [MetricVersionOrderByInput], pageNumber: Int, pageSize: Int): [Metric]
   metricsNotCurrent: [Metric]
   otherUsersBoardsUsingSavedQuery: [Board]
   boardsUsingSavedQuery: [Board]
+}
+
+"""An enumeration."""
+enum ChartType {
+  LINE_CHART
+  AREA_CHART
+  AREA_CHART_SHARE_OF
+  BAR_CHART_STACKED
+  BAR_CHART_GROUPED
+  BAR_CHART_STACKED_SHARE_OF
+  BIG_NUMBER
+  TABLE
 }
 
 type MQLQuery {
@@ -905,6 +920,18 @@ enum MqlQueryUserFriendlyErrorType {
   DB_ERROR
   UNABLE_TO_SATISFY_QUERY_ERROR
   UNKNOWN
+}
+
+"""An enumeration."""
+enum GChartType {
+  LINE_CHART
+  AREA_CHART
+  AREA_CHART_SHARE_OF
+  BAR_CHART_STACKED
+  BAR_CHART_GROUPED
+  BAR_CHART_STACKED_SHARE_OF
+  BIG_NUMBER
+  TABLE
 }
 
 """An enumeration."""
@@ -988,12 +1015,13 @@ type BoardItem {
   y: Int
   width: Int
   height: Int
+  chartType: ChartType
   createdAt: DateTime
   updatedAt: DateTime
   board: Board
   orgMetric: OrgMetric
   savedQuery: SavedQuery
-  config: BoardItemConfig
+  config: GroupItemConfig
   children: [BoardItem]
   metric: Metric
 }
@@ -1013,40 +1041,10 @@ enum BoardItemType {
   SAVED_QUERY_CHART
 }
 
-union BoardItemConfig = GroupItemConfig | AreaChartConfig | LineChartConfig | TableConfig | BarChartConfig
-
 type GroupItemConfig {
   type: String
   title: String
   description: String
-}
-
-type AreaChartConfig {
-  type: String
-
-  """Shows the value in percentage or not"""
-  shareOf: Boolean
-}
-
-type LineChartConfig {
-  type: String
-}
-
-type TableConfig {
-  type: String
-
-  """Determines how many items in one page"""
-  pageSize: Int
-}
-
-type BarChartConfig {
-  type: String
-
-  """Renders as a grouped barchart or a stacked barchart"""
-  grouped: Boolean
-
-  """Shows the value in percentage or not"""
-  shareOf: Boolean
 }
 
 """An enumeration."""
@@ -1060,6 +1058,7 @@ enum SavedQueryStrColumns {
 
 """An enumeration."""
 enum SavedQueryOrderBy {
+  CHART_TYPE
   CREATED_AT
   CREATED_BY
   DELETED_AT
@@ -1966,8 +1965,8 @@ type Mutation {
   metricsUpdateMetadata(metricId: ID!, description: String, tier: Int, displayName: String, valueFormat: String, increaseIsGood: Boolean, defaultTrim: Boolean, defaultGranularity: TimeGranularity, defaultDaysLimit: Int, extraFields: JSONString): Metric
   savedQueryCreate(title: String!, serializedQuery: GenericScalar!, metricIds: [ID], ownerTeamId: ID, isPrivate: Boolean): SavedQuery
   savedQueryUpdate(id: ID!, title: String, createdBy: Int, ownerTeamId: Int, serializedQuery: GenericScalar, metricIds: [ID], isPrivate: Boolean): SavedQuery
-  createSavedQuery(title: String!, queryId: Int!, isPrivate: Boolean): SavedQuery
-  updateSavedQuery(id: Int!, title: String, createdBy: Int, isPrivate: Boolean, queryId: Int): SavedQuery
+  createSavedQuery(title: String!, queryId: Int!, isPrivate: Boolean, chartType: GChartType): SavedQuery
+  updateSavedQuery(id: Int!, title: String, createdBy: Int, isPrivate: Boolean, queryId: Int, chartType: GChartType): SavedQuery
   savedQueryDeactivate(id: ID!): SavedQuery
   sendInvites(emails: [String]!, organizationId: ID): Organization
   acceptTermsOfService(userId: ID!, versionId: ID!): User
@@ -2290,39 +2289,12 @@ input BoardItemConfigInput {
 
 input SavedQueryItemConfigInput {
   savedQueryId: Int!
-  chartConfig: ChartConfigInput
-}
-
-"""
-Input union for board chart config. Exactly one of the fields must be non-null
-"""
-input ChartConfigInput {
-  lineConfig: LineConfigInput
-  barConfig: BarConfigInput
-  tableConfig: TableConfigInput
-  areaConfig: AreaConfigInput
-}
-
-input LineConfigInput {
-  doNotUseThisArgument: Boolean
-}
-
-input BarConfigInput {
-  grouped: Boolean!
-  shareOf: Boolean!
-}
-
-input TableConfigInput {
-  pageSize: Int!
-}
-
-input AreaConfigInput {
-  shareOf: Boolean!
+  chartType: GChartType
 }
 
 input MetricItemConfigInput {
   metricId: Int!
-  chartConfig: ChartConfigInput
+  chartType: GChartType
 }
 
 input GroupItemConfigInput {
