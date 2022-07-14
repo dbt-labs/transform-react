@@ -63,7 +63,8 @@ type MqlQuery {
   """
   The Tabular Results are Base 64-encoded JSON of a subset of rows from the query results Data Frame.
   """
-  resultTabular(cursor: Int, orient: PandasJsonOrient): MqlQueryTabularResult
+  resultTabular(cursor: Int, orient: PandasJsonOrient, paginate: Boolean): MqlQueryTabularResult
+  totalResultRows: Int
 
   """
   The completion time for the query result. If using the MQL result cache, helps check when the latest cache fill occurred.
@@ -98,6 +99,7 @@ type MqlQuery {
   numPostprocessedResults: Int
   dbId: Int
   warnings: [String]
+  availableChartTypes: [ChartType]
 }
 
 """API Output definition for a Model Key"""
@@ -165,7 +167,8 @@ type MqlQueryTabularResult {
 """
 Determines the format of the JSON output for the DataFrame
 
-See https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.to_json.html
+    See https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.to_json.html
+    
 """
 enum PandasJsonOrient {
   SPLIT
@@ -256,6 +259,18 @@ type TimeConstraint {
   timeGranularity: TimeGranularity
 }
 
+"""An enumeration."""
+enum ChartType {
+  LINE_CHART
+  AREA_CHART
+  AREA_CHART_SHARE_OF
+  BAR_CHART_STACKED
+  BAR_CHART_GROUPED
+  BAR_CHART_STACKED_SHARE_OF
+  BIG_NUMBER
+  TABLE
+}
+
 type Materialization {
   name: String!
   metrics: [String!]
@@ -321,7 +336,6 @@ type Measure {
 
 """An enumeration."""
 enum DimensionProperty {
-  LOCAL_LINKED_PRIMARY_TIME
   LOCAL
   LOCAL_LINKED
   JOINED

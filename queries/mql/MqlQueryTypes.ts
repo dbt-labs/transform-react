@@ -307,6 +307,7 @@ export type MqlQuery = {
   result?: Maybe<Array<MqlQueryResultSeries>>;
   /** The Tabular Results are Base 64-encoded JSON of a subset of rows from the query results Data Frame. */
   resultTabular?: Maybe<MqlQueryTabularResult>;
+  totalResultRows?: Maybe<Scalars['Int']>;
   /** The completion time for the query result. If using the MQL result cache, helps check when the latest cache fill occurred. */
   completedAt?: Maybe<Scalars['DateTime']>;
   resultTableSchema?: Maybe<Scalars['String']>;
@@ -336,6 +337,7 @@ export type MqlQuery = {
   numPostprocessedResults?: Maybe<Scalars['Int']>;
   dbId?: Maybe<Scalars['Int']>;
   warnings?: Maybe<Array<Maybe<Scalars['String']>>>;
+  availableChartTypes?: Maybe<Array<Maybe<ChartType>>>;
 };
 
 
@@ -349,6 +351,7 @@ export type MqlQuery = {
 export type MqlQueryResultTabularArgs = {
   cursor?: Maybe<Scalars['Int']>;
   orient?: Maybe<PandasJsonOrient>;
+  paginate?: Maybe<Scalars['Boolean']>;
 };
 
 
@@ -415,7 +418,7 @@ export type MqlQueryTabularResult = {
 /**
  * Determines the format of the JSON output for the DataFrame
  *
- * See https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.to_json.html
+ *     See https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.to_json.html
  */
 export enum PandasJsonOrient {
   Split = 'SPLIT',
@@ -506,6 +509,18 @@ export type TimeConstraint = {
   stop?: Maybe<Scalars['String']>;
   timeGranularity?: Maybe<TimeGranularity>;
 };
+
+/** An enumeration. */
+export enum ChartType {
+  LineChart = 'LINE_CHART',
+  AreaChart = 'AREA_CHART',
+  AreaChartShareOf = 'AREA_CHART_SHARE_OF',
+  BarChartStacked = 'BAR_CHART_STACKED',
+  BarChartGrouped = 'BAR_CHART_GROUPED',
+  BarChartStackedShareOf = 'BAR_CHART_STACKED_SHARE_OF',
+  BigNumber = 'BIG_NUMBER',
+  Table = 'TABLE'
+}
 
 export type Materialization = {
   __typename?: 'Materialization';
@@ -618,7 +633,6 @@ export type Measure = {
 
 /** An enumeration. */
 export enum DimensionProperty {
-  LocalLinkedPrimaryTime = 'LOCAL_LINKED_PRIMARY_TIME',
   Local = 'LOCAL',
   LocalLinked = 'LOCAL_LINKED',
   Joined = 'JOINED',
@@ -1165,8 +1179,20 @@ export type FetchMqlTimeSeriesQuery = (
   { __typename?: 'Query' }
   & { mqlQuery?: Maybe<(
     { __typename?: 'MqlQuery' }
-    & Pick<MqlQuery, 'id' | 'dbId' | 'status' | 'metrics' | 'dimensions' | 'error' | 'chartValueMin' | 'chartValueMax'>
-    & { result?: Maybe<Array<(
+    & Pick<MqlQuery, 'id' | 'dbId' | 'status' | 'metrics' | 'dimensions' | 'error' | 'chartValueMin' | 'chartValueMax' | 'whereConstraint' | 'requestedGranularity' | 'groupBy' | 'maxDimensionValues' | 'timeComparison'>
+    & { constraint?: Maybe<(
+      { __typename?: 'Constraint' }
+      & { constraint?: Maybe<(
+        { __typename?: 'SingleConstraint' }
+        & Pick<SingleConstraint, 'constraintType' | 'dimensionName' | 'values' | 'start' | 'stop'>
+      )>, And?: Maybe<Array<(
+        { __typename?: 'SingleConstraint' }
+        & Pick<SingleConstraint, 'constraintType' | 'dimensionName' | 'values' | 'start' | 'stop'>
+      )>> }
+    )>, timeConstraint?: Maybe<(
+      { __typename?: 'TimeConstraint' }
+      & Pick<TimeConstraint, 'dimensionName' | 'timeFormat' | 'start' | 'stop' | 'timeGranularity'>
+    )>, result?: Maybe<Array<(
       { __typename?: 'MqlQueryResultSeries' }
       & Pick<MqlQueryResultSeries, 'seriesValue'>
       & { data?: Maybe<Array<(
@@ -1191,6 +1217,32 @@ export type FetchPercentChangeQuery = (
       { __typename?: 'MqlQueryResultSeries' }
       & Pick<MqlQueryResultSeries, 'value' | 'delta' | 'pctChange'>
     )>> }
+  )> }
+);
+
+export type FetchSavedQueryQueryVariables = Exact<{
+  queryId: Scalars['ID'];
+}>;
+
+
+export type FetchSavedQueryQuery = (
+  { __typename?: 'Query' }
+  & { mqlQuery?: Maybe<(
+    { __typename?: 'MqlQuery' }
+    & Pick<MqlQuery, 'id' | 'whereConstraint' | 'requestedGranularity' | 'groupBy' | 'maxDimensionValues' | 'timeComparison'>
+    & { constraint?: Maybe<(
+      { __typename?: 'Constraint' }
+      & { constraint?: Maybe<(
+        { __typename?: 'SingleConstraint' }
+        & Pick<SingleConstraint, 'constraintType' | 'dimensionName' | 'values' | 'start' | 'stop'>
+      )>, And?: Maybe<Array<(
+        { __typename?: 'SingleConstraint' }
+        & Pick<SingleConstraint, 'constraintType' | 'dimensionName' | 'values' | 'start' | 'stop'>
+      )>> }
+    )>, timeConstraint?: Maybe<(
+      { __typename?: 'TimeConstraint' }
+      & Pick<TimeConstraint, 'dimensionName' | 'timeFormat' | 'start' | 'stop' | 'timeGranularity'>
+    )> }
   )> }
 );
 

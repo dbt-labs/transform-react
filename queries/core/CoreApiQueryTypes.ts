@@ -270,6 +270,7 @@ export type Organization = {
   boards?: Maybe<Array<Maybe<Board>>>;
   totalBoards?: Maybe<Scalars['Int']>;
   board?: Maybe<Board>;
+  availableChartTypes?: Maybe<Array<Maybe<GChartType>>>;
   activeFeatures?: Maybe<Array<Maybe<Feature>>>;
 };
 
@@ -563,6 +564,12 @@ export type OrganizationTotalBoardsArgs = {
 
 export type OrganizationBoardArgs = {
   id: Scalars['Int'];
+};
+
+
+export type OrganizationAvailableChartTypesArgs = {
+  numDimensions: Scalars['Int'];
+  numMetrics: Scalars['Int'];
 };
 
 /** An enumeration. */
@@ -1569,6 +1576,7 @@ export type SavedQuery = {
   serializedQuery?: Maybe<Scalars['GenericScalar']>;
   queryId?: Maybe<Scalars['Int']>;
   isPrivate: Scalars['Boolean'];
+  chartType?: Maybe<ChartType>;
   createdByUser?: Maybe<User>;
   organization?: Maybe<Organization>;
   ownerTeam?: Maybe<Team>;
@@ -1578,6 +1586,7 @@ export type SavedQuery = {
   userCanEditContent?: Maybe<Scalars['Boolean']>;
   userCanDeactivate?: Maybe<Scalars['Boolean']>;
   userCanChangeOwner?: Maybe<Scalars['Boolean']>;
+  availableChartTypes?: Maybe<Array<Maybe<GChartType>>>;
   metrics?: Maybe<Array<Maybe<Metric>>>;
   metricsNotCurrent?: Maybe<Array<Maybe<Metric>>>;
   otherUsersBoardsUsingSavedQuery?: Maybe<Array<Maybe<Board>>>;
@@ -1594,6 +1603,18 @@ export type SavedQueryMetricsArgs = {
   pageNumber?: Maybe<Scalars['Int']>;
   pageSize?: Maybe<Scalars['Int']>;
 };
+
+/** An enumeration. */
+export enum ChartType {
+  LineChart = 'LINE_CHART',
+  AreaChart = 'AREA_CHART',
+  AreaChartShareOf = 'AREA_CHART_SHARE_OF',
+  BarChartStacked = 'BAR_CHART_STACKED',
+  BarChartGrouped = 'BAR_CHART_GROUPED',
+  BarChartStackedShareOf = 'BAR_CHART_STACKED_SHARE_OF',
+  BigNumber = 'BIG_NUMBER',
+  Table = 'TABLE'
+}
 
 export type MqlQuery = {
   __typename?: 'MQLQuery';
@@ -1643,6 +1664,18 @@ export enum MqlQueryUserFriendlyErrorType {
   DbError = 'DB_ERROR',
   UnableToSatisfyQueryError = 'UNABLE_TO_SATISFY_QUERY_ERROR',
   Unknown = 'UNKNOWN'
+}
+
+/** An enumeration. */
+export enum GChartType {
+  LineChart = 'LINE_CHART',
+  AreaChart = 'AREA_CHART',
+  AreaChartShareOf = 'AREA_CHART_SHARE_OF',
+  BarChartStacked = 'BAR_CHART_STACKED',
+  BarChartGrouped = 'BAR_CHART_GROUPED',
+  BarChartStackedShareOf = 'BAR_CHART_STACKED_SHARE_OF',
+  BigNumber = 'BIG_NUMBER',
+  Table = 'TABLE'
 }
 
 /** An enumeration. */
@@ -1728,12 +1761,13 @@ export type BoardItem = {
   y?: Maybe<Scalars['Int']>;
   width?: Maybe<Scalars['Int']>;
   height?: Maybe<Scalars['Int']>;
+  chartType?: Maybe<ChartType>;
   createdAt?: Maybe<Scalars['DateTime']>;
   updatedAt?: Maybe<Scalars['DateTime']>;
   board?: Maybe<Board>;
   orgMetric?: Maybe<OrgMetric>;
   savedQuery?: Maybe<SavedQuery>;
-  config?: Maybe<BoardItemConfig>;
+  config?: Maybe<GroupItemConfig>;
   children?: Maybe<Array<Maybe<BoardItem>>>;
   metric?: Maybe<Metric>;
 };
@@ -1752,41 +1786,11 @@ export enum BoardItemType {
   SavedQueryChart = 'SAVED_QUERY_CHART'
 }
 
-export type BoardItemConfig = GroupItemConfig | AreaChartConfig | LineChartConfig | TableConfig | BarChartConfig;
-
 export type GroupItemConfig = {
   __typename?: 'GroupItemConfig';
   type?: Maybe<Scalars['String']>;
   title?: Maybe<Scalars['String']>;
   description?: Maybe<Scalars['String']>;
-};
-
-export type AreaChartConfig = {
-  __typename?: 'AreaChartConfig';
-  type?: Maybe<Scalars['String']>;
-  /** Shows the value in percentage or not */
-  shareOf?: Maybe<Scalars['Boolean']>;
-};
-
-export type LineChartConfig = {
-  __typename?: 'LineChartConfig';
-  type?: Maybe<Scalars['String']>;
-};
-
-export type TableConfig = {
-  __typename?: 'TableConfig';
-  type?: Maybe<Scalars['String']>;
-  /** Determines how many items in one page */
-  pageSize?: Maybe<Scalars['Int']>;
-};
-
-export type BarChartConfig = {
-  __typename?: 'BarChartConfig';
-  type?: Maybe<Scalars['String']>;
-  /** Renders as a grouped barchart or a stacked barchart */
-  grouped?: Maybe<Scalars['Boolean']>;
-  /** Shows the value in percentage or not */
-  shareOf?: Maybe<Scalars['Boolean']>;
 };
 
 /** An enumeration. */
@@ -1800,6 +1804,7 @@ export enum SavedQueryStrColumns {
 
 /** An enumeration. */
 export enum SavedQueryOrderBy {
+  ChartType = 'CHART_TYPE',
   CreatedAt = 'CREATED_AT',
   CreatedBy = 'CREATED_BY',
   DeletedAt = 'DELETED_AT',
@@ -3698,6 +3703,7 @@ export type MutationCreateSavedQueryArgs = {
   title: Scalars['String'];
   queryId: Scalars['Int'];
   isPrivate?: Maybe<Scalars['Boolean']>;
+  chartType?: Maybe<GChartType>;
 };
 
 
@@ -3713,6 +3719,7 @@ export type MutationUpdateSavedQueryArgs = {
   createdBy?: Maybe<Scalars['Int']>;
   isPrivate?: Maybe<Scalars['Boolean']>;
   queryId?: Maybe<Scalars['Int']>;
+  chartType?: Maybe<GChartType>;
 };
 
 
@@ -4411,37 +4418,12 @@ export type BoardItemConfigInput = {
 
 export type SavedQueryItemConfigInput = {
   savedQueryId: Scalars['Int'];
-  chartConfig?: Maybe<ChartConfigInput>;
-};
-
-/** Input union for board chart config. Exactly one of the fields must be non-null */
-export type ChartConfigInput = {
-  lineConfig?: Maybe<LineConfigInput>;
-  barConfig?: Maybe<BarConfigInput>;
-  tableConfig?: Maybe<TableConfigInput>;
-  areaConfig?: Maybe<AreaConfigInput>;
-};
-
-export type LineConfigInput = {
-  doNotUseThisArgument?: Maybe<Scalars['Boolean']>;
-};
-
-export type BarConfigInput = {
-  grouped: Scalars['Boolean'];
-  shareOf: Scalars['Boolean'];
-};
-
-export type TableConfigInput = {
-  pageSize: Scalars['Int'];
-};
-
-export type AreaConfigInput = {
-  shareOf: Scalars['Boolean'];
+  chartType?: Maybe<GChartType>;
 };
 
 export type MetricItemConfigInput = {
   metricId: Scalars['Int'];
-  chartConfig?: Maybe<ChartConfigInput>;
+  chartType?: Maybe<GChartType>;
 };
 
 export type GroupItemConfigInput = {

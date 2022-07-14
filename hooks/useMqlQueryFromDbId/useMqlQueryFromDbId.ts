@@ -25,14 +25,14 @@ import FetchMqlQueryTimeSeries from "../../queries/mql/FetchMqlQueryTimeSeries";
   we pass in locationSearch, which is stable, and calculate the form state inside an effect. I know. Gross, right?
   Is there a better approach?
 */
-type UseMqlQueryParams = {
+export type UseMqlQueryFromDbIdParams = {
   mqlQueryId: number;
   // queryInput?: Omit<CreateMqlQueryFromDbIdMutationVariables, 'attemptNum'>;
   skip?: boolean;
   retries?: number;
 };
 
-export type UseTimeSeriesMqlQuery = UseMqlQueryState<FetchMqlTimeSeriesQuery>
+export type UseMqlQueryFromDbIdQuery = UseMqlQueryState<FetchMqlTimeSeriesQuery>
 
 // This custom hook consists of two useHooks that should asynchronously handle all scenarios for this chained
 // data fetching we are doing. It should do it in a high performance way and in a way that is resilient to race conditions if the
@@ -42,7 +42,7 @@ export default function useMqlQueryFromDbId({
   mqlQueryId,
   skip,
   retries = 5,
-}: UseMqlQueryParams) {
+}: UseMqlQueryFromDbIdParams) {
   const {
     mqlServerUrl,
   } = useContext(MqlContext);
