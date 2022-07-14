@@ -333,6 +333,7 @@ export type MqlQuery = {
   maxDimensionValues?: Maybe<Scalars['Int']>;
   constraint?: Maybe<Constraint>;
   timeComparison?: Maybe<PercentChange>;
+  trimIncompletePeriods?: Maybe<Scalars['Boolean']>;
   timeConstraint?: Maybe<TimeConstraint>;
   numPostprocessedResults?: Maybe<Scalars['Int']>;
   dbId?: Maybe<Scalars['Int']>;
@@ -701,7 +702,7 @@ export type Mutation = {
    * This mutation is used to initiate an MQL Query.
    *
    * The primary return value is a queryId that can be used to fetch the query status, errors, and results.
-   * The full query object is also returned in case we have a result available synchronously (stored the result cache)
+   * The full query object is also returned in case we have a result available synchronously (stored in the result cache).
    */
   createMqlQuery?: Maybe<CreateMqlQueryPayload>;
   /** Initiate an MQL Query based on just the DB id. We'll build out the parameters from the DB record. */
@@ -828,7 +829,7 @@ export type CreateMqlDropMaterializationInput = {
  * This mutation is used to initiate an MQL Query.
  *
  * The primary return value is a queryId that can be used to fetch the query status, errors, and results.
- * The full query object is also returned in case we have a result available synchronously (stored the result cache)
+ * The full query object is also returned in case we have a result available synchronously (stored in the result cache).
  */
 export type CreateMqlQueryPayload = {
   __typename?: 'CreateMqlQueryPayload';

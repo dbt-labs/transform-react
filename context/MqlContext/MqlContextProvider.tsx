@@ -142,6 +142,7 @@ function MqlContextProviderInternal({
   const [mqlContext, setMqlContext] = useState<MqlContextType>({
     coreApiUrl: coreApiUrl || CORE_API_URL,
     mqlServerUrl: externalConfig?.mqlServerUrl || mqlServerUrlData?.myUser?.mqlServerUrl,
+    mqlServerUrlLoading: !externalConfig?.mqlServerUrl && !mqlServerUrlData?.myUser?.mqlServerUrl && !mqlServerUrlOverride,
     setMqlServer: setMqlServerThenRefetch,
     mqlServerOverrideLoading: fetching,
     modelKey: null,
@@ -160,6 +161,7 @@ function MqlContextProviderInternal({
     if (useOverride && isAuthenticated) {
       if (mqlServerUrlOverride !== mqlContext.mqlServerUrl) {
         stateToUpdate.mqlServerUrl = mqlServerUrlOverride;
+        stateToUpdate.mqlServerUrlLoading = false;
       }
       if (
         mqlServerUrlOverride &&
@@ -174,6 +176,7 @@ function MqlContextProviderInternal({
     } else if (externalConfig) {
       if (externalConfig?.mqlServerUrl !== mqlContext.mqlServerUrl) {
         stateToUpdate.mqlServerUrl = externalConfig?.mqlServerUrl;
+        stateToUpdate.mqlServerUrlLoading = false;
       }
       if (externalConfig?.mqlServerUrl && externalConfig?.mqlServerUrl !== mqlContext.mqlServerUrl) {
         stateToUpdate.mqlClient = buildMqlUrqlClient({
@@ -185,6 +188,7 @@ function MqlContextProviderInternal({
     } else {
       if (mqlServerUrlData?.myUser?.mqlServerUrl !== mqlContext.mqlServerUrl) {
         stateToUpdate.mqlServerUrl = mqlServerUrlData?.myUser?.mqlServerUrl;
+        stateToUpdate.mqlServerUrlLoading = false;
       }
       if (
         mqlServerUrlData?.myUser?.mqlServerUrl &&
@@ -198,7 +202,6 @@ function MqlContextProviderInternal({
       }
     }
 
-
     /*
       FUTURE: Add check for Model Key.
     */
@@ -210,7 +213,7 @@ function MqlContextProviderInternal({
       });
     }
   }, [externalConfig, mqlServerUrlData, token, mqlContext, mqlServerUrlOverride]);
-  console.log('clientVersion', clientVersion)
+
   return (
     <Provider value={mqlContext.mqlClient}>
       <MqlContext.Provider value={mqlContext}>{children}</MqlContext.Provider>
