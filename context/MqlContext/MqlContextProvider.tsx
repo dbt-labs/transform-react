@@ -202,7 +202,6 @@ function MqlContextProviderInternal({
       }
     }
 
-
     /*
       FUTURE: Add check for Model Key.
     */
@@ -214,7 +213,6 @@ function MqlContextProviderInternal({
       });
     }
   }, [externalConfig, mqlServerUrlData, token, mqlContext, mqlServerUrlOverride]);
-
 
   return (
     <Provider value={mqlContext.mqlClient}>
