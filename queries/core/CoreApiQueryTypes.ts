@@ -270,7 +270,6 @@ export type Organization = {
   boards?: Maybe<Array<Maybe<Board>>>;
   totalBoards?: Maybe<Scalars['Int']>;
   board?: Maybe<Board>;
-  availableChartTypes?: Maybe<Array<Maybe<GChartType>>>;
   activeFeatures?: Maybe<Array<Maybe<Feature>>>;
 };
 
@@ -564,12 +563,6 @@ export type OrganizationTotalBoardsArgs = {
 
 export type OrganizationBoardArgs = {
   id: Scalars['Int'];
-};
-
-
-export type OrganizationAvailableChartTypesArgs = {
-  numDimensions: Scalars['Int'];
-  numMetrics: Scalars['Int'];
 };
 
 /** An enumeration. */
@@ -1586,7 +1579,6 @@ export type SavedQuery = {
   userCanEditContent?: Maybe<Scalars['Boolean']>;
   userCanDeactivate?: Maybe<Scalars['Boolean']>;
   userCanChangeOwner?: Maybe<Scalars['Boolean']>;
-  availableChartTypes?: Maybe<Array<Maybe<GChartType>>>;
   metrics?: Maybe<Array<Maybe<Metric>>>;
   metricsNotCurrent?: Maybe<Array<Maybe<Metric>>>;
   otherUsersBoardsUsingSavedQuery?: Maybe<Array<Maybe<Board>>>;
@@ -1667,18 +1659,6 @@ export enum MqlQueryUserFriendlyErrorType {
 }
 
 /** An enumeration. */
-export enum GChartType {
-  LineChart = 'LINE_CHART',
-  AreaChart = 'AREA_CHART',
-  AreaChartShareOf = 'AREA_CHART_SHARE_OF',
-  BarChartStacked = 'BAR_CHART_STACKED',
-  BarChartGrouped = 'BAR_CHART_GROUPED',
-  BarChartStackedShareOf = 'BAR_CHART_STACKED_SHARE_OF',
-  BigNumber = 'BIG_NUMBER',
-  Table = 'TABLE'
-}
-
-/** An enumeration. */
 export enum MetricVersionStrColumns {
   Description = 'DESCRIPTION',
   DisplayName = 'DISPLAY_NAME',
@@ -1745,6 +1725,7 @@ export type Board = {
   createdAt?: Maybe<Scalars['DateTime']>;
   updatedAt?: Maybe<Scalars['DateTime']>;
   deletedAt?: Maybe<Scalars['DateTime']>;
+  isDraft?: Maybe<Scalars['Boolean']>;
   owner?: Maybe<User>;
   userCanEditContent?: Maybe<Scalars['Boolean']>;
   userCanDeactivate?: Maybe<Scalars['Boolean']>;
@@ -2175,6 +2156,7 @@ export enum BoardOrderBy {
   DeletedAt = 'DELETED_AT',
   Description = 'DESCRIPTION',
   Id = 'ID',
+  IsDraft = 'IS_DRAFT',
   OrganizationId = 'ORGANIZATION_ID',
   Title = 'TITLE',
   UpdatedAt = 'UPDATED_AT'
@@ -4094,6 +4076,7 @@ export type MutationCreateTransformServiceUserArgs = {
 export type MutationBoardsCreateArgs = {
   title: Scalars['String'];
   description?: Maybe<Scalars['String']>;
+  isDraft?: Maybe<Scalars['Boolean']>;
 };
 
 
@@ -4107,6 +4090,7 @@ export type MutationBoardsUpdateArgs = {
   id: Scalars['Int'];
   title?: Maybe<Scalars['String']>;
   description?: Maybe<Scalars['String']>;
+  isDraft?: Maybe<Scalars['Boolean']>;
   items?: Maybe<Array<Maybe<BoardItemInput>>>;
 };
 
@@ -4301,6 +4285,18 @@ export type MfaPref = {
 export enum GOwnerType {
   Business = 'business',
   Technical = 'technical'
+}
+
+/** An enumeration. */
+export enum GChartType {
+  LineChart = 'LINE_CHART',
+  AreaChart = 'AREA_CHART',
+  AreaChartShareOf = 'AREA_CHART_SHARE_OF',
+  BarChartStacked = 'BAR_CHART_STACKED',
+  BarChartGrouped = 'BAR_CHART_GROUPED',
+  BarChartStackedShareOf = 'BAR_CHART_STACKED_SHARE_OF',
+  BigNumber = 'BIG_NUMBER',
+  Table = 'TABLE'
 }
 
 /** An enumeration. */

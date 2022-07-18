@@ -11,6 +11,7 @@ const mutation = gql`
     $maxDimensionValues: Int
     $metrics: [String!]
     $modelKey: ModelKeyInput
+    $latestXDays: Int
     $limit: LimitInput
     $order: [String!]
     $pctChange: PercentChange
@@ -27,6 +28,7 @@ const mutation = gql`
         endTime: $endTime
         groupBy: $groupBy
         includeDateBoundaries: $includeDateBoundaries
+        latestXDays: $latestXDays
         limit: $limit
         maxDimensionValues: $maxDimensionValues
         metrics: $metrics
@@ -44,6 +46,7 @@ const mutation = gql`
       query {
         id
         dbId
+        availableChartTypes
         createdAt
         status
         metrics

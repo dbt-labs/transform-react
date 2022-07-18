@@ -338,6 +338,7 @@ export type MqlQuery = {
   numPostprocessedResults?: Maybe<Scalars['Int']>;
   dbId?: Maybe<Scalars['Int']>;
   warnings?: Maybe<Array<Maybe<Scalars['String']>>>;
+  latestXDays?: Maybe<Scalars['Int']>;
   availableChartTypes?: Maybe<Array<Maybe<ChartType>>>;
 };
 
@@ -873,6 +874,8 @@ export type CreateMqlQueryInput = {
   includeDateBoundaries?: Maybe<Scalars['Boolean']>;
   /** Used for marking retries, optionally pass param to track attempt number. */
   attemptNum?: Maybe<Scalars['Int']>;
+  /** Apply a time constraint of the latest X number of days. */
+  latestXDays?: Maybe<Scalars['Int']>;
   clientMutationId?: Maybe<Scalars['String']>;
 };
 
@@ -1032,6 +1035,7 @@ export type CreateMqlQueryMutationVariables = Exact<{
   maxDimensionValues?: Maybe<Scalars['Int']>;
   metrics?: Maybe<Array<Scalars['String']> | Scalars['String']>;
   modelKey?: Maybe<ModelKeyInput>;
+  latestXDays?: Maybe<Scalars['Int']>;
   limit?: Maybe<Scalars['LimitInput']>;
   order?: Maybe<Array<Scalars['String']> | Scalars['String']>;
   pctChange?: Maybe<PercentChange>;
@@ -1049,7 +1053,7 @@ export type CreateMqlQueryMutation = (
     & Pick<CreateMqlQueryPayload, 'id'>
     & { query?: Maybe<(
       { __typename?: 'MqlQuery' }
-      & Pick<MqlQuery, 'id' | 'dbId' | 'createdAt' | 'status' | 'metrics' | 'dimensions' | 'error' | 'chartValueMax' | 'chartValueMin'>
+      & Pick<MqlQuery, 'id' | 'dbId' | 'availableChartTypes' | 'createdAt' | 'status' | 'metrics' | 'dimensions' | 'error' | 'chartValueMax' | 'chartValueMin'>
       & { result?: Maybe<Array<(
         { __typename?: 'MqlQueryResultSeries' }
         & Pick<MqlQueryResultSeries, 'seriesValue'>
@@ -1075,7 +1079,7 @@ export type CreateMqlQueryFromDbIdMutation = (
     & Pick<CreateMqlQueryFromDbIdPayload, 'id'>
     & { query?: Maybe<(
       { __typename?: 'MqlQuery' }
-      & Pick<MqlQuery, 'id' | 'dbId' | 'createdAt' | 'status' | 'metrics' | 'dimensions' | 'error' | 'chartValueMax' | 'chartValueMin' | 'whereConstraint' | 'requestedGranularity' | 'groupBy' | 'maxDimensionValues' | 'timeComparison' | 'numPostprocessedResults'>
+      & Pick<MqlQuery, 'id' | 'dbId' | 'availableChartTypes' | 'createdAt' | 'status' | 'metrics' | 'dimensions' | 'error' | 'chartValueMax' | 'chartValueMin' | 'whereConstraint' | 'requestedGranularity' | 'groupBy' | 'maxDimensionValues' | 'timeComparison' | 'numPostprocessedResults'>
       & { constraint?: Maybe<(
         { __typename?: 'Constraint' }
         & { constraint?: Maybe<(

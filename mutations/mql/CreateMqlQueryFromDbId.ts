@@ -15,6 +15,7 @@ const mutation = gql`
       query {
         id
         dbId
+        availableChartTypes
         createdAt
         status
         metrics
@@ -26,6 +27,7 @@ const mutation = gql`
         whereConstraint
         requestedGranularity
         groupBy
+        latestXDays
         maxDimensionValues
         constraint {
           constraint {

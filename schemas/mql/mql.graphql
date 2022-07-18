@@ -100,6 +100,7 @@ type MqlQuery {
   numPostprocessedResults: Int
   dbId: Int
   warnings: [String]
+  latestXDays: Int
   availableChartTypes: [ChartType]
 }
 
@@ -542,6 +543,9 @@ input CreateMqlQueryInput {
   Used for marking retries, optionally pass param to track attempt number.
   """
   attemptNum: Int
+
+  """Apply a time constraint of the latest X number of days."""
+  latestXDays: Int
   clientMutationId: String
 }
 
