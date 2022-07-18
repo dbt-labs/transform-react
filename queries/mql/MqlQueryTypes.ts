@@ -338,6 +338,7 @@ export type MqlQuery = {
   numPostprocessedResults?: Maybe<Scalars['Int']>;
   dbId?: Maybe<Scalars['Int']>;
   warnings?: Maybe<Array<Maybe<Scalars['String']>>>;
+  latestXDays?: Maybe<Scalars['Int']>;
   availableChartTypes?: Maybe<Array<Maybe<ChartType>>>;
 };
 
@@ -873,6 +874,8 @@ export type CreateMqlQueryInput = {
   includeDateBoundaries?: Maybe<Scalars['Boolean']>;
   /** Used for marking retries, optionally pass param to track attempt number. */
   attemptNum?: Maybe<Scalars['Int']>;
+  /** Apply a time constraint of the latest X number of days. */
+  latestXDays?: Maybe<Scalars['Int']>;
   clientMutationId?: Maybe<Scalars['String']>;
 };
 
@@ -1160,7 +1163,7 @@ export type FetchMqlQueryQuery = (
   { __typename?: 'Query' }
   & { mqlQuery?: Maybe<(
     { __typename?: 'MqlQuery' }
-    & Pick<MqlQuery, 'id' | 'userId' | 'metrics' | 'dimensions' | 'status' | 'completedAt' | 'resultTableSchema' | 'resultTableName' | 'createdAt' | 'startedAt' | 'sql' | 'error' | 'errorTraceback' | 'chartValueMin' | 'chartValueMax'>
+    & Pick<MqlQuery, 'id' | 'availableChartTypes' | 'userId' | 'metrics' | 'dimensions' | 'status' | 'completedAt' | 'resultTableSchema' | 'resultTableName' | 'createdAt' | 'startedAt' | 'sql' | 'error' | 'errorTraceback' | 'chartValueMin' | 'chartValueMax'>
     & { modelKey?: Maybe<(
       { __typename?: 'ModelKey' }
       & Pick<ModelKey, 'branch' | 'commit'>

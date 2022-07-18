@@ -10,6 +10,7 @@ const query = gql`
         branch
         commit
       }
+      availableChartTypes
       userId
       metrics
       dimensions

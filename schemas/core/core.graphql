@@ -130,7 +130,6 @@ type Organization {
   boards(searchStr: String, searchColumns: [BoardStrColumns], orderBy: BoardOrderBy, desc: Boolean, orderBys: [BoardOrderByInput], pageNumber: Int, pageSize: Int): [Board]
   totalBoards(searchStr: String, searchColumns: [BoardStrColumns]): Int
   board(id: Int!): Board
-  availableChartTypes(numDimensions: Int!, numMetrics: Int!): [GChartType]
   activeFeatures: [Feature]
 }
 
@@ -853,7 +852,6 @@ type SavedQuery {
   userCanEditContent: Boolean
   userCanDeactivate: Boolean
   userCanChangeOwner: Boolean
-  availableChartTypes: [GChartType]
   metrics(searchStr: String, searchColumns: [MetricVersionStrColumns], orderBy: MetricVersionOrderBy, desc: Boolean, orderBys: [MetricVersionOrderByInput], pageNumber: Int, pageSize: Int): [Metric]
   metricsNotCurrent: [Metric]
   otherUsersBoardsUsingSavedQuery: [Board]
@@ -923,18 +921,6 @@ enum MqlQueryUserFriendlyErrorType {
 }
 
 """An enumeration."""
-enum GChartType {
-  LINE_CHART
-  AREA_CHART
-  AREA_CHART_SHARE_OF
-  BAR_CHART_STACKED
-  BAR_CHART_GROUPED
-  BAR_CHART_STACKED_SHARE_OF
-  BIG_NUMBER
-  TABLE
-}
-
-"""An enumeration."""
 enum MetricVersionStrColumns {
   DESCRIPTION
   DISPLAY_NAME
@@ -1000,6 +986,7 @@ type Board {
   createdAt: DateTime
   updatedAt: DateTime
   deletedAt: DateTime
+  isDraft: Boolean
   owner: User
   userCanEditContent: Boolean
   userCanDeactivate: Boolean
@@ -1423,6 +1410,7 @@ enum BoardOrderBy {
   DELETED_AT
   DESCRIPTION
   ID
+  IS_DRAFT
   ORGANIZATION_ID
   TITLE
   UPDATED_AT
@@ -1999,8 +1987,8 @@ type Mutation {
   bulkSubscribeAlertRules(channels: [GNotificationChannel]!, alertRuleTypes: [GAlertRuleType]!, userId: Int!, metricId: Int): User
   bulkUnsubscribeAlertRules(channels: [GNotificationChannel]!, alertRuleTypes: [GAlertRuleType]!, userId: Int!, metricId: Int): User
   createTransformServiceUser(orgId: ID!): User
-  boardsCreate(title: String!, description: String): Board
-  boardsUpdate(id: Int!, title: String, description: String, items: [BoardItemInput]): Board
+  boardsCreate(title: String!, description: String, isDraft: Boolean): Board
+  boardsUpdate(id: Int!, title: String, description: String, isDraft: Boolean, items: [BoardItemInput]): Board
   boardsDeactivate(id: Int!): Board
   boardsAddSavedQuery(savedQueryId: Int!, boardIds: [Int]!): [Board]
 }
@@ -2173,6 +2161,18 @@ input MFAPref {
 enum GOwnerType {
   business
   technical
+}
+
+"""An enumeration."""
+enum GChartType {
+  LINE_CHART
+  AREA_CHART
+  AREA_CHART_SHARE_OF
+  BAR_CHART_STACKED
+  BAR_CHART_GROUPED
+  BAR_CHART_STACKED_SHARE_OF
+  BIG_NUMBER
+  TABLE
 }
 
 """An enumeration."""
