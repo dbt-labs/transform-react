@@ -17,6 +17,7 @@ const mutation = gql`
         whereConstraint
         requestedGranularity
         groupBy
+        latestXDays
         maxDimensionValues
         constraint {
           constraint {
