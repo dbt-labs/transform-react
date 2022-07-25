@@ -102,6 +102,8 @@ type MqlQuery {
   warnings: [String]
   latestXDays: Int
   availableChartTypes: [ChartType]
+  resultRowsOrder: [String]
+  resultColumnsOrder: [String]
 }
 
 """API Output definition for a Model Key"""
@@ -266,8 +268,8 @@ enum ChartType {
   LINE_CHART
   AREA_CHART
   AREA_CHART_SHARE_OF
+  BAR_CHART
   BAR_CHART_STACKED
-  BAR_CHART_GROUPED
   BAR_CHART_STACKED_SHARE_OF
   BIG_NUMBER
   TABLE
@@ -546,6 +548,16 @@ input CreateMqlQueryInput {
 
   """Apply a time constraint of the latest X number of days."""
   latestXDays: Int
+
+  """
+  List of column names to sort query result rows by (after SQL query execution). Column names must match result table. Prepend column name with '-' for descending order.
+  """
+  resultRowsOrder: [String]
+
+  """
+  List of column names, in order desired for result table. Must include all column names as they appear in result table.
+  """
+  resultColumnsOrder: [String]
   clientMutationId: String
 }
 
