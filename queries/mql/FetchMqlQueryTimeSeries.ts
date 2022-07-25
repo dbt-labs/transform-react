@@ -7,6 +7,7 @@ const query = gql`
       dbId
       status
       metrics
+      availableChartTypes
       dimensions
       error
       chartValueMin
