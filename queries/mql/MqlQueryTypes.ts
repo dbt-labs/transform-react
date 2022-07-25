@@ -340,6 +340,8 @@ export type MqlQuery = {
   warnings?: Maybe<Array<Maybe<Scalars['String']>>>;
   latestXDays?: Maybe<Scalars['Int']>;
   availableChartTypes?: Maybe<Array<Maybe<ChartType>>>;
+  resultRowsOrder?: Maybe<Array<Maybe<Scalars['String']>>>;
+  resultColumnsOrder?: Maybe<Array<Maybe<Scalars['String']>>>;
 };
 
 
@@ -517,8 +519,8 @@ export enum ChartType {
   LineChart = 'LINE_CHART',
   AreaChart = 'AREA_CHART',
   AreaChartShareOf = 'AREA_CHART_SHARE_OF',
+  BarChart = 'BAR_CHART',
   BarChartStacked = 'BAR_CHART_STACKED',
-  BarChartGrouped = 'BAR_CHART_GROUPED',
   BarChartStackedShareOf = 'BAR_CHART_STACKED_SHARE_OF',
   BigNumber = 'BIG_NUMBER',
   Table = 'TABLE'
@@ -876,6 +878,10 @@ export type CreateMqlQueryInput = {
   attemptNum?: Maybe<Scalars['Int']>;
   /** Apply a time constraint of the latest X number of days. */
   latestXDays?: Maybe<Scalars['Int']>;
+  /** List of column names to sort query result rows by (after SQL query execution). Column names must match result table. Prepend column name with '-' for descending order. */
+  resultRowsOrder?: Maybe<Array<Maybe<Scalars['String']>>>;
+  /** List of column names, in order desired for result table. Must include all column names as they appear in result table. */
+  resultColumnsOrder?: Maybe<Array<Maybe<Scalars['String']>>>;
   clientMutationId?: Maybe<Scalars['String']>;
 };
 
@@ -1233,7 +1239,7 @@ export type FetchSavedQueryQuery = (
   { __typename?: 'Query' }
   & { mqlQuery?: Maybe<(
     { __typename?: 'MqlQuery' }
-    & Pick<MqlQuery, 'id' | 'whereConstraint' | 'requestedGranularity' | 'groupBy' | 'maxDimensionValues' | 'timeComparison'>
+    & Pick<MqlQuery, 'id' | 'whereConstraint' | 'requestedGranularity' | 'groupBy' | 'latestXDays' | 'maxDimensionValues' | 'timeComparison'>
     & { constraint?: Maybe<(
       { __typename?: 'Constraint' }
       & { constraint?: Maybe<(

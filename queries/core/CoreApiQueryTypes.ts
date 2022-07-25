@@ -270,6 +270,8 @@ export type Organization = {
   boards?: Maybe<Array<Maybe<Board>>>;
   totalBoards?: Maybe<Scalars['Int']>;
   board?: Maybe<Board>;
+  queryIdsInSavedQueries?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  metricNamesInBoards?: Maybe<Array<Maybe<Scalars['String']>>>;
   activeFeatures?: Maybe<Array<Maybe<Feature>>>;
 };
 
@@ -596,6 +598,7 @@ export type User = {
   apiKeys?: Maybe<Array<Maybe<ApiKey>>>;
   organization?: Maybe<Organization>;
   metricCollections?: Maybe<Array<Maybe<MetricCollection>>>;
+  metricMetadataItems?: Maybe<Array<Maybe<MetricMetadata>>>;
   teamViews?: Maybe<Array<Maybe<TeamView>>>;
   mqlServerUrl?: Maybe<Scalars['String']>;
   activeRoles?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -1017,7 +1020,9 @@ export type OrgMetric = {
   teamOwners?: Maybe<Array<Maybe<MetricTeamOwner>>>;
   versions?: Maybe<Array<Maybe<Metric>>>;
   metricAnnotations?: Maybe<Array<Maybe<MetricAnnotation>>>;
+  metricMetadata?: Maybe<MetricMetadata>;
   organization?: Maybe<Organization>;
+  metadata?: Maybe<MetricMetadata>;
 };
 
 export type MetricUserOwner = {
@@ -1075,6 +1080,7 @@ export type Metric = {
   questions?: Maybe<Array<Maybe<Question>>>;
   resolvedQuestions?: Maybe<Question>;
   unresolvedQuestions?: Maybe<Question>;
+  metricMetadata?: Maybe<MetricMetadata>;
   metadata?: Maybe<Scalars['GenericScalar']>;
   totalQuestions?: Maybe<Scalars['Int']>;
   totalAnnotations?: Maybe<Scalars['Int']>;
@@ -1411,6 +1417,31 @@ export type QuestionOrderByInput = {
   desc?: Maybe<Scalars['Boolean']>;
 };
 
+export type MetricMetadata = {
+  __typename?: 'MetricMetadata';
+  metricId: Scalars['ID'];
+  description?: Maybe<Scalars['String']>;
+  displayName?: Maybe<Scalars['String']>;
+  tier?: Maybe<Scalars['Int']>;
+  valueFormat?: Maybe<Scalars['String']>;
+  increaseIsGood?: Maybe<Scalars['Boolean']>;
+  descriptionLock: Scalars['Boolean'];
+  displayNameLock: Scalars['Boolean'];
+  tierLock: Scalars['Boolean'];
+  valueFormatLock: Scalars['Boolean'];
+  increaseIsGoodLock: Scalars['Boolean'];
+  extraFields?: Maybe<Scalars['JSONString']>;
+  isNew: Scalars['Boolean'];
+  createdAt?: Maybe<Scalars['DateTime']>;
+  createdBy: Scalars['Int'];
+  updatedAt?: Maybe<Scalars['DateTime']>;
+  updatedBy: Scalars['Int'];
+  isPrivate: Scalars['Boolean'];
+  orgMetric?: Maybe<OrgMetric>;
+  createdByUser?: Maybe<User>;
+  updatedByUser?: Maybe<User>;
+};
+
 export type LockableParameter = {
   __typename?: 'LockableParameter';
   isLocked?: Maybe<Scalars['Boolean']>;
@@ -1601,8 +1632,8 @@ export enum ChartType {
   LineChart = 'LINE_CHART',
   AreaChart = 'AREA_CHART',
   AreaChartShareOf = 'AREA_CHART_SHARE_OF',
+  BarChart = 'BAR_CHART',
   BarChartStacked = 'BAR_CHART_STACKED',
-  BarChartGrouped = 'BAR_CHART_GROUPED',
   BarChartStackedShareOf = 'BAR_CHART_STACKED_SHARE_OF',
   BigNumber = 'BIG_NUMBER',
   Table = 'TABLE'
@@ -1730,6 +1761,7 @@ export type Board = {
   userCanEditContent?: Maybe<Scalars['Boolean']>;
   userCanDeactivate?: Maybe<Scalars['Boolean']>;
   items?: Maybe<Array<BoardItem>>;
+  totalViews?: Maybe<Scalars['Int']>;
 };
 
 export type BoardItem = {
@@ -2158,8 +2190,10 @@ export enum BoardOrderBy {
   Id = 'ID',
   IsDraft = 'IS_DRAFT',
   OrganizationId = 'ORGANIZATION_ID',
+  RecentlyViewed = 'RECENTLY_VIEWED',
   Title = 'TITLE',
-  UpdatedAt = 'UPDATED_AT'
+  UpdatedAt = 'UPDATED_AT',
+  Views = 'VIEWS'
 }
 
 export type BoardOrderByInput = {
@@ -2759,6 +2793,7 @@ export type Mutation = {
   boardsUpdate?: Maybe<Board>;
   boardsDeactivate?: Maybe<Board>;
   boardsAddSavedQuery?: Maybe<Array<Maybe<Board>>>;
+  boardsLogView?: Maybe<BoardView>;
 };
 
 
@@ -4117,6 +4152,17 @@ export type MutationBoardsAddSavedQueryArgs = {
   boardIds: Array<Maybe<Scalars['Int']>>;
 };
 
+
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
+export type MutationBoardsLogViewArgs = {
+  boardId: Scalars['ID'];
+};
+
 /** An enumeration. */
 export enum GOrgType {
   Paid = 'PAID',
@@ -4292,8 +4338,8 @@ export enum GChartType {
   LineChart = 'LINE_CHART',
   AreaChart = 'AREA_CHART',
   AreaChartShareOf = 'AREA_CHART_SHARE_OF',
+  BarChart = 'BAR_CHART',
   BarChartStacked = 'BAR_CHART_STACKED',
-  BarChartGrouped = 'BAR_CHART_GROUPED',
   BarChartStackedShareOf = 'BAR_CHART_STACKED_SHARE_OF',
   BigNumber = 'BIG_NUMBER',
   Table = 'TABLE'
@@ -4426,6 +4472,15 @@ export type GroupItemConfigInput = {
   title?: Maybe<Scalars['String']>;
   description?: Maybe<Scalars['String']>;
   children?: Maybe<Array<BoardItemInput>>;
+};
+
+export type BoardView = {
+  __typename?: 'BoardView';
+  organizationId: Scalars['Int'];
+  userId: Scalars['ID'];
+  boardId: Scalars['ID'];
+  createdAt: Scalars['DateTime'];
+  organization?: Maybe<Organization>;
 };
 
 export type MqlServerUrlQueryVariables = Exact<{ [key: string]: never; }>;

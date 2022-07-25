@@ -130,6 +130,8 @@ type Organization {
   boards(searchStr: String, searchColumns: [BoardStrColumns], orderBy: BoardOrderBy, desc: Boolean, orderBys: [BoardOrderByInput], pageNumber: Int, pageSize: Int): [Board]
   totalBoards(searchStr: String, searchColumns: [BoardStrColumns]): Int
   board(id: Int!): Board
+  queryIdsInSavedQueries: [Int]
+  metricNamesInBoards: [String]
   activeFeatures: [Feature]
 }
 
@@ -163,6 +165,7 @@ type User {
   apiKeys(activeOnly: Boolean, searchStr: String, searchColumns: [ApiKeyStrColumns], orderBy: ApiKeyOrderBy, desc: Boolean, orderBys: [ApiKeyOrderByInput], pageNumber: Int, pageSize: Int): [ApiKey]
   organization: Organization
   metricCollections(searchStr: String, searchColumns: [MetricCollectionStrColumns], orderBy: MetricCollectionOrderBy, desc: Boolean, orderBys: [MetricCollectionOrderByInput], pageNumber: Int, pageSize: Int): [MetricCollection]
+  metricMetadataItems: [MetricMetadata]
   teamViews: [TeamView]
   mqlServerUrl: String
   activeRoles: [String]
@@ -391,7 +394,9 @@ type OrgMetric {
   teamOwners: [MetricTeamOwner]
   versions: [Metric]
   metricAnnotations: [MetricAnnotation]
+  metricMetadata: MetricMetadata
   organization: Organization
+  metadata: MetricMetadata
 }
 
 type MetricUserOwner {
@@ -446,6 +451,7 @@ type Metric {
   questions(searchStr: String, searchColumns: [QuestionStrColumns], orderBy: QuestionOrderBy, desc: Boolean, orderBys: [QuestionOrderByInput], pageNumber: Int, pageSize: Int): [Question]
   resolvedQuestions: Question
   unresolvedQuestions: Question
+  metricMetadata: MetricMetadata
   metadata: GenericScalar
   totalQuestions: Int
   totalAnnotations: Int
@@ -684,6 +690,30 @@ input QuestionOrderByInput {
   desc: Boolean
 }
 
+type MetricMetadata {
+  metricId: ID!
+  description: String
+  displayName: String
+  tier: Int
+  valueFormat: String
+  increaseIsGood: Boolean
+  descriptionLock: Boolean!
+  displayNameLock: Boolean!
+  tierLock: Boolean!
+  valueFormatLock: Boolean!
+  increaseIsGoodLock: Boolean!
+  extraFields: JSONString
+  isNew: Boolean!
+  createdAt: DateTime
+  createdBy: Int!
+  updatedAt: DateTime
+  updatedBy: Int!
+  isPrivate: Boolean!
+  orgMetric: OrgMetric
+  createdByUser: User
+  updatedByUser: User
+}
+
 type LockableParameter {
   isLocked: Boolean
   value: GenericScalar
@@ -863,8 +893,8 @@ enum ChartType {
   LINE_CHART
   AREA_CHART
   AREA_CHART_SHARE_OF
+  BAR_CHART
   BAR_CHART_STACKED
-  BAR_CHART_GROUPED
   BAR_CHART_STACKED_SHARE_OF
   BIG_NUMBER
   TABLE
@@ -991,6 +1021,7 @@ type Board {
   userCanEditContent: Boolean
   userCanDeactivate: Boolean
   items: [BoardItem!]
+  totalViews: Int
 }
 
 type BoardItem {
@@ -1412,8 +1443,10 @@ enum BoardOrderBy {
   ID
   IS_DRAFT
   ORGANIZATION_ID
+  RECENTLY_VIEWED
   TITLE
   UPDATED_AT
+  VIEWS
 }
 
 input BoardOrderByInput {
@@ -1991,6 +2024,7 @@ type Mutation {
   boardsUpdate(id: Int!, title: String, description: String, isDraft: Boolean, items: [BoardItemInput]): Board
   boardsDeactivate(id: Int!): Board
   boardsAddSavedQuery(savedQueryId: Int!, boardIds: [Int]!): [Board]
+  boardsLogView(boardId: ID!): BoardView
 }
 
 """An enumeration."""
@@ -2168,8 +2202,8 @@ enum GChartType {
   LINE_CHART
   AREA_CHART
   AREA_CHART_SHARE_OF
+  BAR_CHART
   BAR_CHART_STACKED
-  BAR_CHART_GROUPED
   BAR_CHART_STACKED_SHARE_OF
   BIG_NUMBER
   TABLE
@@ -2301,4 +2335,12 @@ input GroupItemConfigInput {
   title: String
   description: String
   children: [BoardItemInput!]
+}
+
+type BoardView {
+  organizationId: Int!
+  userId: ID!
+  boardId: ID!
+  createdAt: DateTime!
+  organization: Organization
 }
