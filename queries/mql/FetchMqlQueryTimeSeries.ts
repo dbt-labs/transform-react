@@ -33,6 +33,7 @@ const query = gql`
         }
       }
       timeComparison
+      trimIncompletePeriods
       timeConstraint {
         dimensionName
         timeFormat

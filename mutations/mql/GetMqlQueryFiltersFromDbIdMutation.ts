@@ -19,6 +19,7 @@ const mutation = gql`
         groupBy
         latestXDays
         maxDimensionValues
+        trimIncompletePeriods
         constraint {
           constraint {
             constraintType
