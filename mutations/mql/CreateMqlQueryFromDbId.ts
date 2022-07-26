@@ -45,6 +45,7 @@ const mutation = gql`
             stop
           }
         }
+        trimIncompletePeriods
         timeComparison
         timeConstraint {
           dimensionName

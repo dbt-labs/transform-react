@@ -7,6 +7,7 @@ const query = gql`
       dbId
       status
       metrics
+      availableChartTypes
       dimensions
       error
       chartValueMin
@@ -32,6 +33,7 @@ const query = gql`
         }
       }
       timeComparison
+      trimIncompletePeriods
       timeConstraint {
         dimensionName
         timeFormat

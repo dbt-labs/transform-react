@@ -14,6 +14,7 @@ type Query {
     """
     attemptNum: Int
   ): MqlQuery
+  queryJob(id: ID!): QueryJob
   sourceQuery(id: ID!): String
   materializations(modelKey: ModelKeyInput): [Materialization!]
   metrics(modelKey: ModelKeyInput): [Metric!]
@@ -33,6 +34,7 @@ type Query {
   validations(modelKey: ModelKeyInput): Validations
   flagIsEnabled(flag: String!): Boolean
   dbtModelMeta(dataSourceNames: [String]): [DbtModelMeta]
+  queriesToPreload: [MetricFlowQueryParameters]
 }
 
 """
@@ -275,6 +277,52 @@ enum ChartType {
   TABLE
 }
 
+"""GQL class for QueryJob."""
+type QueryJob {
+  """ID of this query job"""
+  id: ID
+
+  """The status of this query job"""
+  status: QueryStatus
+
+  """Time this query started running"""
+  startTime: DateTime
+
+  """Time this query finished executing"""
+  endTime: DateTime
+
+  """Total runtime of this query job in seconds"""
+  queryRuntime: Float
+
+  """Error message if query job failed"""
+  error: String
+
+  """Type of query this job is executing"""
+  queryType: QueryType
+  dimensionValuesQueryResult: [String]
+}
+
+"""
+Current status of the query job.
+
+    RUNNING: Job is currently being executed.
+    PENDING: Job is waiting to be executed.
+    FAILED: Job executed and failed.
+    SUCCESSFUL: Job executed and suceeded.
+    
+"""
+enum QueryStatus {
+  RUNNING
+  SUCCESSFUL
+  FAILED
+  PENDING
+}
+
+"""Type of query."""
+enum QueryType {
+  DIM_VAL
+}
+
 type Materialization {
   name: String!
   metrics: [String!]
@@ -389,6 +437,21 @@ type DbtModelMeta {
   runId: String
 }
 
+"""
+Parameters to be submitted to the semantic layer when creating a query. Might differ from the query attributes shown to the user.
+"""
+type MetricFlowQueryParameters {
+  modelId: Int
+  metrics: [String]
+  dimensions: [String]
+  constraint: Constraint
+  timeConstraint: TimeConstraint
+  timeGranularity: TimeGranularity
+  order: [String]
+  limit: Int
+  latestXDays: Int
+}
+
 """Base mutation object exposed by GraphQL."""
 type Mutation {
   createMqlMaterializationNew(input: CreateMqlMaterializationNewInput!): CreateMqlMaterializationNewPayload
@@ -435,6 +498,14 @@ type Mutation {
 
   """Invalidate cache for a given metric."""
   invalidateCacheForMetric(metricName: String!, modelKey: ModelKeyInput): InvalidateCacheForMetric
+
+  """Submits an async dimension value query."""
+  createDimensionValuesQuery(allowDynamicCache: Boolean = true, dimensionName: String!, endTime: String, metricName: String!, modelId: Int, startTime: String): CreateDimensionValuesQuery
+
+  """
+  Initiate an MQL Query based on just the metric name. Params will be based on the metric defaults.
+  """
+  createMqlQueryFromMetricDefaults(input: CreateMqlQueryFromMetricDefaultsInput!): CreateMqlQueryFromMetricDefaultsPayload
 }
 
 type CreateMqlMaterializationNewPayload {
@@ -696,6 +767,31 @@ input PctChangeOverRangeInput {
 """Invalidate cache for a given metric."""
 type InvalidateCacheForMetric {
   success: String
+}
+
+"""Submits an async dimension value query."""
+type CreateDimensionValuesQuery {
+  id: ID!
+}
+
+"""
+Initiate an MQL Query based on just the metric name. Params will be based on the metric defaults.
+"""
+type CreateMqlQueryFromMetricDefaultsPayload {
+  id: ID!
+  query: MqlQuery
+  clientMutationId: String
+}
+
+input CreateMqlQueryFromMetricDefaultsInput {
+  metricName: String!
+  resultFormat: ResultFormat
+
+  """
+  Used for marking retries, optionally pass param to track attempt number.
+  """
+  attemptNum: Int
+  clientMutationId: String
 }
 
 """

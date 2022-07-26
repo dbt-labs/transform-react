@@ -41,6 +41,7 @@ export type Query = {
   version?: Maybe<Scalars['String']>;
   boom?: Maybe<Scalars['Boolean']>;
   mqlQuery?: Maybe<MqlQuery>;
+  queryJob?: Maybe<QueryJob>;
   sourceQuery?: Maybe<Scalars['String']>;
   materializations?: Maybe<Array<Materialization>>;
   metrics?: Maybe<Array<Metric>>;
@@ -62,6 +63,7 @@ export type Query = {
   validations?: Maybe<Validations>;
   flagIsEnabled?: Maybe<Scalars['Boolean']>;
   dbtModelMeta?: Maybe<Array<Maybe<DbtModelMeta>>>;
+  queriesToPreload?: Maybe<Array<Maybe<MetricFlowQueryParameters>>>;
 };
 
 
@@ -83,6 +85,16 @@ export type QueryBoomArgs = {
 export type QueryMqlQueryArgs = {
   id: Scalars['ID'];
   attemptNum?: Maybe<Scalars['Int']>;
+};
+
+
+/**
+ * Base Query object exposed by GraphQL for the MQL Server
+ *
+ * Each field defined below is accessible by the API, by calling the equivalent resolver.
+ */
+export type QueryQueryJobArgs = {
+  id: Scalars['ID'];
 };
 
 
@@ -526,6 +538,46 @@ export enum ChartType {
   Table = 'TABLE'
 }
 
+/** GQL class for QueryJob. */
+export type QueryJob = {
+  __typename?: 'QueryJob';
+  /** ID of this query job */
+  id?: Maybe<Scalars['ID']>;
+  /** The status of this query job */
+  status?: Maybe<QueryStatus>;
+  /** Time this query started running */
+  startTime?: Maybe<Scalars['DateTime']>;
+  /** Time this query finished executing */
+  endTime?: Maybe<Scalars['DateTime']>;
+  /** Total runtime of this query job in seconds */
+  queryRuntime?: Maybe<Scalars['Float']>;
+  /** Error message if query job failed */
+  error?: Maybe<Scalars['String']>;
+  /** Type of query this job is executing */
+  queryType?: Maybe<QueryType>;
+  dimensionValuesQueryResult?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+/**
+ * Current status of the query job.
+ *
+ *     RUNNING: Job is currently being executed.
+ *     PENDING: Job is waiting to be executed.
+ *     FAILED: Job executed and failed.
+ *     SUCCESSFUL: Job executed and suceeded.
+ */
+export enum QueryStatus {
+  Running = 'RUNNING',
+  Successful = 'SUCCESSFUL',
+  Failed = 'FAILED',
+  Pending = 'PENDING'
+}
+
+/** Type of query. */
+export enum QueryType {
+  DimVal = 'DIM_VAL'
+}
+
 export type Materialization = {
   __typename?: 'Materialization';
   name: Scalars['String'];
@@ -696,6 +748,20 @@ export type DbtModelMeta = {
   runId?: Maybe<Scalars['String']>;
 };
 
+/** Parameters to be submitted to the semantic layer when creating a query. Might differ from the query attributes shown to the user. */
+export type MetricFlowQueryParameters = {
+  __typename?: 'MetricFlowQueryParameters';
+  modelId?: Maybe<Scalars['Int']>;
+  metrics?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dimensions?: Maybe<Array<Maybe<Scalars['String']>>>;
+  constraint?: Maybe<Constraint>;
+  timeConstraint?: Maybe<TimeConstraint>;
+  timeGranularity?: Maybe<TimeGranularity>;
+  order?: Maybe<Array<Maybe<Scalars['String']>>>;
+  limit?: Maybe<Scalars['Int']>;
+  latestXDays?: Maybe<Scalars['Int']>;
+};
+
 /** Base mutation object exposed by GraphQL. */
 export type Mutation = {
   __typename?: 'Mutation';
@@ -724,6 +790,10 @@ export type Mutation = {
   pctChangeOverRange?: Maybe<PctChangeOverRangePayload>;
   /** Invalidate cache for a given metric. */
   invalidateCacheForMetric?: Maybe<InvalidateCacheForMetric>;
+  /** Submits an async dimension value query. */
+  createDimensionValuesQuery?: Maybe<CreateDimensionValuesQuery>;
+  /** Initiate an MQL Query based on just the metric name. Params will be based on the metric defaults. */
+  createMqlQueryFromMetricDefaults?: Maybe<CreateMqlQueryFromMetricDefaultsPayload>;
 };
 
 
@@ -796,6 +866,23 @@ export type MutationPctChangeOverRangeArgs = {
 export type MutationInvalidateCacheForMetricArgs = {
   metricName: Scalars['String'];
   modelKey?: Maybe<ModelKeyInput>;
+};
+
+
+/** Base mutation object exposed by GraphQL. */
+export type MutationCreateDimensionValuesQueryArgs = {
+  allowDynamicCache?: Maybe<Scalars['Boolean']>;
+  dimensionName: Scalars['String'];
+  endTime?: Maybe<Scalars['String']>;
+  metricName: Scalars['String'];
+  modelId?: Maybe<Scalars['Int']>;
+  startTime?: Maybe<Scalars['String']>;
+};
+
+
+/** Base mutation object exposed by GraphQL. */
+export type MutationCreateMqlQueryFromMetricDefaultsArgs = {
+  input: CreateMqlQueryFromMetricDefaultsInput;
 };
 
 export type CreateMqlMaterializationNewPayload = {
@@ -1003,6 +1090,28 @@ export type InvalidateCacheForMetric = {
   success?: Maybe<Scalars['String']>;
 };
 
+/** Submits an async dimension value query. */
+export type CreateDimensionValuesQuery = {
+  __typename?: 'CreateDimensionValuesQuery';
+  id: Scalars['ID'];
+};
+
+/** Initiate an MQL Query based on just the metric name. Params will be based on the metric defaults. */
+export type CreateMqlQueryFromMetricDefaultsPayload = {
+  __typename?: 'CreateMqlQueryFromMetricDefaultsPayload';
+  id: Scalars['ID'];
+  query?: Maybe<MqlQuery>;
+  clientMutationId?: Maybe<Scalars['String']>;
+};
+
+export type CreateMqlQueryFromMetricDefaultsInput = {
+  metricName: Scalars['String'];
+  resultFormat?: Maybe<ResultFormat>;
+  /** Used for marking retries, optionally pass param to track attempt number. */
+  attemptNum?: Maybe<Scalars['Int']>;
+  clientMutationId?: Maybe<Scalars['String']>;
+};
+
 /** MQL Query Result Data are expected to be plotted on a time series so this is the most common result type */
 export type TimeSeriesDatum = ResultDatum & {
   __typename?: 'TimeSeriesDatum';
@@ -1085,7 +1194,7 @@ export type CreateMqlQueryFromDbIdMutation = (
     & Pick<CreateMqlQueryFromDbIdPayload, 'id'>
     & { query?: Maybe<(
       { __typename?: 'MqlQuery' }
-      & Pick<MqlQuery, 'id' | 'dbId' | 'availableChartTypes' | 'createdAt' | 'status' | 'metrics' | 'dimensions' | 'error' | 'chartValueMax' | 'chartValueMin' | 'whereConstraint' | 'requestedGranularity' | 'groupBy' | 'latestXDays' | 'maxDimensionValues' | 'timeComparison' | 'numPostprocessedResults'>
+      & Pick<MqlQuery, 'id' | 'dbId' | 'availableChartTypes' | 'createdAt' | 'status' | 'metrics' | 'dimensions' | 'error' | 'chartValueMax' | 'chartValueMin' | 'whereConstraint' | 'requestedGranularity' | 'groupBy' | 'latestXDays' | 'maxDimensionValues' | 'trimIncompletePeriods' | 'timeComparison' | 'numPostprocessedResults'>
       & { constraint?: Maybe<(
         { __typename?: 'Constraint' }
         & { constraint?: Maybe<(
@@ -1145,7 +1254,7 @@ export type GetMqlQueryFiltersFromDbIdMutationMutation = (
     & Pick<CreateMqlQueryFromDbIdPayload, 'id'>
     & { query?: Maybe<(
       { __typename?: 'MqlQuery' }
-      & Pick<MqlQuery, 'dbId' | 'metrics' | 'dimensions' | 'whereConstraint' | 'requestedGranularity' | 'groupBy' | 'latestXDays' | 'maxDimensionValues' | 'timeComparison'>
+      & Pick<MqlQuery, 'dbId' | 'metrics' | 'dimensions' | 'whereConstraint' | 'requestedGranularity' | 'groupBy' | 'latestXDays' | 'maxDimensionValues' | 'trimIncompletePeriods' | 'timeComparison'>
       & { constraint?: Maybe<(
         { __typename?: 'Constraint' }
         & { constraint?: Maybe<(
