@@ -10,14 +10,19 @@ function cleanUrl(url: string) {
 export default function buildMqlUrqlClient({
   clientVersion,
   mqlUrl,
-  token
+  token,
+  headers,
 }: {
   clientVersion: string,
   mqlUrl: string,
   token?: string,
+  headers?: Record<string, string>
 }) {
   return createClient({
     url: cleanUrl(mqlUrl),
+    fetchOptions: {
+      headers,
+    },
     exchanges: [dedupExchange, buildAuthExchange(clientVersion, token), fetchExchange],
   });
 }

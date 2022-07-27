@@ -21,6 +21,7 @@ type Props = {
   externalConfig?: {
     mqlServerUrl?: string;
     refetchMqlServerUrl?: () => void;
+    headers?: Record<string, string>;
   };
   mqlServerUrlOverride?: string;
   token?: string;
@@ -136,7 +137,8 @@ function MqlContextProviderInternal({
   const mqlClient = buildMqlUrqlClient({
     clientVersion,
     mqlUrl: externalConfig?.mqlServerUrl || mqlServerUrlData?.myUser?.mqlServerUrl || coreApiUrl || CORE_API_URL,
-    token
+    token,
+    headers: externalConfig?.headers,
   });
 
   const [mqlContext, setMqlContext] = useState<MqlContextType>({
@@ -170,7 +172,8 @@ function MqlContextProviderInternal({
         stateToUpdate.mqlClient = buildMqlUrqlClient({
           clientVersion,
           mqlUrl: mqlServerUrlOverride,
-          token
+          token,
+          headers: externalConfig?.headers,
         });
       }
     } else if (externalConfig) {
@@ -182,7 +185,8 @@ function MqlContextProviderInternal({
         stateToUpdate.mqlClient = buildMqlUrqlClient({
           clientVersion,
           mqlUrl: externalConfig?.mqlServerUrl,
-          token
+          token,
+          headers: externalConfig?.headers,
         });
       }
     } else {
@@ -197,7 +201,7 @@ function MqlContextProviderInternal({
         stateToUpdate.mqlClient = buildMqlUrqlClient({
           clientVersion,
           mqlUrl: mqlServerUrlData?.myUser?.mqlServerUrl,
-          token
+          token,
         });
       }
     }
