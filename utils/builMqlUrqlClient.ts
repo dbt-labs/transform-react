@@ -1,3 +1,4 @@
+import { AcceptedHeaders } from "context/MqlContext/MqlContextProvider";
 import { createClient, dedupExchange, fetchExchange } from "urql";
 import buildAuthExchange from "./buildAuthExchange";
 
@@ -10,14 +11,19 @@ function cleanUrl(url: string) {
 export default function buildMqlUrqlClient({
   clientVersion,
   mqlUrl,
-  token
+  token,
+  headers,
 }: {
   clientVersion: string,
   mqlUrl: string,
   token?: string,
+  headers?: AcceptedHeaders,
 }) {
   return createClient({
     url: cleanUrl(mqlUrl),
+    fetchOptions: {
+      headers: {...headers},
+    },
     exchanges: [dedupExchange, buildAuthExchange(clientVersion, token), fetchExchange],
   });
 }
