@@ -12,6 +12,10 @@ import {
 import MqlContext, { HandleCombinedErrorContext, MqlContextType, CORE_API_URL } from "./MqlContext";
 import getUserIdFromAuthToken from "./utils/getUserIdFromAuthToken";
 
+export interface AcceptedHeaders {
+  'model-id'?: string; 
+}
+
 type Props = {
   isAuthenticated: boolean;
   captureException?: (e: CombinedError, context: HandleCombinedErrorContext) => void;
@@ -21,7 +25,7 @@ type Props = {
   externalConfig?: {
     mqlServerUrl?: string;
     refetchMqlServerUrl?: () => void;
-    headers?: Record<string, string>;
+    headers?: AcceptedHeaders;
   };
   mqlServerUrlOverride?: string;
   token?: string;
