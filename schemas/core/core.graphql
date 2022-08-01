@@ -189,7 +189,9 @@ type User {
   dismissedOnboardingCards: Boolean
   isSubscribedToChannels: GenericScalar
   boards(searchStr: String, searchColumns: [BoardStrColumns], orderBy: BoardOrderBy, desc: Boolean, orderBys: [BoardOrderByInput], pageNumber: Int, pageSize: Int): [Board]
+  boardsV2(searchStr: String, searchColumns: [BoardStrColumns], orderBy: BoardOrderBy, desc: Boolean, orderBys: [BoardOrderByInput], pageNumber: Int, pageSize: Int): [Board]
   totalBoards(searchStr: String, searchColumns: [BoardStrColumns]): Int
+  totalBoardsV2(searchStr: String, searchColumns: [BoardStrColumns]): Int
   boardsWithSubscribedMetrics(searchStr: String, searchColumns: [BoardStrColumns], orderBy: BoardOrderBy, desc: Boolean, orderBys: [BoardOrderByInput], pageNumber: Int, pageSize: Int): [Board]
   totalBoardsWithSubscribedMetrics(searchStr: String, searchColumns: [BoardStrColumns]): Int
   viewedMetrics(searchStr: String, searchColumns: [MetricVersionStrColumns], orderBy: MetricVersionOrderBy, desc: Boolean, orderBys: [MetricVersionOrderByInput], pageNumber: Int, pageSize: Int): [Metric]
@@ -256,6 +258,7 @@ type Team {
   totalRecentViews: Int
   totalRecentViewsForUser: Int
   metrics(searchStr: String, searchColumns: [MetricVersionStrColumns], orderBy: MetricVersionOrderBy, desc: Boolean, orderBys: [MetricVersionOrderByInput], pageNumber: Int, pageSize: Int): [Metric]
+  boards(searchStr: String, searchColumns: [BoardStrColumns], orderBy: BoardOrderBy, desc: Boolean, orderBys: [BoardOrderByInput], pageNumber: Int, pageSize: Int): [Board]
 }
 
 type TeamMember {
@@ -405,8 +408,10 @@ type MetricUserOwner {
   orgMetricId: Int!
   userId: Int!
   createdAt: DateTime
+  createdBy: Int!
   isLocked: Boolean!
   ownerType: OwnerType!
+  governanceType: GovernanceType!
   user: User
   organization: Organization
 }
@@ -417,14 +422,23 @@ enum OwnerType {
   TECHNICAL
 }
 
+"""
+Enum of governance types for both teams and users that are associated with private metrics
+"""
+enum GovernanceType {
+  OWNER
+  VIEWER
+}
+
 type MetricTeamOwner {
   id: ID!
   organizationId: Int!
   teamId: Int!
-  createdTs: Int
   orgMetricId: Int!
   createdAt: DateTime
+  createdBy: Int!
   ownerType: OwnerType!
+  governanceType: GovernanceType!
   team: Team
   organization: Organization
 }
@@ -1018,10 +1032,69 @@ type Board {
   deletedAt: DateTime
   isDraft: Boolean
   owner: User
+  userOwners(searchStr: String, searchColumns: [UserStrColumns], orderBy: UserOrderBy, desc: Boolean, orderBys: [UserOrderByInput], pageNumber: Int, pageSize: Int): [User]
+  teamOwners(searchStr: String, searchColumns: [TeamStrColumns], orderBy: TeamOrderBy, desc: Boolean, orderBys: [TeamOrderByInput], pageNumber: Int, pageSize: Int): [Team]
   userCanEditContent: Boolean
   userCanDeactivate: Boolean
   items: [BoardItem!]
   totalViews: Int
+}
+
+"""An enumeration."""
+enum UserStrColumns {
+  AUTH0_ID
+  AVATAR_URL
+  EMAIL
+  USER_NAME
+}
+
+"""An enumeration."""
+enum UserOrderBy {
+  AUTH0_ID
+  AVATAR_URL
+  CREATED_AT
+  DEACTIVATED_AT
+  EMAIL
+  ID
+  ORGANIZATION_ID
+  PRIMARY_DASHBOARD_ID
+  UPDATED_AT
+  USER_NAME
+}
+
+input UserOrderByInput {
+  orderBy: UserOrderBy!
+  desc: Boolean
+}
+
+"""An enumeration."""
+enum TeamStrColumns {
+  DESCRIPTION
+  NAME
+  SLUG
+  THEME
+}
+
+"""An enumeration."""
+enum TeamOrderBy {
+  CREATED_AT
+  CREATED_BY
+  DEACTIVATED_AT
+  DESCRIPTION
+  FEATURED_METRIC_COLLECTION_ID
+  ID
+  NAME
+  ORGANIZATION_ID
+  PRIMARY_DASHBOARD_ID
+  SLUG
+  THEME
+  UPDATED_AT
+  VIEWS
+}
+
+input TeamOrderByInput {
+  orderBy: TeamOrderBy!
+  desc: Boolean
 }
 
 type BoardItem {
@@ -1114,63 +1187,6 @@ enum SavedQueryOrderBy {
 
 input SavedQueryOrderByInput {
   orderBy: SavedQueryOrderBy!
-  desc: Boolean
-}
-
-"""An enumeration."""
-enum TeamStrColumns {
-  DESCRIPTION
-  NAME
-  SLUG
-  THEME
-}
-
-"""An enumeration."""
-enum TeamOrderBy {
-  CREATED_AT
-  CREATED_BY
-  DEACTIVATED_AT
-  DESCRIPTION
-  FEATURED_METRIC_COLLECTION_ID
-  ID
-  NAME
-  ORGANIZATION_ID
-  PRIMARY_DASHBOARD_ID
-  SLUG
-  THEME
-  UPDATED_AT
-  VIEWS
-}
-
-input TeamOrderByInput {
-  orderBy: TeamOrderBy!
-  desc: Boolean
-}
-
-"""An enumeration."""
-enum UserStrColumns {
-  AUTH0_ID
-  AVATAR_URL
-  EMAIL
-  USER_NAME
-}
-
-"""An enumeration."""
-enum UserOrderBy {
-  AUTH0_ID
-  AVATAR_URL
-  CREATED_AT
-  DEACTIVATED_AT
-  EMAIL
-  ID
-  ORGANIZATION_ID
-  PRIMARY_DASHBOARD_ID
-  UPDATED_AT
-  USER_NAME
-}
-
-input UserOrderByInput {
-  orderBy: UserOrderBy!
   desc: Boolean
 }
 
@@ -1365,6 +1381,32 @@ type TeamView {
   user: User
 }
 
+"""An enumeration."""
+enum BoardStrColumns {
+  DESCRIPTION
+  TITLE
+}
+
+"""An enumeration."""
+enum BoardOrderBy {
+  CREATED_AT
+  CREATED_BY
+  DELETED_AT
+  DESCRIPTION
+  ID
+  IS_DRAFT
+  ORGANIZATION_ID
+  RECENTLY_VIEWED
+  TITLE
+  UPDATED_AT
+  VIEWS
+}
+
+input BoardOrderByInput {
+  orderBy: BoardOrderBy!
+  desc: Boolean
+}
+
 type ApiKey {
   prefix: String!
   organizationId: Int!
@@ -1426,32 +1468,6 @@ type Notification {
   numChildNotifications: Int
   subscriptionInviter: User
   subscribedToMetric: Metric
-}
-
-"""An enumeration."""
-enum BoardStrColumns {
-  DESCRIPTION
-  TITLE
-}
-
-"""An enumeration."""
-enum BoardOrderBy {
-  CREATED_AT
-  CREATED_BY
-  DELETED_AT
-  DESCRIPTION
-  ID
-  IS_DRAFT
-  ORGANIZATION_ID
-  RECENTLY_VIEWED
-  TITLE
-  UPDATED_AT
-  VIEWS
-}
-
-input BoardOrderByInput {
-  orderBy: BoardOrderBy!
-  desc: Boolean
 }
 
 type Feature {
@@ -2025,6 +2041,10 @@ type Mutation {
   boardsDeactivate(id: Int!): Board
   boardsAddSavedQuery(savedQueryId: Int!, boardIds: [Int]!): [Board]
   boardsLogView(boardId: ID!): BoardView
+  boardsAddUserOwners(boardId: ID!, userIds: [ID]): Board
+  boardsRemoveUserOwners(boardId: ID!, userIds: [ID]): Board
+  boardsAddTeamOwners(boardId: ID!, teamIds: [ID]): Board
+  boardsRemoveTeamOwners(boardId: ID!, teamIds: [ID]): Board
 }
 
 """An enumeration."""

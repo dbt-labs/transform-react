@@ -1,16 +1,8 @@
 import { gql } from "urql";
 
 const mutation = gql`
-  mutation CreateMqlQueryFromDbId(
-    $attemptNum: Int!
-    $dbId: Int!
-  ) {
-    createMqlQueryFromDbId(
-      input: {
-        attemptNum: $attemptNum
-        dbId: $dbId
-      }
-    ) {
+  mutation CreateMqlQueryFromDbId($attemptNum: Int!, $dbId: Int!) {
+    createMqlQueryFromDbId(input: { attemptNum: $attemptNum, dbId: $dbId }) {
       id
       query {
         id
@@ -56,6 +48,9 @@ const mutation = gql`
         }
         numPostprocessedResults
         dbId
+        resultTabular {
+          data
+        }
         result {
           seriesValue
           data {

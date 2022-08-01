@@ -54,6 +54,9 @@ const mutation = gql`
         error
         chartValueMax
         chartValueMin
+        resultTabular {
+          data
+        }
         result {
           seriesValue
           data {

@@ -451,6 +451,8 @@ export enum QueryResultSource {
   DwMaterialization = 'DW_MATERIALIZATION',
   FastCache = 'FAST_CACHE',
   Metricflow = 'METRICFLOW',
+  DimensionValuesCache = 'DIMENSION_VALUES_CACHE',
+  MaterializedQueryCache = 'MATERIALIZED_QUERY_CACHE',
   NotApplicable = 'NOT_APPLICABLE',
   NotSpecified = 'NOT_SPECIFIED'
 }
@@ -529,11 +531,11 @@ export type TimeConstraint = {
 /** An enumeration. */
 export enum ChartType {
   LineChart = 'LINE_CHART',
-  AreaChart = 'AREA_CHART',
+  AreaChartStacked = 'AREA_CHART_STACKED',
   AreaChartShareOf = 'AREA_CHART_SHARE_OF',
   BarChart = 'BAR_CHART',
   BarChartStacked = 'BAR_CHART_STACKED',
-  BarChartStackedShareOf = 'BAR_CHART_STACKED_SHARE_OF',
+  BarChartShareOf = 'BAR_CHART_SHARE_OF',
   BigNumber = 'BIG_NUMBER',
   Table = 'TABLE'
 }
@@ -1169,7 +1171,10 @@ export type CreateMqlQueryMutation = (
     & { query?: Maybe<(
       { __typename?: 'MqlQuery' }
       & Pick<MqlQuery, 'id' | 'dbId' | 'availableChartTypes' | 'createdAt' | 'status' | 'metrics' | 'dimensions' | 'error' | 'chartValueMax' | 'chartValueMin'>
-      & { result?: Maybe<Array<(
+      & { resultTabular?: Maybe<(
+        { __typename?: 'MqlQueryTabularResult' }
+        & Pick<MqlQueryTabularResult, 'data'>
+      )>, result?: Maybe<Array<(
         { __typename?: 'MqlQueryResultSeries' }
         & Pick<MqlQueryResultSeries, 'seriesValue'>
         & { data?: Maybe<Array<(
@@ -1207,6 +1212,9 @@ export type CreateMqlQueryFromDbIdMutation = (
       )>, timeConstraint?: Maybe<(
         { __typename?: 'TimeConstraint' }
         & Pick<TimeConstraint, 'dimensionName' | 'timeFormat' | 'start' | 'stop' | 'timeGranularity'>
+      )>, resultTabular?: Maybe<(
+        { __typename?: 'MqlQueryTabularResult' }
+        & Pick<MqlQueryTabularResult, 'data'>
       )>, result?: Maybe<Array<(
         { __typename?: 'MqlQueryResultSeries' }
         & Pick<MqlQueryResultSeries, 'seriesValue'>

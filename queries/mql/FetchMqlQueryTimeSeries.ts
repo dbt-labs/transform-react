@@ -41,6 +41,9 @@ const query = gql`
         stop
         timeGranularity
       }
+      resultTabular {
+        data
+      }
       result {
         seriesValue
         data {

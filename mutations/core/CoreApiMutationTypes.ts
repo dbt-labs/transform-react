@@ -622,7 +622,9 @@ export type User = {
   dismissedOnboardingCards?: Maybe<Scalars['Boolean']>;
   isSubscribedToChannels?: Maybe<Scalars['GenericScalar']>;
   boards?: Maybe<Array<Maybe<Board>>>;
+  boardsV2?: Maybe<Array<Maybe<Board>>>;
   totalBoards?: Maybe<Scalars['Int']>;
+  totalBoardsV2?: Maybe<Scalars['Int']>;
   boardsWithSubscribedMetrics?: Maybe<Array<Maybe<Board>>>;
   totalBoardsWithSubscribedMetrics?: Maybe<Scalars['Int']>;
   viewedMetrics?: Maybe<Array<Maybe<Metric>>>;
@@ -698,7 +700,24 @@ export type UserBoardsArgs = {
 };
 
 
+export type UserBoardsV2Args = {
+  searchStr?: Maybe<Scalars['String']>;
+  searchColumns?: Maybe<Array<Maybe<BoardStrColumns>>>;
+  orderBy?: Maybe<BoardOrderBy>;
+  desc?: Maybe<Scalars['Boolean']>;
+  orderBys?: Maybe<Array<Maybe<BoardOrderByInput>>>;
+  pageNumber?: Maybe<Scalars['Int']>;
+  pageSize?: Maybe<Scalars['Int']>;
+};
+
+
 export type UserTotalBoardsArgs = {
+  searchStr?: Maybe<Scalars['String']>;
+  searchColumns?: Maybe<Array<Maybe<BoardStrColumns>>>;
+};
+
+
+export type UserTotalBoardsV2Args = {
   searchStr?: Maybe<Scalars['String']>;
   searchColumns?: Maybe<Array<Maybe<BoardStrColumns>>>;
 };
@@ -814,6 +833,7 @@ export type Team = {
   totalRecentViews?: Maybe<Scalars['Int']>;
   totalRecentViewsForUser?: Maybe<Scalars['Int']>;
   metrics?: Maybe<Array<Maybe<Metric>>>;
+  boards?: Maybe<Array<Maybe<Board>>>;
 };
 
 
@@ -854,6 +874,17 @@ export type TeamMetricsArgs = {
   orderBy?: Maybe<MetricVersionOrderBy>;
   desc?: Maybe<Scalars['Boolean']>;
   orderBys?: Maybe<Array<Maybe<MetricVersionOrderByInput>>>;
+  pageNumber?: Maybe<Scalars['Int']>;
+  pageSize?: Maybe<Scalars['Int']>;
+};
+
+
+export type TeamBoardsArgs = {
+  searchStr?: Maybe<Scalars['String']>;
+  searchColumns?: Maybe<Array<Maybe<BoardStrColumns>>>;
+  orderBy?: Maybe<BoardOrderBy>;
+  desc?: Maybe<Scalars['Boolean']>;
+  orderBys?: Maybe<Array<Maybe<BoardOrderByInput>>>;
   pageNumber?: Maybe<Scalars['Int']>;
   pageSize?: Maybe<Scalars['Int']>;
 };
@@ -1032,8 +1063,10 @@ export type MetricUserOwner = {
   orgMetricId: Scalars['Int'];
   userId: Scalars['Int'];
   createdAt?: Maybe<Scalars['DateTime']>;
+  createdBy: Scalars['Int'];
   isLocked: Scalars['Boolean'];
   ownerType: OwnerType;
+  governanceType: GovernanceType;
   user?: Maybe<User>;
   organization?: Maybe<Organization>;
 };
@@ -1044,15 +1077,22 @@ export enum OwnerType {
   Technical = 'TECHNICAL'
 }
 
+/** Enum of governance types for both teams and users that are associated with private metrics */
+export enum GovernanceType {
+  Owner = 'OWNER',
+  Viewer = 'VIEWER'
+}
+
 export type MetricTeamOwner = {
   __typename?: 'MetricTeamOwner';
   id: Scalars['ID'];
   organizationId: Scalars['Int'];
   teamId: Scalars['Int'];
-  createdTs?: Maybe<Scalars['Int']>;
   orgMetricId: Scalars['Int'];
   createdAt?: Maybe<Scalars['DateTime']>;
+  createdBy: Scalars['Int'];
   ownerType: OwnerType;
+  governanceType: GovernanceType;
   team?: Maybe<Team>;
   organization?: Maybe<Organization>;
 };
@@ -1758,10 +1798,91 @@ export type Board = {
   deletedAt?: Maybe<Scalars['DateTime']>;
   isDraft?: Maybe<Scalars['Boolean']>;
   owner?: Maybe<User>;
+  userOwners?: Maybe<Array<Maybe<User>>>;
+  teamOwners?: Maybe<Array<Maybe<Team>>>;
   userCanEditContent?: Maybe<Scalars['Boolean']>;
   userCanDeactivate?: Maybe<Scalars['Boolean']>;
   items?: Maybe<Array<BoardItem>>;
   totalViews?: Maybe<Scalars['Int']>;
+};
+
+
+export type BoardUserOwnersArgs = {
+  searchStr?: Maybe<Scalars['String']>;
+  searchColumns?: Maybe<Array<Maybe<UserStrColumns>>>;
+  orderBy?: Maybe<UserOrderBy>;
+  desc?: Maybe<Scalars['Boolean']>;
+  orderBys?: Maybe<Array<Maybe<UserOrderByInput>>>;
+  pageNumber?: Maybe<Scalars['Int']>;
+  pageSize?: Maybe<Scalars['Int']>;
+};
+
+
+export type BoardTeamOwnersArgs = {
+  searchStr?: Maybe<Scalars['String']>;
+  searchColumns?: Maybe<Array<Maybe<TeamStrColumns>>>;
+  orderBy?: Maybe<TeamOrderBy>;
+  desc?: Maybe<Scalars['Boolean']>;
+  orderBys?: Maybe<Array<Maybe<TeamOrderByInput>>>;
+  pageNumber?: Maybe<Scalars['Int']>;
+  pageSize?: Maybe<Scalars['Int']>;
+};
+
+/** An enumeration. */
+export enum UserStrColumns {
+  Auth0Id = 'AUTH0_ID',
+  AvatarUrl = 'AVATAR_URL',
+  Email = 'EMAIL',
+  UserName = 'USER_NAME'
+}
+
+/** An enumeration. */
+export enum UserOrderBy {
+  Auth0Id = 'AUTH0_ID',
+  AvatarUrl = 'AVATAR_URL',
+  CreatedAt = 'CREATED_AT',
+  DeactivatedAt = 'DEACTIVATED_AT',
+  Email = 'EMAIL',
+  Id = 'ID',
+  OrganizationId = 'ORGANIZATION_ID',
+  PrimaryDashboardId = 'PRIMARY_DASHBOARD_ID',
+  UpdatedAt = 'UPDATED_AT',
+  UserName = 'USER_NAME'
+}
+
+export type UserOrderByInput = {
+  orderBy: UserOrderBy;
+  desc?: Maybe<Scalars['Boolean']>;
+};
+
+/** An enumeration. */
+export enum TeamStrColumns {
+  Description = 'DESCRIPTION',
+  Name = 'NAME',
+  Slug = 'SLUG',
+  Theme = 'THEME'
+}
+
+/** An enumeration. */
+export enum TeamOrderBy {
+  CreatedAt = 'CREATED_AT',
+  CreatedBy = 'CREATED_BY',
+  DeactivatedAt = 'DEACTIVATED_AT',
+  Description = 'DESCRIPTION',
+  FeaturedMetricCollectionId = 'FEATURED_METRIC_COLLECTION_ID',
+  Id = 'ID',
+  Name = 'NAME',
+  OrganizationId = 'ORGANIZATION_ID',
+  PrimaryDashboardId = 'PRIMARY_DASHBOARD_ID',
+  Slug = 'SLUG',
+  Theme = 'THEME',
+  UpdatedAt = 'UPDATED_AT',
+  Views = 'VIEWS'
+}
+
+export type TeamOrderByInput = {
+  orderBy: TeamOrderBy;
+  desc?: Maybe<Scalars['Boolean']>;
 };
 
 export type BoardItem = {
@@ -1855,63 +1976,6 @@ export enum SavedQueryOrderBy {
 
 export type SavedQueryOrderByInput = {
   orderBy: SavedQueryOrderBy;
-  desc?: Maybe<Scalars['Boolean']>;
-};
-
-/** An enumeration. */
-export enum TeamStrColumns {
-  Description = 'DESCRIPTION',
-  Name = 'NAME',
-  Slug = 'SLUG',
-  Theme = 'THEME'
-}
-
-/** An enumeration. */
-export enum TeamOrderBy {
-  CreatedAt = 'CREATED_AT',
-  CreatedBy = 'CREATED_BY',
-  DeactivatedAt = 'DEACTIVATED_AT',
-  Description = 'DESCRIPTION',
-  FeaturedMetricCollectionId = 'FEATURED_METRIC_COLLECTION_ID',
-  Id = 'ID',
-  Name = 'NAME',
-  OrganizationId = 'ORGANIZATION_ID',
-  PrimaryDashboardId = 'PRIMARY_DASHBOARD_ID',
-  Slug = 'SLUG',
-  Theme = 'THEME',
-  UpdatedAt = 'UPDATED_AT',
-  Views = 'VIEWS'
-}
-
-export type TeamOrderByInput = {
-  orderBy: TeamOrderBy;
-  desc?: Maybe<Scalars['Boolean']>;
-};
-
-/** An enumeration. */
-export enum UserStrColumns {
-  Auth0Id = 'AUTH0_ID',
-  AvatarUrl = 'AVATAR_URL',
-  Email = 'EMAIL',
-  UserName = 'USER_NAME'
-}
-
-/** An enumeration. */
-export enum UserOrderBy {
-  Auth0Id = 'AUTH0_ID',
-  AvatarUrl = 'AVATAR_URL',
-  CreatedAt = 'CREATED_AT',
-  DeactivatedAt = 'DEACTIVATED_AT',
-  Email = 'EMAIL',
-  Id = 'ID',
-  OrganizationId = 'ORGANIZATION_ID',
-  PrimaryDashboardId = 'PRIMARY_DASHBOARD_ID',
-  UpdatedAt = 'UPDATED_AT',
-  UserName = 'USER_NAME'
-}
-
-export type UserOrderByInput = {
-  orderBy: UserOrderBy;
   desc?: Maybe<Scalars['Boolean']>;
 };
 
@@ -2110,6 +2174,32 @@ export type TeamView = {
   user?: Maybe<User>;
 };
 
+/** An enumeration. */
+export enum BoardStrColumns {
+  Description = 'DESCRIPTION',
+  Title = 'TITLE'
+}
+
+/** An enumeration. */
+export enum BoardOrderBy {
+  CreatedAt = 'CREATED_AT',
+  CreatedBy = 'CREATED_BY',
+  DeletedAt = 'DELETED_AT',
+  Description = 'DESCRIPTION',
+  Id = 'ID',
+  IsDraft = 'IS_DRAFT',
+  OrganizationId = 'ORGANIZATION_ID',
+  RecentlyViewed = 'RECENTLY_VIEWED',
+  Title = 'TITLE',
+  UpdatedAt = 'UPDATED_AT',
+  Views = 'VIEWS'
+}
+
+export type BoardOrderByInput = {
+  orderBy: BoardOrderBy;
+  desc?: Maybe<Scalars['Boolean']>;
+};
+
 export type ApiKey = {
   __typename?: 'ApiKey';
   prefix: Scalars['String'];
@@ -2173,32 +2263,6 @@ export type Notification = {
   numChildNotifications?: Maybe<Scalars['Int']>;
   subscriptionInviter?: Maybe<User>;
   subscribedToMetric?: Maybe<Metric>;
-};
-
-/** An enumeration. */
-export enum BoardStrColumns {
-  Description = 'DESCRIPTION',
-  Title = 'TITLE'
-}
-
-/** An enumeration. */
-export enum BoardOrderBy {
-  CreatedAt = 'CREATED_AT',
-  CreatedBy = 'CREATED_BY',
-  DeletedAt = 'DELETED_AT',
-  Description = 'DESCRIPTION',
-  Id = 'ID',
-  IsDraft = 'IS_DRAFT',
-  OrganizationId = 'ORGANIZATION_ID',
-  RecentlyViewed = 'RECENTLY_VIEWED',
-  Title = 'TITLE',
-  UpdatedAt = 'UPDATED_AT',
-  Views = 'VIEWS'
-}
-
-export type BoardOrderByInput = {
-  orderBy: BoardOrderBy;
-  desc?: Maybe<Scalars['Boolean']>;
 };
 
 export type Feature = {
@@ -2794,6 +2858,10 @@ export type Mutation = {
   boardsDeactivate?: Maybe<Board>;
   boardsAddSavedQuery?: Maybe<Array<Maybe<Board>>>;
   boardsLogView?: Maybe<BoardView>;
+  boardsAddUserOwners?: Maybe<Board>;
+  boardsRemoveUserOwners?: Maybe<Board>;
+  boardsAddTeamOwners?: Maybe<Board>;
+  boardsRemoveTeamOwners?: Maybe<Board>;
 };
 
 
@@ -4161,6 +4229,54 @@ export type MutationBoardsAddSavedQueryArgs = {
  */
 export type MutationBoardsLogViewArgs = {
   boardId: Scalars['ID'];
+};
+
+
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
+export type MutationBoardsAddUserOwnersArgs = {
+  boardId: Scalars['ID'];
+  userIds?: Maybe<Array<Maybe<Scalars['ID']>>>;
+};
+
+
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
+export type MutationBoardsRemoveUserOwnersArgs = {
+  boardId: Scalars['ID'];
+  userIds?: Maybe<Array<Maybe<Scalars['ID']>>>;
+};
+
+
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
+export type MutationBoardsAddTeamOwnersArgs = {
+  boardId: Scalars['ID'];
+  teamIds?: Maybe<Array<Maybe<Scalars['ID']>>>;
+};
+
+
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
+export type MutationBoardsRemoveTeamOwnersArgs = {
+  boardId: Scalars['ID'];
+  teamIds?: Maybe<Array<Maybe<Scalars['ID']>>>;
 };
 
 /** An enumeration. */
