@@ -1212,6 +1212,9 @@ export type CreateMqlQueryFromDbIdMutation = (
       )>, timeConstraint?: Maybe<(
         { __typename?: 'TimeConstraint' }
         & Pick<TimeConstraint, 'dimensionName' | 'timeFormat' | 'start' | 'stop' | 'timeGranularity'>
+      )>, resultTabular?: Maybe<(
+        { __typename?: 'MqlQueryTabularResult' }
+        & Pick<MqlQueryTabularResult, 'data'>
       )>, result?: Maybe<Array<(
         { __typename?: 'MqlQueryResultSeries' }
         & Pick<MqlQueryResultSeries, 'seriesValue'>
