@@ -418,11 +418,24 @@ type MqlServerHealthItem {
 
 type Validations {
   modelKey: ModelKey
-  allIssues: [String!]
-  dataSourceIssues: [String!]
-  metricIssues: [String!]
-  dimensionIssues: [String!]
+  allIssues: [String!] @deprecated(reason: "Use `*Results` fields")
+  dataSourceIssues: [String!] @deprecated(reason: "Use `dataSourceResults`")
+  metricIssues: [String!] @deprecated(reason: "Use `metricResults`")
+  dimensionIssues: [String!] @deprecated(reason: "Use `dimensionResults`")
+  dataSourceResults: JSONString!
+  dimensionResults: JSONString!
+  identifierResults: JSONString!
+  measureResults: JSONString!
+  metricResults: JSONString!
 }
+
+"""
+Allows use of a JSON String for input / output from the GraphQL schema.
+
+Use of this type is *not recommended* as you lose the benefits of having a defined, static
+schema (one of the key benefits of GraphQL).
+"""
+scalar JSONString
 
 """The meta information we track of dbt models"""
 type DbtModelMeta {

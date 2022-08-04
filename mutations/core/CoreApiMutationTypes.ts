@@ -268,6 +268,7 @@ export type Organization = {
   integration?: Maybe<Integration>;
   modelFromModelKey?: Maybe<Model>;
   boards?: Maybe<Array<Maybe<Board>>>;
+  boardsV2?: Maybe<Array<Maybe<Board>>>;
   totalBoards?: Maybe<Scalars['Int']>;
   board?: Maybe<Board>;
   queryIdsInSavedQueries?: Maybe<Array<Maybe<Scalars['Int']>>>;
@@ -557,6 +558,17 @@ export type OrganizationBoardsArgs = {
 };
 
 
+export type OrganizationBoardsV2Args = {
+  searchStr?: Maybe<Scalars['String']>;
+  searchColumns?: Maybe<Array<Maybe<BoardStrColumns>>>;
+  orderBy?: Maybe<BoardOrderBy>;
+  desc?: Maybe<Scalars['Boolean']>;
+  orderBys?: Maybe<Array<Maybe<BoardOrderByInput>>>;
+  pageNumber?: Maybe<Scalars['Int']>;
+  pageSize?: Maybe<Scalars['Int']>;
+};
+
+
 export type OrganizationTotalBoardsArgs = {
   searchStr?: Maybe<Scalars['String']>;
   searchColumns?: Maybe<Array<Maybe<BoardStrColumns>>>;
@@ -623,6 +635,7 @@ export type User = {
   isSubscribedToChannels?: Maybe<Scalars['GenericScalar']>;
   boards?: Maybe<Array<Maybe<Board>>>;
   boardsV2?: Maybe<Array<Maybe<Board>>>;
+  favoriteBoards?: Maybe<Array<Maybe<Board>>>;
   totalBoards?: Maybe<Scalars['Int']>;
   totalBoardsV2?: Maybe<Scalars['Int']>;
   boardsWithSubscribedMetrics?: Maybe<Array<Maybe<Board>>>;
@@ -701,6 +714,17 @@ export type UserBoardsArgs = {
 
 
 export type UserBoardsV2Args = {
+  searchStr?: Maybe<Scalars['String']>;
+  searchColumns?: Maybe<Array<Maybe<BoardStrColumns>>>;
+  orderBy?: Maybe<BoardOrderBy>;
+  desc?: Maybe<Scalars['Boolean']>;
+  orderBys?: Maybe<Array<Maybe<BoardOrderByInput>>>;
+  pageNumber?: Maybe<Scalars['Int']>;
+  pageSize?: Maybe<Scalars['Int']>;
+};
+
+
+export type UserFavoriteBoardsArgs = {
   searchStr?: Maybe<Scalars['String']>;
   searchColumns?: Maybe<Array<Maybe<BoardStrColumns>>>;
   orderBy?: Maybe<BoardOrderBy>;
@@ -1670,11 +1694,11 @@ export type SavedQueryMetricsArgs = {
 /** An enumeration. */
 export enum ChartType {
   LineChart = 'LINE_CHART',
-  AreaChart = 'AREA_CHART',
+  AreaChartStacked = 'AREA_CHART_STACKED',
   AreaChartShareOf = 'AREA_CHART_SHARE_OF',
   BarChart = 'BAR_CHART',
   BarChartStacked = 'BAR_CHART_STACKED',
-  BarChartStackedShareOf = 'BAR_CHART_STACKED_SHARE_OF',
+  BarChartShareOf = 'BAR_CHART_SHARE_OF',
   BigNumber = 'BIG_NUMBER',
   Table = 'TABLE'
 }
@@ -1796,7 +1820,7 @@ export type Board = {
   createdAt?: Maybe<Scalars['DateTime']>;
   updatedAt?: Maybe<Scalars['DateTime']>;
   deletedAt?: Maybe<Scalars['DateTime']>;
-  isDraft?: Maybe<Scalars['Boolean']>;
+  isPrivate?: Maybe<Scalars['Boolean']>;
   owner?: Maybe<User>;
   userOwners?: Maybe<Array<Maybe<User>>>;
   teamOwners?: Maybe<Array<Maybe<Team>>>;
@@ -1804,6 +1828,8 @@ export type Board = {
   userCanDeactivate?: Maybe<Scalars['Boolean']>;
   items?: Maybe<Array<BoardItem>>;
   totalViews?: Maybe<Scalars['Int']>;
+  totalFavorites?: Maybe<Scalars['Int']>;
+  isFavoritedByUser?: Maybe<Scalars['Boolean']>;
 };
 
 
@@ -2187,7 +2213,7 @@ export enum BoardOrderBy {
   DeletedAt = 'DELETED_AT',
   Description = 'DESCRIPTION',
   Id = 'ID',
-  IsDraft = 'IS_DRAFT',
+  IsPrivate = 'IS_PRIVATE',
   OrganizationId = 'ORGANIZATION_ID',
   RecentlyViewed = 'RECENTLY_VIEWED',
   Title = 'TITLE',
@@ -2862,6 +2888,8 @@ export type Mutation = {
   boardsRemoveUserOwners?: Maybe<Board>;
   boardsAddTeamOwners?: Maybe<Board>;
   boardsRemoveTeamOwners?: Maybe<Board>;
+  boardsFavorite?: Maybe<BoardFavorite>;
+  boardsUnfavorite?: Maybe<BoardFavorite>;
 };
 
 
@@ -4179,7 +4207,7 @@ export type MutationCreateTransformServiceUserArgs = {
 export type MutationBoardsCreateArgs = {
   title: Scalars['String'];
   description?: Maybe<Scalars['String']>;
-  isDraft?: Maybe<Scalars['Boolean']>;
+  isPrivate?: Maybe<Scalars['Boolean']>;
 };
 
 
@@ -4193,7 +4221,7 @@ export type MutationBoardsUpdateArgs = {
   id: Scalars['Int'];
   title?: Maybe<Scalars['String']>;
   description?: Maybe<Scalars['String']>;
-  isDraft?: Maybe<Scalars['Boolean']>;
+  isPrivate?: Maybe<Scalars['Boolean']>;
   items?: Maybe<Array<Maybe<BoardItemInput>>>;
 };
 
@@ -4277,6 +4305,28 @@ export type MutationBoardsAddTeamOwnersArgs = {
 export type MutationBoardsRemoveTeamOwnersArgs = {
   boardId: Scalars['ID'];
   teamIds?: Maybe<Array<Maybe<Scalars['ID']>>>;
+};
+
+
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
+export type MutationBoardsFavoriteArgs = {
+  boardId: Scalars['ID'];
+};
+
+
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
+export type MutationBoardsUnfavoriteArgs = {
+  boardId: Scalars['ID'];
 };
 
 /** An enumeration. */
@@ -4452,11 +4502,11 @@ export enum GOwnerType {
 /** An enumeration. */
 export enum GChartType {
   LineChart = 'LINE_CHART',
-  AreaChart = 'AREA_CHART',
+  AreaChartStacked = 'AREA_CHART_STACKED',
   AreaChartShareOf = 'AREA_CHART_SHARE_OF',
   BarChart = 'BAR_CHART',
   BarChartStacked = 'BAR_CHART_STACKED',
-  BarChartStackedShareOf = 'BAR_CHART_STACKED_SHARE_OF',
+  BarChartShareOf = 'BAR_CHART_SHARE_OF',
   BigNumber = 'BIG_NUMBER',
   Table = 'TABLE'
 }
@@ -4592,6 +4642,15 @@ export type GroupItemConfigInput = {
 
 export type BoardView = {
   __typename?: 'BoardView';
+  organizationId: Scalars['Int'];
+  userId: Scalars['ID'];
+  boardId: Scalars['ID'];
+  createdAt: Scalars['DateTime'];
+  organization?: Maybe<Organization>;
+};
+
+export type BoardFavorite = {
+  __typename?: 'BoardFavorite';
   organizationId: Scalars['Int'];
   userId: Scalars['ID'];
   boardId: Scalars['ID'];

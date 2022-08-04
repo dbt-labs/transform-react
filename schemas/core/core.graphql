@@ -128,6 +128,7 @@ type Organization {
   integration(integrationType: GIntegrationType!): Integration
   modelFromModelKey(repo: String!, branch: String!, commit: String!): Model
   boards(searchStr: String, searchColumns: [BoardStrColumns], orderBy: BoardOrderBy, desc: Boolean, orderBys: [BoardOrderByInput], pageNumber: Int, pageSize: Int): [Board]
+  boardsV2(searchStr: String, searchColumns: [BoardStrColumns], orderBy: BoardOrderBy, desc: Boolean, orderBys: [BoardOrderByInput], pageNumber: Int, pageSize: Int): [Board]
   totalBoards(searchStr: String, searchColumns: [BoardStrColumns]): Int
   board(id: Int!): Board
   queryIdsInSavedQueries: [Int]
@@ -190,6 +191,7 @@ type User {
   isSubscribedToChannels: GenericScalar
   boards(searchStr: String, searchColumns: [BoardStrColumns], orderBy: BoardOrderBy, desc: Boolean, orderBys: [BoardOrderByInput], pageNumber: Int, pageSize: Int): [Board]
   boardsV2(searchStr: String, searchColumns: [BoardStrColumns], orderBy: BoardOrderBy, desc: Boolean, orderBys: [BoardOrderByInput], pageNumber: Int, pageSize: Int): [Board]
+  favoriteBoards(searchStr: String, searchColumns: [BoardStrColumns], orderBy: BoardOrderBy, desc: Boolean, orderBys: [BoardOrderByInput], pageNumber: Int, pageSize: Int): [Board]
   totalBoards(searchStr: String, searchColumns: [BoardStrColumns]): Int
   totalBoardsV2(searchStr: String, searchColumns: [BoardStrColumns]): Int
   boardsWithSubscribedMetrics(searchStr: String, searchColumns: [BoardStrColumns], orderBy: BoardOrderBy, desc: Boolean, orderBys: [BoardOrderByInput], pageNumber: Int, pageSize: Int): [Board]
@@ -905,11 +907,11 @@ type SavedQuery {
 """An enumeration."""
 enum ChartType {
   LINE_CHART
-  AREA_CHART
+  AREA_CHART_STACKED
   AREA_CHART_SHARE_OF
   BAR_CHART
   BAR_CHART_STACKED
-  BAR_CHART_STACKED_SHARE_OF
+  BAR_CHART_SHARE_OF
   BIG_NUMBER
   TABLE
 }
@@ -1030,7 +1032,7 @@ type Board {
   createdAt: DateTime
   updatedAt: DateTime
   deletedAt: DateTime
-  isDraft: Boolean
+  isPrivate: Boolean
   owner: User
   userOwners(searchStr: String, searchColumns: [UserStrColumns], orderBy: UserOrderBy, desc: Boolean, orderBys: [UserOrderByInput], pageNumber: Int, pageSize: Int): [User]
   teamOwners(searchStr: String, searchColumns: [TeamStrColumns], orderBy: TeamOrderBy, desc: Boolean, orderBys: [TeamOrderByInput], pageNumber: Int, pageSize: Int): [Team]
@@ -1038,6 +1040,8 @@ type Board {
   userCanDeactivate: Boolean
   items: [BoardItem!]
   totalViews: Int
+  totalFavorites: Int
+  isFavoritedByUser: Boolean
 }
 
 """An enumeration."""
@@ -1394,7 +1398,7 @@ enum BoardOrderBy {
   DELETED_AT
   DESCRIPTION
   ID
-  IS_DRAFT
+  IS_PRIVATE
   ORGANIZATION_ID
   RECENTLY_VIEWED
   TITLE
@@ -2036,8 +2040,8 @@ type Mutation {
   bulkSubscribeAlertRules(channels: [GNotificationChannel]!, alertRuleTypes: [GAlertRuleType]!, userId: Int!, metricId: Int): User
   bulkUnsubscribeAlertRules(channels: [GNotificationChannel]!, alertRuleTypes: [GAlertRuleType]!, userId: Int!, metricId: Int): User
   createTransformServiceUser(orgId: ID!): User
-  boardsCreate(title: String!, description: String, isDraft: Boolean): Board
-  boardsUpdate(id: Int!, title: String, description: String, isDraft: Boolean, items: [BoardItemInput]): Board
+  boardsCreate(title: String!, description: String, isPrivate: Boolean): Board
+  boardsUpdate(id: Int!, title: String, description: String, isPrivate: Boolean, items: [BoardItemInput]): Board
   boardsDeactivate(id: Int!): Board
   boardsAddSavedQuery(savedQueryId: Int!, boardIds: [Int]!): [Board]
   boardsLogView(boardId: ID!): BoardView
@@ -2045,6 +2049,8 @@ type Mutation {
   boardsRemoveUserOwners(boardId: ID!, userIds: [ID]): Board
   boardsAddTeamOwners(boardId: ID!, teamIds: [ID]): Board
   boardsRemoveTeamOwners(boardId: ID!, teamIds: [ID]): Board
+  boardsFavorite(boardId: ID!): BoardFavorite
+  boardsUnfavorite(boardId: ID!): BoardFavorite
 }
 
 """An enumeration."""
@@ -2220,11 +2226,11 @@ enum GOwnerType {
 """An enumeration."""
 enum GChartType {
   LINE_CHART
-  AREA_CHART
+  AREA_CHART_STACKED
   AREA_CHART_SHARE_OF
   BAR_CHART
   BAR_CHART_STACKED
-  BAR_CHART_STACKED_SHARE_OF
+  BAR_CHART_SHARE_OF
   BIG_NUMBER
   TABLE
 }
@@ -2358,6 +2364,14 @@ input GroupItemConfigInput {
 }
 
 type BoardView {
+  organizationId: Int!
+  userId: ID!
+  boardId: ID!
+  createdAt: DateTime!
+  organization: Organization
+}
+
+type BoardFavorite {
   organizationId: Int!
   userId: ID!
   boardId: ID!

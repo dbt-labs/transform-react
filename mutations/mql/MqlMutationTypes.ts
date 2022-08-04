@@ -24,6 +24,13 @@ export type Scalars = {
    */
   Date: any;
   /**
+   * Allows use of a JSON String for input / output from the GraphQL schema.
+   *
+   * Use of this type is *not recommended* as you lose the benefits of having a defined, static
+   * schema (one of the key benefits of GraphQL).
+   */
+  JSONString: any;
+  /**
    * Limit is a GraphQL Scalar that can take in inf or positive integers.
    *
    * This class helps us normalize a API limit input into the Optional[int] type expected by library code
@@ -728,11 +735,21 @@ export type MqlServerHealthItem = {
 export type Validations = {
   __typename?: 'Validations';
   modelKey?: Maybe<ModelKey>;
+  /** @deprecated Use `*Results` fields */
   allIssues?: Maybe<Array<Scalars['String']>>;
+  /** @deprecated Use `dataSourceResults` */
   dataSourceIssues?: Maybe<Array<Scalars['String']>>;
+  /** @deprecated Use `metricResults` */
   metricIssues?: Maybe<Array<Scalars['String']>>;
+  /** @deprecated Use `dimensionResults` */
   dimensionIssues?: Maybe<Array<Scalars['String']>>;
+  dataSourceResults: Scalars['JSONString'];
+  dimensionResults: Scalars['JSONString'];
+  identifierResults: Scalars['JSONString'];
+  measureResults: Scalars['JSONString'];
+  metricResults: Scalars['JSONString'];
 };
+
 
 /** The meta information we track of dbt models */
 export type DbtModelMeta = {
@@ -1277,5 +1294,18 @@ export type GetMqlQueryFiltersFromDbIdMutationMutation = (
         & Pick<TimeConstraint, 'dimensionName' | 'timeFormat' | 'start' | 'stop' | 'timeGranularity'>
       )> }
     )> }
+  )> }
+);
+
+export type InvalidateCacheForMetricMutationMutationVariables = Exact<{
+  metricName: Scalars['String'];
+}>;
+
+
+export type InvalidateCacheForMetricMutationMutation = (
+  { __typename?: 'Mutation' }
+  & { invalidateCacheForMetric?: Maybe<(
+    { __typename?: 'InvalidateCacheForMetric' }
+    & Pick<InvalidateCacheForMetric, 'success'>
   )> }
 );
