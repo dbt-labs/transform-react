@@ -35,6 +35,7 @@ type Query {
   flagIsEnabled(flag: String!): Boolean
   dbtModelMeta(dataSourceNames: [String]): [DbtModelMeta]
   queriesToPreload: [MetricFlowQueryParameters]
+  queryParamsFromDbId(dbId: Int!): MqlQueryParams
 }
 
 """
@@ -418,11 +419,24 @@ type MqlServerHealthItem {
 
 type Validations {
   modelKey: ModelKey
-  allIssues: [String!]
-  dataSourceIssues: [String!]
-  metricIssues: [String!]
-  dimensionIssues: [String!]
+  allIssues: [String!] @deprecated(reason: "Use `*Results` fields")
+  dataSourceIssues: [String!] @deprecated(reason: "Use `dataSourceResults`")
+  metricIssues: [String!] @deprecated(reason: "Use `metricResults`")
+  dimensionIssues: [String!] @deprecated(reason: "Use `dimensionResults`")
+  dataSourceResults: JSONString!
+  dimensionResults: JSONString!
+  identifierResults: JSONString!
+  measureResults: JSONString!
+  metricResults: JSONString!
 }
+
+"""
+Allows use of a JSON String for input / output from the GraphQL schema.
+
+Use of this type is *not recommended* as you lose the benefits of having a defined, static
+schema (one of the key benefits of GraphQL).
+"""
+scalar JSONString
 
 """The meta information we track of dbt models"""
 type DbtModelMeta {
@@ -452,6 +466,25 @@ type MetricFlowQueryParameters {
   order: [String]
   limit: Int
   latestXDays: Int
+}
+
+type MqlQueryParams {
+  dbId: Int
+  metrics: [String!]
+  dimensions: [String!]
+  requestedGranularity: TimeGranularity
+  groupBy: [String]
+  constraint: Constraint
+  timeConstraint: TimeConstraint
+  latestXDays: Int
+  order: [String]
+  limit: Int
+  maxDimensionValues: Int
+  timeComparison: PercentChange
+  trimIncompletePeriods: Boolean
+  resultRowsOrder: [String]
+  resultColumnsOrder: [String]
+  availableChartTypes: [ChartType]
 }
 
 """Base mutation object exposed by GraphQL."""
@@ -500,6 +533,9 @@ type Mutation {
 
   """Invalidate cache for a given metric."""
   invalidateCacheForMetric(metricName: String!, modelKey: ModelKeyInput): InvalidateCacheForMetric
+
+  """Invalidate all cache."""
+  invalidateAllCaches(modelKey: ModelKeyInput): InvalidateAllCaches
 
   """Submits an async dimension value query."""
   createDimensionValuesQuery(allowDynamicCache: Boolean = true, dimensionName: String!, endTime: String, metricName: String!, modelId: Int, startTime: String): CreateDimensionValuesQuery
@@ -768,6 +804,11 @@ input PctChangeOverRangeInput {
 
 """Invalidate cache for a given metric."""
 type InvalidateCacheForMetric {
+  success: String
+}
+
+"""Invalidate all cache."""
+type InvalidateAllCaches {
   success: String
 }
 
