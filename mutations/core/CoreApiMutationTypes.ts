@@ -212,7 +212,6 @@ export type Organization = {
   models?: Maybe<Array<Maybe<Model>>>;
   orgMetrics?: Maybe<Array<Maybe<OrgMetric>>>;
   mqlHeartbeats?: Maybe<Array<Maybe<MqlHeartbeat>>>;
-  currentModel?: Maybe<Array<Maybe<Model>>>;
   teams?: Maybe<Array<Maybe<Team>>>;
   prefs?: Maybe<Array<Maybe<OrgPref>>>;
   savedQueries?: Maybe<Array<Maybe<SavedQuery>>>;
@@ -273,6 +272,7 @@ export type Organization = {
   board?: Maybe<Board>;
   queryIdsInSavedQueries?: Maybe<Array<Maybe<Scalars['Int']>>>;
   metricNamesInBoards?: Maybe<Array<Maybe<Scalars['String']>>>;
+  currentModel?: Maybe<Array<Maybe<Model>>>;
   activeFeatures?: Maybe<Array<Maybe<Feature>>>;
 };
 
@@ -302,6 +302,26 @@ export type OrganizationMqlServersArgs = {
 
 export type OrganizationModelsArgs = {
   id?: Maybe<Scalars['ID']>;
+};
+
+
+export type OrganizationOrgMetricsArgs = {
+  names?: Maybe<Array<Maybe<Scalars['String']>>>;
+  tiers?: Maybe<Array<Maybe<MetricTier>>>;
+  types?: Maybe<Array<Maybe<MetricType>>>;
+  modelId?: Maybe<Scalars['Int']>;
+  userIsSubscribed?: Maybe<Scalars['Boolean']>;
+  ownedByTeamIds?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  ownedByUserIds?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAtOrBefore?: Maybe<Scalars['DateTime']>;
+  createdAtOrAfter?: Maybe<Scalars['DateTime']>;
+  searchStr?: Maybe<Scalars['String']>;
+  searchColumns?: Maybe<Array<Maybe<OrgMetricStrColumns>>>;
+  orderBy?: Maybe<OrgMetricOrderBy>;
+  desc?: Maybe<Scalars['Boolean']>;
+  orderBys?: Maybe<Array<Maybe<OrgMetricOrderByInput>>>;
+  pageNumber?: Maybe<Scalars['Int']>;
+  pageSize?: Maybe<Scalars['Int']>;
 };
 
 
@@ -1068,16 +1088,42 @@ export type MetricCollectionMetric = {
 export type OrgMetric = {
   __typename?: 'OrgMetric';
   id: Scalars['ID'];
-  createdAt: Scalars['DateTime'];
-  organizationId: Scalars['Int'];
   name: Scalars['String'];
   userOwners?: Maybe<Array<Maybe<MetricUserOwner>>>;
   teamOwners?: Maybe<Array<Maybe<MetricTeamOwner>>>;
-  versions?: Maybe<Array<Maybe<Metric>>>;
-  metricAnnotations?: Maybe<Array<Maybe<MetricAnnotation>>>;
   metricMetadata?: Maybe<MetricMetadata>;
   organization?: Maybe<Organization>;
-  metadata?: Maybe<MetricMetadata>;
+  allOwnerUserIds?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  displayName?: Maybe<Scalars['String']>;
+  isCurrent?: Maybe<Scalars['Boolean']>;
+  isPrivate?: Maybe<Scalars['Boolean']>;
+  model?: Maybe<Model>;
+  ownerUsers?: Maybe<Array<Maybe<User>>>;
+  ownerTeams?: Maybe<Array<Maybe<Team>>>;
+  protectedFields?: Maybe<ProtectedMetricFields>;
+  tier?: Maybe<Scalars['Int']>;
+};
+
+
+export type OrgMetricOwnerUsersArgs = {
+  searchStr?: Maybe<Scalars['String']>;
+  searchColumns?: Maybe<Array<Maybe<UserStrColumns>>>;
+  orderBy?: Maybe<UserOrderBy>;
+  desc?: Maybe<Scalars['Boolean']>;
+  orderBys?: Maybe<Array<Maybe<UserOrderByInput>>>;
+  pageNumber?: Maybe<Scalars['Int']>;
+  pageSize?: Maybe<Scalars['Int']>;
+};
+
+
+export type OrgMetricOwnerTeamsArgs = {
+  searchStr?: Maybe<Scalars['String']>;
+  searchColumns?: Maybe<Array<Maybe<TeamStrColumns>>>;
+  orderBy?: Maybe<TeamOrderBy>;
+  desc?: Maybe<Scalars['Boolean']>;
+  orderBys?: Maybe<Array<Maybe<TeamOrderByInput>>>;
+  pageNumber?: Maybe<Scalars['Int']>;
+  pageSize?: Maybe<Scalars['Int']>;
 };
 
 export type MetricUserOwner = {
@@ -1118,6 +1164,103 @@ export type MetricTeamOwner = {
   ownerType: OwnerType;
   governanceType: GovernanceType;
   team?: Maybe<Team>;
+  organization?: Maybe<Organization>;
+};
+
+export type MetricMetadata = {
+  __typename?: 'MetricMetadata';
+  metricId: Scalars['ID'];
+  description?: Maybe<Scalars['String']>;
+  displayName?: Maybe<Scalars['String']>;
+  tier?: Maybe<Scalars['Int']>;
+  valueFormat?: Maybe<Scalars['String']>;
+  increaseIsGood?: Maybe<Scalars['Boolean']>;
+  descriptionLock: Scalars['Boolean'];
+  displayNameLock: Scalars['Boolean'];
+  tierLock: Scalars['Boolean'];
+  valueFormatLock: Scalars['Boolean'];
+  increaseIsGoodLock: Scalars['Boolean'];
+  extraFields?: Maybe<Scalars['JSONString']>;
+  isNew: Scalars['Boolean'];
+  createdAt?: Maybe<Scalars['DateTime']>;
+  createdBy: Scalars['Int'];
+  updatedAt?: Maybe<Scalars['DateTime']>;
+  updatedBy: Scalars['Int'];
+  isPrivate: Scalars['Boolean'];
+  orgMetric?: Maybe<OrgMetric>;
+  createdByUser?: Maybe<User>;
+  updatedByUser?: Maybe<User>;
+};
+
+
+export type Model = {
+  __typename?: 'Model';
+  id: Scalars['ID'];
+  organizationId: Scalars['Int'];
+  uploaderId: Scalars['Int'];
+  createdAt: Scalars['DateTime'];
+  gitRepo: Scalars['String'];
+  gitBranch: Scalars['String'];
+  gitCommit: Scalars['String'];
+  gitIsDirty: Scalars['Boolean'];
+  executionContext?: Maybe<Scalars['String']>;
+  isCurrent: Scalars['Boolean'];
+  modelDbtDataSources?: Maybe<Array<Maybe<ModelDataSource>>>;
+  uploader?: Maybe<User>;
+  metrics?: Maybe<Array<Maybe<Metric>>>;
+  modelDataSources?: Maybe<Array<Maybe<ModelDataSource>>>;
+  organization?: Maybe<Organization>;
+};
+
+export type ModelDataSource = {
+  __typename?: 'ModelDataSource';
+  orgDataSourceId: Scalars['ID'];
+  modelId: Scalars['ID'];
+  dataSourceVersionId: Scalars['ID'];
+  dataSourceVersion?: Maybe<DataSourceVersion>;
+  model?: Maybe<Model>;
+};
+
+export type DataSourceVersion = {
+  __typename?: 'DataSourceVersion';
+  id: Scalars['ID'];
+  name: Scalars['String'];
+  description: Scalars['String'];
+  owners?: Maybe<Scalars['JSONString']>;
+  connection: Scalars['String'];
+  sqlTable?: Maybe<Scalars['String']>;
+  sqlQuery?: Maybe<Scalars['String']>;
+  dbtModel?: Maybe<Scalars['String']>;
+  identifiers: Scalars['JSONString'];
+  measures?: Maybe<Scalars['GenericScalar']>;
+  dimensions: Scalars['JSONString'];
+  dataSourceMetadata?: Maybe<Scalars['GenericScalar']>;
+  mutability: Scalars['JSONString'];
+  constraint?: Maybe<Scalars['JSONString']>;
+  createdAt: Scalars['DateTime'];
+  hash: Scalars['String'];
+  organizationId: Scalars['Int'];
+  organization?: Maybe<Organization>;
+  dbtModelMeta?: Maybe<DbtModelMeta>;
+};
+
+
+export type DbtModelMeta = {
+  __typename?: 'DbtModelMeta';
+  model: Scalars['String'];
+  schema: Scalars['String'];
+  database?: Maybe<Scalars['String']>;
+  modelUpdatedAt: Scalars['DateTime'];
+  formerModelUpdatedAt?: Maybe<Scalars['DateTime']>;
+  wasFullRefresh: Scalars['Boolean'];
+  gitSha?: Maybe<Scalars['String']>;
+  projectId?: Maybe<Scalars['String']>;
+  projectName?: Maybe<Scalars['String']>;
+  jobId?: Maybe<Scalars['String']>;
+  runId?: Maybe<Scalars['String']>;
+  lastSyncedAt: Scalars['DateTime'];
+  organizationId: Scalars['ID'];
+  docsUrl?: Maybe<Scalars['String']>;
   organization?: Maybe<Organization>;
 };
 
@@ -1285,78 +1428,6 @@ export type MetricValueChangeAlertsArgs = {
   pageSize?: Maybe<Scalars['Int']>;
 };
 
-
-
-export type Model = {
-  __typename?: 'Model';
-  id: Scalars['ID'];
-  organizationId: Scalars['Int'];
-  uploaderId: Scalars['Int'];
-  createdAt: Scalars['DateTime'];
-  gitRepo: Scalars['String'];
-  gitBranch: Scalars['String'];
-  gitCommit: Scalars['String'];
-  gitIsDirty: Scalars['Boolean'];
-  executionContext?: Maybe<Scalars['String']>;
-  isCurrent: Scalars['Boolean'];
-  modelDbtDataSources?: Maybe<Array<Maybe<ModelDataSource>>>;
-  uploader?: Maybe<User>;
-  metrics?: Maybe<Array<Maybe<Metric>>>;
-  modelDataSources?: Maybe<Array<Maybe<ModelDataSource>>>;
-  organization?: Maybe<Organization>;
-};
-
-export type ModelDataSource = {
-  __typename?: 'ModelDataSource';
-  orgDataSourceId: Scalars['ID'];
-  modelId: Scalars['ID'];
-  dataSourceVersionId: Scalars['ID'];
-  dataSourceVersion?: Maybe<DataSourceVersion>;
-  model?: Maybe<Model>;
-};
-
-export type DataSourceVersion = {
-  __typename?: 'DataSourceVersion';
-  id: Scalars['ID'];
-  name: Scalars['String'];
-  description: Scalars['String'];
-  owners?: Maybe<Scalars['JSONString']>;
-  connection: Scalars['String'];
-  sqlTable?: Maybe<Scalars['String']>;
-  sqlQuery?: Maybe<Scalars['String']>;
-  dbtModel?: Maybe<Scalars['String']>;
-  identifiers: Scalars['JSONString'];
-  measures?: Maybe<Scalars['GenericScalar']>;
-  dimensions: Scalars['JSONString'];
-  dataSourceMetadata?: Maybe<Scalars['GenericScalar']>;
-  mutability: Scalars['JSONString'];
-  constraint?: Maybe<Scalars['JSONString']>;
-  createdAt: Scalars['DateTime'];
-  hash: Scalars['String'];
-  organizationId: Scalars['Int'];
-  organization?: Maybe<Organization>;
-  dbtModelMeta?: Maybe<DbtModelMeta>;
-};
-
-export type DbtModelMeta = {
-  __typename?: 'DbtModelMeta';
-  model: Scalars['String'];
-  schema: Scalars['String'];
-  database?: Maybe<Scalars['String']>;
-  modelUpdatedAt: Scalars['DateTime'];
-  formerModelUpdatedAt?: Maybe<Scalars['DateTime']>;
-  wasFullRefresh: Scalars['Boolean'];
-  gitSha?: Maybe<Scalars['String']>;
-  projectId?: Maybe<Scalars['String']>;
-  projectName?: Maybe<Scalars['String']>;
-  jobId?: Maybe<Scalars['String']>;
-  runId?: Maybe<Scalars['String']>;
-  lastSyncedAt: Scalars['DateTime'];
-  organizationId: Scalars['ID'];
-  docsUrl?: Maybe<Scalars['String']>;
-  organization?: Maybe<Organization>;
-};
-
 export type MetricView = {
   __typename?: 'MetricView';
   organizationId: Scalars['Int'];
@@ -1479,31 +1550,6 @@ export enum QuestionOrderBy {
 export type QuestionOrderByInput = {
   orderBy: QuestionOrderBy;
   desc?: Maybe<Scalars['Boolean']>;
-};
-
-export type MetricMetadata = {
-  __typename?: 'MetricMetadata';
-  metricId: Scalars['ID'];
-  description?: Maybe<Scalars['String']>;
-  displayName?: Maybe<Scalars['String']>;
-  tier?: Maybe<Scalars['Int']>;
-  valueFormat?: Maybe<Scalars['String']>;
-  increaseIsGood?: Maybe<Scalars['Boolean']>;
-  descriptionLock: Scalars['Boolean'];
-  displayNameLock: Scalars['Boolean'];
-  tierLock: Scalars['Boolean'];
-  valueFormatLock: Scalars['Boolean'];
-  increaseIsGoodLock: Scalars['Boolean'];
-  extraFields?: Maybe<Scalars['JSONString']>;
-  isNew: Scalars['Boolean'];
-  createdAt?: Maybe<Scalars['DateTime']>;
-  createdBy: Scalars['Int'];
-  updatedAt?: Maybe<Scalars['DateTime']>;
-  updatedBy: Scalars['Int'];
-  isPrivate: Scalars['Boolean'];
-  orgMetric?: Maybe<OrgMetric>;
-  createdByUser?: Maybe<User>;
-  updatedByUser?: Maybe<User>;
 };
 
 export type LockableParameter = {
@@ -2125,6 +2171,128 @@ export type AlertOrderByInput = {
   desc?: Maybe<Scalars['Boolean']>;
 };
 
+export type ProtectedMetricFields = {
+  __typename?: 'ProtectedMetricFields';
+  id: Scalars['ID'];
+  createdAt: Scalars['DateTime'];
+  organizationId: Scalars['Int'];
+  name: Scalars['String'];
+  userOwners?: Maybe<Array<Maybe<MetricUserOwner>>>;
+  teamOwners?: Maybe<Array<Maybe<MetricTeamOwner>>>;
+  versions?: Maybe<Array<Maybe<Metric>>>;
+  metricAnnotations?: Maybe<Array<Maybe<MetricAnnotation>>>;
+  metricMetadata?: Maybe<MetricMetadata>;
+  organization?: Maybe<Organization>;
+  metadata?: Maybe<Scalars['GenericScalar']>;
+  params?: Maybe<Scalars['GenericScalar']>;
+  totalQuestions?: Maybe<Scalars['Int']>;
+  totalAnnotations?: Maybe<Scalars['Int']>;
+  isNew?: Maybe<Scalars['Boolean']>;
+  description?: Maybe<Scalars['String']>;
+  valueFormat?: Maybe<Scalars['String']>;
+  extraFields?: Maybe<Scalars['JSONString']>;
+  displayNameWithLock?: Maybe<LockableParameter>;
+  descriptionWithLock?: Maybe<LockableParameter>;
+  valueFormatWithLock?: Maybe<LockableParameter>;
+  increaseIsGoodWithLock?: Maybe<LockableParameter>;
+  tierWithLock?: Maybe<LockableParameter>;
+  latestApproval?: Maybe<MetricApproval>;
+  questions?: Maybe<Array<Maybe<Question>>>;
+  annotations?: Maybe<Array<Maybe<Annotation>>>;
+  currentDescription?: Maybe<Scalars['String']>;
+  totalRecentViews?: Maybe<Scalars['Int']>;
+  totalRecentViewsForUser?: Maybe<Scalars['Int']>;
+  userIsMetricOwner?: Maybe<Scalars['Boolean']>;
+  userCanEdit?: Maybe<Scalars['Boolean']>;
+  userIsSubscriber?: Maybe<Scalars['Boolean']>;
+  dataSources?: Maybe<Array<Maybe<DataSourceVersion>>>;
+  dbtDataSources?: Maybe<Array<Maybe<DataSourceVersion>>>;
+  totalDataSources?: Maybe<Scalars['Int']>;
+  savedQueries?: Maybe<Array<Maybe<SavedQuery>>>;
+  totalSavedQueries?: Maybe<Scalars['Int']>;
+  totalResolvedQuestions?: Maybe<Scalars['Int']>;
+  totalUnresolvedQuestions?: Maybe<Scalars['Int']>;
+  isAdditive?: Maybe<Scalars['Boolean']>;
+  myAlertNotificationRules?: Maybe<Array<Maybe<AlertNotificationRule>>>;
+  alertRules?: Maybe<Array<Maybe<AlertRule>>>;
+  defaultTrim?: Maybe<Scalars['Boolean']>;
+  defaultGranularity?: Maybe<TimeGranularity>;
+  defaultDaysLimit?: Maybe<Scalars['Int']>;
+  valueChangeAlert?: Maybe<Alert>;
+  valueChangeAlerts?: Maybe<Array<Maybe<Alert>>>;
+  totalValueChangeAlerts?: Maybe<Scalars['Int']>;
+};
+
+
+export type ProtectedMetricFieldsQuestionsArgs = {
+  searchStr?: Maybe<Scalars['String']>;
+  searchColumns?: Maybe<Array<Maybe<QuestionStrColumns>>>;
+  orderBy?: Maybe<QuestionOrderBy>;
+  desc?: Maybe<Scalars['Boolean']>;
+  orderBys?: Maybe<Array<Maybe<QuestionOrderByInput>>>;
+  pageNumber?: Maybe<Scalars['Int']>;
+  pageSize?: Maybe<Scalars['Int']>;
+};
+
+
+export type ProtectedMetricFieldsAnnotationsArgs = {
+  dimensions?: Maybe<Array<Maybe<GMetricAnnotationDimensionInput>>>;
+  startDate?: Maybe<Scalars['Date']>;
+  endDate?: Maybe<Scalars['Date']>;
+  priorities?: Maybe<Array<Maybe<Priority>>>;
+  searchStr?: Maybe<Scalars['String']>;
+  searchColumns?: Maybe<Array<Maybe<AnnotationStrColumns>>>;
+  orderBy?: Maybe<AnnotationOrderBy>;
+  desc?: Maybe<Scalars['Boolean']>;
+  orderBys?: Maybe<Array<Maybe<AnnotationOrderByInput>>>;
+  pageNumber?: Maybe<Scalars['Int']>;
+  pageSize?: Maybe<Scalars['Int']>;
+};
+
+
+export type ProtectedMetricFieldsDataSourcesArgs = {
+  searchStr?: Maybe<Scalars['String']>;
+  searchColumns?: Maybe<Array<Maybe<DataSourceVersionStrColumns>>>;
+  orderBy?: Maybe<DataSourceVersionOrderBy>;
+  desc?: Maybe<Scalars['Boolean']>;
+  orderBys?: Maybe<Array<Maybe<DataSourceVersionOrderByInput>>>;
+  pageNumber?: Maybe<Scalars['Int']>;
+  pageSize?: Maybe<Scalars['Int']>;
+};
+
+
+export type ProtectedMetricFieldsSavedQueriesArgs = {
+  onlyPublicAndMine?: Maybe<Scalars['Boolean']>;
+  searchStr?: Maybe<Scalars['String']>;
+  searchColumns?: Maybe<Array<Maybe<SavedQueryStrColumns>>>;
+  orderBy?: Maybe<SavedQueryOrderBy>;
+  desc?: Maybe<Scalars['Boolean']>;
+  orderBys?: Maybe<Array<Maybe<SavedQueryOrderByInput>>>;
+  pageNumber?: Maybe<Scalars['Int']>;
+  pageSize?: Maybe<Scalars['Int']>;
+};
+
+
+export type ProtectedMetricFieldsTotalSavedQueriesArgs = {
+  searchStr?: Maybe<Scalars['String']>;
+  searchColumns?: Maybe<Array<Maybe<SavedQueryStrColumns>>>;
+  onlyPublicAndMine?: Maybe<Scalars['Boolean']>;
+};
+
+
+export type ProtectedMetricFieldsValueChangeAlertArgs = {
+  id: Scalars['Int'];
+};
+
+
+export type ProtectedMetricFieldsValueChangeAlertsArgs = {
+  orderBy?: Maybe<AlertOrderBy>;
+  desc?: Maybe<Scalars['Boolean']>;
+  orderBys?: Maybe<Array<Maybe<AlertOrderByInput>>>;
+  pageNumber?: Maybe<Scalars['Int']>;
+  pageSize?: Maybe<Scalars['Int']>;
+};
+
 /** An enumeration. */
 export enum MetricCollectionMetricOrderBy {
   CreatedAt = 'CREATED_AT',
@@ -2445,6 +2613,39 @@ export type OrgMqlServerOrderByInput = {
   desc?: Maybe<Scalars['Boolean']>;
 };
 
+/** An enumeration. */
+export enum MetricTier {
+  One = 'ONE',
+  Two = 'TWO',
+  Three = 'THREE'
+}
+
+/** An enumeration. */
+export enum MetricType {
+  MeasureProxy = 'MEASURE_PROXY',
+  Ratio = 'RATIO',
+  Expr = 'EXPR',
+  Cumulative = 'CUMULATIVE'
+}
+
+/** An enumeration. */
+export enum OrgMetricStrColumns {
+  Name = 'NAME'
+}
+
+/** An enumeration. */
+export enum OrgMetricOrderBy {
+  CreatedAt = 'CREATED_AT',
+  Id = 'ID',
+  Name = 'NAME',
+  OrganizationId = 'ORGANIZATION_ID'
+}
+
+export type OrgMetricOrderByInput = {
+  orderBy: OrgMetricOrderBy;
+  desc?: Maybe<Scalars['Boolean']>;
+};
+
 export type OrgPref = {
   __typename?: 'OrgPref';
   id: Scalars['ID'];
@@ -2517,21 +2718,6 @@ export enum SlackConversationType {
   PrivateChannel = 'PRIVATE_CHANNEL',
   Dm = 'DM',
   GroupDm = 'GROUP_DM'
-}
-
-/** An enumeration. */
-export enum MetricTier {
-  One = 'ONE',
-  Two = 'TWO',
-  Three = 'THREE'
-}
-
-/** An enumeration. */
-export enum MetricType {
-  MeasureProxy = 'MEASURE_PROXY',
-  Ratio = 'RATIO',
-  Expr = 'EXPR',
-  Cumulative = 'CUMULATIVE'
 }
 
 /** Filters supported for metric search. */

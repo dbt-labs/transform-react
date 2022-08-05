@@ -71,6 +71,7 @@ export type Query = {
   flagIsEnabled?: Maybe<Scalars['Boolean']>;
   dbtModelMeta?: Maybe<Array<Maybe<DbtModelMeta>>>;
   queriesToPreload?: Maybe<Array<Maybe<MetricFlowQueryParameters>>>;
+  queryParamsFromDbId?: Maybe<MqlQueryParams>;
 };
 
 
@@ -302,6 +303,16 @@ export type QueryFlagIsEnabledArgs = {
  */
 export type QueryDbtModelMetaArgs = {
   dataSourceNames?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+
+/**
+ * Base Query object exposed by GraphQL for the MQL Server
+ *
+ * Each field defined below is accessible by the API, by calling the equivalent resolver.
+ */
+export type QueryQueryParamsFromDbIdArgs = {
+  dbId: Scalars['Int'];
 };
 
 /**
@@ -781,6 +792,26 @@ export type MetricFlowQueryParameters = {
   latestXDays?: Maybe<Scalars['Int']>;
 };
 
+export type MqlQueryParams = {
+  __typename?: 'MqlQueryParams';
+  dbId?: Maybe<Scalars['Int']>;
+  metrics?: Maybe<Array<Scalars['String']>>;
+  dimensions?: Maybe<Array<Scalars['String']>>;
+  requestedGranularity?: Maybe<TimeGranularity>;
+  groupBy?: Maybe<Array<Maybe<Scalars['String']>>>;
+  constraint?: Maybe<Constraint>;
+  timeConstraint?: Maybe<TimeConstraint>;
+  latestXDays?: Maybe<Scalars['Int']>;
+  order?: Maybe<Array<Maybe<Scalars['String']>>>;
+  limit?: Maybe<Scalars['Int']>;
+  maxDimensionValues?: Maybe<Scalars['Int']>;
+  timeComparison?: Maybe<PercentChange>;
+  trimIncompletePeriods?: Maybe<Scalars['Boolean']>;
+  resultRowsOrder?: Maybe<Array<Maybe<Scalars['String']>>>;
+  resultColumnsOrder?: Maybe<Array<Maybe<Scalars['String']>>>;
+  availableChartTypes?: Maybe<Array<Maybe<ChartType>>>;
+};
+
 /** Base mutation object exposed by GraphQL. */
 export type Mutation = {
   __typename?: 'Mutation';
@@ -809,6 +840,8 @@ export type Mutation = {
   pctChangeOverRange?: Maybe<PctChangeOverRangePayload>;
   /** Invalidate cache for a given metric. */
   invalidateCacheForMetric?: Maybe<InvalidateCacheForMetric>;
+  /** Invalidate all cache. */
+  invalidateAllCaches?: Maybe<InvalidateAllCaches>;
   /** Submits an async dimension value query. */
   createDimensionValuesQuery?: Maybe<CreateDimensionValuesQuery>;
   /** Initiate an MQL Query based on just the metric name. Params will be based on the metric defaults. */
@@ -884,6 +917,12 @@ export type MutationPctChangeOverRangeArgs = {
 /** Base mutation object exposed by GraphQL. */
 export type MutationInvalidateCacheForMetricArgs = {
   metricName: Scalars['String'];
+  modelKey?: Maybe<ModelKeyInput>;
+};
+
+
+/** Base mutation object exposed by GraphQL. */
+export type MutationInvalidateAllCachesArgs = {
   modelKey?: Maybe<ModelKeyInput>;
 };
 
@@ -1106,6 +1145,12 @@ export type PctChangeOverRangeInput = {
 /** Invalidate cache for a given metric. */
 export type InvalidateCacheForMetric = {
   __typename?: 'InvalidateCacheForMetric';
+  success?: Maybe<Scalars['String']>;
+};
+
+/** Invalidate all cache. */
+export type InvalidateAllCaches = {
+  __typename?: 'InvalidateAllCaches';
   success?: Maybe<Scalars['String']>;
 };
 

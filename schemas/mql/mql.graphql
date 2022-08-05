@@ -35,6 +35,7 @@ type Query {
   flagIsEnabled(flag: String!): Boolean
   dbtModelMeta(dataSourceNames: [String]): [DbtModelMeta]
   queriesToPreload: [MetricFlowQueryParameters]
+  queryParamsFromDbId(dbId: Int!): MqlQueryParams
 }
 
 """
@@ -467,6 +468,25 @@ type MetricFlowQueryParameters {
   latestXDays: Int
 }
 
+type MqlQueryParams {
+  dbId: Int
+  metrics: [String!]
+  dimensions: [String!]
+  requestedGranularity: TimeGranularity
+  groupBy: [String]
+  constraint: Constraint
+  timeConstraint: TimeConstraint
+  latestXDays: Int
+  order: [String]
+  limit: Int
+  maxDimensionValues: Int
+  timeComparison: PercentChange
+  trimIncompletePeriods: Boolean
+  resultRowsOrder: [String]
+  resultColumnsOrder: [String]
+  availableChartTypes: [ChartType]
+}
+
 """Base mutation object exposed by GraphQL."""
 type Mutation {
   createMqlMaterializationNew(input: CreateMqlMaterializationNewInput!): CreateMqlMaterializationNewPayload
@@ -513,6 +533,9 @@ type Mutation {
 
   """Invalidate cache for a given metric."""
   invalidateCacheForMetric(metricName: String!, modelKey: ModelKeyInput): InvalidateCacheForMetric
+
+  """Invalidate all cache."""
+  invalidateAllCaches(modelKey: ModelKeyInput): InvalidateAllCaches
 
   """Submits an async dimension value query."""
   createDimensionValuesQuery(allowDynamicCache: Boolean = true, dimensionName: String!, endTime: String, metricName: String!, modelId: Int, startTime: String): CreateDimensionValuesQuery
@@ -781,6 +804,11 @@ input PctChangeOverRangeInput {
 
 """Invalidate cache for a given metric."""
 type InvalidateCacheForMetric {
+  success: String
+}
+
+"""Invalidate all cache."""
+type InvalidateAllCaches {
   success: String
 }
 
