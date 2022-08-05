@@ -24,6 +24,13 @@ export type Scalars = {
    */
   Date: any;
   /**
+   * Allows use of a JSON String for input / output from the GraphQL schema.
+   *
+   * Use of this type is *not recommended* as you lose the benefits of having a defined, static
+   * schema (one of the key benefits of GraphQL).
+   */
+  JSONString: any;
+  /**
    * Limit is a GraphQL Scalar that can take in inf or positive integers.
    *
    * This class helps us normalize a API limit input into the Optional[int] type expected by library code
@@ -64,6 +71,7 @@ export type Query = {
   flagIsEnabled?: Maybe<Scalars['Boolean']>;
   dbtModelMeta?: Maybe<Array<Maybe<DbtModelMeta>>>;
   queriesToPreload?: Maybe<Array<Maybe<MetricFlowQueryParameters>>>;
+  queryParamsFromDbId?: Maybe<MqlQueryParams>;
 };
 
 
@@ -295,6 +303,16 @@ export type QueryFlagIsEnabledArgs = {
  */
 export type QueryDbtModelMetaArgs = {
   dataSourceNames?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+
+/**
+ * Base Query object exposed by GraphQL for the MQL Server
+ *
+ * Each field defined below is accessible by the API, by calling the equivalent resolver.
+ */
+export type QueryQueryParamsFromDbIdArgs = {
+  dbId: Scalars['Int'];
 };
 
 /**
@@ -728,11 +746,21 @@ export type MqlServerHealthItem = {
 export type Validations = {
   __typename?: 'Validations';
   modelKey?: Maybe<ModelKey>;
+  /** @deprecated Use `*Results` fields */
   allIssues?: Maybe<Array<Scalars['String']>>;
+  /** @deprecated Use `dataSourceResults` */
   dataSourceIssues?: Maybe<Array<Scalars['String']>>;
+  /** @deprecated Use `metricResults` */
   metricIssues?: Maybe<Array<Scalars['String']>>;
+  /** @deprecated Use `dimensionResults` */
   dimensionIssues?: Maybe<Array<Scalars['String']>>;
+  dataSourceResults: Scalars['JSONString'];
+  dimensionResults: Scalars['JSONString'];
+  identifierResults: Scalars['JSONString'];
+  measureResults: Scalars['JSONString'];
+  metricResults: Scalars['JSONString'];
 };
+
 
 /** The meta information we track of dbt models */
 export type DbtModelMeta = {
@@ -764,6 +792,26 @@ export type MetricFlowQueryParameters = {
   latestXDays?: Maybe<Scalars['Int']>;
 };
 
+export type MqlQueryParams = {
+  __typename?: 'MqlQueryParams';
+  dbId?: Maybe<Scalars['Int']>;
+  metrics?: Maybe<Array<Scalars['String']>>;
+  dimensions?: Maybe<Array<Scalars['String']>>;
+  requestedGranularity?: Maybe<TimeGranularity>;
+  groupBy?: Maybe<Array<Maybe<Scalars['String']>>>;
+  constraint?: Maybe<Constraint>;
+  timeConstraint?: Maybe<TimeConstraint>;
+  latestXDays?: Maybe<Scalars['Int']>;
+  order?: Maybe<Array<Maybe<Scalars['String']>>>;
+  limit?: Maybe<Scalars['Int']>;
+  maxDimensionValues?: Maybe<Scalars['Int']>;
+  timeComparison?: Maybe<PercentChange>;
+  trimIncompletePeriods?: Maybe<Scalars['Boolean']>;
+  resultRowsOrder?: Maybe<Array<Maybe<Scalars['String']>>>;
+  resultColumnsOrder?: Maybe<Array<Maybe<Scalars['String']>>>;
+  availableChartTypes?: Maybe<Array<Maybe<ChartType>>>;
+};
+
 /** Base mutation object exposed by GraphQL. */
 export type Mutation = {
   __typename?: 'Mutation';
@@ -792,6 +840,8 @@ export type Mutation = {
   pctChangeOverRange?: Maybe<PctChangeOverRangePayload>;
   /** Invalidate cache for a given metric. */
   invalidateCacheForMetric?: Maybe<InvalidateCacheForMetric>;
+  /** Invalidate all cache. */
+  invalidateAllCaches?: Maybe<InvalidateAllCaches>;
   /** Submits an async dimension value query. */
   createDimensionValuesQuery?: Maybe<CreateDimensionValuesQuery>;
   /** Initiate an MQL Query based on just the metric name. Params will be based on the metric defaults. */
@@ -867,6 +917,12 @@ export type MutationPctChangeOverRangeArgs = {
 /** Base mutation object exposed by GraphQL. */
 export type MutationInvalidateCacheForMetricArgs = {
   metricName: Scalars['String'];
+  modelKey?: Maybe<ModelKeyInput>;
+};
+
+
+/** Base mutation object exposed by GraphQL. */
+export type MutationInvalidateAllCachesArgs = {
   modelKey?: Maybe<ModelKeyInput>;
 };
 
@@ -1092,6 +1148,12 @@ export type InvalidateCacheForMetric = {
   success?: Maybe<Scalars['String']>;
 };
 
+/** Invalidate all cache. */
+export type InvalidateAllCaches = {
+  __typename?: 'InvalidateAllCaches';
+  success?: Maybe<Scalars['String']>;
+};
+
 /** Submits an async dimension value query. */
 export type CreateDimensionValuesQuery = {
   __typename?: 'CreateDimensionValuesQuery';
@@ -1246,36 +1308,6 @@ export type CreatePercentChangeMutation = (
         { __typename?: 'MqlQueryResultSeries' }
         & Pick<MqlQueryResultSeries, 'value' | 'delta' | 'pctChange'>
       )>> }
-    )> }
-  )> }
-);
-
-export type GetMqlQueryFiltersFromDbIdMutationMutationVariables = Exact<{
-  dbId: Scalars['Int'];
-}>;
-
-
-export type GetMqlQueryFiltersFromDbIdMutationMutation = (
-  { __typename?: 'Mutation' }
-  & { createMqlQueryFromDbId?: Maybe<(
-    { __typename?: 'CreateMqlQueryFromDbIdPayload' }
-    & Pick<CreateMqlQueryFromDbIdPayload, 'id'>
-    & { query?: Maybe<(
-      { __typename?: 'MqlQuery' }
-      & Pick<MqlQuery, 'dbId' | 'metrics' | 'dimensions' | 'whereConstraint' | 'requestedGranularity' | 'groupBy' | 'latestXDays' | 'maxDimensionValues' | 'trimIncompletePeriods' | 'timeComparison'>
-      & { constraint?: Maybe<(
-        { __typename?: 'Constraint' }
-        & { constraint?: Maybe<(
-          { __typename?: 'SingleConstraint' }
-          & Pick<SingleConstraint, 'constraintType' | 'dimensionName' | 'values' | 'start' | 'stop'>
-        )>, And?: Maybe<Array<(
-          { __typename?: 'SingleConstraint' }
-          & Pick<SingleConstraint, 'constraintType' | 'dimensionName' | 'values' | 'start' | 'stop'>
-        )>> }
-      )>, timeConstraint?: Maybe<(
-        { __typename?: 'TimeConstraint' }
-        & Pick<TimeConstraint, 'dimensionName' | 'timeFormat' | 'start' | 'stop' | 'timeGranularity'>
-      )> }
     )> }
   )> }
 );

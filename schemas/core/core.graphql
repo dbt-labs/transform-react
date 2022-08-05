@@ -70,9 +70,8 @@ type Organization {
   users(activeOnly: Boolean, searchStr: String, searchColumns: [UserStrColumns], orderBy: UserOrderBy, desc: Boolean, orderBys: [UserOrderByInput], pageNumber: Int, pageSize: Int): [User]
   mqlServers(searchStr: String, searchColumns: [OrgMqlServerStrColumns], orderBy: OrgMqlServerOrderBy, desc: Boolean, orderBys: [OrgMqlServerOrderByInput], pageNumber: Int, pageSize: Int): [OrgMqlServer]
   models(id: ID): [Model]
-  orgMetrics: [OrgMetric]
+  orgMetrics(names: [String], tiers: [MetricTier], types: [MetricType], modelId: Int, userIsSubscribed: Boolean, ownedByTeamIds: [Int], ownedByUserIds: [Int], createdAtOrBefore: DateTime, createdAtOrAfter: DateTime, searchStr: String, searchColumns: [OrgMetricStrColumns], orderBy: OrgMetricOrderBy, desc: Boolean, orderBys: [OrgMetricOrderByInput], pageNumber: Int, pageSize: Int): [OrgMetric]
   mqlHeartbeats: [MqlHeartbeat]
-  currentModel: [Model]
   teams(searchStr: String, searchColumns: [TeamStrColumns], orderBy: TeamOrderBy, desc: Boolean, orderBys: [TeamOrderByInput], pageNumber: Int, pageSize: Int): [Team]
   prefs(prefKey: String, searchStr: String, searchColumns: [OrgPrefStrColumns], orderBy: OrgPrefOrderBy, desc: Boolean, orderBys: [OrgPrefOrderByInput], pageNumber: Int, pageSize: Int): [OrgPref]
   savedQueries(onlyPublicAndMine: Boolean, searchStr: String, searchColumns: [SavedQueryStrColumns], orderBy: SavedQueryOrderBy, desc: Boolean, orderBys: [SavedQueryOrderByInput], pageNumber: Int, pageSize: Int): [SavedQuery]
@@ -128,10 +127,12 @@ type Organization {
   integration(integrationType: GIntegrationType!): Integration
   modelFromModelKey(repo: String!, branch: String!, commit: String!): Model
   boards(searchStr: String, searchColumns: [BoardStrColumns], orderBy: BoardOrderBy, desc: Boolean, orderBys: [BoardOrderByInput], pageNumber: Int, pageSize: Int): [Board]
+  boardsV2(searchStr: String, searchColumns: [BoardStrColumns], orderBy: BoardOrderBy, desc: Boolean, orderBys: [BoardOrderByInput], pageNumber: Int, pageSize: Int): [Board]
   totalBoards(searchStr: String, searchColumns: [BoardStrColumns]): Int
   board(id: Int!): Board
   queryIdsInSavedQueries: [Int]
   metricNamesInBoards: [String]
+  currentModel: [Model]
   activeFeatures: [Feature]
 }
 
@@ -190,6 +191,7 @@ type User {
   isSubscribedToChannels: GenericScalar
   boards(searchStr: String, searchColumns: [BoardStrColumns], orderBy: BoardOrderBy, desc: Boolean, orderBys: [BoardOrderByInput], pageNumber: Int, pageSize: Int): [Board]
   boardsV2(searchStr: String, searchColumns: [BoardStrColumns], orderBy: BoardOrderBy, desc: Boolean, orderBys: [BoardOrderByInput], pageNumber: Int, pageSize: Int): [Board]
+  favoriteBoards(searchStr: String, searchColumns: [BoardStrColumns], orderBy: BoardOrderBy, desc: Boolean, orderBys: [BoardOrderByInput], pageNumber: Int, pageSize: Int): [Board]
   totalBoards(searchStr: String, searchColumns: [BoardStrColumns]): Int
   totalBoardsV2(searchStr: String, searchColumns: [BoardStrColumns]): Int
   boardsWithSubscribedMetrics(searchStr: String, searchColumns: [BoardStrColumns], orderBy: BoardOrderBy, desc: Boolean, orderBys: [BoardOrderByInput], pageNumber: Int, pageSize: Int): [Board]
@@ -390,16 +392,20 @@ type MetricCollectionMetric {
 
 type OrgMetric {
   id: ID!
-  createdAt: DateTime!
-  organizationId: Int!
   name: String!
   userOwners: [MetricUserOwner]
   teamOwners: [MetricTeamOwner]
-  versions: [Metric]
-  metricAnnotations: [MetricAnnotation]
   metricMetadata: MetricMetadata
   organization: Organization
-  metadata: MetricMetadata
+  allOwnerUserIds: [Int]
+  displayName: String
+  isCurrent: Boolean
+  isPrivate: Boolean
+  model: Model
+  ownerUsers(searchStr: String, searchColumns: [UserStrColumns], orderBy: UserOrderBy, desc: Boolean, orderBys: [UserOrderByInput], pageNumber: Int, pageSize: Int): [User]
+  ownerTeams(searchStr: String, searchColumns: [TeamStrColumns], orderBy: TeamOrderBy, desc: Boolean, orderBys: [TeamOrderByInput], pageNumber: Int, pageSize: Int): [Team]
+  protectedFields: ProtectedMetricFields
+  tier: Int
 }
 
 type MetricUserOwner {
@@ -440,6 +446,111 @@ type MetricTeamOwner {
   ownerType: OwnerType!
   governanceType: GovernanceType!
   team: Team
+  organization: Organization
+}
+
+type MetricMetadata {
+  metricId: ID!
+  description: String
+  displayName: String
+  tier: Int
+  valueFormat: String
+  increaseIsGood: Boolean
+  descriptionLock: Boolean!
+  displayNameLock: Boolean!
+  tierLock: Boolean!
+  valueFormatLock: Boolean!
+  increaseIsGoodLock: Boolean!
+  extraFields: JSONString
+  isNew: Boolean!
+  createdAt: DateTime
+  createdBy: Int!
+  updatedAt: DateTime
+  updatedBy: Int!
+  isPrivate: Boolean!
+  orgMetric: OrgMetric
+  createdByUser: User
+  updatedByUser: User
+}
+
+"""
+Allows use of a JSON String for input / output from the GraphQL schema.
+
+Use of this type is *not recommended* as you lose the benefits of having a defined, static
+schema (one of the key benefits of GraphQL).
+"""
+scalar JSONString
+
+type Model {
+  id: ID!
+  organizationId: Int!
+  uploaderId: Int!
+  createdAt: DateTime!
+  gitRepo: String!
+  gitBranch: String!
+  gitCommit: String!
+  gitIsDirty: Boolean!
+  executionContext: String
+  isCurrent: Boolean!
+  modelDbtDataSources: [ModelDataSource]
+  uploader: User
+  metrics: [Metric]
+  modelDataSources: [ModelDataSource]
+  organization: Organization
+}
+
+type ModelDataSource {
+  orgDataSourceId: ID!
+  modelId: ID!
+  dataSourceVersionId: ID!
+  dataSourceVersion: DataSourceVersion
+  model: Model
+}
+
+type DataSourceVersion {
+  id: ID!
+  name: String!
+  description: String!
+  owners: JSONString
+  connection: String!
+  sqlTable: String
+  sqlQuery: String
+  dbtModel: String
+  identifiers: JSONString!
+  measures: GenericScalar
+  dimensions: JSONString!
+  dataSourceMetadata: GenericScalar
+  mutability: JSONString!
+  constraint: JSONString
+  createdAt: DateTime!
+  hash: String!
+  organizationId: Int!
+  organization: Organization
+  dbtModelMeta: DbtModelMeta
+}
+
+"""
+The `GenericScalar` scalar type represents a generic
+GraphQL scalar value that could be:
+String, Boolean, Int, Float, List or Object.
+"""
+scalar GenericScalar
+
+type DbtModelMeta {
+  model: String!
+  schema: String!
+  database: String
+  modelUpdatedAt: DateTime!
+  formerModelUpdatedAt: DateTime
+  wasFullRefresh: Boolean!
+  gitSha: String
+  projectId: String
+  projectName: String
+  jobId: String
+  runId: String
+  lastSyncedAt: DateTime!
+  organizationId: ID!
+  docsUrl: String
   organization: Organization
 }
 
@@ -512,87 +623,6 @@ type Metric {
   valueChangeAlerts(orderBy: AlertOrderBy, desc: Boolean, orderBys: [AlertOrderByInput], pageNumber: Int, pageSize: Int): [Alert]
   totalValueChangeAlerts: Int
   isCurrent: Boolean
-}
-
-"""
-Allows use of a JSON String for input / output from the GraphQL schema.
-
-Use of this type is *not recommended* as you lose the benefits of having a defined, static
-schema (one of the key benefits of GraphQL).
-"""
-scalar JSONString
-
-"""
-The `GenericScalar` scalar type represents a generic
-GraphQL scalar value that could be:
-String, Boolean, Int, Float, List or Object.
-"""
-scalar GenericScalar
-
-type Model {
-  id: ID!
-  organizationId: Int!
-  uploaderId: Int!
-  createdAt: DateTime!
-  gitRepo: String!
-  gitBranch: String!
-  gitCommit: String!
-  gitIsDirty: Boolean!
-  executionContext: String
-  isCurrent: Boolean!
-  modelDbtDataSources: [ModelDataSource]
-  uploader: User
-  metrics: [Metric]
-  modelDataSources: [ModelDataSource]
-  organization: Organization
-}
-
-type ModelDataSource {
-  orgDataSourceId: ID!
-  modelId: ID!
-  dataSourceVersionId: ID!
-  dataSourceVersion: DataSourceVersion
-  model: Model
-}
-
-type DataSourceVersion {
-  id: ID!
-  name: String!
-  description: String!
-  owners: JSONString
-  connection: String!
-  sqlTable: String
-  sqlQuery: String
-  dbtModel: String
-  identifiers: JSONString!
-  measures: GenericScalar
-  dimensions: JSONString!
-  dataSourceMetadata: GenericScalar
-  mutability: JSONString!
-  constraint: JSONString
-  createdAt: DateTime!
-  hash: String!
-  organizationId: Int!
-  organization: Organization
-  dbtModelMeta: DbtModelMeta
-}
-
-type DbtModelMeta {
-  model: String!
-  schema: String!
-  database: String
-  modelUpdatedAt: DateTime!
-  formerModelUpdatedAt: DateTime
-  wasFullRefresh: Boolean!
-  gitSha: String
-  projectId: String
-  projectName: String
-  jobId: String
-  runId: String
-  lastSyncedAt: DateTime!
-  organizationId: ID!
-  docsUrl: String
-  organization: Organization
 }
 
 type MetricView {
@@ -702,30 +732,6 @@ enum QuestionOrderBy {
 input QuestionOrderByInput {
   orderBy: QuestionOrderBy!
   desc: Boolean
-}
-
-type MetricMetadata {
-  metricId: ID!
-  description: String
-  displayName: String
-  tier: Int
-  valueFormat: String
-  increaseIsGood: Boolean
-  descriptionLock: Boolean!
-  displayNameLock: Boolean!
-  tierLock: Boolean!
-  valueFormatLock: Boolean!
-  increaseIsGoodLock: Boolean!
-  extraFields: JSONString
-  isNew: Boolean!
-  createdAt: DateTime
-  createdBy: Int!
-  updatedAt: DateTime
-  updatedBy: Int!
-  isPrivate: Boolean!
-  orgMetric: OrgMetric
-  createdByUser: User
-  updatedByUser: User
 }
 
 type LockableParameter {
@@ -905,11 +911,11 @@ type SavedQuery {
 """An enumeration."""
 enum ChartType {
   LINE_CHART
-  AREA_CHART
+  AREA_CHART_STACKED
   AREA_CHART_SHARE_OF
   BAR_CHART
   BAR_CHART_STACKED
-  BAR_CHART_STACKED_SHARE_OF
+  BAR_CHART_SHARE_OF
   BIG_NUMBER
   TABLE
 }
@@ -1030,7 +1036,7 @@ type Board {
   createdAt: DateTime
   updatedAt: DateTime
   deletedAt: DateTime
-  isDraft: Boolean
+  isPrivate: Boolean
   owner: User
   userOwners(searchStr: String, searchColumns: [UserStrColumns], orderBy: UserOrderBy, desc: Boolean, orderBys: [UserOrderByInput], pageNumber: Int, pageSize: Int): [User]
   teamOwners(searchStr: String, searchColumns: [TeamStrColumns], orderBy: TeamOrderBy, desc: Boolean, orderBys: [TeamOrderByInput], pageNumber: Int, pageSize: Int): [Team]
@@ -1038,6 +1044,8 @@ type Board {
   userCanDeactivate: Boolean
   items: [BoardItem!]
   totalViews: Int
+  totalFavorites: Int
+  isFavoritedByUser: Boolean
 }
 
 """An enumeration."""
@@ -1308,6 +1316,57 @@ input AlertOrderByInput {
   desc: Boolean
 }
 
+type ProtectedMetricFields {
+  id: ID!
+  createdAt: DateTime!
+  organizationId: Int!
+  name: String!
+  userOwners: [MetricUserOwner]
+  teamOwners: [MetricTeamOwner]
+  versions: [Metric]
+  metricAnnotations: [MetricAnnotation]
+  metricMetadata: MetricMetadata
+  organization: Organization
+  metadata: GenericScalar
+  params: GenericScalar
+  totalQuestions: Int
+  totalAnnotations: Int
+  isNew: Boolean
+  description: String
+  valueFormat: String
+  extraFields: JSONString
+  displayNameWithLock: LockableParameter
+  descriptionWithLock: LockableParameter
+  valueFormatWithLock: LockableParameter
+  increaseIsGoodWithLock: LockableParameter
+  tierWithLock: LockableParameter
+  latestApproval: MetricApproval
+  questions(searchStr: String, searchColumns: [QuestionStrColumns], orderBy: QuestionOrderBy, desc: Boolean, orderBys: [QuestionOrderByInput], pageNumber: Int, pageSize: Int): [Question]
+  annotations(dimensions: [GMetricAnnotationDimensionInput], startDate: Date, endDate: Date, priorities: [Priority], searchStr: String, searchColumns: [AnnotationStrColumns], orderBy: AnnotationOrderBy, desc: Boolean, orderBys: [AnnotationOrderByInput], pageNumber: Int, pageSize: Int): [Annotation]
+  currentDescription: String
+  totalRecentViews: Int
+  totalRecentViewsForUser: Int
+  userIsMetricOwner: Boolean
+  userCanEdit: Boolean
+  userIsSubscriber: Boolean
+  dataSources(searchStr: String, searchColumns: [DataSourceVersionStrColumns], orderBy: DataSourceVersionOrderBy, desc: Boolean, orderBys: [DataSourceVersionOrderByInput], pageNumber: Int, pageSize: Int): [DataSourceVersion]
+  dbtDataSources: [DataSourceVersion]
+  totalDataSources: Int
+  savedQueries(onlyPublicAndMine: Boolean, searchStr: String, searchColumns: [SavedQueryStrColumns], orderBy: SavedQueryOrderBy, desc: Boolean, orderBys: [SavedQueryOrderByInput], pageNumber: Int, pageSize: Int): [SavedQuery]
+  totalSavedQueries(searchStr: String, searchColumns: [SavedQueryStrColumns], onlyPublicAndMine: Boolean): Int
+  totalResolvedQuestions: Int
+  totalUnresolvedQuestions: Int
+  isAdditive: Boolean
+  myAlertNotificationRules: [AlertNotificationRule]
+  alertRules: [AlertRule]
+  defaultTrim: Boolean
+  defaultGranularity: TimeGranularity
+  defaultDaysLimit: Int
+  valueChangeAlert(id: Int!): Alert
+  valueChangeAlerts(orderBy: AlertOrderBy, desc: Boolean, orderBys: [AlertOrderByInput], pageNumber: Int, pageSize: Int): [Alert]
+  totalValueChangeAlerts: Int
+}
+
 """An enumeration."""
 enum MetricCollectionMetricOrderBy {
   CREATED_AT
@@ -1394,7 +1453,7 @@ enum BoardOrderBy {
   DELETED_AT
   DESCRIPTION
   ID
-  IS_DRAFT
+  IS_PRIVATE
   ORGANIZATION_ID
   RECENTLY_VIEWED
   TITLE
@@ -1598,6 +1657,39 @@ input OrgMqlServerOrderByInput {
   desc: Boolean
 }
 
+"""An enumeration."""
+enum MetricTier {
+  ONE
+  TWO
+  THREE
+}
+
+"""An enumeration."""
+enum MetricType {
+  MEASURE_PROXY
+  RATIO
+  EXPR
+  CUMULATIVE
+}
+
+"""An enumeration."""
+enum OrgMetricStrColumns {
+  NAME
+}
+
+"""An enumeration."""
+enum OrgMetricOrderBy {
+  CREATED_AT
+  ID
+  NAME
+  ORGANIZATION_ID
+}
+
+input OrgMetricOrderByInput {
+  orderBy: OrgMetricOrderBy!
+  desc: Boolean
+}
+
 type OrgPref {
   id: ID!
   organizationId: Int!
@@ -1657,21 +1749,6 @@ enum SlackConversationType {
   PRIVATE_CHANNEL
   DM
   GROUP_DM
-}
-
-"""An enumeration."""
-enum MetricTier {
-  ONE
-  TWO
-  THREE
-}
-
-"""An enumeration."""
-enum MetricType {
-  MEASURE_PROXY
-  RATIO
-  EXPR
-  CUMULATIVE
 }
 
 """Filters supported for metric search."""
@@ -2036,8 +2113,8 @@ type Mutation {
   bulkSubscribeAlertRules(channels: [GNotificationChannel]!, alertRuleTypes: [GAlertRuleType]!, userId: Int!, metricId: Int): User
   bulkUnsubscribeAlertRules(channels: [GNotificationChannel]!, alertRuleTypes: [GAlertRuleType]!, userId: Int!, metricId: Int): User
   createTransformServiceUser(orgId: ID!): User
-  boardsCreate(title: String!, description: String, isDraft: Boolean): Board
-  boardsUpdate(id: Int!, title: String, description: String, isDraft: Boolean, items: [BoardItemInput]): Board
+  boardsCreate(title: String!, description: String, isPrivate: Boolean): Board
+  boardsUpdate(id: Int!, title: String, description: String, isPrivate: Boolean, items: [BoardItemInput]): Board
   boardsDeactivate(id: Int!): Board
   boardsAddSavedQuery(savedQueryId: Int!, boardIds: [Int]!): [Board]
   boardsLogView(boardId: ID!): BoardView
@@ -2045,6 +2122,8 @@ type Mutation {
   boardsRemoveUserOwners(boardId: ID!, userIds: [ID]): Board
   boardsAddTeamOwners(boardId: ID!, teamIds: [ID]): Board
   boardsRemoveTeamOwners(boardId: ID!, teamIds: [ID]): Board
+  boardsFavorite(boardId: ID!): BoardFavorite
+  boardsUnfavorite(boardId: ID!): BoardFavorite
 }
 
 """An enumeration."""
@@ -2220,11 +2299,11 @@ enum GOwnerType {
 """An enumeration."""
 enum GChartType {
   LINE_CHART
-  AREA_CHART
+  AREA_CHART_STACKED
   AREA_CHART_SHARE_OF
   BAR_CHART
   BAR_CHART_STACKED
-  BAR_CHART_STACKED_SHARE_OF
+  BAR_CHART_SHARE_OF
   BIG_NUMBER
   TABLE
 }
@@ -2358,6 +2437,14 @@ input GroupItemConfigInput {
 }
 
 type BoardView {
+  organizationId: Int!
+  userId: ID!
+  boardId: ID!
+  createdAt: DateTime!
+  organization: Organization
+}
+
+type BoardFavorite {
   organizationId: Int!
   userId: ID!
   boardId: ID!
