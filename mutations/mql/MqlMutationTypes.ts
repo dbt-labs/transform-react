@@ -1312,36 +1312,6 @@ export type CreatePercentChangeMutation = (
   )> }
 );
 
-export type GetMqlQueryFiltersFromDbIdMutationMutationVariables = Exact<{
-  dbId: Scalars['Int'];
-}>;
-
-
-export type GetMqlQueryFiltersFromDbIdMutationMutation = (
-  { __typename?: 'Mutation' }
-  & { createMqlQueryFromDbId?: Maybe<(
-    { __typename?: 'CreateMqlQueryFromDbIdPayload' }
-    & Pick<CreateMqlQueryFromDbIdPayload, 'id'>
-    & { query?: Maybe<(
-      { __typename?: 'MqlQuery' }
-      & Pick<MqlQuery, 'dbId' | 'metrics' | 'dimensions' | 'whereConstraint' | 'requestedGranularity' | 'groupBy' | 'latestXDays' | 'maxDimensionValues' | 'trimIncompletePeriods' | 'timeComparison'>
-      & { constraint?: Maybe<(
-        { __typename?: 'Constraint' }
-        & { constraint?: Maybe<(
-          { __typename?: 'SingleConstraint' }
-          & Pick<SingleConstraint, 'constraintType' | 'dimensionName' | 'values' | 'start' | 'stop'>
-        )>, And?: Maybe<Array<(
-          { __typename?: 'SingleConstraint' }
-          & Pick<SingleConstraint, 'constraintType' | 'dimensionName' | 'values' | 'start' | 'stop'>
-        )>> }
-      )>, timeConstraint?: Maybe<(
-        { __typename?: 'TimeConstraint' }
-        & Pick<TimeConstraint, 'dimensionName' | 'timeFormat' | 'start' | 'stop' | 'timeGranularity'>
-      )> }
-    )> }
-  )> }
-);
-
 export type InvalidateCacheForMetricMutationMutationVariables = Exact<{
   metricName: Scalars['String'];
 }>;

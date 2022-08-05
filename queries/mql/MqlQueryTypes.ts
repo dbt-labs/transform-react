@@ -1353,6 +1353,32 @@ export type FetchMqlQueryQuery = (
   )> }
 );
 
+export type FetchMqlQueryFiltersFromDbIdQueryQueryVariables = Exact<{
+  dbId: Scalars['Int'];
+}>;
+
+
+export type FetchMqlQueryFiltersFromDbIdQueryQuery = (
+  { __typename?: 'Query' }
+  & { queryParamsFromDbId?: Maybe<(
+    { __typename?: 'MqlQueryParams' }
+    & Pick<MqlQueryParams, 'dbId' | 'metrics' | 'dimensions' | 'requestedGranularity' | 'groupBy' | 'latestXDays' | 'order' | 'maxDimensionValues' | 'timeComparison' | 'trimIncompletePeriods'>
+    & { constraint?: Maybe<(
+      { __typename?: 'Constraint' }
+      & { constraint?: Maybe<(
+        { __typename?: 'SingleConstraint' }
+        & Pick<SingleConstraint, 'constraintType' | 'dimensionName' | 'values' | 'start' | 'stop'>
+      )>, And?: Maybe<Array<(
+        { __typename?: 'SingleConstraint' }
+        & Pick<SingleConstraint, 'constraintType' | 'dimensionName' | 'values' | 'start' | 'stop'>
+      )>> }
+    )>, timeConstraint?: Maybe<(
+      { __typename?: 'TimeConstraint' }
+      & Pick<TimeConstraint, 'dimensionName' | 'timeFormat' | 'start' | 'stop' | 'timeGranularity'>
+    )> }
+  )> }
+);
+
 export type FetchMqlTimeSeriesQueryVariables = Exact<{
   queryId: Scalars['ID'];
 }>;
@@ -1403,32 +1429,6 @@ export type FetchPercentChangeQuery = (
       { __typename?: 'MqlQueryResultSeries' }
       & Pick<MqlQueryResultSeries, 'value' | 'delta' | 'pctChange'>
     )>> }
-  )> }
-);
-
-export type FetchMqlQueryFiltersFromDbIdQueryQueryVariables = Exact<{
-  dbId: Scalars['Int'];
-}>;
-
-
-export type FetchMqlQueryFiltersFromDbIdQueryQuery = (
-  { __typename?: 'Query' }
-  & { queryParamsFromDbId?: Maybe<(
-    { __typename?: 'MqlQueryParams' }
-    & Pick<MqlQueryParams, 'dbId' | 'metrics' | 'dimensions' | 'requestedGranularity' | 'groupBy' | 'latestXDays' | 'order' | 'maxDimensionValues' | 'timeComparison' | 'trimIncompletePeriods'>
-    & { constraint?: Maybe<(
-      { __typename?: 'Constraint' }
-      & { constraint?: Maybe<(
-        { __typename?: 'SingleConstraint' }
-        & Pick<SingleConstraint, 'constraintType' | 'dimensionName' | 'values' | 'start' | 'stop'>
-      )>, And?: Maybe<Array<(
-        { __typename?: 'SingleConstraint' }
-        & Pick<SingleConstraint, 'constraintType' | 'dimensionName' | 'values' | 'start' | 'stop'>
-      )>> }
-    )>, timeConstraint?: Maybe<(
-      { __typename?: 'TimeConstraint' }
-      & Pick<TimeConstraint, 'dimensionName' | 'timeFormat' | 'start' | 'stop' | 'timeGranularity'>
-    )> }
   )> }
 );
 
