@@ -16,6 +16,7 @@ const query = gql`
       dimensions
       status
       completedAt
+      oldestSourceReadTime
       resultTableSchema
       resultTableName
       createdAt

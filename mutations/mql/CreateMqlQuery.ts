@@ -49,6 +49,7 @@ const mutation = gql`
         availableChartTypes
         createdAt
         status
+        oldestSourceReadTime
         metrics
         dimensions
         error

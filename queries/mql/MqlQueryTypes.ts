@@ -1336,7 +1336,7 @@ export type FetchMqlQueryQuery = (
   { __typename?: 'Query' }
   & { mqlQuery?: Maybe<(
     { __typename?: 'MqlQuery' }
-    & Pick<MqlQuery, 'id' | 'availableChartTypes' | 'userId' | 'metrics' | 'dimensions' | 'status' | 'completedAt' | 'resultTableSchema' | 'resultTableName' | 'createdAt' | 'startedAt' | 'sql' | 'error' | 'errorTraceback' | 'chartValueMin' | 'chartValueMax'>
+    & Pick<MqlQuery, 'id' | 'availableChartTypes' | 'userId' | 'metrics' | 'dimensions' | 'status' | 'completedAt' | 'oldestSourceReadTime' | 'resultTableSchema' | 'resultTableName' | 'createdAt' | 'startedAt' | 'sql' | 'error' | 'errorTraceback' | 'chartValueMin' | 'chartValueMax'>
     & { modelKey?: Maybe<(
       { __typename?: 'ModelKey' }
       & Pick<ModelKey, 'branch' | 'commit'>
@@ -1382,7 +1382,7 @@ export type FetchMqlTimeSeriesQuery = (
   { __typename?: 'Query' }
   & { mqlQuery?: Maybe<(
     { __typename?: 'MqlQuery' }
-    & Pick<MqlQuery, 'id' | 'dbId' | 'status' | 'metrics' | 'availableChartTypes' | 'dimensions' | 'error' | 'chartValueMin' | 'chartValueMax' | 'whereConstraint' | 'requestedGranularity' | 'groupBy' | 'maxDimensionValues' | 'timeComparison' | 'trimIncompletePeriods'>
+    & Pick<MqlQuery, 'id' | 'dbId' | 'status' | 'metrics' | 'oldestSourceReadTime' | 'availableChartTypes' | 'dimensions' | 'error' | 'chartValueMin' | 'chartValueMax' | 'whereConstraint' | 'requestedGranularity' | 'groupBy' | 'maxDimensionValues' | 'timeComparison' | 'trimIncompletePeriods'>
     & { constraint?: Maybe<(
       { __typename?: 'Constraint' }
       & { constraint?: Maybe<(

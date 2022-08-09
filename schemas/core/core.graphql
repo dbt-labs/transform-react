@@ -1046,6 +1046,7 @@ type Board {
   totalViews: Int
   totalFavorites: Int
   isFavoritedByUser: Boolean
+  lastWeekViews: Int
 }
 
 """An enumeration."""
