@@ -30,6 +30,7 @@ export type UseMqlQueryFromDbIdParams = {
   // queryInput?: Omit<CreateMqlQueryFromDbIdMutationVariables, 'attemptNum'>;
   skip?: boolean;
   retries?: number;
+  doRefetchMqlQuery?: boolean;
 };
 
 export type UseMqlQueryFromDbIdQuery = UseMqlQueryState<FetchMqlTimeSeriesQuery>
@@ -42,6 +43,7 @@ export default function useMqlQueryFromDbId({
   mqlQueryId,
   skip,
   retries = 5,
+  doRefetchMqlQuery,
 }: UseMqlQueryFromDbIdParams) {
   const {
     mqlServerUrl,
@@ -56,9 +58,9 @@ export default function useMqlQueryFromDbId({
     if (!mqlQueryId || !mqlServerUrl || skip) {
       return;
     }
-    dispatch({ type: "postQueryStart" });
+    dispatch({ type: "postQueryStart", doRefetchMqlQuery });
     createMqlQueryFromDbId({stateRetries: state.retries});
-  }, [mqlQueryId, mqlServerUrl, skip]);
+  }, [mqlQueryId, mqlServerUrl, skip, doRefetchMqlQuery]);
 
   const _skip =
     skip ||

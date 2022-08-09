@@ -60,7 +60,9 @@ export const initialState: UseMqlQueryState<{}> = {
 };
 
 export type Action<CreateQueryDataType, FetchQueryDataType> =
-  | { type: "postQueryStart" }
+  | { type: "postQueryStart";
+      doRefetchMqlQuery?: boolean;
+    }
   | { type: "postQueryFail";
       errorMessage: string
     }
@@ -105,7 +107,7 @@ const mqlQueryReducer = <CreateQueryDataType extends unknown, FetchQueryDataType
     case "postQueryStart": {
       // This condition is triggered when there is already a queryId being fetched.
       // In this case we want to add "cancel" that query by adding it to the cancelledQueries list
-      if (state.queryId) {
+      if (state.queryId && !action.doRefetchMqlQuery) {
         return {
           ...state,
           queryStatus: MqlQueryStatus.Running,
@@ -121,6 +123,7 @@ const mqlQueryReducer = <CreateQueryDataType extends unknown, FetchQueryDataType
       }
       return {
         ...state,
+        queryId: null,
         queryStatus: MqlQueryStatus.Running,
         fetchStartTime: Date.now(),
         isTakingForever: false,

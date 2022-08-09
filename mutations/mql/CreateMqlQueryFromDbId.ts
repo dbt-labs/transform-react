@@ -10,12 +10,12 @@ const mutation = gql`
         availableChartTypes
         createdAt
         status
+        oldestSourceReadTime
         metrics
         dimensions
         error
         chartValueMax
         chartValueMin
-
         whereConstraint
         requestedGranularity
         groupBy

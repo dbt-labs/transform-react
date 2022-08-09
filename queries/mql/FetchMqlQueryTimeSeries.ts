@@ -7,6 +7,7 @@ const query = gql`
       dbId
       status
       metrics
+      oldestSourceReadTime
       availableChartTypes
       dimensions
       error
