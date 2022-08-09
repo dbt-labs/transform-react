@@ -1876,6 +1876,7 @@ export type Board = {
   totalViews?: Maybe<Scalars['Int']>;
   totalFavorites?: Maybe<Scalars['Int']>;
   isFavoritedByUser?: Maybe<Scalars['Boolean']>;
+  lastWeekViews?: Maybe<Scalars['Int']>;
 };
 
 

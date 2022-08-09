@@ -83,6 +83,9 @@ type MqlQuery {
 
   """Time the MQL Server start query execution"""
   startedAt: DateTime
+
+  """The build time of the oldest source cache used by this query."""
+  oldestSourceReadTime: DateTime
   sql: String
   error: String
   errorTraceback: String
@@ -423,20 +426,12 @@ type Validations {
   dataSourceIssues: [String!] @deprecated(reason: "Use `dataSourceResults`")
   metricIssues: [String!] @deprecated(reason: "Use `metricResults`")
   dimensionIssues: [String!] @deprecated(reason: "Use `dimensionResults`")
-  dataSourceResults: JSONString!
-  dimensionResults: JSONString!
-  identifierResults: JSONString!
-  measureResults: JSONString!
-  metricResults: JSONString!
+  dataSourceResults: String!
+  dimensionResults: String!
+  identifierResults: String!
+  measureResults: String!
+  metricResults: String!
 }
-
-"""
-Allows use of a JSON String for input / output from the GraphQL schema.
-
-Use of this type is *not recommended* as you lose the benefits of having a defined, static
-schema (one of the key benefits of GraphQL).
-"""
-scalar JSONString
 
 """The meta information we track of dbt models"""
 type DbtModelMeta {

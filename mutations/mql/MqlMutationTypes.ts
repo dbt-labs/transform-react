@@ -24,13 +24,6 @@ export type Scalars = {
    */
   Date: any;
   /**
-   * Allows use of a JSON String for input / output from the GraphQL schema.
-   *
-   * Use of this type is *not recommended* as you lose the benefits of having a defined, static
-   * schema (one of the key benefits of GraphQL).
-   */
-  JSONString: any;
-  /**
    * Limit is a GraphQL Scalar that can take in inf or positive integers.
    *
    * This class helps us normalize a API limit input into the Optional[int] type expected by library code
@@ -348,6 +341,8 @@ export type MqlQuery = {
   createdAt?: Maybe<Scalars['DateTime']>;
   /** Time the MQL Server start query execution */
   startedAt?: Maybe<Scalars['DateTime']>;
+  /** The build time of the oldest source cache used by this query. */
+  oldestSourceReadTime?: Maybe<Scalars['DateTime']>;
   sql?: Maybe<Scalars['String']>;
   error?: Maybe<Scalars['String']>;
   errorTraceback?: Maybe<Scalars['String']>;
@@ -754,13 +749,12 @@ export type Validations = {
   metricIssues?: Maybe<Array<Scalars['String']>>;
   /** @deprecated Use `dimensionResults` */
   dimensionIssues?: Maybe<Array<Scalars['String']>>;
-  dataSourceResults: Scalars['JSONString'];
-  dimensionResults: Scalars['JSONString'];
-  identifierResults: Scalars['JSONString'];
-  measureResults: Scalars['JSONString'];
-  metricResults: Scalars['JSONString'];
+  dataSourceResults: Scalars['String'];
+  dimensionResults: Scalars['String'];
+  identifierResults: Scalars['String'];
+  measureResults: Scalars['String'];
+  metricResults: Scalars['String'];
 };
-
 
 /** The meta information we track of dbt models */
 export type DbtModelMeta = {
@@ -1232,7 +1226,7 @@ export type CreateMqlQueryMutation = (
     & Pick<CreateMqlQueryPayload, 'id'>
     & { query?: Maybe<(
       { __typename?: 'MqlQuery' }
-      & Pick<MqlQuery, 'id' | 'dbId' | 'availableChartTypes' | 'createdAt' | 'status' | 'metrics' | 'dimensions' | 'error' | 'chartValueMax' | 'chartValueMin'>
+      & Pick<MqlQuery, 'id' | 'dbId' | 'availableChartTypes' | 'createdAt' | 'status' | 'oldestSourceReadTime' | 'metrics' | 'dimensions' | 'error' | 'chartValueMax' | 'chartValueMin'>
       & { resultTabular?: Maybe<(
         { __typename?: 'MqlQueryTabularResult' }
         & Pick<MqlQueryTabularResult, 'data'>
@@ -1261,7 +1255,7 @@ export type CreateMqlQueryFromDbIdMutation = (
     & Pick<CreateMqlQueryFromDbIdPayload, 'id'>
     & { query?: Maybe<(
       { __typename?: 'MqlQuery' }
-      & Pick<MqlQuery, 'id' | 'dbId' | 'availableChartTypes' | 'createdAt' | 'status' | 'metrics' | 'dimensions' | 'error' | 'chartValueMax' | 'chartValueMin' | 'whereConstraint' | 'requestedGranularity' | 'groupBy' | 'latestXDays' | 'maxDimensionValues' | 'trimIncompletePeriods' | 'timeComparison' | 'numPostprocessedResults'>
+      & Pick<MqlQuery, 'id' | 'dbId' | 'availableChartTypes' | 'createdAt' | 'status' | 'oldestSourceReadTime' | 'metrics' | 'dimensions' | 'error' | 'chartValueMax' | 'chartValueMin' | 'whereConstraint' | 'requestedGranularity' | 'groupBy' | 'latestXDays' | 'maxDimensionValues' | 'trimIncompletePeriods' | 'timeComparison' | 'numPostprocessedResults'>
       & { constraint?: Maybe<(
         { __typename?: 'Constraint' }
         & { constraint?: Maybe<(
