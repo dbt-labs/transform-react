@@ -73,7 +73,8 @@ export default function useTimeSeriesMqlQuery({
     dispatch,
     createQueryIdQuery: createTimeSeriesMqlQuery,
     retries,
-    fetchDataQuery: FetchMqlQueryTimeSeries
+    fetchDataQuery: FetchMqlQueryTimeSeries,
+    doRefetchMqlQuery,
   });
 
   return state;

@@ -73,7 +73,8 @@ export default function useMqlQueryFromDbId({
     dispatch,
     createQueryIdQuery: createMqlQueryFromDbId,
     retries,
-    fetchDataQuery: FetchMqlQueryTimeSeries
+    fetchDataQuery: FetchMqlQueryTimeSeries,
+    doRefetchMqlQuery,
   });
 
   return state;
