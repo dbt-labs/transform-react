@@ -57,6 +57,10 @@ const mutation = gql`
         chartValueMin
         resultTabular {
           data
+          valueFormattedColumns {
+            column
+            valueFormat
+          }
         }
         result {
           seriesValue

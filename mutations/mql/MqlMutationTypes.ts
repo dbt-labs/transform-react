@@ -65,6 +65,7 @@ export type Query = {
   dbtModelMeta?: Maybe<Array<Maybe<DbtModelMeta>>>;
   queriesToPreload?: Maybe<Array<Maybe<MetricFlowQueryParameters>>>;
   queryParamsFromDbId?: Maybe<MqlQueryParams>;
+  numActiveQueries?: Maybe<Scalars['Int']>;
 };
 
 
@@ -361,6 +362,7 @@ export type MqlQuery = {
   trimIncompletePeriods?: Maybe<Scalars['Boolean']>;
   timeConstraint?: Maybe<TimeConstraint>;
   numPostprocessedResults?: Maybe<Scalars['Int']>;
+  numTabularResults?: Maybe<Scalars['Int']>;
   dbId?: Maybe<Scalars['Int']>;
   warnings?: Maybe<Array<Maybe<Scalars['String']>>>;
   latestXDays?: Maybe<Scalars['Int']>;
@@ -421,7 +423,6 @@ export type MqlQueryResultSeries = {
   /** For queries without dimensional cuts, series_value will be `ALL`. For queries with dimensional cuts, one of these Result will be returned per dimension */
   seriesValue?: Maybe<Scalars['String']>;
   data?: Maybe<Array<ResultDatum>>;
-  isOtherCol?: Maybe<Scalars['Boolean']>;
   value?: Maybe<Scalars['Float']>;
   delta?: Maybe<Scalars['Float']>;
   pctChange?: Maybe<Scalars['GenericScalar']>;
@@ -442,6 +443,15 @@ export type MqlQueryTabularResult = {
   data?: Maybe<Scalars['String']>;
   /** If present, the cursor indicates the value to pass for the next batch of records. If null, all results have been transferred. */
   nextCursor?: Maybe<Scalars['String']>;
+  /** Columns that have a value format associated with them. Used for displaying table view in the UI. */
+  valueFormattedColumns?: Maybe<Array<Maybe<ValueFormattedColumn>>>;
+};
+
+/** Value formats to be applied to columns, like percent or dollar. */
+export type ValueFormattedColumn = {
+  __typename?: 'ValueFormattedColumn';
+  column?: Maybe<Scalars['String']>;
+  valueFormat?: Maybe<Scalars['String']>;
 };
 
 /**
@@ -571,6 +581,7 @@ export type QueryJob = {
   /** Type of query this job is executing */
   queryType?: Maybe<QueryType>;
   dimensionValuesQueryResult?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dataWarehouseValidationsResult?: Maybe<Scalars['String']>;
 };
 
 /**
@@ -590,7 +601,8 @@ export enum QueryStatus {
 
 /** Type of query. */
 export enum QueryType {
-  DimVal = 'DIM_VAL'
+  DimVal = 'DIM_VAL',
+  DwValidation = 'DW_VALIDATION'
 }
 
 export type Materialization = {
@@ -836,6 +848,8 @@ export type Mutation = {
   invalidateCacheForMetric?: Maybe<InvalidateCacheForMetric>;
   /** Invalidate all cache. */
   invalidateAllCaches?: Maybe<InvalidateAllCaches>;
+  /** Submits an async data warehouse validations query. */
+  createDataWarehouseValidationsQuery?: Maybe<CreateDataWarehouseValidationsQuery>;
   /** Submits an async dimension value query. */
   createDimensionValuesQuery?: Maybe<CreateDimensionValuesQuery>;
   /** Initiate an MQL Query based on just the metric name. Params will be based on the metric defaults. */
@@ -918,6 +932,15 @@ export type MutationInvalidateCacheForMetricArgs = {
 /** Base mutation object exposed by GraphQL. */
 export type MutationInvalidateAllCachesArgs = {
   modelKey?: Maybe<ModelKeyInput>;
+};
+
+
+/** Base mutation object exposed by GraphQL. */
+export type MutationCreateDataWarehouseValidationsQueryArgs = {
+  endTime?: Maybe<Scalars['String']>;
+  modelId?: Maybe<Scalars['Int']>;
+  startTime?: Maybe<Scalars['String']>;
+  validationType: DataWarehouseValidationRequestType;
 };
 
 
@@ -1071,6 +1094,8 @@ export type CreateMqlQueryFromDbIdInput = {
   dbId: Scalars['Int'];
   /** Used for marking retries, optionally pass param to track attempt number. */
   attemptNum?: Maybe<Scalars['Int']>;
+  /** By default, we will use the current model id to retrieve data */
+  useCurrentModel?: Maybe<Scalars['Boolean']>;
   clientMutationId?: Maybe<Scalars['String']>;
 };
 
@@ -1147,6 +1172,21 @@ export type InvalidateAllCaches = {
   __typename?: 'InvalidateAllCaches';
   success?: Maybe<Scalars['String']>;
 };
+
+/** Submits an async data warehouse validations query. */
+export type CreateDataWarehouseValidationsQuery = {
+  __typename?: 'CreateDataWarehouseValidationsQuery';
+  id: Scalars['ID'];
+};
+
+/** Supported validation types for the createDataWarehouseValidationQuery */
+export enum DataWarehouseValidationRequestType {
+  DataSource = 'data_source',
+  Dimension = 'dimension',
+  Identifier = 'identifier',
+  Measure = 'measure',
+  Metric = 'metric'
+}
 
 /** Submits an async dimension value query. */
 export type CreateDimensionValuesQuery = {
@@ -1230,6 +1270,10 @@ export type CreateMqlQueryMutation = (
       & { resultTabular?: Maybe<(
         { __typename?: 'MqlQueryTabularResult' }
         & Pick<MqlQueryTabularResult, 'data'>
+        & { valueFormattedColumns?: Maybe<Array<Maybe<(
+          { __typename?: 'ValueFormattedColumn' }
+          & Pick<ValueFormattedColumn, 'column' | 'valueFormat'>
+        )>>> }
       )>, result?: Maybe<Array<(
         { __typename?: 'MqlQueryResultSeries' }
         & Pick<MqlQueryResultSeries, 'seriesValue'>
@@ -1271,6 +1315,10 @@ export type CreateMqlQueryFromDbIdMutation = (
       )>, resultTabular?: Maybe<(
         { __typename?: 'MqlQueryTabularResult' }
         & Pick<MqlQueryTabularResult, 'data'>
+        & { valueFormattedColumns?: Maybe<Array<Maybe<(
+          { __typename?: 'ValueFormattedColumn' }
+          & Pick<ValueFormattedColumn, 'column' | 'valueFormat'>
+        )>>> }
       )>, result?: Maybe<Array<(
         { __typename?: 'MqlQueryResultSeries' }
         & Pick<MqlQueryResultSeries, 'seriesValue'>

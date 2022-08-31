@@ -50,6 +50,10 @@ const mutation = gql`
         dbId
         resultTabular {
           data
+          valueFormattedColumns {
+            column
+            valueFormat
+          }
         }
         result {
           seriesValue
