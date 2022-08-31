@@ -44,6 +44,10 @@ const query = gql`
       }
       resultTabular {
         data
+        valueFormattedColumns {
+          column
+          valueFormat
+        }
       }
       result {
         seriesValue
