@@ -7,6 +7,7 @@ const query = gql`
       dbId
       status
       metrics
+      oldestSourceReadTime
       availableChartTypes
       dimensions
       error
@@ -43,6 +44,10 @@ const query = gql`
       }
       resultTabular {
         data
+        valueFormattedColumns {
+          column
+          valueFormat
+        }
       }
       result {
         seriesValue

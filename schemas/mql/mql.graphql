@@ -36,6 +36,7 @@ type Query {
   dbtModelMeta(dataSourceNames: [String]): [DbtModelMeta]
   queriesToPreload: [MetricFlowQueryParameters]
   queryParamsFromDbId(dbId: Int!): MqlQueryParams
+  numActiveQueries: Int
 }
 
 """
@@ -83,6 +84,9 @@ type MqlQuery {
 
   """Time the MQL Server start query execution"""
   startedAt: DateTime
+
+  """The build time of the oldest source cache used by this query."""
+  oldestSourceReadTime: DateTime
   sql: String
   error: String
   errorTraceback: String
@@ -101,6 +105,7 @@ type MqlQuery {
   trimIncompletePeriods: Boolean
   timeConstraint: TimeConstraint
   numPostprocessedResults: Int
+  numTabularResults: Int
   dbId: Int
   warnings: [String]
   latestXDays: Int
@@ -134,7 +139,6 @@ type MqlQueryResultSeries {
   """
   seriesValue: String
   data: [ResultDatum!]
-  isOtherCol: Boolean
   value: Float
   delta: Float
   pctChange: GenericScalar
@@ -169,6 +173,17 @@ type MqlQueryTabularResult {
   If present, the cursor indicates the value to pass for the next batch of records. If null, all results have been transferred.
   """
   nextCursor: String
+
+  """
+  Columns that have a value format associated with them. Used for displaying table view in the UI.
+  """
+  valueFormattedColumns: [ValueFormattedColumn]
+}
+
+"""Value formats to be applied to columns, like percent or dollar."""
+type ValueFormattedColumn {
+  column: String
+  valueFormat: String
 }
 
 """
@@ -303,6 +318,7 @@ type QueryJob {
   """Type of query this job is executing"""
   queryType: QueryType
   dimensionValuesQueryResult: [String]
+  dataWarehouseValidationsResult: String
 }
 
 """
@@ -324,6 +340,7 @@ enum QueryStatus {
 """Type of query."""
 enum QueryType {
   DIM_VAL
+  DW_VALIDATION
 }
 
 type Materialization {
@@ -423,20 +440,12 @@ type Validations {
   dataSourceIssues: [String!] @deprecated(reason: "Use `dataSourceResults`")
   metricIssues: [String!] @deprecated(reason: "Use `metricResults`")
   dimensionIssues: [String!] @deprecated(reason: "Use `dimensionResults`")
-  dataSourceResults: JSONString!
-  dimensionResults: JSONString!
-  identifierResults: JSONString!
-  measureResults: JSONString!
-  metricResults: JSONString!
+  dataSourceResults: String!
+  dimensionResults: String!
+  identifierResults: String!
+  measureResults: String!
+  metricResults: String!
 }
-
-"""
-Allows use of a JSON String for input / output from the GraphQL schema.
-
-Use of this type is *not recommended* as you lose the benefits of having a defined, static
-schema (one of the key benefits of GraphQL).
-"""
-scalar JSONString
 
 """The meta information we track of dbt models"""
 type DbtModelMeta {
@@ -536,6 +545,9 @@ type Mutation {
 
   """Invalidate all cache."""
   invalidateAllCaches(modelKey: ModelKeyInput): InvalidateAllCaches
+
+  """Submits an async data warehouse validations query."""
+  createDataWarehouseValidationsQuery(endTime: String, modelId: Int, startTime: String, validationType: DataWarehouseValidationRequestType!): CreateDataWarehouseValidationsQuery
 
   """Submits an async dimension value query."""
   createDimensionValuesQuery(allowDynamicCache: Boolean = true, dimensionName: String!, endTime: String, metricName: String!, modelId: Int, startTime: String): CreateDimensionValuesQuery
@@ -730,6 +742,9 @@ input CreateMqlQueryFromDbIdInput {
   Used for marking retries, optionally pass param to track attempt number.
   """
   attemptNum: Int
+
+  """By default, we will use the current model id to retrieve data"""
+  useCurrentModel: Boolean
   clientMutationId: String
 }
 
@@ -810,6 +825,20 @@ type InvalidateCacheForMetric {
 """Invalidate all cache."""
 type InvalidateAllCaches {
   success: String
+}
+
+"""Submits an async data warehouse validations query."""
+type CreateDataWarehouseValidationsQuery {
+  id: ID!
+}
+
+"""Supported validation types for the createDataWarehouseValidationQuery"""
+enum DataWarehouseValidationRequestType {
+  data_source
+  dimension
+  identifier
+  measure
+  metric
 }
 
 """Submits an async dimension value query."""

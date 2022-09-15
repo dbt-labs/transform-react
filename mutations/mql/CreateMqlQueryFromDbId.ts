@@ -10,12 +10,12 @@ const mutation = gql`
         availableChartTypes
         createdAt
         status
+        oldestSourceReadTime
         metrics
         dimensions
         error
         chartValueMax
         chartValueMin
-
         whereConstraint
         requestedGranularity
         groupBy
@@ -50,6 +50,10 @@ const mutation = gql`
         dbId
         resultTabular {
           data
+          valueFormattedColumns {
+            column
+            valueFormat
+          }
         }
         result {
           seriesValue

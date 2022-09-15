@@ -30,6 +30,7 @@ type UseMqlQueryParams = {
   queryInput?: Omit<CreateMqlQueryMutationVariables, 'attemptNum'>;
   skip?: boolean;
   retries?: number;
+  doRefetchMqlQuery?: boolean;
 };
 
 export type UseTimeSeriesMqlQuery = UseMqlQueryState<FetchMqlTimeSeriesQuery>
@@ -42,6 +43,7 @@ export default function useTimeSeriesMqlQuery({
   metricName,
   skip,
   retries = 5,
+  doRefetchMqlQuery,
 }: UseMqlQueryParams) {
   const {
     mqlServerUrl,
@@ -56,9 +58,9 @@ export default function useTimeSeriesMqlQuery({
     if (!metricName || !mqlServerUrl || skip) {
       return;
     }
-    dispatch({ type: "postQueryStart" });
+    dispatch({ type: "postQueryStart", doRefetchMqlQuery });
     createTimeSeriesMqlQuery({stateRetries: state.retries});
-  }, [queryInput, metricName, mqlServerUrl, skip]);
+  }, [queryInput, metricName, mqlServerUrl, skip, doRefetchMqlQuery]);
 
   const _skip =
     skip ||
@@ -71,7 +73,8 @@ export default function useTimeSeriesMqlQuery({
     dispatch,
     createQueryIdQuery: createTimeSeriesMqlQuery,
     retries,
-    fetchDataQuery: FetchMqlQueryTimeSeries
+    fetchDataQuery: FetchMqlQueryTimeSeries,
+    doRefetchMqlQuery,
   });
 
   return state;

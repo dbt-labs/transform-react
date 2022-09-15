@@ -89,6 +89,7 @@ type Organization {
   totalQuestions: Int
   totalAnnotations: Int
   metrics(names: [String], tiers: [MetricTier], types: [MetricType], modelId: Int, userIsSubscribed: Boolean, ownedByTeamIds: [Int], ownedByUserIds: [Int], createdAtOrBefore: DateTime, createdAtOrAfter: DateTime, searchStr: String, searchColumns: [MetricVersionStrColumns], orderBy: MetricVersionOrderBy, desc: Boolean, orderBys: [MetricVersionOrderByInput], pageNumber: Int, pageSize: Int): [Metric]
+  totalOrgMetrics(searchStr: String, searchColumns: [MetricVersionStrColumns], names: [String], tiers: [MetricTier], types: [MetricType], modelId: Int, userIsSubscribed: Boolean, ownedByTeamIds: [Int], ownedByUserIds: [Int], createdAtOrBefore: DateTime, createdAtOrAfter: DateTime): Int
   totalMetrics(searchStr: String, searchColumns: [MetricVersionStrColumns], names: [String], tiers: [MetricTier], types: [MetricType], modelId: Int, userIsSubscribed: Boolean, ownedByTeamIds: [Int], ownedByUserIds: [Int], createdAtOrBefore: DateTime, createdAtOrAfter: DateTime): Int
   supportedMetricFilters: [MetricFilter]
   latestMqlHeartbeat: MqlHeartbeat
@@ -97,6 +98,7 @@ type Organization {
   mqlServer(id: ID!): OrgMqlServer
   totalMqlServers: Int
   metric(name: String!, modelId: Int): Metric
+  orgMetric(name: String!): OrgMetric
   team(slug: String!): Team
   dashboard(id: ID!): Dashboard
   savedQuery(id: ID!): SavedQuery
@@ -108,6 +110,7 @@ type Organization {
   allowMfaRememberBrowser: Boolean
   mqlServerUrl: String
   allowedEmailDomains: [String]
+  sourceControl: SourceControl
   tierTooltips(tiers: [Int]!): GenericScalar
   activeOrgAdmins(searchStr: String, searchColumns: [UserStrColumns], orderBy: UserOrderBy, desc: Boolean, orderBys: [UserOrderByInput], pageNumber: Int, pageSize: Int): [User]
   mqlServerConfig(id: ID!): DataWarehouseConfig
@@ -192,15 +195,20 @@ type User {
   boards(searchStr: String, searchColumns: [BoardStrColumns], orderBy: BoardOrderBy, desc: Boolean, orderBys: [BoardOrderByInput], pageNumber: Int, pageSize: Int): [Board]
   boardsV2(searchStr: String, searchColumns: [BoardStrColumns], orderBy: BoardOrderBy, desc: Boolean, orderBys: [BoardOrderByInput], pageNumber: Int, pageSize: Int): [Board]
   favoriteBoards(searchStr: String, searchColumns: [BoardStrColumns], orderBy: BoardOrderBy, desc: Boolean, orderBys: [BoardOrderByInput], pageNumber: Int, pageSize: Int): [Board]
+  totalFavoriteBoards(searchStr: String, searchColumns: [BoardStrColumns]): Int
   totalBoards(searchStr: String, searchColumns: [BoardStrColumns]): Int
   totalBoardsV2(searchStr: String, searchColumns: [BoardStrColumns]): Int
   boardsWithSubscribedMetrics(searchStr: String, searchColumns: [BoardStrColumns], orderBy: BoardOrderBy, desc: Boolean, orderBys: [BoardOrderByInput], pageNumber: Int, pageSize: Int): [Board]
   totalBoardsWithSubscribedMetrics(searchStr: String, searchColumns: [BoardStrColumns]): Int
   viewedMetrics(searchStr: String, searchColumns: [MetricVersionStrColumns], orderBy: MetricVersionOrderBy, desc: Boolean, orderBys: [MetricVersionOrderByInput], pageNumber: Int, pageSize: Int): [Metric]
   newMetrics(searchStr: String, searchColumns: [MetricVersionStrColumns], orderBy: MetricVersionOrderBy, desc: Boolean, orderBys: [MetricVersionOrderByInput], pageNumber: Int, pageSize: Int): [Metric]
+  viewedOrgMetrics(searchStr: String, searchColumns: [OrgMetricStrColumns], orderBy: OrgMetricOrderBy, desc: Boolean, orderBys: [OrgMetricOrderByInput], pageNumber: Int, pageSize: Int): [OrgMetric]
+  newOrgMetrics(searchStr: String, searchColumns: [OrgMetricStrColumns], orderBy: OrgMetricOrderBy, desc: Boolean, orderBys: [OrgMetricOrderByInput], pageNumber: Int, pageSize: Int): [OrgMetric]
   activeFeatures: [Feature]
   featuredMetrics(pageNumber: Int, pageSize: Int): [Metric]
   subscribedMetrics(pageNumber: Int, pageSize: Int): [Metric]
+  featuredOrgMetrics(pageNumber: Int, pageSize: Int): [OrgMetric]
+  subscribedOrgMetrics(pageNumber: Int, pageSize: Int): [OrgMetric]
 }
 
 type UserRole {
@@ -260,6 +268,7 @@ type Team {
   totalRecentViews: Int
   totalRecentViewsForUser: Int
   metrics(searchStr: String, searchColumns: [MetricVersionStrColumns], orderBy: MetricVersionOrderBy, desc: Boolean, orderBys: [MetricVersionOrderByInput], pageNumber: Int, pageSize: Int): [Metric]
+  orgMetrics(searchStr: String, searchColumns: [OrgMetricStrColumns], orderBy: OrgMetricOrderBy, desc: Boolean, orderBys: [OrgMetricOrderByInput], pageNumber: Int, pageSize: Int): [OrgMetric]
   boards(searchStr: String, searchColumns: [BoardStrColumns], orderBy: BoardOrderBy, desc: Boolean, orderBys: [BoardOrderByInput], pageNumber: Int, pageSize: Int): [Board]
 }
 
@@ -391,12 +400,22 @@ type MetricCollectionMetric {
 }
 
 type OrgMetric {
-  id: ID!
+  id: Int
+  createdAt: DateTime!
+  organizationId: Int!
   name: String!
   userOwners: [MetricUserOwner]
+  userOwnersWithDeactivated: [MetricUserOwner]
+  userViewers: [MetricUserOwner]
   teamOwners: [MetricTeamOwner]
+  teamViewers: [MetricTeamOwner]
+  versions: [Metric]
+  metricAnnotations: [MetricAnnotation]
   metricMetadata: MetricMetadata
   organization: Organization
+  resolvedQuestions: [Question]
+  unresolvedQuestions: [Question]
+  userSubscribers: [MetricUserSubscription]
   allOwnerUserIds: [Int]
   displayName: String
   isCurrent: Boolean
@@ -406,6 +425,7 @@ type OrgMetric {
   ownerTeams(searchStr: String, searchColumns: [TeamStrColumns], orderBy: TeamOrderBy, desc: Boolean, orderBys: [TeamOrderByInput], pageNumber: Int, pageSize: Int): [Team]
   protectedFields: ProtectedMetricFields
   tier: Int
+  userHasAccess: Boolean
 }
 
 type MetricUserOwner {
@@ -446,111 +466,6 @@ type MetricTeamOwner {
   ownerType: OwnerType!
   governanceType: GovernanceType!
   team: Team
-  organization: Organization
-}
-
-type MetricMetadata {
-  metricId: ID!
-  description: String
-  displayName: String
-  tier: Int
-  valueFormat: String
-  increaseIsGood: Boolean
-  descriptionLock: Boolean!
-  displayNameLock: Boolean!
-  tierLock: Boolean!
-  valueFormatLock: Boolean!
-  increaseIsGoodLock: Boolean!
-  extraFields: JSONString
-  isNew: Boolean!
-  createdAt: DateTime
-  createdBy: Int!
-  updatedAt: DateTime
-  updatedBy: Int!
-  isPrivate: Boolean!
-  orgMetric: OrgMetric
-  createdByUser: User
-  updatedByUser: User
-}
-
-"""
-Allows use of a JSON String for input / output from the GraphQL schema.
-
-Use of this type is *not recommended* as you lose the benefits of having a defined, static
-schema (one of the key benefits of GraphQL).
-"""
-scalar JSONString
-
-type Model {
-  id: ID!
-  organizationId: Int!
-  uploaderId: Int!
-  createdAt: DateTime!
-  gitRepo: String!
-  gitBranch: String!
-  gitCommit: String!
-  gitIsDirty: Boolean!
-  executionContext: String
-  isCurrent: Boolean!
-  modelDbtDataSources: [ModelDataSource]
-  uploader: User
-  metrics: [Metric]
-  modelDataSources: [ModelDataSource]
-  organization: Organization
-}
-
-type ModelDataSource {
-  orgDataSourceId: ID!
-  modelId: ID!
-  dataSourceVersionId: ID!
-  dataSourceVersion: DataSourceVersion
-  model: Model
-}
-
-type DataSourceVersion {
-  id: ID!
-  name: String!
-  description: String!
-  owners: JSONString
-  connection: String!
-  sqlTable: String
-  sqlQuery: String
-  dbtModel: String
-  identifiers: JSONString!
-  measures: GenericScalar
-  dimensions: JSONString!
-  dataSourceMetadata: GenericScalar
-  mutability: JSONString!
-  constraint: JSONString
-  createdAt: DateTime!
-  hash: String!
-  organizationId: Int!
-  organization: Organization
-  dbtModelMeta: DbtModelMeta
-}
-
-"""
-The `GenericScalar` scalar type represents a generic
-GraphQL scalar value that could be:
-String, Boolean, Int, Float, List or Object.
-"""
-scalar GenericScalar
-
-type DbtModelMeta {
-  model: String!
-  schema: String!
-  database: String
-  modelUpdatedAt: DateTime!
-  formerModelUpdatedAt: DateTime
-  wasFullRefresh: Boolean!
-  gitSha: String
-  projectId: String
-  projectName: String
-  jobId: String
-  runId: String
-  lastSyncedAt: DateTime!
-  organizationId: ID!
-  docsUrl: String
   organization: Organization
 }
 
@@ -623,6 +538,91 @@ type Metric {
   valueChangeAlerts(orderBy: AlertOrderBy, desc: Boolean, orderBys: [AlertOrderByInput], pageNumber: Int, pageSize: Int): [Alert]
   totalValueChangeAlerts: Int
   isCurrent: Boolean
+  boards(searchStr: String, searchColumns: [BoardStrColumns], orderBy: BoardOrderBy, desc: Boolean, orderBys: [BoardOrderByInput], pageNumber: Int, pageSize: Int): [Board]
+  totalBoards: Int
+}
+
+"""
+Allows use of a JSON String for input / output from the GraphQL schema.
+
+Use of this type is *not recommended* as you lose the benefits of having a defined, static
+schema (one of the key benefits of GraphQL).
+"""
+scalar JSONString
+
+"""
+The `GenericScalar` scalar type represents a generic
+GraphQL scalar value that could be:
+String, Boolean, Int, Float, List or Object.
+"""
+scalar GenericScalar
+
+type Model {
+  id: ID!
+  organizationId: Int!
+  uploaderId: Int!
+  createdAt: DateTime!
+  gitRepo: String!
+  gitBranch: String!
+  gitCommit: String!
+  gitIsDirty: Boolean!
+  executionContext: String
+  isCurrent: Boolean!
+  serializedModel: String
+  modelDbtDataSources: [ModelDataSource]
+  uploader: User
+  metrics: [Metric]
+  orgMetrics: [OrgMetric]
+  modelDataSources: [ModelDataSource]
+  organization: Organization
+}
+
+type ModelDataSource {
+  orgDataSourceId: ID!
+  modelId: ID!
+  dataSourceVersionId: ID!
+  dataSourceVersion: DataSourceVersion
+  model: Model
+}
+
+type DataSourceVersion {
+  id: ID!
+  name: String!
+  description: String!
+  owners: JSONString
+  connection: String!
+  sqlTable: String
+  sqlQuery: String
+  dbtModel: String
+  identifiers: JSONString!
+  measures: GenericScalar
+  dimensions: JSONString!
+  dataSourceMetadata: GenericScalar
+  mutability: JSONString!
+  constraint: JSONString
+  createdAt: DateTime!
+  hash: String!
+  organizationId: Int!
+  organization: Organization
+  dbtModelMeta: DbtModelMeta
+}
+
+type DbtModelMeta {
+  model: String!
+  schema: String!
+  database: String
+  modelUpdatedAt: DateTime!
+  formerModelUpdatedAt: DateTime
+  wasFullRefresh: Boolean!
+  gitSha: String
+  projectId: String
+  projectName: String
+  jobId: String
+  runId: String
+  lastSyncedAt: DateTime!
+  organizationId: ID!
+  docsUrl: String
+  organization: Organization
 }
 
 type MetricView {
@@ -732,6 +732,30 @@ enum QuestionOrderBy {
 input QuestionOrderByInput {
   orderBy: QuestionOrderBy!
   desc: Boolean
+}
+
+type MetricMetadata {
+  metricId: ID!
+  description: String
+  displayName: String
+  tier: Int
+  valueFormat: String
+  increaseIsGood: Boolean
+  descriptionLock: Boolean!
+  displayNameLock: Boolean!
+  tierLock: Boolean!
+  valueFormatLock: Boolean!
+  increaseIsGoodLock: Boolean!
+  extraFields: JSONString
+  isNew: Boolean!
+  createdAt: DateTime
+  createdBy: Int!
+  updatedAt: DateTime
+  updatedBy: Int!
+  isPrivate: Boolean!
+  orgMetric: OrgMetric
+  createdByUser: User
+  updatedByUser: User
 }
 
 type LockableParameter {
@@ -896,14 +920,16 @@ type SavedQuery {
   createdByUser: User
   organization: Organization
   ownerTeam: Team
-  orgMetrics: [OrgMetric]
+  orgMetrics(searchStr: String, searchColumns: [OrgMetricStrColumns], orderBy: OrgMetricOrderBy, desc: Boolean, orderBys: [OrgMetricOrderByInput], pageNumber: Int, pageSize: Int): [OrgMetric]
   dbQuery: MQLQuery
   totalMetrics: Int
   userCanEditContent: Boolean
   userCanDeactivate: Boolean
   userCanChangeOwner: Boolean
+  userIsOwner: Boolean
   metrics(searchStr: String, searchColumns: [MetricVersionStrColumns], orderBy: MetricVersionOrderBy, desc: Boolean, orderBys: [MetricVersionOrderByInput], pageNumber: Int, pageSize: Int): [Metric]
   metricsNotCurrent: [Metric]
+  orgMetricsNotCurrent: [OrgMetric]
   otherUsersBoardsUsingSavedQuery: [Board]
   boardsUsingSavedQuery: [Board]
 }
@@ -918,6 +944,50 @@ enum ChartType {
   BAR_CHART_SHARE_OF
   BIG_NUMBER
   TABLE
+}
+
+"""An enumeration."""
+enum OrgMetricStrColumns {
+  DESCRIPTION
+  DISPLAY_NAME
+  MetricMetadata__DESCRIPTION
+  MetricMetadata__DISPLAY_NAME
+  MetricMetadata__VALUE_FORMAT
+  NAME
+}
+
+"""An enumeration."""
+enum OrgMetricOrderBy {
+  CREATED_AT
+  DESCRIPTION
+  DISPLAY_NAME
+  ID
+  MetricMetadata__CREATED_AT
+  MetricMetadata__CREATED_BY
+  MetricMetadata__DESCRIPTION
+  MetricMetadata__DESCRIPTION_LOCK
+  MetricMetadata__DISPLAY_NAME
+  MetricMetadata__DISPLAY_NAME_LOCK
+  MetricMetadata__EXTRA_FIELDS
+  MetricMetadata__INCREASE_IS_GOOD
+  MetricMetadata__INCREASE_IS_GOOD_LOCK
+  MetricMetadata__IS_NEW
+  MetricMetadata__IS_PRIVATE
+  MetricMetadata__METRIC_ID
+  MetricMetadata__TIER
+  MetricMetadata__TIER_LOCK
+  MetricMetadata__UPDATED_AT
+  MetricMetadata__UPDATED_BY
+  MetricMetadata__VALUE_FORMAT
+  MetricMetadata__VALUE_FORMAT_LOCK
+  NAME
+  ORGANIZATION_ID
+  VIEWS
+}
+
+input OrgMetricOrderByInput {
+  orderBy: OrgMetricOrderBy!
+  desc: Boolean
 }
 
 type MQLQuery {
@@ -1046,6 +1116,7 @@ type Board {
   totalViews: Int
   totalFavorites: Int
   isFavoritedByUser: Boolean
+  lastWeekViews: Int
 }
 
 """An enumeration."""
@@ -1316,17 +1387,49 @@ input AlertOrderByInput {
   desc: Boolean
 }
 
+"""An enumeration."""
+enum BoardStrColumns {
+  DESCRIPTION
+  TITLE
+}
+
+"""An enumeration."""
+enum BoardOrderBy {
+  CREATED_AT
+  CREATED_BY
+  DELETED_AT
+  DESCRIPTION
+  ID
+  IS_PRIVATE
+  ORGANIZATION_ID
+  RECENTLY_VIEWED
+  TITLE
+  UPDATED_AT
+  VIEWS
+}
+
+input BoardOrderByInput {
+  orderBy: BoardOrderBy!
+  desc: Boolean
+}
+
 type ProtectedMetricFields {
   id: ID!
   createdAt: DateTime!
   organizationId: Int!
   name: String!
   userOwners: [MetricUserOwner]
+  userOwnersWithDeactivated: [MetricUserOwner]
+  userViewers: [MetricUserOwner]
   teamOwners: [MetricTeamOwner]
+  teamViewers: [MetricTeamOwner]
   versions: [Metric]
   metricAnnotations: [MetricAnnotation]
   metricMetadata: MetricMetadata
   organization: Organization
+  resolvedQuestions: [Question]
+  unresolvedQuestions: [Question]
+  userSubscribers: [MetricUserSubscription]
   metadata: GenericScalar
   params: GenericScalar
   totalQuestions: Int
@@ -1335,6 +1438,7 @@ type ProtectedMetricFields {
   description: String
   valueFormat: String
   extraFields: JSONString
+  metricType: Int
   displayNameWithLock: LockableParameter
   descriptionWithLock: LockableParameter
   valueFormatWithLock: LockableParameter
@@ -1343,7 +1447,6 @@ type ProtectedMetricFields {
   latestApproval: MetricApproval
   questions(searchStr: String, searchColumns: [QuestionStrColumns], orderBy: QuestionOrderBy, desc: Boolean, orderBys: [QuestionOrderByInput], pageNumber: Int, pageSize: Int): [Question]
   annotations(dimensions: [GMetricAnnotationDimensionInput], startDate: Date, endDate: Date, priorities: [Priority], searchStr: String, searchColumns: [AnnotationStrColumns], orderBy: AnnotationOrderBy, desc: Boolean, orderBys: [AnnotationOrderByInput], pageNumber: Int, pageSize: Int): [Annotation]
-  currentDescription: String
   totalRecentViews: Int
   totalRecentViewsForUser: Int
   userIsMetricOwner: Boolean
@@ -1365,6 +1468,8 @@ type ProtectedMetricFields {
   valueChangeAlert(id: Int!): Alert
   valueChangeAlerts(orderBy: AlertOrderBy, desc: Boolean, orderBys: [AlertOrderByInput], pageNumber: Int, pageSize: Int): [Alert]
   totalValueChangeAlerts: Int
+  boards(searchStr: String, searchColumns: [BoardStrColumns], orderBy: BoardOrderBy, desc: Boolean, orderBys: [BoardOrderByInput], pageNumber: Int, pageSize: Int): [Board]
+  totalBoards: Int
 }
 
 """An enumeration."""
@@ -1438,32 +1543,6 @@ type TeamView {
   organization: Organization
   team: Team
   user: User
-}
-
-"""An enumeration."""
-enum BoardStrColumns {
-  DESCRIPTION
-  TITLE
-}
-
-"""An enumeration."""
-enum BoardOrderBy {
-  CREATED_AT
-  CREATED_BY
-  DELETED_AT
-  DESCRIPTION
-  ID
-  IS_PRIVATE
-  ORGANIZATION_ID
-  RECENTLY_VIEWED
-  TITLE
-  UPDATED_AT
-  VIEWS
-}
-
-input BoardOrderByInput {
-  orderBy: BoardOrderBy!
-  desc: Boolean
 }
 
 type ApiKey {
@@ -1583,6 +1662,7 @@ type OrgMqlServer {
   configSecret: String
   dwEngine: DWEngine
   deploymentStatus: DeploymentStatus
+  serverMetadataId: Int
   heartbeats: [MqlHeartbeat]
   organization: Organization
   latestHeartbeat: MqlHeartbeat
@@ -1648,6 +1728,7 @@ enum OrgMqlServerOrderBy {
   IS_ORG_DEFAULT
   NAME
   ORGANIZATION_ID
+  SERVER_METADATA_ID
   UPDATED_AT
   URL
 }
@@ -1670,24 +1751,6 @@ enum MetricType {
   RATIO
   EXPR
   CUMULATIVE
-}
-
-"""An enumeration."""
-enum OrgMetricStrColumns {
-  NAME
-}
-
-"""An enumeration."""
-enum OrgMetricOrderBy {
-  CREATED_AT
-  ID
-  NAME
-  ORGANIZATION_ID
-}
-
-input OrgMetricOrderByInput {
-  orderBy: OrgMetricOrderBy!
-  desc: Boolean
 }
 
 type OrgPref {
@@ -1762,6 +1825,13 @@ type MetricFilter {
 type MetricFilterValue {
   name: String
   value: GenericScalar
+}
+
+"""Enum for source control providers."""
+enum SourceControl {
+  GITHUB
+  GITLAB
+  BITBUCKET
 }
 
 type IntegrationConfigurationTableau {
@@ -2037,6 +2107,8 @@ type Mutation {
   featuresAddUsers(featureId: ID!, userIds: [ID]!): Feature
   featuresRemoveAccess(featureId: ID!, userIds: [ID], organizationIds: [ID]): Feature
   questionsCreateReply(questionId: ID!, text: String!): Question
+  questionsUpdateReply(questionReplyId: Int!, text: String!): Question
+  questionsDeleteReply(questionReplyId: Int!): Question
   questionRepliesLike(id: ID!): QuestionReply
   questionsLike(id: ID!): Question
   questionRepliesUnlike(id: ID!): QuestionReply
@@ -2068,6 +2140,7 @@ type Mutation {
   organizationsSetAllowedEmailDomains(organizationId: ID!, allowedEmailDomains: [String]!): Organization
   organizationsDeactivate(orgId: ID!, reactivate: Boolean = false): Organization
   metricsApprove(metricId: ID!): Metric
+  orgMetricsApprove(metricId: ID!): OrgMetric
   metricsLogView(metricId: ID!): MetricView
   metricCollectionsLogView(metricCollectionId: ID!): MetricCollectionView
   teamsLogView(teamId: ID!): TeamView
@@ -2075,8 +2148,22 @@ type Mutation {
   metricsRemoveUserOwners(metricId: ID!, userIds: [ID], ownerType: GOwnerType): Metric
   metricsAssignTeamOwners(metricId: ID!, teamIds: [ID], ownerType: GOwnerType): Metric
   metricsRemoveTeamOwners(metricId: ID!, teamIds: [ID], ownerType: GOwnerType): Metric
+  metricsAddUserViewers(metricId: ID!, userIds: [ID], ownerType: GOwnerType): Metric
+  metricsRemoveUserViewers(metricId: ID!, userIds: [ID], ownerType: GOwnerType): Metric
+  metricsAddTeamViewers(metricId: ID!, teamIds: [ID], ownerType: GOwnerType): Metric
+  metricsRemoveTeamViewers(metricId: ID!, teamIds: [ID], ownerType: GOwnerType): Metric
   metricsAddDescription(metricId: ID!, description: String!): Metric
   metricsUpdateMetadata(metricId: ID!, description: String, tier: Int, displayName: String, valueFormat: String, increaseIsGood: Boolean, defaultTrim: Boolean, defaultGranularity: TimeGranularity, defaultDaysLimit: Int, extraFields: JSONString): Metric
+  orgMetricsAddUserOwners(metricId: ID!, userIds: [Int], ownerType: GOwnerType): OrgMetric
+  orgMetricsRemoveUserOwners(metricId: ID!, userIds: [Int], ownerType: GOwnerType): OrgMetric
+  orgMetricsAddUserViewers(metricId: ID!, userIds: [Int], ownerType: GOwnerType): Metric
+  orgMetricsRemoveUserViewers(metricId: ID!, userIds: [Int], ownerType: GOwnerType): Metric
+  orgMetricsAddTeamOwners(metricId: ID!, teamIds: [Int], ownerType: GOwnerType): OrgMetric
+  orgMetricsRemoveTeamOwners(metricId: ID!, teamIds: [Int], ownerType: GOwnerType): OrgMetric
+  orgMetricsAddTeamViewers(metricId: ID!, teamIds: [Int], ownerType: GOwnerType): Metric
+  orgMetricsRemoveTeamViewers(metricId: ID!, teamIds: [Int], ownerType: GOwnerType): Metric
+  orgMetricsAddDescription(metricId: ID!, description: String!): OrgMetric
+  orgMetricsUpdateMetadata(metricId: ID!, description: String, tier: Int, displayName: String, valueFormat: String, increaseIsGood: Boolean, defaultTrim: Boolean, defaultGranularity: TimeGranularity, defaultDaysLimit: Int, extraFields: JSONString): OrgMetric
   savedQueryCreate(title: String!, serializedQuery: GenericScalar!, metricIds: [ID], ownerTeamId: ID, isPrivate: Boolean): SavedQuery
   savedQueryUpdate(id: ID!, title: String, createdBy: Int, ownerTeamId: Int, serializedQuery: GenericScalar, metricIds: [ID], isPrivate: Boolean): SavedQuery
   createSavedQuery(title: String!, queryId: Int!, isPrivate: Boolean, chartType: GChartType): SavedQuery
@@ -2087,6 +2174,8 @@ type Mutation {
   createTermsOfService(pdfUrl: String!): TermsOfServiceVersion
   createSubscription(metricId: ID!, userIds: [Int]): Metric
   removeSubscription(metricId: ID!, userIds: [Int]): Metric
+  orgMetricsCreateSubscription(metricId: ID!, userIds: [Int]): OrgMetric
+  orgMetricsRemoveSubscription(metricId: ID!, userIds: [Int]): OrgMetric
   markNotificationsDelivered(notificationIds: [ID]!): Boolean
   addAlertRule(metricId: ID!, alertRuleType: GAlertRuleType!, config: JSONString, useDefaultNotifRules: Boolean): AlertRule
   addAlertNotificationRule(alertRuleId: ID!, alertNotificationRuleType: GAlertNotificationRuleType!, channel: GNotificationChannel!, config: JSONString): AlertNotificationRule
@@ -2122,8 +2211,10 @@ type Mutation {
   boardsRemoveUserOwners(boardId: ID!, userIds: [ID]): Board
   boardsAddTeamOwners(boardId: ID!, teamIds: [ID]): Board
   boardsRemoveTeamOwners(boardId: ID!, teamIds: [ID]): Board
-  boardsFavorite(boardId: ID!): BoardFavorite
-  boardsUnfavorite(boardId: ID!): BoardFavorite
+  boardsFavorite(boardId: ID!): Board
+  boardsUnfavorite(boardId: ID!): Board
+  testSlackMessage(message: String!, fromUsername: String, fromImgUrl: String): String
+  sendSlackMessages(message: String!, channelNames: [String]!, fromUsername: String, fromImgUrl: String): String
 }
 
 """An enumeration."""
@@ -2437,14 +2528,6 @@ input GroupItemConfigInput {
 }
 
 type BoardView {
-  organizationId: Int!
-  userId: ID!
-  boardId: ID!
-  createdAt: DateTime!
-  organization: Organization
-}
-
-type BoardFavorite {
   organizationId: Int!
   userId: ID!
   boardId: ID!

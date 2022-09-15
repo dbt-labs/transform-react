@@ -19,7 +19,8 @@ interface UseFetchMqlTimeSeriesArgs<CreateQueryDataType, FetchDataType extends {
   dispatch: Dispatch<Action<CreateQueryDataType, FetchDataType>>
   createQueryIdQuery: ({stateRetries}: {stateRetries: number}) => void;
   retries: number;
-  fetchDataQuery: TypedDocumentNode
+  fetchDataQuery: TypedDocumentNode;
+  doRefetchMqlQuery?: boolean;
 }
 
 const useFetchMqlQuery = <CreateQueryDataType, FetchDataType extends {mqlQuery?: any}>({
@@ -28,7 +29,8 @@ const useFetchMqlQuery = <CreateQueryDataType, FetchDataType extends {mqlQuery?:
   dispatch,
   createQueryIdQuery,
   retries,
-  fetchDataQuery
+  fetchDataQuery,
+  doRefetchMqlQuery,
 }: UseFetchMqlTimeSeriesArgs<CreateQueryDataType, FetchDataType>) => {
   const {
     useQuery,
@@ -41,10 +43,11 @@ const useFetchMqlQuery = <CreateQueryDataType, FetchDataType extends {mqlQuery?:
   >({
     query: fetchDataQuery, //FetchMqlQueryTimeSeries,
     variables: {
-      queryId: state.queryId || "",
+      queryId: doRefetchMqlQuery ? "" : state.queryId || "",
       attemptNum: retries
     },
     pause: skip,
+    requestPolicy: doRefetchMqlQuery ? 'network-only' : undefined,
   });
 
   const retry = () => {
