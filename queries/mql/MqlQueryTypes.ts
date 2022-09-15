@@ -1353,6 +1353,19 @@ export type FetchMetricCanLimitDimensionsQuery = (
   )> }
 );
 
+export type FetchMetricFilterRulesQueryVariables = Exact<{
+  metricName: Scalars['String'];
+}>;
+
+
+export type FetchMetricFilterRulesQuery = (
+  { __typename?: 'Query' }
+  & { metricByName?: Maybe<(
+    { __typename?: 'Metric' }
+    & Pick<Metric, 'canLimitDimensionValues' | 'maxGranularity'>
+  )> }
+);
+
 export type FetchMetricMaxGranularityQueryVariables = Exact<{
   metricName: Scalars['String'];
 }>;
