@@ -1319,6 +1319,19 @@ export type FetchMetricCanLimitDimensionsQuery = (
   )> }
 );
 
+export type FetchMetricFilterRulesQueryVariables = Exact<{
+  metricName: Scalars['String'];
+}>;
+
+
+export type FetchMetricFilterRulesQuery = (
+  { __typename?: 'Query' }
+  & { metricByName?: Maybe<(
+    { __typename?: 'Metric' }
+    & Pick<Metric, 'canLimitDimensionValues' | 'maxGranularity'>
+  )> }
+);
+
 export type FetchMetricMaxGranularityQueryVariables = Exact<{
   metricName: Scalars['String'];
 }>;
@@ -1350,6 +1363,32 @@ export type FetchMqlQueryQuery = (
       { __typename?: 'MqlQueryResultSeries' }
       & Pick<MqlQueryResultSeries, 'value' | 'delta' | 'pctChange'>
     )>> }
+  )> }
+);
+
+export type FetchMqlQueryFiltersFromDbIdQueryQueryVariables = Exact<{
+  dbId: Scalars['Int'];
+}>;
+
+
+export type FetchMqlQueryFiltersFromDbIdQueryQuery = (
+  { __typename?: 'Query' }
+  & { queryParamsFromDbId?: Maybe<(
+    { __typename?: 'MqlQueryParams' }
+    & Pick<MqlQueryParams, 'dbId' | 'metrics' | 'dimensions' | 'requestedGranularity' | 'groupBy' | 'latestXDays' | 'order' | 'maxDimensionValues' | 'timeComparison' | 'trimIncompletePeriods'>
+    & { constraint?: Maybe<(
+      { __typename?: 'Constraint' }
+      & { constraint?: Maybe<(
+        { __typename?: 'SingleConstraint' }
+        & Pick<SingleConstraint, 'constraintType' | 'dimensionName' | 'values' | 'start' | 'stop'>
+      )>, And?: Maybe<Array<(
+        { __typename?: 'SingleConstraint' }
+        & Pick<SingleConstraint, 'constraintType' | 'dimensionName' | 'values' | 'start' | 'stop'>
+      )>> }
+    )>, timeConstraint?: Maybe<(
+      { __typename?: 'TimeConstraint' }
+      & Pick<TimeConstraint, 'dimensionName' | 'timeFormat' | 'start' | 'stop' | 'timeGranularity'>
+    )> }
   )> }
 );
 
@@ -1403,32 +1442,6 @@ export type FetchPercentChangeQuery = (
       { __typename?: 'MqlQueryResultSeries' }
       & Pick<MqlQueryResultSeries, 'value' | 'delta' | 'pctChange'>
     )>> }
-  )> }
-);
-
-export type FetchMqlQueryFiltersFromDbIdQueryQueryVariables = Exact<{
-  dbId: Scalars['Int'];
-}>;
-
-
-export type FetchMqlQueryFiltersFromDbIdQueryQuery = (
-  { __typename?: 'Query' }
-  & { queryParamsFromDbId?: Maybe<(
-    { __typename?: 'MqlQueryParams' }
-    & Pick<MqlQueryParams, 'dbId' | 'metrics' | 'dimensions' | 'requestedGranularity' | 'groupBy' | 'latestXDays' | 'order' | 'maxDimensionValues' | 'timeComparison' | 'trimIncompletePeriods'>
-    & { constraint?: Maybe<(
-      { __typename?: 'Constraint' }
-      & { constraint?: Maybe<(
-        { __typename?: 'SingleConstraint' }
-        & Pick<SingleConstraint, 'constraintType' | 'dimensionName' | 'values' | 'start' | 'stop'>
-      )>, And?: Maybe<Array<(
-        { __typename?: 'SingleConstraint' }
-        & Pick<SingleConstraint, 'constraintType' | 'dimensionName' | 'values' | 'start' | 'stop'>
-      )>> }
-    )>, timeConstraint?: Maybe<(
-      { __typename?: 'TimeConstraint' }
-      & Pick<TimeConstraint, 'dimensionName' | 'timeFormat' | 'start' | 'stop' | 'timeGranularity'>
-    )> }
   )> }
 );
 
