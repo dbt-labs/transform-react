@@ -23,6 +23,7 @@ type Query {
   dwHealthCheck(snowflakeConnectionDetails: SnowflakeConnectionInput, redshiftConnectionDetails: RedshiftConnectionInput, bigQueryConnectionDetails: BigQueryConnectionInput): [MqlServerHealthItem]
   flagIsEnabled(flag: String!): Boolean
   supportedAlertRules: [AlertRuleDefinition]
+  celeryHealthCheck: Int
 }
 
 """A wrapper for the response we get from Auth0's user profile API"""
@@ -131,11 +132,13 @@ type Organization {
   modelFromModelKey(repo: String!, branch: String!, commit: String!): Model
   boards(searchStr: String, searchColumns: [BoardStrColumns], orderBy: BoardOrderBy, desc: Boolean, orderBys: [BoardOrderByInput], pageNumber: Int, pageSize: Int): [Board]
   boardsV2(searchStr: String, searchColumns: [BoardStrColumns], orderBy: BoardOrderBy, desc: Boolean, orderBys: [BoardOrderByInput], pageNumber: Int, pageSize: Int): [Board]
-  totalBoards(searchStr: String, searchColumns: [BoardStrColumns]): Int
+  totalBoards(searchStr: String, searchColumns: [BoardStrColumns], excludeNotViewed: Boolean): Int
+  totalBoardsV2(searchStr: String, searchColumns: [BoardStrColumns], excludeNotViewed: Boolean): Int
   board(id: Int!): Board
   queryIdsInSavedQueries: [Int]
   metricNamesInBoards: [String]
   currentModel: [Model]
+  historyOfCurrentModels(pageNumber: Int, pageSize: Int): [CurrentModelHistory]
   activeFeatures: [Feature]
 }
 
@@ -195,11 +198,13 @@ type User {
   boards(searchStr: String, searchColumns: [BoardStrColumns], orderBy: BoardOrderBy, desc: Boolean, orderBys: [BoardOrderByInput], pageNumber: Int, pageSize: Int): [Board]
   boardsV2(searchStr: String, searchColumns: [BoardStrColumns], orderBy: BoardOrderBy, desc: Boolean, orderBys: [BoardOrderByInput], pageNumber: Int, pageSize: Int): [Board]
   favoriteBoards(searchStr: String, searchColumns: [BoardStrColumns], orderBy: BoardOrderBy, desc: Boolean, orderBys: [BoardOrderByInput], pageNumber: Int, pageSize: Int): [Board]
-  totalFavoriteBoards(searchStr: String, searchColumns: [BoardStrColumns]): Int
-  totalBoards(searchStr: String, searchColumns: [BoardStrColumns]): Int
-  totalBoardsV2(searchStr: String, searchColumns: [BoardStrColumns]): Int
+  totalFavoriteBoards(searchStr: String, searchColumns: [BoardStrColumns], excludeNotViewed: Boolean): Int
+  totalBoards(searchStr: String, searchColumns: [BoardStrColumns], excludeNotViewed: Boolean): Int
+  totalBoardsV2(searchStr: String, searchColumns: [BoardStrColumns], excludeNotViewed: Boolean): Int
   boardsWithSubscribedMetrics(searchStr: String, searchColumns: [BoardStrColumns], orderBy: BoardOrderBy, desc: Boolean, orderBys: [BoardOrderByInput], pageNumber: Int, pageSize: Int): [Board]
+  boardsWithSubscribedMetricsV2(searchStr: String, searchColumns: [BoardStrColumns], orderBy: BoardOrderBy, desc: Boolean, orderBys: [BoardOrderByInput], pageNumber: Int, pageSize: Int): [Board]
   totalBoardsWithSubscribedMetrics(searchStr: String, searchColumns: [BoardStrColumns]): Int
+  totalBoardsWithSubscribedMetricsV2(searchStr: String, searchColumns: [BoardStrColumns], excludeNotViewed: Boolean): Int
   viewedMetrics(searchStr: String, searchColumns: [MetricVersionStrColumns], orderBy: MetricVersionOrderBy, desc: Boolean, orderBys: [MetricVersionOrderByInput], pageNumber: Int, pageSize: Int): [Metric]
   newMetrics(searchStr: String, searchColumns: [MetricVersionStrColumns], orderBy: MetricVersionOrderBy, desc: Boolean, orderBys: [MetricVersionOrderByInput], pageNumber: Int, pageSize: Int): [Metric]
   viewedOrgMetrics(searchStr: String, searchColumns: [OrgMetricStrColumns], orderBy: OrgMetricOrderBy, desc: Boolean, orderBys: [OrgMetricOrderByInput], pageNumber: Int, pageSize: Int): [OrgMetric]
@@ -421,11 +426,20 @@ type OrgMetric {
   isCurrent: Boolean
   isPrivate: Boolean
   model: Model
-  ownerUsers(searchStr: String, searchColumns: [UserStrColumns], orderBy: UserOrderBy, desc: Boolean, orderBys: [UserOrderByInput], pageNumber: Int, pageSize: Int): [User]
-  ownerTeams(searchStr: String, searchColumns: [TeamStrColumns], orderBy: TeamOrderBy, desc: Boolean, orderBys: [TeamOrderByInput], pageNumber: Int, pageSize: Int): [Team]
+  ownerAccessUsers(searchStr: String, searchColumns: [UserStrColumns], orderBy: UserOrderBy, desc: Boolean, orderBys: [UserOrderByInput], pageNumber: Int, pageSize: Int): [User]
+  viewerAccessUsers(searchStr: String, searchColumns: [UserStrColumns], orderBy: UserOrderBy, desc: Boolean, orderBys: [UserOrderByInput], pageNumber: Int, pageSize: Int): [User]
+  pendingOwnerRequestsUsers(searchStr: String, searchColumns: [UserStrColumns], orderBy: UserOrderBy, desc: Boolean, orderBys: [UserOrderByInput], pageNumber: Int, pageSize: Int): [User]
+  pendingViewerRequestsUsers(searchStr: String, searchColumns: [UserStrColumns], orderBy: UserOrderBy, desc: Boolean, orderBys: [UserOrderByInput], pageNumber: Int, pageSize: Int): [User]
+  ownerAccessTeams(searchStr: String, searchColumns: [TeamStrColumns], orderBy: TeamOrderBy, desc: Boolean, orderBys: [TeamOrderByInput], pageNumber: Int, pageSize: Int): [Team]
+  viewerAccessTeams(searchStr: String, searchColumns: [TeamStrColumns], orderBy: TeamOrderBy, desc: Boolean, orderBys: [TeamOrderByInput], pageNumber: Int, pageSize: Int): [Team]
+  pendingOwnerRequestsTeams(searchStr: String, searchColumns: [TeamStrColumns], orderBy: TeamOrderBy, desc: Boolean, orderBys: [TeamOrderByInput], pageNumber: Int, pageSize: Int): [Team]
+  pendingViewerRequestsTeams(searchStr: String, searchColumns: [TeamStrColumns], orderBy: TeamOrderBy, desc: Boolean, orderBys: [TeamOrderByInput], pageNumber: Int, pageSize: Int): [Team]
   protectedFields: ProtectedMetricFields
   tier: Int
   userHasAccess: Boolean
+
+  """status of request for metric ownership"""
+  userGovernanceRequestStatus: GovernanceRequestStatus
 }
 
 type MetricUserOwner {
@@ -568,7 +582,7 @@ type Model {
   gitIsDirty: Boolean!
   executionContext: String
   isCurrent: Boolean!
-  serializedModel: String
+  isValidation: Boolean!
   modelDbtDataSources: [ModelDataSource]
   uploader: User
   metrics: [Metric]
@@ -1114,6 +1128,7 @@ type Board {
   userCanDeactivate: Boolean
   items: [BoardItem!]
   totalViews: Int
+  myViews: Int
   totalFavorites: Int
   isFavoritedByUser: Boolean
   lastWeekViews: Int
@@ -1192,6 +1207,7 @@ type BoardItem {
   orgMetric: OrgMetric
   savedQuery: SavedQuery
   config: GroupItemConfig
+  markdown: MarkdownConfig
   children: [BoardItem]
   metric: Metric
 }
@@ -1203,18 +1219,25 @@ Board item types.
     - Group: has a title/description and is represents a section
     - Metric chart: displays data for a metric's default query
     - Saved query chart: displays data for a saved query
+    - Markdown: displays markdown tile
     
 """
 enum BoardItemType {
   GROUP
   METRIC_CHART
   SAVED_QUERY_CHART
+  MARKDOWN
 }
 
 type GroupItemConfig {
   type: String
   title: String
   description: String
+}
+
+type MarkdownConfig {
+  type: String
+  content: String
 }
 
 """An enumeration."""
@@ -1331,6 +1354,8 @@ enum AlertRuleType {
   METADATA_NEW_REPLY
   VALUE_CHANGE
   YOU_ARE_SUBSCRIBED
+  METRIC_ACCESS_REQUESTED
+  METRIC_ACCESS_REQUEST_RESPONDED
 }
 
 """
@@ -1401,6 +1426,7 @@ enum BoardOrderBy {
   DESCRIPTION
   ID
   IS_PRIVATE
+  MY_VIEWS
   ORGANIZATION_ID
   RECENTLY_VIEWED
   TITLE
@@ -1470,6 +1496,19 @@ type ProtectedMetricFields {
   totalValueChangeAlerts: Int
   boards(searchStr: String, searchColumns: [BoardStrColumns], orderBy: BoardOrderBy, desc: Boolean, orderBys: [BoardOrderByInput], pageNumber: Int, pageSize: Int): [Board]
   totalBoards: Int
+}
+
+"""
+Enum of governance owner/viewer request types for user_governance_request_status used for private metrics
+"""
+enum GovernanceRequestStatus {
+  PENDING_OWNER
+  DECLINED_OWNER
+  NOT_YET_REQUESTED
+  PENDING_VIEWER
+  DECLINED_VIEWER
+  USER_HAS_OWNER_ACCESS
+  USER_HAS_VIEWER_ACCESS
 }
 
 """An enumeration."""
@@ -1938,6 +1977,15 @@ enum GIntegrationType {
   SLACK
 }
 
+type CurrentModelHistory {
+  id: ID!
+  organizationId: Int!
+  modelId: Int!
+  madeCurrentAt: DateTime!
+  model: Model
+  organization: Organization
+}
+
 """An enumeration."""
 enum FeatureStrColumns {
   NAME
@@ -2154,14 +2202,26 @@ type Mutation {
   metricsRemoveTeamViewers(metricId: ID!, teamIds: [ID], ownerType: GOwnerType): Metric
   metricsAddDescription(metricId: ID!, description: String!): Metric
   metricsUpdateMetadata(metricId: ID!, description: String, tier: Int, displayName: String, valueFormat: String, increaseIsGood: Boolean, defaultTrim: Boolean, defaultGranularity: TimeGranularity, defaultDaysLimit: Int, extraFields: JSONString): Metric
-  orgMetricsAddUserOwners(metricId: ID!, userIds: [Int], ownerType: GOwnerType): OrgMetric
-  orgMetricsRemoveUserOwners(metricId: ID!, userIds: [Int], ownerType: GOwnerType): OrgMetric
-  orgMetricsAddUserViewers(metricId: ID!, userIds: [Int], ownerType: GOwnerType): Metric
-  orgMetricsRemoveUserViewers(metricId: ID!, userIds: [Int], ownerType: GOwnerType): Metric
-  orgMetricsAddTeamOwners(metricId: ID!, teamIds: [Int], ownerType: GOwnerType): OrgMetric
-  orgMetricsRemoveTeamOwners(metricId: ID!, teamIds: [Int], ownerType: GOwnerType): OrgMetric
-  orgMetricsAddTeamViewers(metricId: ID!, teamIds: [Int], ownerType: GOwnerType): Metric
-  orgMetricsRemoveTeamViewers(metricId: ID!, teamIds: [Int], ownerType: GOwnerType): Metric
+  orgMetricsAddUserOwners(metricId: Int!, userIds: [Int], ownerType: GOwnerType): OrgMetric
+  orgMetricsRequestUserOwnership(metricId: Int!): OrgMetric
+  orgMetricsDeclineUserOwnershipRequest(metricId: ID!, userId: Int!): OrgMetric
+  orgMetricsApproveUserOwnershipRequest(metricId: Int!, userId: Int!): OrgMetric
+  orgMetricsRemoveUserOwners(metricId: Int!, userIds: [Int], ownerType: GOwnerType): OrgMetric
+  orgMetricsAddUserViewers(metricId: Int!, userIds: [Int], ownerType: GOwnerType): OrgMetric
+  orgMetricsRequestUserViewership(metricId: Int!): OrgMetric
+  orgMetricsDeclineUserViewershipRequest(metricId: Int!, userId: Int!): OrgMetric
+  orgMetricsApproveUserViewershipRequest(metricId: Int!, userId: Int!): OrgMetric
+  orgMetricsRemoveUserViewers(metricId: Int!, userIds: [Int], ownerType: GOwnerType): OrgMetric
+  orgMetricsAddTeamOwners(metricId: Int!, teamIds: [Int], ownerType: GOwnerType): OrgMetric
+  orgMetricsRequestTeamOwnership(metricId: Int!, teamId: Int!): OrgMetric
+  orgMetricsDeclineTeamOwnershipRequest(metricId: Int!, teamId: Int!): OrgMetric
+  orgMetricsApproveTeamOwnershipRequest(metricId: Int!, teamId: Int!): OrgMetric
+  orgMetricsRemoveTeamOwners(metricId: Int!, teamIds: [Int], ownerType: GOwnerType): OrgMetric
+  orgMetricsAddTeamViewers(metricId: Int!, teamIds: [Int], ownerType: GOwnerType): OrgMetric
+  orgMetricsRequestTeamViewership(metricId: Int!, teamId: Int!): OrgMetric
+  orgMetricsDeclineTeamViewershipRequest(metricId: Int!, teamId: Int!): OrgMetric
+  orgMetricsApproveTeamViewershipRequest(metricId: Int!, teamId: Int!): OrgMetric
+  orgMetricsRemoveTeamViewers(metricId: Int!, teamIds: [Int], ownerType: GOwnerType): OrgMetric
   orgMetricsAddDescription(metricId: ID!, description: String!): OrgMetric
   orgMetricsUpdateMetadata(metricId: ID!, description: String, tier: Int, displayName: String, valueFormat: String, increaseIsGood: Boolean, defaultTrim: Boolean, defaultGranularity: TimeGranularity, defaultDaysLimit: Int, extraFields: JSONString): OrgMetric
   savedQueryCreate(title: String!, serializedQuery: GenericScalar!, metricIds: [ID], ownerTeamId: ID, isPrivate: Boolean): SavedQuery
@@ -2202,8 +2262,8 @@ type Mutation {
   bulkSubscribeAlertRules(channels: [GNotificationChannel]!, alertRuleTypes: [GAlertRuleType]!, userId: Int!, metricId: Int): User
   bulkUnsubscribeAlertRules(channels: [GNotificationChannel]!, alertRuleTypes: [GAlertRuleType]!, userId: Int!, metricId: Int): User
   createTransformServiceUser(orgId: ID!): User
-  boardsCreate(title: String!, description: String, isPrivate: Boolean): Board
-  boardsUpdate(id: Int!, title: String, description: String, isPrivate: Boolean, items: [BoardItemInput]): Board
+  boardsCreate(title: String!, description: String, isPrivate: Boolean, userOwnerIds: [Int], teamOwnerIds: [Int]): Board
+  boardsUpdate(id: Int!, title: String, description: String, isPrivate: Boolean, items: [BoardItemInput], userOwnerIds: [Int], teamOwnerIds: [Int]): Board
   boardsDeactivate(id: Int!): Board
   boardsAddSavedQuery(savedQueryId: Int!, boardIds: [Int]!): [Board]
   boardsLogView(boardId: ID!): BoardView
@@ -2407,6 +2467,8 @@ enum GAlertRuleType {
   METADATA_NEW_REPLY
   VALUE_CHANGE
   YOU_ARE_SUBSCRIBED
+  METRIC_ACCESS_REQUESTED
+  METRIC_ACCESS_REQUEST_RESPONDED
 }
 
 """An enumeration."""
@@ -2506,9 +2568,14 @@ input BoardItemInput {
 Input union for board items. Exactly one of the fields must be non-null
 """
 input BoardItemConfigInput {
+  markdown: MarkdownConfigInput
   savedQuery: SavedQueryItemConfigInput
   metric: MetricItemConfigInput
   group: GroupItemConfigInput
+}
+
+input MarkdownConfigInput {
+  content: String
 }
 
 input SavedQueryItemConfigInput {

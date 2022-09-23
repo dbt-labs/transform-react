@@ -62,6 +62,7 @@ export type Query = {
   dwHealthCheck?: Maybe<Array<Maybe<MqlServerHealthItem>>>;
   flagIsEnabled?: Maybe<Scalars['Boolean']>;
   supportedAlertRules?: Maybe<Array<Maybe<AlertRuleDefinition>>>;
+  celeryHealthCheck?: Maybe<Scalars['Int']>;
 };
 
 
@@ -272,10 +273,12 @@ export type Organization = {
   boards?: Maybe<Array<Maybe<Board>>>;
   boardsV2?: Maybe<Array<Maybe<Board>>>;
   totalBoards?: Maybe<Scalars['Int']>;
+  totalBoardsV2?: Maybe<Scalars['Int']>;
   board?: Maybe<Board>;
   queryIdsInSavedQueries?: Maybe<Array<Maybe<Scalars['Int']>>>;
   metricNamesInBoards?: Maybe<Array<Maybe<Scalars['String']>>>;
   currentModel?: Maybe<Array<Maybe<Model>>>;
+  historyOfCurrentModels?: Maybe<Array<Maybe<CurrentModelHistory>>>;
   activeFeatures?: Maybe<Array<Maybe<Feature>>>;
 };
 
@@ -615,11 +618,25 @@ export type OrganizationBoardsV2Args = {
 export type OrganizationTotalBoardsArgs = {
   searchStr?: Maybe<Scalars['String']>;
   searchColumns?: Maybe<Array<Maybe<BoardStrColumns>>>;
+  excludeNotViewed?: Maybe<Scalars['Boolean']>;
+};
+
+
+export type OrganizationTotalBoardsV2Args = {
+  searchStr?: Maybe<Scalars['String']>;
+  searchColumns?: Maybe<Array<Maybe<BoardStrColumns>>>;
+  excludeNotViewed?: Maybe<Scalars['Boolean']>;
 };
 
 
 export type OrganizationBoardArgs = {
   id: Scalars['Int'];
+};
+
+
+export type OrganizationHistoryOfCurrentModelsArgs = {
+  pageNumber?: Maybe<Scalars['Int']>;
+  pageSize?: Maybe<Scalars['Int']>;
 };
 
 /** An enumeration. */
@@ -683,7 +700,9 @@ export type User = {
   totalBoards?: Maybe<Scalars['Int']>;
   totalBoardsV2?: Maybe<Scalars['Int']>;
   boardsWithSubscribedMetrics?: Maybe<Array<Maybe<Board>>>;
+  boardsWithSubscribedMetricsV2?: Maybe<Array<Maybe<Board>>>;
   totalBoardsWithSubscribedMetrics?: Maybe<Scalars['Int']>;
+  totalBoardsWithSubscribedMetricsV2?: Maybe<Scalars['Int']>;
   viewedMetrics?: Maybe<Array<Maybe<Metric>>>;
   newMetrics?: Maybe<Array<Maybe<Metric>>>;
   viewedOrgMetrics?: Maybe<Array<Maybe<OrgMetric>>>;
@@ -786,18 +805,21 @@ export type UserFavoriteBoardsArgs = {
 export type UserTotalFavoriteBoardsArgs = {
   searchStr?: Maybe<Scalars['String']>;
   searchColumns?: Maybe<Array<Maybe<BoardStrColumns>>>;
+  excludeNotViewed?: Maybe<Scalars['Boolean']>;
 };
 
 
 export type UserTotalBoardsArgs = {
   searchStr?: Maybe<Scalars['String']>;
   searchColumns?: Maybe<Array<Maybe<BoardStrColumns>>>;
+  excludeNotViewed?: Maybe<Scalars['Boolean']>;
 };
 
 
 export type UserTotalBoardsV2Args = {
   searchStr?: Maybe<Scalars['String']>;
   searchColumns?: Maybe<Array<Maybe<BoardStrColumns>>>;
+  excludeNotViewed?: Maybe<Scalars['Boolean']>;
 };
 
 
@@ -812,9 +834,27 @@ export type UserBoardsWithSubscribedMetricsArgs = {
 };
 
 
+export type UserBoardsWithSubscribedMetricsV2Args = {
+  searchStr?: Maybe<Scalars['String']>;
+  searchColumns?: Maybe<Array<Maybe<BoardStrColumns>>>;
+  orderBy?: Maybe<BoardOrderBy>;
+  desc?: Maybe<Scalars['Boolean']>;
+  orderBys?: Maybe<Array<Maybe<BoardOrderByInput>>>;
+  pageNumber?: Maybe<Scalars['Int']>;
+  pageSize?: Maybe<Scalars['Int']>;
+};
+
+
 export type UserTotalBoardsWithSubscribedMetricsArgs = {
   searchStr?: Maybe<Scalars['String']>;
   searchColumns?: Maybe<Array<Maybe<BoardStrColumns>>>;
+};
+
+
+export type UserTotalBoardsWithSubscribedMetricsV2Args = {
+  searchStr?: Maybe<Scalars['String']>;
+  searchColumns?: Maybe<Array<Maybe<BoardStrColumns>>>;
+  excludeNotViewed?: Maybe<Scalars['Boolean']>;
 };
 
 
@@ -1188,15 +1228,23 @@ export type OrgMetric = {
   isCurrent?: Maybe<Scalars['Boolean']>;
   isPrivate?: Maybe<Scalars['Boolean']>;
   model?: Maybe<Model>;
-  ownerUsers?: Maybe<Array<Maybe<User>>>;
-  ownerTeams?: Maybe<Array<Maybe<Team>>>;
+  ownerAccessUsers?: Maybe<Array<Maybe<User>>>;
+  viewerAccessUsers?: Maybe<Array<Maybe<User>>>;
+  pendingOwnerRequestsUsers?: Maybe<Array<Maybe<User>>>;
+  pendingViewerRequestsUsers?: Maybe<Array<Maybe<User>>>;
+  ownerAccessTeams?: Maybe<Array<Maybe<Team>>>;
+  viewerAccessTeams?: Maybe<Array<Maybe<Team>>>;
+  pendingOwnerRequestsTeams?: Maybe<Array<Maybe<Team>>>;
+  pendingViewerRequestsTeams?: Maybe<Array<Maybe<Team>>>;
   protectedFields?: Maybe<ProtectedMetricFields>;
   tier?: Maybe<Scalars['Int']>;
   userHasAccess?: Maybe<Scalars['Boolean']>;
+  /** status of request for metric ownership */
+  userGovernanceRequestStatus?: Maybe<GovernanceRequestStatus>;
 };
 
 
-export type OrgMetricOwnerUsersArgs = {
+export type OrgMetricOwnerAccessUsersArgs = {
   searchStr?: Maybe<Scalars['String']>;
   searchColumns?: Maybe<Array<Maybe<UserStrColumns>>>;
   orderBy?: Maybe<UserOrderBy>;
@@ -1207,7 +1255,73 @@ export type OrgMetricOwnerUsersArgs = {
 };
 
 
-export type OrgMetricOwnerTeamsArgs = {
+export type OrgMetricViewerAccessUsersArgs = {
+  searchStr?: Maybe<Scalars['String']>;
+  searchColumns?: Maybe<Array<Maybe<UserStrColumns>>>;
+  orderBy?: Maybe<UserOrderBy>;
+  desc?: Maybe<Scalars['Boolean']>;
+  orderBys?: Maybe<Array<Maybe<UserOrderByInput>>>;
+  pageNumber?: Maybe<Scalars['Int']>;
+  pageSize?: Maybe<Scalars['Int']>;
+};
+
+
+export type OrgMetricPendingOwnerRequestsUsersArgs = {
+  searchStr?: Maybe<Scalars['String']>;
+  searchColumns?: Maybe<Array<Maybe<UserStrColumns>>>;
+  orderBy?: Maybe<UserOrderBy>;
+  desc?: Maybe<Scalars['Boolean']>;
+  orderBys?: Maybe<Array<Maybe<UserOrderByInput>>>;
+  pageNumber?: Maybe<Scalars['Int']>;
+  pageSize?: Maybe<Scalars['Int']>;
+};
+
+
+export type OrgMetricPendingViewerRequestsUsersArgs = {
+  searchStr?: Maybe<Scalars['String']>;
+  searchColumns?: Maybe<Array<Maybe<UserStrColumns>>>;
+  orderBy?: Maybe<UserOrderBy>;
+  desc?: Maybe<Scalars['Boolean']>;
+  orderBys?: Maybe<Array<Maybe<UserOrderByInput>>>;
+  pageNumber?: Maybe<Scalars['Int']>;
+  pageSize?: Maybe<Scalars['Int']>;
+};
+
+
+export type OrgMetricOwnerAccessTeamsArgs = {
+  searchStr?: Maybe<Scalars['String']>;
+  searchColumns?: Maybe<Array<Maybe<TeamStrColumns>>>;
+  orderBy?: Maybe<TeamOrderBy>;
+  desc?: Maybe<Scalars['Boolean']>;
+  orderBys?: Maybe<Array<Maybe<TeamOrderByInput>>>;
+  pageNumber?: Maybe<Scalars['Int']>;
+  pageSize?: Maybe<Scalars['Int']>;
+};
+
+
+export type OrgMetricViewerAccessTeamsArgs = {
+  searchStr?: Maybe<Scalars['String']>;
+  searchColumns?: Maybe<Array<Maybe<TeamStrColumns>>>;
+  orderBy?: Maybe<TeamOrderBy>;
+  desc?: Maybe<Scalars['Boolean']>;
+  orderBys?: Maybe<Array<Maybe<TeamOrderByInput>>>;
+  pageNumber?: Maybe<Scalars['Int']>;
+  pageSize?: Maybe<Scalars['Int']>;
+};
+
+
+export type OrgMetricPendingOwnerRequestsTeamsArgs = {
+  searchStr?: Maybe<Scalars['String']>;
+  searchColumns?: Maybe<Array<Maybe<TeamStrColumns>>>;
+  orderBy?: Maybe<TeamOrderBy>;
+  desc?: Maybe<Scalars['Boolean']>;
+  orderBys?: Maybe<Array<Maybe<TeamOrderByInput>>>;
+  pageNumber?: Maybe<Scalars['Int']>;
+  pageSize?: Maybe<Scalars['Int']>;
+};
+
+
+export type OrgMetricPendingViewerRequestsTeamsArgs = {
   searchStr?: Maybe<Scalars['String']>;
   searchColumns?: Maybe<Array<Maybe<TeamStrColumns>>>;
   orderBy?: Maybe<TeamOrderBy>;
@@ -1449,7 +1563,7 @@ export type Model = {
   gitIsDirty: Scalars['Boolean'];
   executionContext?: Maybe<Scalars['String']>;
   isCurrent: Scalars['Boolean'];
-  serializedModel?: Maybe<Scalars['String']>;
+  isValidation: Scalars['Boolean'];
   modelDbtDataSources?: Maybe<Array<Maybe<ModelDataSource>>>;
   uploader?: Maybe<User>;
   metrics?: Maybe<Array<Maybe<Metric>>>;
@@ -2037,6 +2151,7 @@ export type Board = {
   userCanDeactivate?: Maybe<Scalars['Boolean']>;
   items?: Maybe<Array<BoardItem>>;
   totalViews?: Maybe<Scalars['Int']>;
+  myViews?: Maybe<Scalars['Int']>;
   totalFavorites?: Maybe<Scalars['Int']>;
   isFavoritedByUser?: Maybe<Scalars['Boolean']>;
   lastWeekViews?: Maybe<Scalars['Int']>;
@@ -2138,6 +2253,7 @@ export type BoardItem = {
   orgMetric?: Maybe<OrgMetric>;
   savedQuery?: Maybe<SavedQuery>;
   config?: Maybe<GroupItemConfig>;
+  markdown?: Maybe<MarkdownConfig>;
   children?: Maybe<Array<Maybe<BoardItem>>>;
   metric?: Maybe<Metric>;
 };
@@ -2149,11 +2265,13 @@ export type BoardItem = {
  *     - Group: has a title/description and is represents a section
  *     - Metric chart: displays data for a metric's default query
  *     - Saved query chart: displays data for a saved query
+ *     - Markdown: displays markdown tile
  */
 export enum BoardItemType {
   Group = 'GROUP',
   MetricChart = 'METRIC_CHART',
-  SavedQueryChart = 'SAVED_QUERY_CHART'
+  SavedQueryChart = 'SAVED_QUERY_CHART',
+  Markdown = 'MARKDOWN'
 }
 
 export type GroupItemConfig = {
@@ -2161,6 +2279,12 @@ export type GroupItemConfig = {
   type?: Maybe<Scalars['String']>;
   title?: Maybe<Scalars['String']>;
   description?: Maybe<Scalars['String']>;
+};
+
+export type MarkdownConfig = {
+  __typename?: 'MarkdownConfig';
+  type?: Maybe<Scalars['String']>;
+  content?: Maybe<Scalars['String']>;
 };
 
 /** An enumeration. */
@@ -2278,7 +2402,9 @@ export enum AlertRuleType {
   MetadataNewSubscribers = 'METADATA_NEW_SUBSCRIBERS',
   MetadataNewReply = 'METADATA_NEW_REPLY',
   ValueChange = 'VALUE_CHANGE',
-  YouAreSubscribed = 'YOU_ARE_SUBSCRIBED'
+  YouAreSubscribed = 'YOU_ARE_SUBSCRIBED',
+  MetricAccessRequested = 'METRIC_ACCESS_REQUESTED',
+  MetricAccessRequestResponded = 'METRIC_ACCESS_REQUEST_RESPONDED'
 }
 
 /**
@@ -2349,6 +2475,7 @@ export enum BoardOrderBy {
   Description = 'DESCRIPTION',
   Id = 'ID',
   IsPrivate = 'IS_PRIVATE',
+  MyViews = 'MY_VIEWS',
   OrganizationId = 'ORGANIZATION_ID',
   RecentlyViewed = 'RECENTLY_VIEWED',
   Title = 'TITLE',
@@ -2501,6 +2628,17 @@ export type ProtectedMetricFieldsBoardsArgs = {
   pageNumber?: Maybe<Scalars['Int']>;
   pageSize?: Maybe<Scalars['Int']>;
 };
+
+/** Enum of governance owner/viewer request types for user_governance_request_status used for private metrics */
+export enum GovernanceRequestStatus {
+  PendingOwner = 'PENDING_OWNER',
+  DeclinedOwner = 'DECLINED_OWNER',
+  NotYetRequested = 'NOT_YET_REQUESTED',
+  PendingViewer = 'PENDING_VIEWER',
+  DeclinedViewer = 'DECLINED_VIEWER',
+  UserHasOwnerAccess = 'USER_HAS_OWNER_ACCESS',
+  UserHasViewerAccess = 'USER_HAS_VIEWER_ACCESS'
+}
 
 /** An enumeration. */
 export enum MetricCollectionMetricOrderBy {
@@ -3016,6 +3154,16 @@ export enum GIntegrationType {
   Slack = 'SLACK'
 }
 
+export type CurrentModelHistory = {
+  __typename?: 'CurrentModelHistory';
+  id: Scalars['ID'];
+  organizationId: Scalars['Int'];
+  modelId: Scalars['Int'];
+  madeCurrentAt: Scalars['DateTime'];
+  model?: Maybe<Model>;
+  organization?: Maybe<Organization>;
+};
+
 /** An enumeration. */
 export enum FeatureStrColumns {
   Name = 'NAME'
@@ -3211,13 +3359,25 @@ export type Mutation = {
   metricsAddDescription?: Maybe<Metric>;
   metricsUpdateMetadata?: Maybe<Metric>;
   orgMetricsAddUserOwners?: Maybe<OrgMetric>;
+  orgMetricsRequestUserOwnership?: Maybe<OrgMetric>;
+  orgMetricsDeclineUserOwnershipRequest?: Maybe<OrgMetric>;
+  orgMetricsApproveUserOwnershipRequest?: Maybe<OrgMetric>;
   orgMetricsRemoveUserOwners?: Maybe<OrgMetric>;
-  orgMetricsAddUserViewers?: Maybe<Metric>;
-  orgMetricsRemoveUserViewers?: Maybe<Metric>;
+  orgMetricsAddUserViewers?: Maybe<OrgMetric>;
+  orgMetricsRequestUserViewership?: Maybe<OrgMetric>;
+  orgMetricsDeclineUserViewershipRequest?: Maybe<OrgMetric>;
+  orgMetricsApproveUserViewershipRequest?: Maybe<OrgMetric>;
+  orgMetricsRemoveUserViewers?: Maybe<OrgMetric>;
   orgMetricsAddTeamOwners?: Maybe<OrgMetric>;
+  orgMetricsRequestTeamOwnership?: Maybe<OrgMetric>;
+  orgMetricsDeclineTeamOwnershipRequest?: Maybe<OrgMetric>;
+  orgMetricsApproveTeamOwnershipRequest?: Maybe<OrgMetric>;
   orgMetricsRemoveTeamOwners?: Maybe<OrgMetric>;
-  orgMetricsAddTeamViewers?: Maybe<Metric>;
-  orgMetricsRemoveTeamViewers?: Maybe<Metric>;
+  orgMetricsAddTeamViewers?: Maybe<OrgMetric>;
+  orgMetricsRequestTeamViewership?: Maybe<OrgMetric>;
+  orgMetricsDeclineTeamViewershipRequest?: Maybe<OrgMetric>;
+  orgMetricsApproveTeamViewershipRequest?: Maybe<OrgMetric>;
+  orgMetricsRemoveTeamViewers?: Maybe<OrgMetric>;
   orgMetricsAddDescription?: Maybe<OrgMetric>;
   orgMetricsUpdateMetadata?: Maybe<OrgMetric>;
   savedQueryCreate?: Maybe<SavedQuery>;
@@ -4248,7 +4408,7 @@ export type MutationMetricsUpdateMetadataArgs = {
  * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
  */
 export type MutationOrgMetricsAddUserOwnersArgs = {
-  metricId: Scalars['ID'];
+  metricId: Scalars['Int'];
   userIds?: Maybe<Array<Maybe<Scalars['Int']>>>;
   ownerType?: Maybe<GOwnerType>;
 };
@@ -4260,8 +4420,43 @@ export type MutationOrgMetricsAddUserOwnersArgs = {
  * Mutation names will be converted from snake_case to camelCase automatically
  * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
  */
-export type MutationOrgMetricsRemoveUserOwnersArgs = {
+export type MutationOrgMetricsRequestUserOwnershipArgs = {
+  metricId: Scalars['Int'];
+};
+
+
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
+export type MutationOrgMetricsDeclineUserOwnershipRequestArgs = {
   metricId: Scalars['ID'];
+  userId: Scalars['Int'];
+};
+
+
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
+export type MutationOrgMetricsApproveUserOwnershipRequestArgs = {
+  metricId: Scalars['Int'];
+  userId: Scalars['Int'];
+};
+
+
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
+export type MutationOrgMetricsRemoveUserOwnersArgs = {
+  metricId: Scalars['Int'];
   userIds?: Maybe<Array<Maybe<Scalars['Int']>>>;
   ownerType?: Maybe<GOwnerType>;
 };
@@ -4274,7 +4469,7 @@ export type MutationOrgMetricsRemoveUserOwnersArgs = {
  * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
  */
 export type MutationOrgMetricsAddUserViewersArgs = {
-  metricId: Scalars['ID'];
+  metricId: Scalars['Int'];
   userIds?: Maybe<Array<Maybe<Scalars['Int']>>>;
   ownerType?: Maybe<GOwnerType>;
 };
@@ -4286,8 +4481,43 @@ export type MutationOrgMetricsAddUserViewersArgs = {
  * Mutation names will be converted from snake_case to camelCase automatically
  * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
  */
+export type MutationOrgMetricsRequestUserViewershipArgs = {
+  metricId: Scalars['Int'];
+};
+
+
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
+export type MutationOrgMetricsDeclineUserViewershipRequestArgs = {
+  metricId: Scalars['Int'];
+  userId: Scalars['Int'];
+};
+
+
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
+export type MutationOrgMetricsApproveUserViewershipRequestArgs = {
+  metricId: Scalars['Int'];
+  userId: Scalars['Int'];
+};
+
+
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationOrgMetricsRemoveUserViewersArgs = {
-  metricId: Scalars['ID'];
+  metricId: Scalars['Int'];
   userIds?: Maybe<Array<Maybe<Scalars['Int']>>>;
   ownerType?: Maybe<GOwnerType>;
 };
@@ -4300,7 +4530,7 @@ export type MutationOrgMetricsRemoveUserViewersArgs = {
  * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
  */
 export type MutationOrgMetricsAddTeamOwnersArgs = {
-  metricId: Scalars['ID'];
+  metricId: Scalars['Int'];
   teamIds?: Maybe<Array<Maybe<Scalars['Int']>>>;
   ownerType?: Maybe<GOwnerType>;
 };
@@ -4312,8 +4542,44 @@ export type MutationOrgMetricsAddTeamOwnersArgs = {
  * Mutation names will be converted from snake_case to camelCase automatically
  * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
  */
+export type MutationOrgMetricsRequestTeamOwnershipArgs = {
+  metricId: Scalars['Int'];
+  teamId: Scalars['Int'];
+};
+
+
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
+export type MutationOrgMetricsDeclineTeamOwnershipRequestArgs = {
+  metricId: Scalars['Int'];
+  teamId: Scalars['Int'];
+};
+
+
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
+export type MutationOrgMetricsApproveTeamOwnershipRequestArgs = {
+  metricId: Scalars['Int'];
+  teamId: Scalars['Int'];
+};
+
+
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationOrgMetricsRemoveTeamOwnersArgs = {
-  metricId: Scalars['ID'];
+  metricId: Scalars['Int'];
   teamIds?: Maybe<Array<Maybe<Scalars['Int']>>>;
   ownerType?: Maybe<GOwnerType>;
 };
@@ -4326,7 +4592,7 @@ export type MutationOrgMetricsRemoveTeamOwnersArgs = {
  * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
  */
 export type MutationOrgMetricsAddTeamViewersArgs = {
-  metricId: Scalars['ID'];
+  metricId: Scalars['Int'];
   teamIds?: Maybe<Array<Maybe<Scalars['Int']>>>;
   ownerType?: Maybe<GOwnerType>;
 };
@@ -4338,8 +4604,44 @@ export type MutationOrgMetricsAddTeamViewersArgs = {
  * Mutation names will be converted from snake_case to camelCase automatically
  * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
  */
+export type MutationOrgMetricsRequestTeamViewershipArgs = {
+  metricId: Scalars['Int'];
+  teamId: Scalars['Int'];
+};
+
+
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
+export type MutationOrgMetricsDeclineTeamViewershipRequestArgs = {
+  metricId: Scalars['Int'];
+  teamId: Scalars['Int'];
+};
+
+
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
+export type MutationOrgMetricsApproveTeamViewershipRequestArgs = {
+  metricId: Scalars['Int'];
+  teamId: Scalars['Int'];
+};
+
+
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationOrgMetricsRemoveTeamViewersArgs = {
-  metricId: Scalars['ID'];
+  metricId: Scalars['Int'];
   teamIds?: Maybe<Array<Maybe<Scalars['Int']>>>;
   ownerType?: Maybe<GOwnerType>;
 };
@@ -4835,6 +5137,8 @@ export type MutationBoardsCreateArgs = {
   title: Scalars['String'];
   description?: Maybe<Scalars['String']>;
   isPrivate?: Maybe<Scalars['Boolean']>;
+  userOwnerIds?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  teamOwnerIds?: Maybe<Array<Maybe<Scalars['Int']>>>;
 };
 
 
@@ -4850,6 +5154,8 @@ export type MutationBoardsUpdateArgs = {
   description?: Maybe<Scalars['String']>;
   isPrivate?: Maybe<Scalars['Boolean']>;
   items?: Maybe<Array<Maybe<BoardItemInput>>>;
+  userOwnerIds?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  teamOwnerIds?: Maybe<Array<Maybe<Scalars['Int']>>>;
 };
 
 
@@ -5172,7 +5478,9 @@ export enum GAlertRuleType {
   MetadataNewSubscribers = 'METADATA_NEW_SUBSCRIBERS',
   MetadataNewReply = 'METADATA_NEW_REPLY',
   ValueChange = 'VALUE_CHANGE',
-  YouAreSubscribed = 'YOU_ARE_SUBSCRIBED'
+  YouAreSubscribed = 'YOU_ARE_SUBSCRIBED',
+  MetricAccessRequested = 'METRIC_ACCESS_REQUESTED',
+  MetricAccessRequestResponded = 'METRIC_ACCESS_REQUEST_RESPONDED'
 }
 
 /** An enumeration. */
@@ -5273,9 +5581,14 @@ export type BoardItemInput = {
 
 /** Input union for board items. Exactly one of the fields must be non-null */
 export type BoardItemConfigInput = {
+  markdown?: Maybe<MarkdownConfigInput>;
   savedQuery?: Maybe<SavedQueryItemConfigInput>;
   metric?: Maybe<MetricItemConfigInput>;
   group?: Maybe<GroupItemConfigInput>;
+};
+
+export type MarkdownConfigInput = {
+  content?: Maybe<Scalars['String']>;
 };
 
 export type SavedQueryItemConfigInput = {
