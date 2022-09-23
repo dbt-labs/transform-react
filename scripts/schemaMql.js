@@ -8,6 +8,12 @@ const {
 } = require("graphql");
 
 process.env.NODE_ENV = "development";
+// Ensure environment variables are read.
+require("./loadEnvLocal");
+
+if (!process.env.API_TOKEN) {
+  throw new Error("No production token available in process.env.API_TOKEN");
+}
 
 async function main() {
   let response;
@@ -17,6 +23,7 @@ async function main() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.API_TOKEN}`,
       },
       body: JSON.stringify({ query: getIntrospectionQuery() }),
     });
