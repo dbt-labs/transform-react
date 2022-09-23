@@ -37,6 +37,9 @@ type Query {
   queriesToPreload: [MetricFlowQueryParameters]
   queryParamsFromDbId(dbId: Int!): MqlQueryParams
   numActiveQueries: Int
+  oneHourSuccessRate: Float
+  oneDaySuccessRate: Float
+  oneWeekSuccessRate: Float
 }
 
 """

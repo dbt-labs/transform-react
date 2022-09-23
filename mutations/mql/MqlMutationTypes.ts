@@ -66,6 +66,9 @@ export type Query = {
   queriesToPreload?: Maybe<Array<Maybe<MetricFlowQueryParameters>>>;
   queryParamsFromDbId?: Maybe<MqlQueryParams>;
   numActiveQueries?: Maybe<Scalars['Int']>;
+  oneHourSuccessRate?: Maybe<Scalars['Float']>;
+  oneDaySuccessRate?: Maybe<Scalars['Float']>;
+  oneWeekSuccessRate?: Maybe<Scalars['Float']>;
 };
 
 

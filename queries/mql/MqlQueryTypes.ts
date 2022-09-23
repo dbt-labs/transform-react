@@ -66,6 +66,9 @@ export type Query = {
   queriesToPreload?: Maybe<Array<Maybe<MetricFlowQueryParameters>>>;
   queryParamsFromDbId?: Maybe<MqlQueryParams>;
   numActiveQueries?: Maybe<Scalars['Int']>;
+  oneHourSuccessRate?: Maybe<Scalars['Float']>;
+  oneDaySuccessRate?: Maybe<Scalars['Float']>;
+  oneWeekSuccessRate?: Maybe<Scalars['Float']>;
 };
 
 
@@ -1338,6 +1341,14 @@ export type FetchMqlQueryLogsQuery = (
     { __typename?: 'MqlQuery' }
     & Pick<MqlQuery, 'id' | 'status' | 'completedAt' | 'startedAt' | 'metrics'>
   )>>> }
+);
+
+export type MqlQuerySuccessRatesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MqlQuerySuccessRatesQuery = (
+  { __typename?: 'Query' }
+  & Pick<Query, 'oneHourSuccessRate' | 'oneDaySuccessRate' | 'oneWeekSuccessRate'>
 );
 
 export type FetchMetricCanLimitDimensionsQueryVariables = Exact<{
