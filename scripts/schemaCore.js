@@ -23,7 +23,7 @@ async function main() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: process.env.API_TOKEN,
+        Authorization: `Bearer ${process.env.API_TOKEN}`,
       },
       body: JSON.stringify({ query: getIntrospectionQuery() }),
     });
