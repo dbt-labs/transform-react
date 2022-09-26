@@ -25,7 +25,7 @@
     "codegen:core:queries": "graphql-codegen --config codegen/core/queries.yml",
     "codegen": "yarn run codegen:mql:mutations && yarn run codegen:mql:queries && yarn run codegen:core:mutations && yarn run codegen:core:queries",
     "dev": "next dev",
-    "prepublish": "tsc",
+    "prepare": "tsc",
     "tsc": "tsc",
     "start": "next start",
     "schema:mql": "node scripts/schemaMql.js",
