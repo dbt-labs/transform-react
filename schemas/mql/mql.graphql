@@ -19,6 +19,7 @@ type Query {
   materializations(modelKey: ModelKeyInput): [Materialization!]
   metrics(modelKey: ModelKeyInput): [Metric!]
   metricByName(modelKey: ModelKeyInput, name: String!): Metric
+  metricsByName(modelKey: ModelKeyInput, names: [String]!): [Metric]
   measures(modelKey: ModelKeyInput): [Measure!]
   measureByName(modelKey: ModelKeyInput, name: String!): Measure
   dimensionNamesForMetrics(modelKey: ModelKeyInput, metricNames: [String], excludeProperties: [DimensionProperty]): [String]
@@ -98,6 +99,8 @@ type MqlQuery {
   logsByLine(fromLine: Int, maxLines: Int): String
   chartValueMin: Float
   chartValueMax: Float
+  columnMinChartValues: GenericScalar
+  columnMaxChartValues: GenericScalar
   latestResultValues: [QueryResultValue]
   whereConstraint: String
   requestedGranularity: TimeGranularity
@@ -374,6 +377,7 @@ type Metric {
   maxGranularity(modelKey: ModelKeyInput): TimeGranularity
   newDataIsAvailable(afterDatetime: DateTime!, modelKey: ModelKeyInput): Boolean
   canLimitDimensionValues(modelKey: ModelKeyInput): Boolean
+  valueFormat: String
 }
 
 """
@@ -545,6 +549,9 @@ type Mutation {
 
   """Invalidate cache for a given metric."""
   invalidateCacheForMetric(metricName: String!, modelKey: ModelKeyInput): InvalidateCacheForMetric
+
+  """Invalidate cache for a given metric."""
+  invalidateCacheForMetrics(metricNames: [String]!, modelKey: ModelKeyInput): InvalidateCacheForMetrics
 
   """Invalidate all cache."""
   invalidateAllCaches(modelKey: ModelKeyInput): InvalidateAllCaches
@@ -822,6 +829,11 @@ input PctChangeOverRangeInput {
 
 """Invalidate cache for a given metric."""
 type InvalidateCacheForMetric {
+  success: String
+}
+
+"""Invalidate cache for a given metric."""
+type InvalidateCacheForMetrics {
   success: String
 }
 
