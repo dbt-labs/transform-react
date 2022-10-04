@@ -20,6 +20,7 @@ const query = gql`
       completedAt
       startedAt
       metrics
+      userId
     }
   }
 `;
