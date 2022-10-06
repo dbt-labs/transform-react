@@ -1,44 +1,72 @@
-import { useContext, Dispatch } from 'react';
-import MqlContext from "../../../context/MqlContext/MqlContext";
-import CreateMqlQuery from "../../../mutations/mql/CreateMqlQuery";
+import { useContext, useMemo, Dispatch } from 'react';
+import MqlContext from '../../../context/MqlContext/MqlContext';
+import CreateMqlQuery from '../../../mutations/mql/CreateMqlQuery';
 import {
   CreateMqlQueryMutation,
   CreateMqlQueryMutationVariables,
-} from "../../../mutations/mql/MqlMutationTypes";
-import clearEmptyConstraints from './clearEmptyConstraints';
-import { Action as UseMqlQueryAction, getRetryPollingMS } from '../../reducers/mqlQueryReducer';
-import getErrorMessage from '../../utils/getErrorMessage';
+} from '../../../mutations/mql/MqlMutationTypes';
 import {
   FetchMqlTimeSeriesQuery,
   MqlQueryStatus,
-} from "../../../queries/mql/MqlQueryTypes";
+} from '../../../queries/mql/MqlQueryTypes';
+import {
+  Action as UseMqlQueryAction,
+  getRetryPollingMS,
+} from '../../reducers/mqlQueryReducer';
+import getErrorMessage from '../../utils/getErrorMessage';
+import clearEmptyConstraints from './clearEmptyConstraints';
 
 export interface DoCreateMqlQueryArgs {
-  stateRetries: number
+  stateRetries: number;
 }
 
-interface UseCreateMqlQueryArgs {
+interface CommonUseCreateMqlQueryArgs {
   retries: number; // the number of retries passed as an arg from the client.
-  metricName: string;
   formState?: Omit<CreateMqlQueryMutationVariables, 'attemptNum'>;
-  dispatch: Dispatch<UseMqlQueryAction<CreateMqlQueryMutation, FetchMqlTimeSeriesQuery>>;
+  dispatch: Dispatch<
+    UseMqlQueryAction<CreateMqlQueryMutation, FetchMqlTimeSeriesQuery>
+  >;
 }
+
+export interface SingleMetricUserCreateMqlQueryArgs
+  extends CommonUseCreateMqlQueryArgs {
+  metricName: string;
+  metricNames?: never;
+}
+export interface MultipleMetricsUserCreateMqlQueryArgs
+  extends CommonUseCreateMqlQueryArgs {
+  metricName?: never;
+  metricNames: string[];
+}
+
+type UseCreateMqlQueryArgs =
+  | SingleMetricUserCreateMqlQueryArgs
+  | MultipleMetricsUserCreateMqlQueryArgs;
 
 interface UseCreateMqlQuery {
   createTimeSeriesMqlQuery: (args: DoCreateMqlQueryArgs) => void;
 }
 
-const useCreateTimeSeriesMqlQuery = ({metricName, formState = {}, dispatch, retries}: UseCreateMqlQueryArgs): UseCreateMqlQuery => {
-  const {
-    useMutation,
-    handleCombinedError,
-  } = useContext(MqlContext);
+const useCreateTimeSeriesMqlQuery = ({
+  metricName,
+  metricNames,
+  formState = {},
+  dispatch,
+  retries,
+}: UseCreateMqlQueryArgs): UseCreateMqlQuery => {
+  const { useMutation, handleCombinedError } = useContext(MqlContext);
 
-  const [{}, createMqlQueryMutation] = useMutation<
+  const [, createMqlQueryMutation] = useMutation<
     CreateMqlQueryMutation,
     CreateMqlQueryMutationVariables
   >(CreateMqlQuery);
-  const createTimeSeriesMqlQuery = ({stateRetries}:DoCreateMqlQueryArgs) => {
+
+  const metrics = useMemo(
+    () => (metricName ? [metricName] : metricNames || []),
+    [metricName, metricNames]
+  );
+
+  const createTimeSeriesMqlQuery = ({ stateRetries }: DoCreateMqlQueryArgs) => {
     createMqlQueryMutation({
       addTimeSeries: true,
       attemptNum: stateRetries,
@@ -49,7 +77,7 @@ const useCreateTimeSeriesMqlQuery = ({metricName, formState = {}, dispatch, retr
       latestXDays: formState.latestXDays,
       limit: formState.limit,
       maxDimensionValues: formState.maxDimensionValues,
-      metrics: [metricName],
+      metrics: metrics as string[],
       order: formState.order,
       pctChange: formState.pctChange,
       startTime: formState.latestXDays ? null : formState.startTime,
@@ -59,41 +87,43 @@ const useCreateTimeSeriesMqlQuery = ({metricName, formState = {}, dispatch, retr
     }).then(({ data, error }) => {
       if (data?.createMqlQuery?.query?.status === MqlQueryStatus.Successful) {
         dispatch({
-          type: "postQueryCachedResultsSuccess",
+          type: 'postQueryCachedResultsSuccess',
           data,
           handleCombinedError,
         });
       } else {
         if (data?.createMqlQuery?.id) {
           dispatch({
-            type: "postQuerySuccess",
+            type: 'postQuerySuccess',
             queryId: data?.createMqlQuery?.id,
           });
-        } else if (error) {
-          if (retries > 0 && stateRetries !== retries && stateRetries < retries) {
+          return;
+        }
+        if (error) {
+          if (
+            retries > 0 &&
+            stateRetries !== retries &&
+            stateRetries < retries
+          ) {
             setTimeout(() => {
-              dispatch({ type: "retryFetchResults" });
-              createTimeSeriesMqlQuery({stateRetries: stateRetries + 1});
-            }, getRetryPollingMS())
+              dispatch({ type: 'retryFetchResults' });
+              createTimeSeriesMqlQuery({ stateRetries: stateRetries + 1 });
+            }, getRetryPollingMS());
           } else {
             dispatch({
-              type: "postQueryFail",
+              type: 'postQueryFail',
               errorMessage: getErrorMessage(error),
             });
           }
           handleCombinedError(error);
-
         }
       }
-
     });
   };
 
   return {
-    createTimeSeriesMqlQuery
-  }
-}
-
-
+    createTimeSeriesMqlQuery,
+  };
+};
 
 export default useCreateTimeSeriesMqlQuery;
