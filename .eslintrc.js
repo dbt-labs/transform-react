@@ -51,20 +51,6 @@ module.exports = {
     'react/jsx-no-constructed-context-values': 'warn',
     'react/jsx-no-bind': 'warn',
 
-    // Don't use these libraries, use local wrappers instead
-    'no-restricted-imports': [
-      'error',
-      {
-        name: 'react-toastify',
-        message: 'Please use "components/dls/Toast/toast" instead',
-      },
-      {
-        name: '@apollo/client',
-        importNames: ['useQuery', 'useLazyQuery'],
-        message: 'Please use "gql/queries" instead',
-      },
-    ],
-
     // note you must disable the base rule as it can report incorrect errors
     'no-unused-vars': 'off',
     '@typescript-eslint/no-unused-vars': ['error'],
