@@ -1,0 +1,32 @@
+{
+  "trailingComma": "es5",
+  "tabWidth": 2,
+  "semi": true,
+  "singleQuote": true,
+  "importOrder": [
+    "^@apollo/(.*)$",
+    "^@auth0/(.*)$",
+    "react$",
+    "react-i18next$",
+    "utils/i18n",
+    "^public/static/(.*)$",
+    "next$",
+    "^next/(.*)$",
+    "<THIRD_PARTY_MODULES>",
+    "^graphql/(.*)$",
+    "^hooks/(.*)$",
+    "^utils/(.*)$",
+    "^./hooks/(.*)$",
+    "^./utils/(.*)$",
+    "^theme/(.*)$",
+    "^@material-ui/core/styles",
+    "^@material-ui/(.*)$",
+    "^components/(.*)$",
+    "types$",
+    "^./types/(.*)$",
+    "^__generated__/(.*)$",
+    "^./graphql/use(.*)$",
+    "^./graphql/__generated__/(.*)$",
+    "^[./]"
+  ]
+}

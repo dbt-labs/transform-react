@@ -1,49 +1,52 @@
-import { useEffect, useReducer, useContext } from "react";
+import { useEffect, useReducer, useContext, useMemo } from 'react';
+import useCreateTimeSeriesMqlQuery, {
+  SingleMetricUserCreateMqlQueryArgs,
+  MultipleMetricsUserCreateMqlQueryArgs,
+} from './utils/useCreateTimeSeriesMqlQuery';
 // import { CombinedError } from "urql";
-import MqlContext from "../../context/MqlContext/MqlContext";
+import MqlContext from '../../context/MqlContext/MqlContext';
 import {
   CreateMqlQueryMutation,
   CreateMqlQueryMutationVariables,
-} from "../../mutations/mql/MqlMutationTypes";
-import { FetchMqlTimeSeriesQuery } from "../../queries/mql/MqlQueryTypes";
-import useCreateTimeSeriesMqlQuery from "./utils/useCreateTimeSeriesMqlQuery";
+} from '../../mutations/mql/MqlMutationTypes';
+import FetchMqlQueryTimeSeries from '../../queries/mql/FetchMqlQueryTimeSeries';
+import { FetchMqlTimeSeriesQuery } from '../../queries/mql/MqlQueryTypes';
 import mqlQueryReducer, {
   initialState,
   UseMqlQueryState,
-} from "../reducers/mqlQueryReducer";
-import useFetchMqlQuery from "../utils/useFetchMqlQuery";
-import FetchMqlQueryTimeSeries from "../../queries/mql/FetchMqlQueryTimeSeries";
+} from '../reducers/mqlQueryReducer';
+import useFetchMqlQuery from '../utils/useFetchMqlQuery';
+
+interface CommonMqlQueryParams {
+  queryInput?: Omit<CreateMqlQueryMutationVariables, 'attemptNum'>;
+  skip?: boolean;
+  retries?: number;
+  doRefetchMqlQuery?: boolean;
+}
+
+interface SingleMetricMqlQueryParams extends CommonMqlQueryParams {
+  metricName: string;
+  metricNames?: never;
+}
+
+interface MultipleMetricsMqlQueryParams extends CommonMqlQueryParams {
+  metricName?: never;
+  metricNames: string[];
+}
 
 /*
   Please Beware!
   Here Be Dragons!
-
   If `queryInput` is provided, it *must* be stable for this to work.
   That means if the value is calculated and generating a fresh object every render,
   this will result in an infinite loop!
-
   So we are doing something that seems like it could be improved, which is that if the form is based on the URL,
   we pass in locationSearch, which is stable, and calculate the form state inside an effect. I know. Gross, right?
   Is there a better approach?
 */
-type CommonParams = {
-  queryInput?: Omit<CreateMqlQueryMutationVariables, "attemptNum">;
-  skip?: boolean;
-  retries?: number;
-  doRefetchMqlQuery?: boolean;
-};
-
-type SingleMetric = {
-  metricName: string;
-  metricNames?: never;
-};
-
-type MultiMetric = {
-  metricName?: never;
-  metricNames: string[];
-};
-
-type UseMqlQueryParams = CommonParams & (SingleMetric | MultiMetric);
+type UseMqlQueryParams =
+  | SingleMetricMqlQueryParams
+  | MultipleMetricsMqlQueryParams;
 
 export type UseTimeSeriesMqlQuery = UseMqlQueryState<FetchMqlTimeSeriesQuery>;
 
@@ -62,27 +65,43 @@ export default function useTimeSeriesMqlQuery({
   const dataAccr = (data: CreateMqlQueryMutation) =>
     data?.createMqlQuery?.query;
 
-  const test = metricName ? { metricName } : {};
-
   const reducer = mqlQueryReducer<
     CreateMqlQueryMutation,
     FetchMqlTimeSeriesQuery
   >(dataAccr);
   const [state, dispatch] = useReducer(reducer, initialState);
-  const { createTimeSeriesMqlQuery } = useCreateTimeSeriesMqlQuery({
-    ...(metricName
-      ? ({ metricName } as { metricName: string })
-      : ({ metricNames } as { metricNames: string[] })),
-    formState: queryInput,
-    dispatch,
-    retries,
-  });
+
+  const useCreateTimeSeriesMqlQueryArgsSingle = useMemo(
+    (): SingleMetricUserCreateMqlQueryArgs => ({
+      metricName: metricName as string,
+      formState: queryInput,
+      dispatch,
+      retries,
+    }),
+    [metricName, queryInput, dispatch, retries]
+  );
+
+  const useCreateTimeSeriesMqlQueryArgsMultiple = useMemo(
+    (): MultipleMetricsUserCreateMqlQueryArgs => ({
+      metricNames: metricNames as string[],
+      formState: queryInput,
+      dispatch,
+      retries,
+    }),
+    [metricNames, queryInput, dispatch, retries]
+  );
+
+  const { createTimeSeriesMqlQuery } = useCreateTimeSeriesMqlQuery(
+    metricName
+      ? useCreateTimeSeriesMqlQueryArgsSingle
+      : useCreateTimeSeriesMqlQueryArgsMultiple
+  );
 
   useEffect(() => {
     if ((!metricName && !metricNames) || !mqlServerUrl || skip) {
       return;
     }
-    dispatch({ type: "postQueryStart", doRefetchMqlQuery });
+    dispatch({ type: 'postQueryStart', doRefetchMqlQuery });
     createTimeSeriesMqlQuery({ stateRetries: state.retries });
   }, [
     queryInput,
