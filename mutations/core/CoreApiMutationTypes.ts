@@ -221,6 +221,7 @@ export type Organization = {
   metricViews?: Maybe<Array<Maybe<MetricView>>>;
   teamViews?: Maybe<Array<Maybe<TeamView>>>;
   integrations?: Maybe<Integrations>;
+  modelsV2?: Maybe<Array<Maybe<Model>>>;
   questions?: Maybe<Array<Maybe<Question>>>;
   question?: Maybe<Question>;
   annotations?: Maybe<Array<Maybe<Annotation>>>;
@@ -279,6 +280,8 @@ export type Organization = {
   metricNamesInBoards?: Maybe<Array<Maybe<Scalars['String']>>>;
   currentModel?: Maybe<Array<Maybe<Model>>>;
   historyOfCurrentModels?: Maybe<Array<Maybe<CurrentModelHistory>>>;
+  annotationsForMetrics?: Maybe<Array<Maybe<Annotation>>>;
+  totalAnnotationsForMetrics?: Maybe<Scalars['Int']>;
   activeFeatures?: Maybe<Array<Maybe<Feature>>>;
 };
 
@@ -372,6 +375,17 @@ export type OrganizationMetricCollectionsArgs = {
   orderBy?: Maybe<MetricCollectionOrderBy>;
   desc?: Maybe<Scalars['Boolean']>;
   orderBys?: Maybe<Array<Maybe<MetricCollectionOrderByInput>>>;
+  pageNumber?: Maybe<Scalars['Int']>;
+  pageSize?: Maybe<Scalars['Int']>;
+};
+
+
+export type OrganizationModelsV2Args = {
+  searchStr?: Maybe<Scalars['String']>;
+  searchColumns?: Maybe<Array<Maybe<ModelStrColumns>>>;
+  orderBy?: Maybe<ModelOrderBy>;
+  desc?: Maybe<Scalars['Boolean']>;
+  orderBys?: Maybe<Array<Maybe<ModelOrderByInput>>>;
   pageNumber?: Maybe<Scalars['Int']>;
   pageSize?: Maybe<Scalars['Int']>;
 };
@@ -637,6 +651,31 @@ export type OrganizationBoardArgs = {
 export type OrganizationHistoryOfCurrentModelsArgs = {
   pageNumber?: Maybe<Scalars['Int']>;
   pageSize?: Maybe<Scalars['Int']>;
+};
+
+
+export type OrganizationAnnotationsForMetricsArgs = {
+  metrics: Array<Maybe<Scalars['String']>>;
+  dimensions?: Maybe<Array<Maybe<GMetricAnnotationDimensionInput>>>;
+  startDate?: Maybe<Scalars['Date']>;
+  endDate?: Maybe<Scalars['Date']>;
+  priorities?: Maybe<Array<Maybe<Priority>>>;
+  searchStr?: Maybe<Scalars['String']>;
+  searchColumns?: Maybe<Array<Maybe<AnnotationStrColumns>>>;
+  orderBy?: Maybe<AnnotationOrderBy>;
+  desc?: Maybe<Scalars['Boolean']>;
+  orderBys?: Maybe<Array<Maybe<AnnotationOrderByInput>>>;
+  pageNumber?: Maybe<Scalars['Int']>;
+  pageSize?: Maybe<Scalars['Int']>;
+};
+
+
+export type OrganizationTotalAnnotationsForMetricsArgs = {
+  metrics: Array<Maybe<Scalars['String']>>;
+  dimensions?: Maybe<Array<Maybe<GMetricAnnotationDimensionInput>>>;
+  startDate?: Maybe<Scalars['Date']>;
+  endDate?: Maybe<Scalars['Date']>;
+  priorities?: Maybe<Array<Maybe<Priority>>>;
 };
 
 /** An enumeration. */
@@ -1579,6 +1618,13 @@ export type ModelDataSource = {
   dataSourceVersionId: Scalars['ID'];
   dataSourceVersion?: Maybe<DataSourceVersion>;
   model?: Maybe<Model>;
+  joinableDataSources?: Maybe<Array<Maybe<ModelDataSource>>>;
+};
+
+
+export type ModelDataSourceJoinableDataSourcesArgs = {
+  identifiers?: Maybe<Array<Maybe<Scalars['String']>>>;
+  primaryOnly?: Maybe<Scalars['Boolean']>;
 };
 
 export type DataSourceVersion = {
@@ -1601,6 +1647,7 @@ export type DataSourceVersion = {
   hash: Scalars['String'];
   organizationId: Scalars['Int'];
   organization?: Maybe<Organization>;
+  modelDataSource?: Maybe<Array<Maybe<ModelDataSource>>>;
   dbtModelMeta?: Maybe<DbtModelMeta>;
 };
 
@@ -1767,6 +1814,7 @@ export type MetricMetadata = {
   updatedAt?: Maybe<Scalars['DateTime']>;
   updatedBy: Scalars['Int'];
   isPrivate: Scalars['Boolean'];
+  isPrivateLock: Scalars['Boolean'];
   orgMetric?: Maybe<OrgMetric>;
   createdByUser?: Maybe<User>;
   updatedByUser?: Maybe<User>;
@@ -2009,6 +2057,7 @@ export enum OrgMetricOrderBy {
   MetricMetadataIncreaseIsGoodLock = 'MetricMetadata__INCREASE_IS_GOOD_LOCK',
   MetricMetadataIsNew = 'MetricMetadata__IS_NEW',
   MetricMetadataIsPrivate = 'MetricMetadata__IS_PRIVATE',
+  MetricMetadataIsPrivateLock = 'MetricMetadata__IS_PRIVATE_LOCK',
   MetricMetadataMetricId = 'MetricMetadata__METRIC_ID',
   MetricMetadataTier = 'MetricMetadata__TIER',
   MetricMetadataTierLock = 'MetricMetadata__TIER_LOCK',
@@ -2110,6 +2159,7 @@ export enum MetricVersionOrderBy {
   MetricMetadataIncreaseIsGoodLock = 'MetricMetadata__INCREASE_IS_GOOD_LOCK',
   MetricMetadataIsNew = 'MetricMetadata__IS_NEW',
   MetricMetadataIsPrivate = 'MetricMetadata__IS_PRIVATE',
+  MetricMetadataIsPrivateLock = 'MetricMetadata__IS_PRIVATE_LOCK',
   MetricMetadataMetricId = 'MetricMetadata__METRIC_ID',
   MetricMetadataTier = 'MetricMetadata__TIER',
   MetricMetadataTierLock = 'MetricMetadata__TIER_LOCK',
@@ -2149,6 +2199,7 @@ export type Board = {
   teamOwners?: Maybe<Array<Maybe<Team>>>;
   userCanEditContent?: Maybe<Scalars['Boolean']>;
   userCanDeactivate?: Maybe<Scalars['Boolean']>;
+  userHasAccess?: Maybe<Scalars['Boolean']>;
   items?: Maybe<Array<BoardItem>>;
   totalViews?: Maybe<Scalars['Int']>;
   myViews?: Maybe<Scalars['Int']>;
@@ -2315,6 +2366,7 @@ export enum SavedQueryOrderBy {
   MetricMetadataIncreaseIsGoodLock = 'MetricMetadata__INCREASE_IS_GOOD_LOCK',
   MetricMetadataIsNew = 'MetricMetadata__IS_NEW',
   MetricMetadataIsPrivate = 'MetricMetadata__IS_PRIVATE',
+  MetricMetadataIsPrivateLock = 'MetricMetadata__IS_PRIVATE_LOCK',
   MetricMetadataMetricId = 'MetricMetadata__METRIC_ID',
   MetricMetadataTier = 'MetricMetadata__TIER',
   MetricMetadataTierLock = 'MetricMetadata__TIER_LOCK',
@@ -3024,6 +3076,34 @@ export enum SlackConversationType {
   Dm = 'DM',
   GroupDm = 'GROUP_DM'
 }
+
+/** An enumeration. */
+export enum ModelStrColumns {
+  ExecutionContext = 'EXECUTION_CONTEXT',
+  GitBranch = 'GIT_BRANCH',
+  GitCommit = 'GIT_COMMIT',
+  GitRepo = 'GIT_REPO'
+}
+
+/** An enumeration. */
+export enum ModelOrderBy {
+  CreatedAt = 'CREATED_AT',
+  ExecutionContext = 'EXECUTION_CONTEXT',
+  GitBranch = 'GIT_BRANCH',
+  GitCommit = 'GIT_COMMIT',
+  GitIsDirty = 'GIT_IS_DIRTY',
+  GitRepo = 'GIT_REPO',
+  Id = 'ID',
+  IsCurrent = 'IS_CURRENT',
+  IsValidation = 'IS_VALIDATION',
+  OrganizationId = 'ORGANIZATION_ID',
+  UploaderId = 'UPLOADER_ID'
+}
+
+export type ModelOrderByInput = {
+  orderBy: ModelOrderBy;
+  desc?: Maybe<Scalars['Boolean']>;
+};
 
 /** Filters supported for metric search. */
 export type MetricFilter = {
@@ -4676,6 +4756,7 @@ export type MutationOrgMetricsUpdateMetadataArgs = {
   defaultGranularity?: Maybe<TimeGranularity>;
   defaultDaysLimit?: Maybe<Scalars['Int']>;
   extraFields?: Maybe<Scalars['JSONString']>;
+  isPrivate?: Maybe<Scalars['Boolean']>;
 };
 
 

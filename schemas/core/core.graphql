@@ -81,6 +81,7 @@ type Organization {
   metricViews: [MetricView]
   teamViews: [TeamView]
   integrations: Integrations
+  modelsV2(searchStr: String, searchColumns: [ModelStrColumns], orderBy: ModelOrderBy, desc: Boolean, orderBys: [ModelOrderByInput], pageNumber: Int, pageSize: Int): [Model]
   questions(searchStr: String, searchColumns: [QuestionStrColumns], orderBy: QuestionOrderBy, desc: Boolean, orderBys: [QuestionOrderByInput], pageNumber: Int, pageSize: Int): [Question]
   question(id: ID!): Question
   annotations(searchStr: String, searchColumns: [AnnotationStrColumns], orderBy: AnnotationOrderBy, desc: Boolean, orderBys: [AnnotationOrderByInput], pageNumber: Int, pageSize: Int): [Annotation]
@@ -139,6 +140,8 @@ type Organization {
   metricNamesInBoards: [String]
   currentModel: [Model]
   historyOfCurrentModels(pageNumber: Int, pageSize: Int): [CurrentModelHistory]
+  annotationsForMetrics(metrics: [String]!, dimensions: [GMetricAnnotationDimensionInput], startDate: Date, endDate: Date, priorities: [Priority], searchStr: String, searchColumns: [AnnotationStrColumns], orderBy: AnnotationOrderBy, desc: Boolean, orderBys: [AnnotationOrderByInput], pageNumber: Int, pageSize: Int): [Annotation]
+  totalAnnotationsForMetrics(metrics: [String]!, dimensions: [GMetricAnnotationDimensionInput], startDate: Date, endDate: Date, priorities: [Priority]): Int
   activeFeatures: [Feature]
 }
 
@@ -597,6 +600,7 @@ type ModelDataSource {
   dataSourceVersionId: ID!
   dataSourceVersion: DataSourceVersion
   model: Model
+  joinableDataSources(identifiers: [String] = [], primaryOnly: Boolean = false): [ModelDataSource]
 }
 
 type DataSourceVersion {
@@ -618,6 +622,7 @@ type DataSourceVersion {
   hash: String!
   organizationId: Int!
   organization: Organization
+  modelDataSource: [ModelDataSource]
   dbtModelMeta: DbtModelMeta
 }
 
@@ -767,6 +772,7 @@ type MetricMetadata {
   updatedAt: DateTime
   updatedBy: Int!
   isPrivate: Boolean!
+  isPrivateLock: Boolean!
   orgMetric: OrgMetric
   createdByUser: User
   updatedByUser: User
@@ -987,6 +993,7 @@ enum OrgMetricOrderBy {
   MetricMetadata__INCREASE_IS_GOOD_LOCK
   MetricMetadata__IS_NEW
   MetricMetadata__IS_PRIVATE
+  MetricMetadata__IS_PRIVATE_LOCK
   MetricMetadata__METRIC_ID
   MetricMetadata__TIER
   MetricMetadata__TIER_LOCK
@@ -1088,6 +1095,7 @@ enum MetricVersionOrderBy {
   MetricMetadata__INCREASE_IS_GOOD_LOCK
   MetricMetadata__IS_NEW
   MetricMetadata__IS_PRIVATE
+  MetricMetadata__IS_PRIVATE_LOCK
   MetricMetadata__METRIC_ID
   MetricMetadata__TIER
   MetricMetadata__TIER_LOCK
@@ -1126,6 +1134,7 @@ type Board {
   teamOwners(searchStr: String, searchColumns: [TeamStrColumns], orderBy: TeamOrderBy, desc: Boolean, orderBys: [TeamOrderByInput], pageNumber: Int, pageSize: Int): [Team]
   userCanEditContent: Boolean
   userCanDeactivate: Boolean
+  userHasAccess: Boolean
   items: [BoardItem!]
   totalViews: Int
   myViews: Int
@@ -1268,6 +1277,7 @@ enum SavedQueryOrderBy {
   MetricMetadata__INCREASE_IS_GOOD_LOCK
   MetricMetadata__IS_NEW
   MetricMetadata__IS_PRIVATE
+  MetricMetadata__IS_PRIVATE_LOCK
   MetricMetadata__METRIC_ID
   MetricMetadata__TIER
   MetricMetadata__TIER_LOCK
@@ -1853,6 +1863,34 @@ enum SlackConversationType {
   GROUP_DM
 }
 
+"""An enumeration."""
+enum ModelStrColumns {
+  EXECUTION_CONTEXT
+  GIT_BRANCH
+  GIT_COMMIT
+  GIT_REPO
+}
+
+"""An enumeration."""
+enum ModelOrderBy {
+  CREATED_AT
+  EXECUTION_CONTEXT
+  GIT_BRANCH
+  GIT_COMMIT
+  GIT_IS_DIRTY
+  GIT_REPO
+  ID
+  IS_CURRENT
+  IS_VALIDATION
+  ORGANIZATION_ID
+  UPLOADER_ID
+}
+
+input ModelOrderByInput {
+  orderBy: ModelOrderBy!
+  desc: Boolean
+}
+
 """Filters supported for metric search."""
 type MetricFilter {
   filterName: String
@@ -2223,7 +2261,7 @@ type Mutation {
   orgMetricsApproveTeamViewershipRequest(metricId: Int!, teamId: Int!): OrgMetric
   orgMetricsRemoveTeamViewers(metricId: Int!, teamIds: [Int], ownerType: GOwnerType): OrgMetric
   orgMetricsAddDescription(metricId: ID!, description: String!): OrgMetric
-  orgMetricsUpdateMetadata(metricId: ID!, description: String, tier: Int, displayName: String, valueFormat: String, increaseIsGood: Boolean, defaultTrim: Boolean, defaultGranularity: TimeGranularity, defaultDaysLimit: Int, extraFields: JSONString): OrgMetric
+  orgMetricsUpdateMetadata(metricId: ID!, description: String, tier: Int, displayName: String, valueFormat: String, increaseIsGood: Boolean, defaultTrim: Boolean, defaultGranularity: TimeGranularity, defaultDaysLimit: Int, extraFields: JSONString, isPrivate: Boolean): OrgMetric
   savedQueryCreate(title: String!, serializedQuery: GenericScalar!, metricIds: [ID], ownerTeamId: ID, isPrivate: Boolean): SavedQuery
   savedQueryUpdate(id: ID!, title: String, createdBy: Int, ownerTeamId: Int, serializedQuery: GenericScalar, metricIds: [ID], isPrivate: Boolean): SavedQuery
   createSavedQuery(title: String!, queryId: Int!, isPrivate: Boolean, chartType: GChartType): SavedQuery

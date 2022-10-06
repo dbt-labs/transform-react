@@ -46,6 +46,7 @@ export type Query = {
   materializations?: Maybe<Array<Materialization>>;
   metrics?: Maybe<Array<Metric>>;
   metricByName?: Maybe<Metric>;
+  metricsByName?: Maybe<Array<Maybe<Metric>>>;
   measures?: Maybe<Array<Measure>>;
   measureByName?: Maybe<Measure>;
   dimensionNamesForMetrics?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -141,6 +142,17 @@ export type QueryMetricsArgs = {
 export type QueryMetricByNameArgs = {
   modelKey?: Maybe<ModelKeyInput>;
   name: Scalars['String'];
+};
+
+
+/**
+ * Base Query object exposed by GraphQL for the MQL Server
+ *
+ * Each field defined below is accessible by the API, by calling the equivalent resolver.
+ */
+export type QueryMetricsByNameArgs = {
+  modelKey?: Maybe<ModelKeyInput>;
+  names: Array<Maybe<Scalars['String']>>;
 };
 
 
@@ -355,6 +367,8 @@ export type MqlQuery = {
   logsByLine?: Maybe<Scalars['String']>;
   chartValueMin?: Maybe<Scalars['Float']>;
   chartValueMax?: Maybe<Scalars['Float']>;
+  columnMinChartValues?: Maybe<Scalars['GenericScalar']>;
+  columnMaxChartValues?: Maybe<Scalars['GenericScalar']>;
   latestResultValues?: Maybe<Array<Maybe<QueryResultValue>>>;
   whereConstraint?: Maybe<Scalars['String']>;
   requestedGranularity?: Maybe<TimeGranularity>;
@@ -638,6 +652,7 @@ export type Metric = {
   maxGranularity?: Maybe<TimeGranularity>;
   newDataIsAvailable?: Maybe<Scalars['Boolean']>;
   canLimitDimensionValues?: Maybe<Scalars['Boolean']>;
+  valueFormat?: Maybe<Scalars['String']>;
 };
 
 
@@ -849,6 +864,8 @@ export type Mutation = {
   pctChangeOverRange?: Maybe<PctChangeOverRangePayload>;
   /** Invalidate cache for a given metric. */
   invalidateCacheForMetric?: Maybe<InvalidateCacheForMetric>;
+  /** Invalidate cache for a given metric. */
+  invalidateCacheForMetrics?: Maybe<InvalidateCacheForMetrics>;
   /** Invalidate all cache. */
   invalidateAllCaches?: Maybe<InvalidateAllCaches>;
   /** Submits an async data warehouse validations query. */
@@ -928,6 +945,13 @@ export type MutationPctChangeOverRangeArgs = {
 /** Base mutation object exposed by GraphQL. */
 export type MutationInvalidateCacheForMetricArgs = {
   metricName: Scalars['String'];
+  modelKey?: Maybe<ModelKeyInput>;
+};
+
+
+/** Base mutation object exposed by GraphQL. */
+export type MutationInvalidateCacheForMetricsArgs = {
+  metricNames: Array<Maybe<Scalars['String']>>;
   modelKey?: Maybe<ModelKeyInput>;
 };
 
@@ -1170,6 +1194,12 @@ export type InvalidateCacheForMetric = {
   success?: Maybe<Scalars['String']>;
 };
 
+/** Invalidate cache for a given metric. */
+export type InvalidateCacheForMetrics = {
+  __typename?: 'InvalidateCacheForMetrics';
+  success?: Maybe<Scalars['String']>;
+};
+
 /** Invalidate all cache. */
 export type InvalidateAllCaches = {
   __typename?: 'InvalidateAllCaches';
@@ -1339,7 +1369,7 @@ export type FetchMqlQueryLogsQuery = (
   { __typename?: 'Query' }
   & { queries?: Maybe<Array<Maybe<(
     { __typename?: 'MqlQuery' }
-    & Pick<MqlQuery, 'id' | 'status' | 'completedAt' | 'startedAt' | 'metrics'>
+    & Pick<MqlQuery, 'id' | 'status' | 'completedAt' | 'startedAt' | 'metrics' | 'userId'>
   )>>> }
 );
 
