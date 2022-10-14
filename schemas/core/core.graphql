@@ -20,7 +20,7 @@ type Query {
   boom(raise_: Boolean): Boolean
   transformConfig: TransformConfig
   emailCanSignUp(email: String!): Boolean
-  dwHealthCheck(snowflakeConnectionDetails: SnowflakeConnectionInput, redshiftConnectionDetails: RedshiftConnectionInput, bigQueryConnectionDetails: BigQueryConnectionInput): [MqlServerHealthItem]
+  dwHealthCheck(snowflakeConnectionDetails: SnowflakeConnectionInput, redshiftConnectionDetails: RedshiftConnectionInput, bigQueryConnectionDetails: BigQueryConnectionInput, databricksConnectionDetails: DatabricksConnectionInput): [MqlServerHealthItem]
   flagIsEnabled(flag: String!): Boolean
   supportedAlertRules: [AlertRuleDefinition]
   celeryHealthCheck: Int
@@ -72,6 +72,7 @@ type Organization {
   mqlServers(searchStr: String, searchColumns: [OrgMqlServerStrColumns], orderBy: OrgMqlServerOrderBy, desc: Boolean, orderBys: [OrgMqlServerOrderByInput], pageNumber: Int, pageSize: Int): [OrgMqlServer]
   models(id: ID): [Model]
   orgMetrics(names: [String], tiers: [MetricTier], types: [MetricType], modelId: Int, userIsSubscribed: Boolean, ownedByTeamIds: [Int], ownedByUserIds: [Int], createdAtOrBefore: DateTime, createdAtOrAfter: DateTime, searchStr: String, searchColumns: [OrgMetricStrColumns], orderBy: OrgMetricOrderBy, desc: Boolean, orderBys: [OrgMetricOrderByInput], pageNumber: Int, pageSize: Int): [OrgMetric]
+  orgTags: [OrgTag]
   mqlHeartbeats: [MqlHeartbeat]
   teams(searchStr: String, searchColumns: [TeamStrColumns], orderBy: TeamOrderBy, desc: Boolean, orderBys: [TeamOrderByInput], pageNumber: Int, pageSize: Int): [Team]
   prefs(prefKey: String, searchStr: String, searchColumns: [OrgPrefStrColumns], orderBy: OrgPrefOrderBy, desc: Boolean, orderBys: [OrgPrefOrderByInput], pageNumber: Int, pageSize: Int): [OrgPref]
@@ -414,9 +415,9 @@ type OrgMetric {
   name: String!
   userOwners: [MetricUserOwner]
   userOwnersWithDeactivated: [MetricUserOwner]
-  userViewers: [MetricUserOwner]
+  userViewers: [MetricUserViewer]
   teamOwners: [MetricTeamOwner]
-  teamViewers: [MetricTeamOwner]
+  teamViewers: [MetricTeamViewer]
   versions: [Metric]
   metricAnnotations: [MetricAnnotation]
   metricMetadata: MetricMetadata
@@ -473,7 +474,34 @@ enum GovernanceType {
   VIEWER
 }
 
+type MetricUserViewer {
+  id: ID!
+  organizationId: Int!
+  orgMetricId: Int!
+  userId: Int!
+  createdAt: DateTime
+  createdBy: Int!
+  isLocked: Boolean!
+  ownerType: OwnerType!
+  governanceType: GovernanceType!
+  user: User
+  organization: Organization
+}
+
 type MetricTeamOwner {
+  id: ID!
+  organizationId: Int!
+  teamId: Int!
+  orgMetricId: Int!
+  createdAt: DateTime
+  createdBy: Int!
+  ownerType: OwnerType!
+  governanceType: GovernanceType!
+  team: Team
+  organization: Organization
+}
+
+type MetricTeamViewer {
   id: ID!
   organizationId: Int!
   teamId: Int!
@@ -556,7 +584,7 @@ type Metric {
   totalValueChangeAlerts: Int
   isCurrent: Boolean
   boards(searchStr: String, searchColumns: [BoardStrColumns], orderBy: BoardOrderBy, desc: Boolean, orderBys: [BoardOrderByInput], pageNumber: Int, pageSize: Int): [Board]
-  totalBoards: Int
+  totalBoards(searchStr: String, searchColumns: [BoardStrColumns], excludeNotViewed: Boolean): Int
 }
 
 """
@@ -776,6 +804,26 @@ type MetricMetadata {
   orgMetric: OrgMetric
   createdByUser: User
   updatedByUser: User
+  tags: [MetricMetadataTag]
+}
+
+type MetricMetadataTag {
+  id: ID!
+  metricId: Int
+  orgMetricTagId: Int
+  createdAt: DateTime!
+  locked: Boolean!
+  metricMetadata: MetricMetadata
+  orgTag: OrgTag
+}
+
+type OrgTag {
+  id: ID!
+  createdAt: DateTime!
+  organizationId: Int!
+  name: String!
+  organization: Organization
+  metricMetadataTags: [MetricMetadataTag]
 }
 
 type LockableParameter {
@@ -1129,6 +1177,11 @@ type Board {
   updatedAt: DateTime
   deletedAt: DateTime
   isPrivate: Boolean
+  constraint: String
+  startTime: String
+  endTime: String
+  timeGranularity: TimeGranularity
+  latestXDays: Int
   owner: User
   userOwners(searchStr: String, searchColumns: [UserStrColumns], orderBy: UserOrderBy, desc: Boolean, orderBys: [UserOrderByInput], pageNumber: Int, pageSize: Int): [User]
   teamOwners(searchStr: String, searchColumns: [TeamStrColumns], orderBy: TeamOrderBy, desc: Boolean, orderBys: [TeamOrderByInput], pageNumber: Int, pageSize: Int): [Team]
@@ -1141,6 +1194,23 @@ type Board {
   totalFavorites: Int
   isFavoritedByUser: Boolean
   lastWeekViews: Int
+  where: Constraint
+  filteredViews(searchStr: String, searchColumns: [BoardFilteredViewStrColumns], orderBy: BoardFilteredViewOrderBy, desc: Boolean, orderBys: [BoardFilteredViewOrderByInput], pageNumber: Int, pageSize: Int): [BoardFilteredView]
+  totalFilteredViews(searchStr: String, searchColumns: [BoardFilteredViewStrColumns], excludeNotViewed: Boolean): Int
+}
+
+"""
+For time dimensions, the smallest possible difference between two time values.
+
+    Needed for calculating adjacency when merging 2 different time ranges.
+    
+"""
+enum TimeGranularity {
+  DAY
+  WEEK
+  MONTH
+  QUARTER
+  YEAR
 }
 
 """An enumeration."""
@@ -1247,6 +1317,87 @@ type GroupItemConfig {
 type MarkdownConfig {
   type: String
   content: String
+}
+
+"""Represents a where constraint used in a query."""
+type Constraint {
+  constraint: SingleConstraint
+  And: [SingleConstraint!]
+}
+
+"""Actual `where` clauses to be applied"""
+type SingleConstraint {
+  constraintType: AtomicConstraintType
+  dimensionName: String
+  values: [String]
+  start: String
+  stop: String
+}
+
+"""Current possible values for constraints"""
+enum AtomicConstraintType {
+  SET
+  RANGE
+}
+
+type BoardFilteredView {
+  id: ID!
+  boardId: Int
+  organizationId: Int
+  createdBy: Int
+  title: String
+  description: String
+  createdAt: DateTime
+  updatedAt: DateTime
+  isPrivate: Boolean
+  constraint: String
+  startTime: String
+  endTime: String
+  timeGranularity: TimeGranularity
+  latestXDays: Int
+  board: Board
+  creator: User
+  where: Constraint
+  userCanEditContent: Boolean
+  userHasAccess: Boolean
+  userCanDelete: Boolean
+  totalViews: Int
+  myViews: Int
+}
+
+"""An enumeration."""
+enum BoardFilteredViewStrColumns {
+  CONSTRAINT
+  DESCRIPTION
+  END_TIME
+  START_TIME
+  TITLE
+}
+
+"""An enumeration."""
+enum BoardFilteredViewOrderBy {
+  BOARD_ID
+  CONSTRAINT
+  CREATED_AT
+  CREATED_BY
+  DESCRIPTION
+  END_TIME
+  ID
+  IS_PRIVATE
+  LATEST_X_DAYS
+  MY_VIEWS
+  ORGANIZATION_ID
+  RECENTLY_VIEWED
+  START_TIME
+  TIME_GRANULARITY
+  TITLE
+  UPDATED_AT
+  VIEWS
+}
+
+input BoardFilteredViewOrderByInput {
+  orderBy: BoardFilteredViewOrderBy!
+  desc: Boolean
 }
 
 """An enumeration."""
@@ -1368,20 +1519,6 @@ enum AlertRuleType {
   METRIC_ACCESS_REQUEST_RESPONDED
 }
 
-"""
-For time dimensions, the smallest possible difference between two time values.
-
-    Needed for calculating adjacency when merging 2 different time ranges.
-    
-"""
-enum TimeGranularity {
-  DAY
-  WEEK
-  MONTH
-  QUARTER
-  YEAR
-}
-
 type Alert {
   id: ID!
   alertRuleId: Int!
@@ -1396,6 +1533,7 @@ type Alert {
   questionReply: QuestionReply
   annotation: Annotation
   alertRule: AlertRule
+  requestingUser: User
 }
 
 """An enumeration."""
@@ -1424,21 +1562,29 @@ input AlertOrderByInput {
 
 """An enumeration."""
 enum BoardStrColumns {
+  CONSTRAINT
   DESCRIPTION
+  END_TIME
+  START_TIME
   TITLE
 }
 
 """An enumeration."""
 enum BoardOrderBy {
+  CONSTRAINT
   CREATED_AT
   CREATED_BY
   DELETED_AT
   DESCRIPTION
+  END_TIME
   ID
   IS_PRIVATE
+  LATEST_X_DAYS
   MY_VIEWS
   ORGANIZATION_ID
   RECENTLY_VIEWED
+  START_TIME
+  TIME_GRANULARITY
   TITLE
   UPDATED_AT
   VIEWS
@@ -1456,9 +1602,9 @@ type ProtectedMetricFields {
   name: String!
   userOwners: [MetricUserOwner]
   userOwnersWithDeactivated: [MetricUserOwner]
-  userViewers: [MetricUserOwner]
+  userViewers: [MetricUserViewer]
   teamOwners: [MetricTeamOwner]
-  teamViewers: [MetricTeamOwner]
+  teamViewers: [MetricTeamViewer]
   versions: [Metric]
   metricAnnotations: [MetricAnnotation]
   metricMetadata: MetricMetadata
@@ -1505,7 +1651,7 @@ type ProtectedMetricFields {
   valueChangeAlerts(orderBy: AlertOrderBy, desc: Boolean, orderBys: [AlertOrderByInput], pageNumber: Int, pageSize: Int): [Alert]
   totalValueChangeAlerts: Int
   boards(searchStr: String, searchColumns: [BoardStrColumns], orderBy: BoardOrderBy, desc: Boolean, orderBys: [BoardOrderByInput], pageNumber: Int, pageSize: Int): [Board]
-  totalBoards: Int
+  totalBoards(searchStr: String, searchColumns: [BoardStrColumns], excludeNotViewed: Boolean): Int
 }
 
 """
@@ -1725,6 +1871,7 @@ enum DWEngine {
   MYSQL
   SNOWFLAKE
   BIGQUERY
+  DATABRICKS
 }
 
 """Enums to represent the status of the mql server deployment"""
@@ -1758,6 +1905,7 @@ type DataWarehouseConfig {
   query: String
   dialect: String
   isPasswordSet: Boolean
+  httpPath: String
 }
 
 """An enumeration."""
@@ -2088,6 +2236,14 @@ input BigQueryConnectionInput {
   schema: String!
 }
 
+"""GQL Input object for Databricks connection details."""
+input DatabricksConnectionInput {
+  host: String!
+  httpPath: String!
+  password: String!
+  schema: String!
+}
+
 type AlertRuleDefinition {
   """The name used internally to identify the alert rule"""
   ruleType: String!
@@ -2186,7 +2342,7 @@ type Mutation {
   """
   Stores environment variables required to spin up the MQL server into AWS Secrets Manager.
   """
-  setMqlServerEnvConfig(bigQueryConnectionDetails: BigQueryConnectionInput, deployServer: Boolean, redshiftConnectionDetails: RedshiftConnectionInput, snowflakeConnectionDetails: SnowflakeConnectionInput): SetMqlServerEnvConfig
+  setMqlServerEnvConfig(bigQueryConnectionDetails: BigQueryConnectionInput, databricksConnectionDetails: DatabricksConnectionInput, deployServer: Boolean, redshiftConnectionDetails: RedshiftConnectionInput, snowflakeConnectionDetails: SnowflakeConnectionInput): SetMqlServerEnvConfig
   featuresCreate(name: String!): Feature
   featuresUpdate(id: ID!, name: String, retireFeature: Boolean): Feature
   featuresAddOrgs(featureId: ID!, organizationIds: [ID]!): Feature
@@ -2239,7 +2395,7 @@ type Mutation {
   metricsAddTeamViewers(metricId: ID!, teamIds: [ID], ownerType: GOwnerType): Metric
   metricsRemoveTeamViewers(metricId: ID!, teamIds: [ID], ownerType: GOwnerType): Metric
   metricsAddDescription(metricId: ID!, description: String!): Metric
-  metricsUpdateMetadata(metricId: ID!, description: String, tier: Int, displayName: String, valueFormat: String, increaseIsGood: Boolean, defaultTrim: Boolean, defaultGranularity: TimeGranularity, defaultDaysLimit: Int, extraFields: JSONString): Metric
+  metricsUpdateMetadata(metricId: ID!, description: String, tier: Int, displayName: String, valueFormat: String, increaseIsGood: Boolean, defaultTrim: Boolean, defaultGranularity: TimeGranularity, defaultDaysLimit: Int, extraFields: JSONString, tags: [String]): Metric
   orgMetricsAddUserOwners(metricId: Int!, userIds: [Int], ownerType: GOwnerType): OrgMetric
   orgMetricsRequestUserOwnership(metricId: Int!): OrgMetric
   orgMetricsDeclineUserOwnershipRequest(metricId: ID!, userId: Int!): OrgMetric
@@ -2261,7 +2417,7 @@ type Mutation {
   orgMetricsApproveTeamViewershipRequest(metricId: Int!, teamId: Int!): OrgMetric
   orgMetricsRemoveTeamViewers(metricId: Int!, teamIds: [Int], ownerType: GOwnerType): OrgMetric
   orgMetricsAddDescription(metricId: ID!, description: String!): OrgMetric
-  orgMetricsUpdateMetadata(metricId: ID!, description: String, tier: Int, displayName: String, valueFormat: String, increaseIsGood: Boolean, defaultTrim: Boolean, defaultGranularity: TimeGranularity, defaultDaysLimit: Int, extraFields: JSONString, isPrivate: Boolean): OrgMetric
+  orgMetricsUpdateMetadata(metricId: ID!, description: String, tier: Int, displayName: String, valueFormat: String, increaseIsGood: Boolean, defaultTrim: Boolean, defaultGranularity: TimeGranularity, defaultDaysLimit: Int, extraFields: JSONString, isPrivate: Boolean, tags: [String]): OrgMetric
   savedQueryCreate(title: String!, serializedQuery: GenericScalar!, metricIds: [ID], ownerTeamId: ID, isPrivate: Boolean): SavedQuery
   savedQueryUpdate(id: ID!, title: String, createdBy: Int, ownerTeamId: Int, serializedQuery: GenericScalar, metricIds: [ID], isPrivate: Boolean): SavedQuery
   createSavedQuery(title: String!, queryId: Int!, isPrivate: Boolean, chartType: GChartType): SavedQuery
@@ -2311,6 +2467,12 @@ type Mutation {
   boardsRemoveTeamOwners(boardId: ID!, teamIds: [ID]): Board
   boardsFavorite(boardId: ID!): Board
   boardsUnfavorite(boardId: ID!): Board
+  boardsUpdateDefaultFilters(boardId: ID!, where: ConstraintInput, startTime: String, endTime: String, timeGranularity: TimeGranularity, latestXDays: Int): Board
+  boardsFilteredViewCreate(boardId: ID!, title: String!, description: String, isPrivate: Boolean, where: ConstraintInput, startTime: String, endTime: String, timeGranularity: TimeGranularity, latestXDays: Int): BoardFilteredView
+  boardsFilteredViewUpdate(filteredViewId: ID!, title: String!, description: String, isPrivate: Boolean, where: ConstraintInput, startTime: String, endTime: String, timeGranularity: TimeGranularity, latestXDays: Int): BoardFilteredView
+  boardsFilteredViewDelete(filteredViewId: ID!): BoardFilteredView
+  boardsFilteredViewChangeVisability(filteredViewId: ID!, isPrivate: Boolean!): BoardFilteredView
+  boardsFilteredViewLogView(filteredViewId: ID!): BoardFilteredViewView
   testSlackMessage(message: String!, fromUsername: String, fromImgUrl: String): String
   sendSlackMessages(message: String!, channelNames: [String]!, fromUsername: String, fromImgUrl: String): String
 }
@@ -2553,22 +2715,21 @@ input MetricQueryInput {
   maxDimensionValues: Int
 }
 
+"""
+Container class for inputs to allow for and/or wrappers on the `where` clause
+"""
 input ConstraintInput {
   And: [SingleConstraintInput!]
   constraint: SingleConstraintInput
 }
 
+"""Actual `where` clauses to be applied"""
 input SingleConstraintInput {
   constraintType: AtomicConstraintType
   dimensionName: String
   values: [String]
   start: String
   stop: String
-}
-
-enum AtomicConstraintType {
-  SET
-  RANGE
 }
 
 enum PercentChange {
@@ -2637,5 +2798,11 @@ type BoardView {
   userId: ID!
   boardId: ID!
   createdAt: DateTime!
-  organization: Organization
+}
+
+type BoardFilteredViewView {
+  organizationId: Int!
+  userId: ID!
+  filteredViewId: ID!
+  createdAt: DateTime!
 }

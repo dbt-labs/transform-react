@@ -55,6 +55,7 @@ export type Query = {
   dimensionNamesForMetricsMultihop?: Maybe<Array<Maybe<Scalars['String']>>>;
   /** @deprecated Use `dimensionsForMetrics`. */
   dimensionsForMetricsMultihop?: Maybe<Dimensions>;
+  dimensionsForMetricsWithUncommon?: Maybe<Dimensions>;
   dimensions?: Maybe<Array<Dimension>>;
   primaryTimeDimension?: Maybe<Dimension>;
   maxGranularityForMetrics?: Maybe<TimeGranularity>;
@@ -218,6 +219,17 @@ export type QueryDimensionNamesForMetricsMultihopArgs = {
  * Each field defined below is accessible by the API, by calling the equivalent resolver.
  */
 export type QueryDimensionsForMetricsMultihopArgs = {
+  modelKey?: Maybe<ModelKeyInput>;
+  metricNames?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+
+/**
+ * Base Query object exposed by GraphQL for the MQL Server
+ *
+ * Each field defined below is accessible by the API, by calling the equivalent resolver.
+ */
+export type QueryDimensionsForMetricsWithUncommonArgs = {
   modelKey?: Maybe<ModelKeyInput>;
   metricNames?: Maybe<Array<Maybe<Scalars['String']>>>;
 };
@@ -1314,6 +1326,25 @@ export type FetchDimensionsMultihopQueryVariables = Exact<{
 export type FetchDimensionsMultihopQuery = (
   { __typename?: 'Query' }
   & { dimensionsForMetricsMultihop?: Maybe<(
+    { __typename?: 'Dimensions' }
+    & { localDimensions?: Maybe<Array<Maybe<(
+      { __typename?: 'Dimension' }
+      & Pick<Dimension, 'name' | 'identifierName' | 'type' | 'isPrimaryTime' | 'values' | 'cardinality'>
+    )>>>, nonLocalDimensions?: Maybe<Array<Maybe<(
+      { __typename?: 'Dimension' }
+      & Pick<Dimension, 'name' | 'identifierName' | 'type' | 'isPrimaryTime' | 'values' | 'cardinality'>
+    )>>> }
+  )> }
+);
+
+export type FetchDimensionsWithUncommonQueryVariables = Exact<{
+  metricNames: Array<Scalars['String']> | Scalars['String'];
+}>;
+
+
+export type FetchDimensionsWithUncommonQuery = (
+  { __typename?: 'Query' }
+  & { dimensionsForMetricsWithUncommon?: Maybe<(
     { __typename?: 'Dimensions' }
     & { localDimensions?: Maybe<Array<Maybe<(
       { __typename?: 'Dimension' }

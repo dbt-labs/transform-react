@@ -26,6 +26,7 @@ type Query {
   dimensionsForMetrics(modelKey: ModelKeyInput, metricNames: [String], excludeProperties: [DimensionProperty]): Dimensions
   dimensionNamesForMetricsMultihop(modelKey: ModelKeyInput, metricNames: [String]): [String] @deprecated(reason: "Use `dimensionNamesForMetrics`.")
   dimensionsForMetricsMultihop(modelKey: ModelKeyInput, metricNames: [String]): Dimensions @deprecated(reason: "Use `dimensionsForMetrics`.")
+  dimensionsForMetricsWithUncommon(modelKey: ModelKeyInput, metricNames: [String]): Dimensions
   dimensions(modelKey: ModelKeyInput): [Dimension!]
   primaryTimeDimension(modelKey: ModelKeyInput): Dimension
   maxGranularityForMetrics(metricNames: [String]!, modelKey: ModelKeyInput): TimeGranularity
