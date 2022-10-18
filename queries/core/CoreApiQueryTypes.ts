@@ -157,6 +157,7 @@ export type QueryDwHealthCheckArgs = {
   snowflakeConnectionDetails?: Maybe<SnowflakeConnectionInput>;
   redshiftConnectionDetails?: Maybe<RedshiftConnectionInput>;
   bigQueryConnectionDetails?: Maybe<BigQueryConnectionInput>;
+  databricksConnectionDetails?: Maybe<DatabricksConnectionInput>;
 };
 
 
@@ -212,6 +213,7 @@ export type Organization = {
   mqlServers?: Maybe<Array<Maybe<OrgMqlServer>>>;
   models?: Maybe<Array<Maybe<Model>>>;
   orgMetrics?: Maybe<Array<Maybe<OrgMetric>>>;
+  orgTags?: Maybe<Array<Maybe<OrgTag>>>;
   mqlHeartbeats?: Maybe<Array<Maybe<MqlHeartbeat>>>;
   teams?: Maybe<Array<Maybe<Team>>>;
   prefs?: Maybe<Array<Maybe<OrgPref>>>;
@@ -317,6 +319,7 @@ export type OrganizationModelsArgs = {
 export type OrganizationOrgMetricsArgs = {
   names?: Maybe<Array<Maybe<Scalars['String']>>>;
   tiers?: Maybe<Array<Maybe<MetricTier>>>;
+  tags?: Maybe<Array<Maybe<Scalars['Int']>>>;
   types?: Maybe<Array<Maybe<MetricType>>>;
   modelId?: Maybe<Scalars['Int']>;
   userIsSubscribed?: Maybe<Scalars['Boolean']>;
@@ -359,6 +362,7 @@ export type OrganizationPrefsArgs = {
 
 export type OrganizationSavedQueriesArgs = {
   onlyPublicAndMine?: Maybe<Scalars['Boolean']>;
+  metrics?: Maybe<Array<Maybe<Scalars['String']>>>;
   searchStr?: Maybe<Scalars['String']>;
   searchColumns?: Maybe<Array<Maybe<SavedQueryStrColumns>>>;
   orderBy?: Maybe<SavedQueryOrderBy>;
@@ -470,6 +474,7 @@ export type OrganizationTotalOrgMetricsArgs = {
   searchColumns?: Maybe<Array<Maybe<MetricVersionStrColumns>>>;
   names?: Maybe<Array<Maybe<Scalars['String']>>>;
   tiers?: Maybe<Array<Maybe<MetricTier>>>;
+  tags?: Maybe<Array<Maybe<Scalars['Int']>>>;
   types?: Maybe<Array<Maybe<MetricType>>>;
   modelId?: Maybe<Scalars['Int']>;
   userIsSubscribed?: Maybe<Scalars['Boolean']>;
@@ -542,6 +547,7 @@ export type OrganizationTotalSavedQueriesArgs = {
   searchStr?: Maybe<Scalars['String']>;
   searchColumns?: Maybe<Array<Maybe<SavedQueryStrColumns>>>;
   onlyPublicAndMine?: Maybe<Scalars['Boolean']>;
+  metrics?: Maybe<Array<Maybe<Scalars['String']>>>;
 };
 
 
@@ -1252,9 +1258,9 @@ export type OrgMetric = {
   name: Scalars['String'];
   userOwners?: Maybe<Array<Maybe<MetricUserOwner>>>;
   userOwnersWithDeactivated?: Maybe<Array<Maybe<MetricUserOwner>>>;
-  userViewers?: Maybe<Array<Maybe<MetricUserOwner>>>;
+  userViewers?: Maybe<Array<Maybe<MetricUserViewer>>>;
   teamOwners?: Maybe<Array<Maybe<MetricTeamOwner>>>;
-  teamViewers?: Maybe<Array<Maybe<MetricTeamOwner>>>;
+  teamViewers?: Maybe<Array<Maybe<MetricTeamViewer>>>;
   versions?: Maybe<Array<Maybe<Metric>>>;
   metricAnnotations?: Maybe<Array<Maybe<MetricAnnotation>>>;
   metricMetadata?: Maybe<MetricMetadata>;
@@ -1370,6 +1376,11 @@ export type OrgMetricPendingViewerRequestsTeamsArgs = {
   pageSize?: Maybe<Scalars['Int']>;
 };
 
+
+export type OrgMetricUserHasAccessArgs = {
+  userId?: Maybe<Scalars['Int']>;
+};
+
 export type MetricUserOwner = {
   __typename?: 'MetricUserOwner';
   id: Scalars['ID'];
@@ -1397,8 +1408,37 @@ export enum GovernanceType {
   Viewer = 'VIEWER'
 }
 
+export type MetricUserViewer = {
+  __typename?: 'MetricUserViewer';
+  id: Scalars['ID'];
+  organizationId: Scalars['Int'];
+  orgMetricId: Scalars['Int'];
+  userId: Scalars['Int'];
+  createdAt?: Maybe<Scalars['DateTime']>;
+  createdBy: Scalars['Int'];
+  isLocked: Scalars['Boolean'];
+  ownerType: OwnerType;
+  governanceType: GovernanceType;
+  user?: Maybe<User>;
+  organization?: Maybe<Organization>;
+};
+
 export type MetricTeamOwner = {
   __typename?: 'MetricTeamOwner';
+  id: Scalars['ID'];
+  organizationId: Scalars['Int'];
+  teamId: Scalars['Int'];
+  orgMetricId: Scalars['Int'];
+  createdAt?: Maybe<Scalars['DateTime']>;
+  createdBy: Scalars['Int'];
+  ownerType: OwnerType;
+  governanceType: GovernanceType;
+  team?: Maybe<Team>;
+  organization?: Maybe<Organization>;
+};
+
+export type MetricTeamViewer = {
+  __typename?: 'MetricTeamViewer';
   id: Scalars['ID'];
   organizationId: Scalars['Int'];
   teamId: Scalars['Int'];
@@ -1586,6 +1626,13 @@ export type MetricBoardsArgs = {
   orderBys?: Maybe<Array<Maybe<BoardOrderByInput>>>;
   pageNumber?: Maybe<Scalars['Int']>;
   pageSize?: Maybe<Scalars['Int']>;
+};
+
+
+export type MetricTotalBoardsArgs = {
+  searchStr?: Maybe<Scalars['String']>;
+  searchColumns?: Maybe<Array<Maybe<BoardStrColumns>>>;
+  excludeNotViewed?: Maybe<Scalars['Boolean']>;
 };
 
 
@@ -1818,6 +1865,28 @@ export type MetricMetadata = {
   orgMetric?: Maybe<OrgMetric>;
   createdByUser?: Maybe<User>;
   updatedByUser?: Maybe<User>;
+  tags?: Maybe<Array<Maybe<MetricMetadataTag>>>;
+};
+
+export type MetricMetadataTag = {
+  __typename?: 'MetricMetadataTag';
+  id: Scalars['ID'];
+  metricId?: Maybe<Scalars['Int']>;
+  orgMetricTagId?: Maybe<Scalars['Int']>;
+  createdAt: Scalars['DateTime'];
+  locked: Scalars['Boolean'];
+  metricMetadata?: Maybe<MetricMetadata>;
+  orgTag?: Maybe<OrgTag>;
+};
+
+export type OrgTag = {
+  __typename?: 'OrgTag';
+  id: Scalars['ID'];
+  createdAt: Scalars['DateTime'];
+  organizationId: Scalars['Int'];
+  name: Scalars['String'];
+  organization?: Maybe<Organization>;
+  metricMetadataTags?: Maybe<Array<Maybe<MetricMetadataTag>>>;
 };
 
 export type LockableParameter = {
@@ -2037,7 +2106,8 @@ export enum OrgMetricStrColumns {
   MetricMetadataDescription = 'MetricMetadata__DESCRIPTION',
   MetricMetadataDisplayName = 'MetricMetadata__DISPLAY_NAME',
   MetricMetadataValueFormat = 'MetricMetadata__VALUE_FORMAT',
-  Name = 'NAME'
+  Name = 'NAME',
+  OrgTagName = 'OrgTag__NAME'
 }
 
 /** An enumeration. */
@@ -2067,6 +2137,10 @@ export enum OrgMetricOrderBy {
   MetricMetadataValueFormatLock = 'MetricMetadata__VALUE_FORMAT_LOCK',
   Name = 'NAME',
   OrganizationId = 'ORGANIZATION_ID',
+  OrgTagCreatedAt = 'OrgTag__CREATED_AT',
+  OrgTagId = 'OrgTag__ID',
+  OrgTagName = 'OrgTag__NAME',
+  OrgTagOrganizationId = 'OrgTag__ORGANIZATION_ID',
   Views = 'VIEWS'
 }
 
@@ -2194,6 +2268,10 @@ export type Board = {
   updatedAt?: Maybe<Scalars['DateTime']>;
   deletedAt?: Maybe<Scalars['DateTime']>;
   isPrivate?: Maybe<Scalars['Boolean']>;
+  constraint?: Maybe<Scalars['String']>;
+  startTime?: Maybe<Scalars['String']>;
+  endTime?: Maybe<Scalars['String']>;
+  latestXDays?: Maybe<Scalars['Int']>;
   owner?: Maybe<User>;
   userOwners?: Maybe<Array<Maybe<User>>>;
   teamOwners?: Maybe<Array<Maybe<Team>>>;
@@ -2206,6 +2284,9 @@ export type Board = {
   totalFavorites?: Maybe<Scalars['Int']>;
   isFavoritedByUser?: Maybe<Scalars['Boolean']>;
   lastWeekViews?: Maybe<Scalars['Int']>;
+  filteredViews?: Maybe<Array<Maybe<BoardFilteredView>>>;
+  totalFilteredViews?: Maybe<Scalars['Int']>;
+  defaultFilter?: Maybe<BoardDefaultFilter>;
 };
 
 
@@ -2228,6 +2309,24 @@ export type BoardTeamOwnersArgs = {
   orderBys?: Maybe<Array<Maybe<TeamOrderByInput>>>;
   pageNumber?: Maybe<Scalars['Int']>;
   pageSize?: Maybe<Scalars['Int']>;
+};
+
+
+export type BoardFilteredViewsArgs = {
+  searchStr?: Maybe<Scalars['String']>;
+  searchColumns?: Maybe<Array<Maybe<BoardFilteredViewStrColumns>>>;
+  orderBy?: Maybe<BoardFilteredViewOrderBy>;
+  desc?: Maybe<Scalars['Boolean']>;
+  orderBys?: Maybe<Array<Maybe<BoardFilteredViewOrderByInput>>>;
+  pageNumber?: Maybe<Scalars['Int']>;
+  pageSize?: Maybe<Scalars['Int']>;
+};
+
+
+export type BoardTotalFilteredViewsArgs = {
+  searchStr?: Maybe<Scalars['String']>;
+  searchColumns?: Maybe<Array<Maybe<BoardFilteredViewStrColumns>>>;
+  excludeNotViewed?: Maybe<Scalars['Boolean']>;
 };
 
 /** An enumeration. */
@@ -2336,6 +2435,113 @@ export type MarkdownConfig = {
   __typename?: 'MarkdownConfig';
   type?: Maybe<Scalars['String']>;
   content?: Maybe<Scalars['String']>;
+};
+
+export type BoardFilteredView = {
+  __typename?: 'BoardFilteredView';
+  id: Scalars['ID'];
+  boardId?: Maybe<Scalars['Int']>;
+  organizationId?: Maybe<Scalars['Int']>;
+  createdBy?: Maybe<Scalars['Int']>;
+  title?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
+  createdAt?: Maybe<Scalars['DateTime']>;
+  updatedAt?: Maybe<Scalars['DateTime']>;
+  isPrivate?: Maybe<Scalars['Boolean']>;
+  constraint?: Maybe<Scalars['String']>;
+  startTime?: Maybe<Scalars['String']>;
+  endTime?: Maybe<Scalars['String']>;
+  timeGranularity?: Maybe<TimeGranularity>;
+  latestXDays?: Maybe<Scalars['Int']>;
+  board?: Maybe<Board>;
+  creator?: Maybe<User>;
+  where?: Maybe<Constraint>;
+  userCanEditContent?: Maybe<Scalars['Boolean']>;
+  userHasAccess?: Maybe<Scalars['Boolean']>;
+  userCanDelete?: Maybe<Scalars['Boolean']>;
+  totalViews?: Maybe<Scalars['Int']>;
+  myViews?: Maybe<Scalars['Int']>;
+};
+
+/**
+ * For time dimensions, the smallest possible difference between two time values.
+ *
+ *     Needed for calculating adjacency when merging 2 different time ranges.
+ */
+export enum TimeGranularity {
+  Day = 'DAY',
+  Week = 'WEEK',
+  Month = 'MONTH',
+  Quarter = 'QUARTER',
+  Year = 'YEAR'
+}
+
+/** Represents a where constraint used in a query. */
+export type Constraint = {
+  __typename?: 'Constraint';
+  constraint?: Maybe<SingleConstraint>;
+  And?: Maybe<Array<SingleConstraint>>;
+};
+
+/** Actual `where` clauses to be applied */
+export type SingleConstraint = {
+  __typename?: 'SingleConstraint';
+  constraintType?: Maybe<AtomicConstraintType>;
+  dimensionName?: Maybe<Scalars['String']>;
+  values?: Maybe<Array<Maybe<Scalars['String']>>>;
+  start?: Maybe<Scalars['String']>;
+  stop?: Maybe<Scalars['String']>;
+};
+
+/** Current possible values for constraints */
+export enum AtomicConstraintType {
+  Set = 'SET',
+  Range = 'RANGE'
+}
+
+/** An enumeration. */
+export enum BoardFilteredViewStrColumns {
+  Constraint = 'CONSTRAINT',
+  Description = 'DESCRIPTION',
+  EndTime = 'END_TIME',
+  StartTime = 'START_TIME',
+  Title = 'TITLE'
+}
+
+/** An enumeration. */
+export enum BoardFilteredViewOrderBy {
+  BoardId = 'BOARD_ID',
+  Constraint = 'CONSTRAINT',
+  CreatedAt = 'CREATED_AT',
+  CreatedBy = 'CREATED_BY',
+  Description = 'DESCRIPTION',
+  EndTime = 'END_TIME',
+  Id = 'ID',
+  IsPrivate = 'IS_PRIVATE',
+  LatestXDays = 'LATEST_X_DAYS',
+  MyViews = 'MY_VIEWS',
+  OrganizationId = 'ORGANIZATION_ID',
+  RecentlyViewed = 'RECENTLY_VIEWED',
+  StartTime = 'START_TIME',
+  TimeGranularity = 'TIME_GRANULARITY',
+  Title = 'TITLE',
+  UpdatedAt = 'UPDATED_AT',
+  Views = 'VIEWS'
+}
+
+export type BoardFilteredViewOrderByInput = {
+  orderBy: BoardFilteredViewOrderBy;
+  desc?: Maybe<Scalars['Boolean']>;
+};
+
+/** Object type for default filter */
+export type BoardDefaultFilter = {
+  __typename?: 'BoardDefaultFilter';
+  where?: Maybe<Constraint>;
+  timeGranularity?: Maybe<TimeGranularity>;
+  latestXDays?: Maybe<Scalars['Int']>;
+  startTime?: Maybe<Scalars['String']>;
+  endTime?: Maybe<Scalars['String']>;
 };
 
 /** An enumeration. */
@@ -2459,19 +2665,6 @@ export enum AlertRuleType {
   MetricAccessRequestResponded = 'METRIC_ACCESS_REQUEST_RESPONDED'
 }
 
-/**
- * For time dimensions, the smallest possible difference between two time values.
- *
- *     Needed for calculating adjacency when merging 2 different time ranges.
- */
-export enum TimeGranularity {
-  Day = 'DAY',
-  Week = 'WEEK',
-  Month = 'MONTH',
-  Quarter = 'QUARTER',
-  Year = 'YEAR'
-}
-
 export type Alert = {
   __typename?: 'Alert';
   id: Scalars['ID'];
@@ -2487,6 +2680,7 @@ export type Alert = {
   questionReply?: Maybe<QuestionReply>;
   annotation?: Maybe<Annotation>;
   alertRule?: Maybe<AlertRule>;
+  requestingUser?: Maybe<User>;
 };
 
 /** An enumeration. */
@@ -2515,21 +2709,29 @@ export type AlertOrderByInput = {
 
 /** An enumeration. */
 export enum BoardStrColumns {
+  Constraint = 'CONSTRAINT',
   Description = 'DESCRIPTION',
+  EndTime = 'END_TIME',
+  StartTime = 'START_TIME',
   Title = 'TITLE'
 }
 
 /** An enumeration. */
 export enum BoardOrderBy {
+  Constraint = 'CONSTRAINT',
   CreatedAt = 'CREATED_AT',
   CreatedBy = 'CREATED_BY',
   DeletedAt = 'DELETED_AT',
   Description = 'DESCRIPTION',
+  EndTime = 'END_TIME',
   Id = 'ID',
   IsPrivate = 'IS_PRIVATE',
+  LatestXDays = 'LATEST_X_DAYS',
   MyViews = 'MY_VIEWS',
   OrganizationId = 'ORGANIZATION_ID',
   RecentlyViewed = 'RECENTLY_VIEWED',
+  StartTime = 'START_TIME',
+  TimeGranularity = 'TIME_GRANULARITY',
   Title = 'TITLE',
   UpdatedAt = 'UPDATED_AT',
   Views = 'VIEWS'
@@ -2548,9 +2750,9 @@ export type ProtectedMetricFields = {
   name: Scalars['String'];
   userOwners?: Maybe<Array<Maybe<MetricUserOwner>>>;
   userOwnersWithDeactivated?: Maybe<Array<Maybe<MetricUserOwner>>>;
-  userViewers?: Maybe<Array<Maybe<MetricUserOwner>>>;
+  userViewers?: Maybe<Array<Maybe<MetricUserViewer>>>;
   teamOwners?: Maybe<Array<Maybe<MetricTeamOwner>>>;
-  teamViewers?: Maybe<Array<Maybe<MetricTeamOwner>>>;
+  teamViewers?: Maybe<Array<Maybe<MetricTeamViewer>>>;
   versions?: Maybe<Array<Maybe<Metric>>>;
   metricAnnotations?: Maybe<Array<Maybe<MetricAnnotation>>>;
   metricMetadata?: Maybe<MetricMetadata>;
@@ -2679,6 +2881,13 @@ export type ProtectedMetricFieldsBoardsArgs = {
   orderBys?: Maybe<Array<Maybe<BoardOrderByInput>>>;
   pageNumber?: Maybe<Scalars['Int']>;
   pageSize?: Maybe<Scalars['Int']>;
+};
+
+
+export type ProtectedMetricFieldsTotalBoardsArgs = {
+  searchStr?: Maybe<Scalars['String']>;
+  searchColumns?: Maybe<Array<Maybe<BoardStrColumns>>>;
+  excludeNotViewed?: Maybe<Scalars['Boolean']>;
 };
 
 /** Enum of governance owner/viewer request types for user_governance_request_status used for private metrics */
@@ -2923,7 +3132,8 @@ export enum DwEngine {
   Postgresql = 'POSTGRESQL',
   Mysql = 'MYSQL',
   Snowflake = 'SNOWFLAKE',
-  Bigquery = 'BIGQUERY'
+  Bigquery = 'BIGQUERY',
+  Databricks = 'DATABRICKS'
 }
 
 /** Enums to represent the status of the mql server deployment */
@@ -2959,6 +3169,7 @@ export type DataWarehouseConfig = {
   query?: Maybe<Scalars['String']>;
   dialect?: Maybe<Scalars['String']>;
   isPasswordSet?: Maybe<Scalars['Boolean']>;
+  httpPath?: Maybe<Scalars['String']>;
 };
 
 /** An enumeration. */
@@ -3311,6 +3522,14 @@ export type BigQueryConnectionInput = {
   schema: Scalars['String'];
 };
 
+/** GQL Input object for Databricks connection details. */
+export type DatabricksConnectionInput = {
+  host: Scalars['String'];
+  httpPath: Scalars['String'];
+  password: Scalars['String'];
+  schema: Scalars['String'];
+};
+
 export type AlertRuleDefinition = {
   __typename?: 'AlertRuleDefinition';
   /** The name used internally to identify the alert rule */
@@ -3509,6 +3728,12 @@ export type Mutation = {
   boardsRemoveTeamOwners?: Maybe<Board>;
   boardsFavorite?: Maybe<Board>;
   boardsUnfavorite?: Maybe<Board>;
+  boardsUpdateDefaultFilters?: Maybe<Board>;
+  boardsFilteredViewCreate?: Maybe<BoardFilteredView>;
+  boardsFilteredViewUpdate?: Maybe<BoardFilteredView>;
+  boardsFilteredViewDelete?: Maybe<BoardFilteredView>;
+  boardsFilteredViewChangeVisability?: Maybe<BoardFilteredView>;
+  boardsFilteredViewLogView?: Maybe<BoardFilteredViewView>;
   testSlackMessage?: Maybe<Scalars['String']>;
   sendSlackMessages?: Maybe<Scalars['String']>;
 };
@@ -3784,6 +4009,7 @@ export type MutationRevokeMqlServerConfigArgs = {
  */
 export type MutationSetMqlServerEnvConfigArgs = {
   bigQueryConnectionDetails?: Maybe<BigQueryConnectionInput>;
+  databricksConnectionDetails?: Maybe<DatabricksConnectionInput>;
   deployServer?: Maybe<Scalars['Boolean']>;
   redshiftConnectionDetails?: Maybe<RedshiftConnectionInput>;
   snowflakeConnectionDetails?: Maybe<SnowflakeConnectionInput>;
@@ -4478,6 +4704,7 @@ export type MutationMetricsUpdateMetadataArgs = {
   defaultGranularity?: Maybe<TimeGranularity>;
   defaultDaysLimit?: Maybe<Scalars['Int']>;
   extraFields?: Maybe<Scalars['JSONString']>;
+  tags?: Maybe<Array<Maybe<Scalars['String']>>>;
 };
 
 
@@ -4757,6 +4984,7 @@ export type MutationOrgMetricsUpdateMetadataArgs = {
   defaultDaysLimit?: Maybe<Scalars['Int']>;
   extraFields?: Maybe<Scalars['JSONString']>;
   isPrivate?: Maybe<Scalars['Boolean']>;
+  tags?: Maybe<Array<Maybe<Scalars['String']>>>;
 };
 
 
@@ -5350,6 +5578,94 @@ export type MutationBoardsUnfavoriteArgs = {
  * Mutation names will be converted from snake_case to camelCase automatically
  * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
  */
+export type MutationBoardsUpdateDefaultFiltersArgs = {
+  boardId: Scalars['Int'];
+  where?: Maybe<ConstraintInput>;
+  startTime?: Maybe<Scalars['String']>;
+  endTime?: Maybe<Scalars['String']>;
+  timeGranularity?: Maybe<TimeGranularity>;
+  latestXDays?: Maybe<Scalars['Int']>;
+};
+
+
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
+export type MutationBoardsFilteredViewCreateArgs = {
+  boardId: Scalars['Int'];
+  title: Scalars['String'];
+  description?: Maybe<Scalars['String']>;
+  isPrivate?: Maybe<Scalars['Boolean']>;
+  where?: Maybe<ConstraintInput>;
+  startTime?: Maybe<Scalars['String']>;
+  endTime?: Maybe<Scalars['String']>;
+  timeGranularity?: Maybe<TimeGranularity>;
+  latestXDays?: Maybe<Scalars['Int']>;
+};
+
+
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
+export type MutationBoardsFilteredViewUpdateArgs = {
+  filteredViewId: Scalars['Int'];
+  title: Scalars['String'];
+  description?: Maybe<Scalars['String']>;
+  isPrivate?: Maybe<Scalars['Boolean']>;
+  where?: Maybe<ConstraintInput>;
+  startTime?: Maybe<Scalars['String']>;
+  endTime?: Maybe<Scalars['String']>;
+  timeGranularity?: Maybe<TimeGranularity>;
+  latestXDays?: Maybe<Scalars['Int']>;
+};
+
+
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
+export type MutationBoardsFilteredViewDeleteArgs = {
+  filteredViewId: Scalars['Int'];
+};
+
+
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
+export type MutationBoardsFilteredViewChangeVisabilityArgs = {
+  filteredViewId: Scalars['Int'];
+  isPrivate: Scalars['Boolean'];
+};
+
+
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
+export type MutationBoardsFilteredViewLogViewArgs = {
+  filteredViewId: Scalars['Int'];
+};
+
+
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationTestSlackMessageArgs = {
   message: Scalars['String'];
   fromUsername?: Maybe<Scalars['String']>;
@@ -5609,11 +5925,13 @@ export type MetricQueryInput = {
   maxDimensionValues?: Maybe<Scalars['Int']>;
 };
 
+/** Container class for inputs to allow for and/or wrappers on the `where` clause */
 export type ConstraintInput = {
   And?: Maybe<Array<SingleConstraintInput>>;
   constraint?: Maybe<SingleConstraintInput>;
 };
 
+/** Actual `where` clauses to be applied */
 export type SingleConstraintInput = {
   constraintType?: Maybe<AtomicConstraintType>;
   dimensionName?: Maybe<Scalars['String']>;
@@ -5621,11 +5939,6 @@ export type SingleConstraintInput = {
   start?: Maybe<Scalars['String']>;
   stop?: Maybe<Scalars['String']>;
 };
-
-export enum AtomicConstraintType {
-  Set = 'SET',
-  Range = 'RANGE'
-}
 
 export enum PercentChange {
   Dod = 'DOD',
@@ -5694,7 +6007,14 @@ export type BoardView = {
   userId: Scalars['ID'];
   boardId: Scalars['ID'];
   createdAt: Scalars['DateTime'];
-  organization?: Maybe<Organization>;
+};
+
+export type BoardFilteredViewView = {
+  __typename?: 'BoardFilteredViewView';
+  organizationId: Scalars['Int'];
+  userId: Scalars['ID'];
+  filteredViewId: Scalars['ID'];
+  createdAt: Scalars['DateTime'];
 };
 
 export type MqlServerUrlQueryVariables = Exact<{ [key: string]: never; }>;
