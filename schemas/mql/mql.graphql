@@ -22,10 +22,10 @@ type Query {
   metricsByName(modelKey: ModelKeyInput, names: [String]!): [Metric]
   measures(modelKey: ModelKeyInput): [Measure!]
   measureByName(modelKey: ModelKeyInput, name: String!): Measure
-  dimensionNamesForMetrics(modelKey: ModelKeyInput, metricNames: [String], excludeProperties: [DimensionProperty]): [String]
-  dimensionsForMetrics(modelKey: ModelKeyInput, metricNames: [String], excludeProperties: [DimensionProperty]): Dimensions
-  dimensionNamesForMetricsMultihop(modelKey: ModelKeyInput, metricNames: [String]): [String] @deprecated(reason: "Use `dimensionNamesForMetrics`.")
-  dimensionsForMetricsMultihop(modelKey: ModelKeyInput, metricNames: [String]): Dimensions @deprecated(reason: "Use `dimensionsForMetrics`.")
+  dimensionNamesForMetrics(modelKey: ModelKeyInput, metricNames: [String], includeAll: Boolean = false, excludeProperties: [DimensionProperty]): [String]
+  dimensionsForMetrics(modelKey: ModelKeyInput, metricNames: [String], includeAll: Boolean = false, excludeProperties: [DimensionProperty]): Dimensions
+  dimensionNamesForMetricsMultihop(modelKey: ModelKeyInput, metricNames: [String], includeAll: Boolean = false): [String] @deprecated(reason: "Use `dimensionNamesForMetrics`.")
+  dimensionsForMetricsMultihop(modelKey: ModelKeyInput, metricNames: [String], includeAll: Boolean = false): Dimensions @deprecated(reason: "Use `dimensionsForMetrics`.")
   dimensions(modelKey: ModelKeyInput): [Dimension!]
   primaryTimeDimension(modelKey: ModelKeyInput): Dimension
   maxGranularityForMetrics(metricNames: [String]!, modelKey: ModelKeyInput): TimeGranularity

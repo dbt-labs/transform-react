@@ -185,6 +185,7 @@ export type QueryMeasureByNameArgs = {
 export type QueryDimensionNamesForMetricsArgs = {
   modelKey?: Maybe<ModelKeyInput>;
   metricNames?: Maybe<Array<Maybe<Scalars['String']>>>;
+  includeAll?: Maybe<Scalars['Boolean']>;
   excludeProperties?: Maybe<Array<Maybe<DimensionProperty>>>;
 };
 
@@ -197,6 +198,7 @@ export type QueryDimensionNamesForMetricsArgs = {
 export type QueryDimensionsForMetricsArgs = {
   modelKey?: Maybe<ModelKeyInput>;
   metricNames?: Maybe<Array<Maybe<Scalars['String']>>>;
+  includeAll?: Maybe<Scalars['Boolean']>;
   excludeProperties?: Maybe<Array<Maybe<DimensionProperty>>>;
 };
 
@@ -209,6 +211,7 @@ export type QueryDimensionsForMetricsArgs = {
 export type QueryDimensionNamesForMetricsMultihopArgs = {
   modelKey?: Maybe<ModelKeyInput>;
   metricNames?: Maybe<Array<Maybe<Scalars['String']>>>;
+  includeAll?: Maybe<Scalars['Boolean']>;
 };
 
 
@@ -220,6 +223,7 @@ export type QueryDimensionNamesForMetricsMultihopArgs = {
 export type QueryDimensionsForMetricsMultihopArgs = {
   modelKey?: Maybe<ModelKeyInput>;
   metricNames?: Maybe<Array<Maybe<Scalars['String']>>>;
+  includeAll?: Maybe<Scalars['Boolean']>;
 };
 
 
