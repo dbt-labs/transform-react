@@ -1293,6 +1293,7 @@ export type FetchDimensionValuesQuery = (
 
 export type FetchDimensionsQueryVariables = Exact<{
   metricNames: Array<Scalars['String']> | Scalars['String'];
+  includeAll?: Maybe<Scalars['Boolean']>;
 }>;
 
 
@@ -1312,6 +1313,7 @@ export type FetchDimensionsQuery = (
 
 export type FetchDimensionsMultihopQueryVariables = Exact<{
   metricNames: Array<Scalars['String']> | Scalars['String'];
+  includeAll?: Maybe<Scalars['Boolean']>;
 }>;
 
 

@@ -1,24 +1,30 @@
-import { gql } from "urql";
+import { gql } from 'urql';
 
 const query = gql`
-  query FetchDimensionsMultihop($metricNames: [String!]!) {
-    dimensionsForMetricsMultihop(metricNames: $metricNames) {
-        localDimensions {
-            name
-            identifierName
-            type
-            isPrimaryTime
-            values
-            cardinality
-        }
-        nonLocalDimensions {
-            name
-            identifierName
-            type
-            isPrimaryTime
-            values
-            cardinality
-        }
+  query FetchDimensionsMultihop(
+    $metricNames: [String!]!
+    $includeAll: Boolean
+  ) {
+    dimensionsForMetricsMultihop(
+      metricNames: $metricNames
+      includeAll: $includeAll
+    ) {
+      localDimensions {
+        name
+        identifierName
+        type
+        isPrimaryTime
+        values
+        cardinality
+      }
+      nonLocalDimensions {
+        name
+        identifierName
+        type
+        isPrimaryTime
+        values
+        cardinality
+      }
     }
   }
 `;
