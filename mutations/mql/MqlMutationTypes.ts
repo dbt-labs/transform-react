@@ -1343,7 +1343,7 @@ export type CreateMqlQueryFromDbIdMutation = (
     & Pick<CreateMqlQueryFromDbIdPayload, 'id'>
     & { query?: Maybe<(
       { __typename?: 'MqlQuery' }
-      & Pick<MqlQuery, 'id' | 'dbId' | 'availableChartTypes' | 'createdAt' | 'completedAt' | 'status' | 'oldestSourceReadTime' | 'metrics' | 'dimensions' | 'error' | 'chartValueMax' | 'chartValueMin' | 'whereConstraint' | 'requestedGranularity' | 'groupBy' | 'latestXDays' | 'maxDimensionValues' | 'trimIncompletePeriods' | 'timeComparison' | 'numPostprocessedResults'>
+      & Pick<MqlQuery, 'id' | 'dbId' | 'availableChartTypes' | 'completedAt' | 'createdAt' | 'status' | 'oldestSourceReadTime' | 'metrics' | 'dimensions' | 'error' | 'chartValueMax' | 'chartValueMin' | 'whereConstraint' | 'requestedGranularity' | 'groupBy' | 'latestXDays' | 'maxDimensionValues' | 'trimIncompletePeriods' | 'timeComparison' | 'numPostprocessedResults'>
       & { constraint?: Maybe<(
         { __typename?: 'Constraint' }
         & { constraint?: Maybe<(
