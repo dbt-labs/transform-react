@@ -8,6 +8,7 @@ const mutation = gql`
         id
         dbId
         availableChartTypes
+        completedAt
         createdAt
         status
         oldestSourceReadTime
