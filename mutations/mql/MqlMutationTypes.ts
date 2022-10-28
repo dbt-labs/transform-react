@@ -601,8 +601,8 @@ export type QueryJob = {
   error?: Maybe<Scalars['String']>;
   /** Type of query this job is executing */
   queryType?: Maybe<QueryType>;
-  dimensionValuesQueryResult?: Maybe<Array<Maybe<Scalars['String']>>>;
   dataWarehouseValidationsResult?: Maybe<Scalars['String']>;
+  dimensionValuesQueryResult?: Maybe<DimensionValuesQueryResult>;
 };
 
 /**
@@ -625,6 +625,13 @@ export enum QueryType {
   DimVal = 'DIM_VAL',
   DwValidation = 'DW_VALIDATION'
 }
+
+/** GQL class for DimensionValuesQueryResult. */
+export type DimensionValuesQueryResult = {
+  __typename?: 'DimensionValuesQueryResult';
+  values?: Maybe<Array<Maybe<Scalars['String']>>>;
+  totalValues?: Maybe<Scalars['Int']>;
+};
 
 export type Materialization = {
   __typename?: 'Materialization';
@@ -980,7 +987,7 @@ export type MutationCreateDimensionValuesQueryArgs = {
   allowDynamicCache?: Maybe<Scalars['Boolean']>;
   dimensionName: Scalars['String'];
   endTime?: Maybe<Scalars['String']>;
-  metricName: Scalars['String'];
+  metrics: Array<Maybe<Scalars['String']>>;
   modelId?: Maybe<Scalars['Int']>;
   startTime?: Maybe<Scalars['String']>;
 };
@@ -1303,7 +1310,7 @@ export type CreateMqlQueryMutation = (
     & Pick<CreateMqlQueryPayload, 'id'>
     & { query?: Maybe<(
       { __typename?: 'MqlQuery' }
-      & Pick<MqlQuery, 'id' | 'dbId' | 'availableChartTypes' | 'createdAt' | 'status' | 'oldestSourceReadTime' | 'metrics' | 'dimensions' | 'error' | 'chartValueMax' | 'chartValueMin'>
+      & Pick<MqlQuery, 'id' | 'dbId' | 'availableChartTypes' | 'completedAt' | 'createdAt' | 'status' | 'oldestSourceReadTime' | 'metrics' | 'dimensions' | 'error' | 'chartValueMax' | 'chartValueMin'>
       & { resultTabular?: Maybe<(
         { __typename?: 'MqlQueryTabularResult' }
         & Pick<MqlQueryTabularResult, 'data'>
@@ -1336,7 +1343,7 @@ export type CreateMqlQueryFromDbIdMutation = (
     & Pick<CreateMqlQueryFromDbIdPayload, 'id'>
     & { query?: Maybe<(
       { __typename?: 'MqlQuery' }
-      & Pick<MqlQuery, 'id' | 'dbId' | 'availableChartTypes' | 'createdAt' | 'status' | 'oldestSourceReadTime' | 'metrics' | 'dimensions' | 'error' | 'chartValueMax' | 'chartValueMin' | 'whereConstraint' | 'requestedGranularity' | 'groupBy' | 'latestXDays' | 'maxDimensionValues' | 'trimIncompletePeriods' | 'timeComparison' | 'numPostprocessedResults'>
+      & Pick<MqlQuery, 'id' | 'dbId' | 'availableChartTypes' | 'createdAt' | 'completedAt' | 'status' | 'oldestSourceReadTime' | 'metrics' | 'dimensions' | 'error' | 'chartValueMax' | 'chartValueMin' | 'whereConstraint' | 'requestedGranularity' | 'groupBy' | 'latestXDays' | 'maxDimensionValues' | 'trimIncompletePeriods' | 'timeComparison' | 'numPostprocessedResults'>
       & { constraint?: Maybe<(
         { __typename?: 'Constraint' }
         & { constraint?: Maybe<(

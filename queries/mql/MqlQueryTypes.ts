@@ -601,8 +601,8 @@ export type QueryJob = {
   error?: Maybe<Scalars['String']>;
   /** Type of query this job is executing */
   queryType?: Maybe<QueryType>;
-  dimensionValuesQueryResult?: Maybe<Array<Maybe<Scalars['String']>>>;
   dataWarehouseValidationsResult?: Maybe<Scalars['String']>;
+  dimensionValuesQueryResult?: Maybe<DimensionValuesQueryResult>;
 };
 
 /**
@@ -625,6 +625,13 @@ export enum QueryType {
   DimVal = 'DIM_VAL',
   DwValidation = 'DW_VALIDATION'
 }
+
+/** GQL class for DimensionValuesQueryResult. */
+export type DimensionValuesQueryResult = {
+  __typename?: 'DimensionValuesQueryResult';
+  values?: Maybe<Array<Maybe<Scalars['String']>>>;
+  totalValues?: Maybe<Scalars['Int']>;
+};
 
 export type Materialization = {
   __typename?: 'Materialization';
@@ -980,7 +987,7 @@ export type MutationCreateDimensionValuesQueryArgs = {
   allowDynamicCache?: Maybe<Scalars['Boolean']>;
   dimensionName: Scalars['String'];
   endTime?: Maybe<Scalars['String']>;
-  metricName: Scalars['String'];
+  metrics: Array<Maybe<Scalars['String']>>;
   modelId?: Maybe<Scalars['Int']>;
   startTime?: Maybe<Scalars['String']>;
 };
@@ -1482,7 +1489,7 @@ export type FetchMqlTimeSeriesQuery = (
   { __typename?: 'Query' }
   & { mqlQuery?: Maybe<(
     { __typename?: 'MqlQuery' }
-    & Pick<MqlQuery, 'id' | 'dbId' | 'status' | 'metrics' | 'oldestSourceReadTime' | 'availableChartTypes' | 'dimensions' | 'error' | 'chartValueMin' | 'chartValueMax' | 'whereConstraint' | 'requestedGranularity' | 'groupBy' | 'maxDimensionValues' | 'timeComparison' | 'trimIncompletePeriods'>
+    & Pick<MqlQuery, 'id' | 'dbId' | 'status' | 'metrics' | 'oldestSourceReadTime' | 'completedAt' | 'availableChartTypes' | 'dimensions' | 'error' | 'chartValueMin' | 'chartValueMax' | 'whereConstraint' | 'requestedGranularity' | 'groupBy' | 'maxDimensionValues' | 'timeComparison' | 'trimIncompletePeriods'>
     & { constraint?: Maybe<(
       { __typename?: 'Constraint' }
       & { constraint?: Maybe<(

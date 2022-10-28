@@ -323,8 +323,8 @@ type QueryJob {
 
   """Type of query this job is executing"""
   queryType: QueryType
-  dimensionValuesQueryResult: [String]
   dataWarehouseValidationsResult: String
+  dimensionValuesQueryResult: DimensionValuesQueryResult
 }
 
 """
@@ -347,6 +347,12 @@ enum QueryStatus {
 enum QueryType {
   DIM_VAL
   DW_VALIDATION
+}
+
+"""GQL class for DimensionValuesQueryResult."""
+type DimensionValuesQueryResult {
+  values: [String]
+  totalValues: Int
 }
 
 type Materialization {
@@ -560,7 +566,7 @@ type Mutation {
   createDataWarehouseValidationsQuery(endTime: String, modelId: Int, startTime: String, validationType: DataWarehouseValidationRequestType!): CreateDataWarehouseValidationsQuery
 
   """Submits an async dimension value query."""
-  createDimensionValuesQuery(allowDynamicCache: Boolean = true, dimensionName: String!, endTime: String, metricName: String!, modelId: Int, startTime: String): CreateDimensionValuesQuery
+  createDimensionValuesQuery(allowDynamicCache: Boolean = true, dimensionName: String!, endTime: String, metrics: [String]!, modelId: Int, startTime: String): CreateDimensionValuesQuery
 
   """
   Initiate an MQL Query based on just the metric name. Params will be based on the metric defaults.
