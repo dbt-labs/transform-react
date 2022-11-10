@@ -4,7 +4,7 @@ const query = gql`
   query FetchDimensionValues(
     $metricName: String!
     $dimensionName: String!
-    $ignoreInvalidDimensions: boolean
+    $ignoreInvalidDimensions: Boolean
     $searchStr: String
     $pageNumber: Int
     $pageSize: Int

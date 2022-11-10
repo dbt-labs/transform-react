@@ -41,6 +41,13 @@ type Query {
   oneHourSuccessRate: Float
   oneDaySuccessRate: Float
   oneWeekSuccessRate: Float
+  metricsForDimensions(dimensionNames: [String]!, modelKey: ModelKeyInput): [String]
+  canLimitDimensionValues(
+    numMetrics: Int!
+
+    """Number of dimensions used in query, not including metric_time."""
+    numDimensions: Int!
+  ): Boolean
 }
 
 """
@@ -71,7 +78,7 @@ type MqlQuery {
   """
   The Tabular Results are Base 64-encoded JSON of a subset of rows from the query results Data Frame.
   """
-  resultTabular(cursor: Int, orient: PandasJsonOrient, paginate: Boolean): MqlQueryTabularResult
+  resultTabular(cursor: Int, orient: PandasJsonOrient, paginate: Boolean, gzip: Boolean = false, encodingType: String = "base64", paginateSize: Boolean): MqlQueryTabularResult
   totalResultRows: Int
 
   """
@@ -107,6 +114,7 @@ type MqlQuery {
   groupBy: [String]
   maxDimensionValues: Int
   constraint: Constraint
+  order: [String]
   timeComparison: PercentChange
   trimIncompletePeriods: Boolean
   timeConstraint: TimeConstraint
@@ -299,6 +307,7 @@ enum ChartType {
   BAR_CHART_SHARE_OF
   BIG_NUMBER
   TABLE
+  DUAL_AXIS_LINE_CHART
 }
 
 """GQL class for QueryJob."""
@@ -378,8 +387,8 @@ type Metric {
   constraint: String
   dimensions: [String!]
   dimensionObjects(modelKey: ModelKeyInput): [Dimension!]
-  dimensionValues(modelKey: ModelKeyInput, dimensionName: String!, startTime: String, endTime: String, allowDynamicCache: Boolean, pageNumber: Int, pageSize: Int, searchStr: String): [String]
-  totalDimensionValues(modelKey: ModelKeyInput, dimensionName: String!, startTime: String, endTime: String, allowDynamicCache: Boolean, searchStr: String): Int
+  dimensionValues(modelKey: ModelKeyInput, dimensionName: String!, startTime: String, endTime: String, allowDynamicCache: Boolean, pageNumber: Int, pageSize: Int, searchStr: String, ignoreInvalidDimensions: Boolean): [String]
+  totalDimensionValues(modelKey: ModelKeyInput, dimensionName: String!, startTime: String, endTime: String, allowDynamicCache: Boolean, searchStr: String, ignoreInvalidDimensions: Boolean): Int
   maxGranularity(modelKey: ModelKeyInput): TimeGranularity
   newDataIsAvailable(afterDatetime: DateTime!, modelKey: ModelKeyInput): Boolean
   canLimitDimensionValues(modelKey: ModelKeyInput): Boolean
@@ -526,6 +535,8 @@ type Mutation {
   Initiate an MQL Query based on just the DB id. We'll build out the parameters from the DB record.
   """
   createMqlQueryFromDbId(input: CreateMqlQueryFromDbIdInput!): CreateMqlQueryFromDbIdPayload
+
+  """Deprecated in favor of CreateMaterializationNew!"""
   materialize(asTable: String, cacheMode: CacheMode, groupBy: [String!], metrics: [String!], modelKey: ModelKeyInput, where: String): Materialize @deprecated(reason: "Moving to async implementation (CreateMqlMaterializationNew)")
 
   """
@@ -764,6 +775,7 @@ input CreateMqlQueryFromDbIdInput {
   clientMutationId: String
 }
 
+"""Deprecated in favor of CreateMaterializationNew!"""
 type Materialize {
   schema: String
   table: String

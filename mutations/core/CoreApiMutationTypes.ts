@@ -279,6 +279,7 @@ export type Organization = {
   historyOfCurrentModels?: Maybe<Array<Maybe<CurrentModelHistory>>>;
   annotationsForMetrics?: Maybe<Array<Maybe<Annotation>>>;
   totalAnnotationsForMetrics?: Maybe<Scalars['Int']>;
+  user?: Maybe<User>;
   activeFeatures?: Maybe<Array<Maybe<Feature>>>;
 };
 
@@ -475,6 +476,7 @@ export type OrganizationTotalMetricsArgs = {
   searchColumns?: Maybe<Array<Maybe<MetricVersionStrColumns>>>;
   names?: Maybe<Array<Maybe<Scalars['String']>>>;
   tiers?: Maybe<Array<Maybe<MetricTier>>>;
+  tags?: Maybe<Array<Maybe<Scalars['Int']>>>;
   types?: Maybe<Array<Maybe<MetricType>>>;
   modelId?: Maybe<Scalars['Int']>;
   userIsSubscribed?: Maybe<Scalars['Boolean']>;
@@ -509,6 +511,7 @@ export type OrganizationOrgMetricArgs = {
 
 export type OrganizationMetricArgs = {
   name: Scalars['String'];
+  modelId?: Maybe<Scalars['Int']>;
 };
 
 
@@ -643,6 +646,11 @@ export type OrganizationTotalAnnotationsForMetricsArgs = {
   startDate?: Maybe<Scalars['Date']>;
   endDate?: Maybe<Scalars['Date']>;
   priorities?: Maybe<Array<Maybe<Priority>>>;
+};
+
+
+export type OrganizationUserArgs = {
+  id: Scalars['Int'];
 };
 
 /** An enumeration. */
@@ -1028,7 +1036,8 @@ export enum ChartType {
   BarChartStacked = 'BAR_CHART_STACKED',
   BarChartShareOf = 'BAR_CHART_SHARE_OF',
   BigNumber = 'BIG_NUMBER',
-  Table = 'TABLE'
+  Table = 'TABLE',
+  DualAxisLineChart = 'DUAL_AXIS_LINE_CHART'
 }
 
 export type OrgMetric = {
@@ -1409,6 +1418,7 @@ export type ProtectedMetricFields = {
   increaseIsGoodWithLock?: Maybe<LockableParameter>;
   tierWithLock?: Maybe<LockableParameter>;
   isPrivateWithLock?: Maybe<LockableParameter>;
+  unitWithLock?: Maybe<LockableParameter>;
   latestApproval?: Maybe<MetricApproval>;
   questions?: Maybe<Array<Maybe<Question>>>;
   annotations?: Maybe<Array<Maybe<Annotation>>>;
@@ -1577,11 +1587,13 @@ export type MetricMetadata = {
   tier?: Maybe<Scalars['Int']>;
   valueFormat?: Maybe<Scalars['String']>;
   increaseIsGood?: Maybe<Scalars['Boolean']>;
+  unit?: Maybe<Scalars['String']>;
   descriptionLock: Scalars['Boolean'];
   displayNameLock: Scalars['Boolean'];
   tierLock: Scalars['Boolean'];
   valueFormatLock: Scalars['Boolean'];
   increaseIsGoodLock: Scalars['Boolean'];
+  unitLock: Scalars['Boolean'];
   extraFields?: Maybe<Scalars['JSONString']>;
   isNew: Scalars['Boolean'];
   createdAt?: Maybe<Scalars['DateTime']>;
@@ -1824,6 +1836,7 @@ export type DataSourceVersionOrderByInput = {
 export enum SavedQueryStrColumns {
   MetricMetadataDescription = 'MetricMetadata__DESCRIPTION',
   MetricMetadataDisplayName = 'MetricMetadata__DISPLAY_NAME',
+  MetricMetadataUnit = 'MetricMetadata__UNIT',
   MetricMetadataValueFormat = 'MetricMetadata__VALUE_FORMAT',
   OrgMetricName = 'OrgMetric__NAME',
   Title = 'TITLE'
@@ -1852,6 +1865,8 @@ export enum SavedQueryOrderBy {
   MetricMetadataMetricId = 'MetricMetadata__METRIC_ID',
   MetricMetadataTier = 'MetricMetadata__TIER',
   MetricMetadataTierLock = 'MetricMetadata__TIER_LOCK',
+  MetricMetadataUnit = 'MetricMetadata__UNIT',
+  MetricMetadataUnitLock = 'MetricMetadata__UNIT_LOCK',
   MetricMetadataUpdatedAt = 'MetricMetadata__UPDATED_AT',
   MetricMetadataUpdatedBy = 'MetricMetadata__UPDATED_BY',
   MetricMetadataValueFormat = 'MetricMetadata__VALUE_FORMAT',
@@ -2052,7 +2067,7 @@ export type BoardTeamOwnersArgs = {
 
 
 export type BoardFilteredViewsArgs = {
-  ownedBy?: Maybe<Scalars['Int']>;
+  mineOnly?: Maybe<Scalars['Boolean']>;
   searchStr?: Maybe<Scalars['String']>;
   searchColumns?: Maybe<Array<Maybe<BoardFilteredViewStrColumns>>>;
   orderBy?: Maybe<BoardFilteredViewOrderBy>;
@@ -2067,7 +2082,7 @@ export type BoardTotalFilteredViewsArgs = {
   searchStr?: Maybe<Scalars['String']>;
   searchColumns?: Maybe<Array<Maybe<BoardFilteredViewStrColumns>>>;
   excludeNotViewed?: Maybe<Scalars['Boolean']>;
-  ownedBy?: Maybe<Scalars['Int']>;
+  mineOnly?: Maybe<Scalars['Boolean']>;
 };
 
 
@@ -2272,6 +2287,7 @@ export enum OrgMetricStrColumns {
   DisplayName = 'DISPLAY_NAME',
   MetricMetadataDescription = 'MetricMetadata__DESCRIPTION',
   MetricMetadataDisplayName = 'MetricMetadata__DISPLAY_NAME',
+  MetricMetadataUnit = 'MetricMetadata__UNIT',
   MetricMetadataValueFormat = 'MetricMetadata__VALUE_FORMAT',
   Name = 'NAME',
   OrgTagName = 'OrgTag__NAME'
@@ -2298,6 +2314,8 @@ export enum OrgMetricOrderBy {
   MetricMetadataMetricId = 'MetricMetadata__METRIC_ID',
   MetricMetadataTier = 'MetricMetadata__TIER',
   MetricMetadataTierLock = 'MetricMetadata__TIER_LOCK',
+  MetricMetadataUnit = 'MetricMetadata__UNIT',
+  MetricMetadataUnitLock = 'MetricMetadata__UNIT_LOCK',
   MetricMetadataUpdatedAt = 'MetricMetadata__UPDATED_AT',
   MetricMetadataUpdatedBy = 'MetricMetadata__UPDATED_BY',
   MetricMetadataValueFormat = 'MetricMetadata__VALUE_FORMAT',
@@ -2736,6 +2754,7 @@ export enum MetricVersionStrColumns {
   MetricTypeStr = 'METRIC_TYPE_STR',
   MetricMetadataDescription = 'MetricMetadata__DESCRIPTION',
   MetricMetadataDisplayName = 'MetricMetadata__DISPLAY_NAME',
+  MetricMetadataUnit = 'MetricMetadata__UNIT',
   MetricMetadataValueFormat = 'MetricMetadata__VALUE_FORMAT',
   OrgMetricName = 'OrgMetric__NAME'
 }
@@ -4187,6 +4206,7 @@ export type MutationOrgMetricsUpdateMetadataArgs = {
   defaultDaysLimit?: Maybe<Scalars['Int']>;
   extraFields?: Maybe<Scalars['JSONString']>;
   isPrivate?: Maybe<Scalars['Boolean']>;
+  unit?: Maybe<Scalars['String']>;
   tags?: Maybe<Array<Maybe<Scalars['String']>>>;
 };
 
@@ -5036,7 +5056,8 @@ export enum GChartType {
   BarChartStacked = 'BAR_CHART_STACKED',
   BarChartShareOf = 'BAR_CHART_SHARE_OF',
   BigNumber = 'BIG_NUMBER',
-  Table = 'TABLE'
+  Table = 'TABLE',
+  DualAxisLineChart = 'DUAL_AXIS_LINE_CHART'
 }
 
 /** An enumeration. */

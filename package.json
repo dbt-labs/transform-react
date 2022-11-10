@@ -23,7 +23,7 @@
     "codegen:mql:queries": "graphql-codegen --config codegen/mql/queries.yml",
     "codegen:core:mutations": "graphql-codegen --config codegen/core/mutations.yml",
     "codegen:core:queries": "graphql-codegen --config codegen/core/queries.yml",
-    "codegen": "yarn run codegen:mql:mutations && yarn run codegen:mql:queries && yarn run codegen:core:mutations && yarn run codegen:core:queries",
+    "codegen": "yarn schema && yarn run codegen:mql:mutations && yarn run codegen:mql:queries && yarn run codegen:core:mutations && yarn run codegen:core:queries",
     "dev": "next dev",
     "prepare": "tsc",
     "tsc": "tsc",

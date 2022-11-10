@@ -91,7 +91,7 @@ type Organization {
   totalAnnotations: Int
   metrics(names: [String], tiers: [MetricTier], tags: [Int], types: [MetricType], modelId: Int, userIsSubscribed: Boolean, ownedByTeamIds: [Int], ownedByUserIds: [Int], createdAtOrBefore: DateTime, createdAtOrAfter: DateTime, searchStr: String, searchColumns: [OrgMetricStrColumns], orderBy: OrgMetricOrderBy, desc: Boolean, orderBys: [OrgMetricOrderByInput], pageNumber: Int, pageSize: Int): [OrgMetric]
   totalOrgMetrics(searchStr: String, searchColumns: [MetricVersionStrColumns], names: [String], tiers: [MetricTier], tags: [Int], types: [MetricType], modelId: Int, userIsSubscribed: Boolean, ownedByTeamIds: [Int], ownedByUserIds: [Int], createdAtOrBefore: DateTime, createdAtOrAfter: DateTime): Int
-  totalMetrics(searchStr: String, searchColumns: [MetricVersionStrColumns], names: [String], tiers: [MetricTier], types: [MetricType], modelId: Int, userIsSubscribed: Boolean, ownedByTeamIds: [Int], ownedByUserIds: [Int], createdAtOrBefore: DateTime, createdAtOrAfter: DateTime): Int
+  totalMetrics(searchStr: String, searchColumns: [MetricVersionStrColumns], names: [String], tiers: [MetricTier], tags: [Int], types: [MetricType], modelId: Int, userIsSubscribed: Boolean, ownedByTeamIds: [Int], ownedByUserIds: [Int], createdAtOrBefore: DateTime, createdAtOrAfter: DateTime): Int
   supportedMetricFilters: [MetricFilter]
   latestMqlHeartbeat: MqlHeartbeat
   totalUsers(activeOnly: Boolean, searchStr: String, searchColumns: [UserStrColumns]): Int
@@ -100,7 +100,7 @@ type Organization {
   mqlServer(id: ID!): OrgMqlServer
   totalMqlServers: Int
   orgMetric(name: String!): OrgMetric
-  metric(name: String!): OrgMetric
+  metric(name: String!, modelId: Int): OrgMetric
   team(slug: String!): Team
   savedQuery(id: ID!): SavedQuery
   totalMetricCollections: Int
@@ -138,6 +138,7 @@ type Organization {
   historyOfCurrentModels(pageNumber: Int, pageSize: Int): [CurrentModelHistory]
   annotationsForMetrics(metrics: [String]!, dimensions: [GMetricAnnotationDimensionInput], startDate: Date, endDate: Date, priorities: [Priority], searchStr: String, searchColumns: [AnnotationStrColumns], orderBy: AnnotationOrderBy, desc: Boolean, orderBys: [AnnotationOrderByInput], pageNumber: Int, pageSize: Int): [Annotation]
   totalAnnotationsForMetrics(metrics: [String]!, dimensions: [GMetricAnnotationDimensionInput], startDate: Date, endDate: Date, priorities: [Priority]): Int
+  user(id: Int!): User
   activeFeatures: [Feature]
 }
 
@@ -341,6 +342,7 @@ enum ChartType {
   BAR_CHART_SHARE_OF
   BIG_NUMBER
   TABLE
+  DUAL_AXIS_LINE_CHART
 }
 
 type OrgMetric {
@@ -621,6 +623,7 @@ type ProtectedMetricFields {
   increaseIsGoodWithLock: LockableParameter
   tierWithLock: LockableParameter
   isPrivateWithLock: LockableParameter
+  unitWithLock: LockableParameter
   latestApproval: MetricApproval
   questions(searchStr: String, searchColumns: [QuestionStrColumns], orderBy: QuestionOrderBy, desc: Boolean, orderBys: [QuestionOrderByInput], pageNumber: Int, pageSize: Int): [Question]
   annotations(dimensions: [GMetricAnnotationDimensionInput], startDate: Date, endDate: Date, priorities: [Priority], searchStr: String, searchColumns: [AnnotationStrColumns], orderBy: AnnotationOrderBy, desc: Boolean, orderBys: [AnnotationOrderByInput], pageNumber: Int, pageSize: Int): [Annotation]
@@ -697,11 +700,13 @@ type MetricMetadata {
   tier: Int
   valueFormat: String
   increaseIsGood: Boolean
+  unit: String
   descriptionLock: Boolean!
   displayNameLock: Boolean!
   tierLock: Boolean!
   valueFormatLock: Boolean!
   increaseIsGoodLock: Boolean!
+  unitLock: Boolean!
   extraFields: JSONString
   isNew: Boolean!
   createdAt: DateTime
@@ -933,6 +938,7 @@ input DataSourceVersionOrderByInput {
 enum SavedQueryStrColumns {
   MetricMetadata__DESCRIPTION
   MetricMetadata__DISPLAY_NAME
+  MetricMetadata__UNIT
   MetricMetadata__VALUE_FORMAT
   OrgMetric__NAME
   TITLE
@@ -961,6 +967,8 @@ enum SavedQueryOrderBy {
   MetricMetadata__METRIC_ID
   MetricMetadata__TIER
   MetricMetadata__TIER_LOCK
+  MetricMetadata__UNIT
+  MetricMetadata__UNIT_LOCK
   MetricMetadata__UPDATED_AT
   MetricMetadata__UPDATED_BY
   MetricMetadata__VALUE_FORMAT
@@ -1128,8 +1136,8 @@ type Board {
   totalFavorites: Int
   isFavoritedByUser: Boolean
   lastWeekViews: Int
-  filteredViews(ownedBy: Int, searchStr: String, searchColumns: [BoardFilteredViewStrColumns], orderBy: BoardFilteredViewOrderBy, desc: Boolean, orderBys: [BoardFilteredViewOrderByInput], pageNumber: Int, pageSize: Int): [BoardFilteredView]
-  totalFilteredViews(searchStr: String, searchColumns: [BoardFilteredViewStrColumns], excludeNotViewed: Boolean, ownedBy: Int): Int
+  filteredViews(mineOnly: Boolean, searchStr: String, searchColumns: [BoardFilteredViewStrColumns], orderBy: BoardFilteredViewOrderBy, desc: Boolean, orderBys: [BoardFilteredViewOrderByInput], pageNumber: Int, pageSize: Int): [BoardFilteredView]
+  totalFilteredViews(searchStr: String, searchColumns: [BoardFilteredViewStrColumns], excludeNotViewed: Boolean, mineOnly: Boolean): Int
   defaultFilter: BoardDefaultFilter
   filteredViewById(filteredViewId: Int!): BoardFilteredView
 }
@@ -1327,6 +1335,7 @@ enum OrgMetricStrColumns {
   DISPLAY_NAME
   MetricMetadata__DESCRIPTION
   MetricMetadata__DISPLAY_NAME
+  MetricMetadata__UNIT
   MetricMetadata__VALUE_FORMAT
   NAME
   OrgTag__NAME
@@ -1353,6 +1362,8 @@ enum OrgMetricOrderBy {
   MetricMetadata__METRIC_ID
   MetricMetadata__TIER
   MetricMetadata__TIER_LOCK
+  MetricMetadata__UNIT
+  MetricMetadata__UNIT_LOCK
   MetricMetadata__UPDATED_AT
   MetricMetadata__UPDATED_BY
   MetricMetadata__VALUE_FORMAT
@@ -1748,6 +1759,7 @@ enum MetricVersionStrColumns {
   METRIC_TYPE_STR
   MetricMetadata__DESCRIPTION
   MetricMetadata__DISPLAY_NAME
+  MetricMetadata__UNIT
   MetricMetadata__VALUE_FORMAT
   OrgMetric__NAME
 }
@@ -2116,7 +2128,7 @@ type Mutation {
   orgMetricsApproveTeamViewershipRequest(metricId: Int!, teamId: Int!): OrgMetric
   orgMetricsRemoveTeamViewers(metricId: Int!, teamIds: [Int], ownerType: GOwnerType): OrgMetric
   orgMetricsAddDescription(metricId: ID!, description: String!): OrgMetric
-  orgMetricsUpdateMetadata(metricId: ID!, description: String, tier: Int, displayName: String, valueFormat: String, increaseIsGood: Boolean, defaultTrim: Boolean, defaultGranularity: TimeGranularity, defaultDaysLimit: Int, extraFields: JSONString, isPrivate: Boolean, tags: [String]): OrgMetric
+  orgMetricsUpdateMetadata(metricId: ID!, description: String, tier: Int, displayName: String, valueFormat: String, increaseIsGood: Boolean, defaultTrim: Boolean, defaultGranularity: TimeGranularity, defaultDaysLimit: Int, extraFields: JSONString, isPrivate: Boolean, unit: String, tags: [String]): OrgMetric
   savedQueryCreate(title: String!, serializedQuery: GenericScalar!, metricIds: [ID], ownerTeamId: ID, isPrivate: Boolean): SavedQuery
   savedQueryUpdate(id: ID!, title: String, createdBy: Int, ownerTeamId: Int, serializedQuery: GenericScalar, metricIds: [ID], isPrivate: Boolean): SavedQuery
   createSavedQuery(title: String!, queryId: Int!, isPrivate: Boolean, chartType: GChartType): SavedQuery
@@ -2344,6 +2356,7 @@ enum GChartType {
   BAR_CHART_SHARE_OF
   BIG_NUMBER
   TABLE
+  DUAL_AXIS_LINE_CHART
 }
 
 """An enumeration."""
