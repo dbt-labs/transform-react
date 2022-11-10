@@ -70,6 +70,8 @@ export type Query = {
   oneHourSuccessRate?: Maybe<Scalars['Float']>;
   oneDaySuccessRate?: Maybe<Scalars['Float']>;
   oneWeekSuccessRate?: Maybe<Scalars['Float']>;
+  metricsForDimensions?: Maybe<Array<Maybe<Scalars['String']>>>;
+  canLimitDimensionValues?: Maybe<Scalars['Boolean']>;
 };
 
 
@@ -328,6 +330,28 @@ export type QueryQueryParamsFromDbIdArgs = {
   dbId: Scalars['Int'];
 };
 
+
+/**
+ * Base Query object exposed by GraphQL for the MQL Server
+ *
+ * Each field defined below is accessible by the API, by calling the equivalent resolver.
+ */
+export type QueryMetricsForDimensionsArgs = {
+  dimensionNames: Array<Maybe<Scalars['String']>>;
+  modelKey?: Maybe<ModelKeyInput>;
+};
+
+
+/**
+ * Base Query object exposed by GraphQL for the MQL Server
+ *
+ * Each field defined below is accessible by the API, by calling the equivalent resolver.
+ */
+export type QueryCanLimitDimensionValuesArgs = {
+  numMetrics: Scalars['Int'];
+  numDimensions: Scalars['Int'];
+};
+
 /**
  * The MQL Query class is used to access the output of an MQL Query.
  *
@@ -379,6 +403,7 @@ export type MqlQuery = {
   groupBy?: Maybe<Array<Maybe<Scalars['String']>>>;
   maxDimensionValues?: Maybe<Scalars['Int']>;
   constraint?: Maybe<Constraint>;
+  order?: Maybe<Array<Maybe<Scalars['String']>>>;
   timeComparison?: Maybe<PercentChange>;
   trimIncompletePeriods?: Maybe<Scalars['Boolean']>;
   timeConstraint?: Maybe<TimeConstraint>;
@@ -404,6 +429,9 @@ export type MqlQueryResultTabularArgs = {
   cursor?: Maybe<Scalars['Int']>;
   orient?: Maybe<PandasJsonOrient>;
   paginate?: Maybe<Scalars['Boolean']>;
+  gzip?: Maybe<Scalars['Boolean']>;
+  encodingType?: Maybe<Scalars['String']>;
+  paginateSize?: Maybe<Scalars['Boolean']>;
 };
 
 
@@ -581,7 +609,8 @@ export enum ChartType {
   BarChartStacked = 'BAR_CHART_STACKED',
   BarChartShareOf = 'BAR_CHART_SHARE_OF',
   BigNumber = 'BIG_NUMBER',
-  Table = 'TABLE'
+  Table = 'TABLE',
+  DualAxisLineChart = 'DUAL_AXIS_LINE_CHART'
 }
 
 /** GQL class for QueryJob. */
@@ -681,6 +710,7 @@ export type MetricDimensionValuesArgs = {
   pageNumber?: Maybe<Scalars['Int']>;
   pageSize?: Maybe<Scalars['Int']>;
   searchStr?: Maybe<Scalars['String']>;
+  ignoreInvalidDimensions?: Maybe<Scalars['Boolean']>;
 };
 
 
@@ -691,6 +721,7 @@ export type MetricTotalDimensionValuesArgs = {
   endTime?: Maybe<Scalars['String']>;
   allowDynamicCache?: Maybe<Scalars['Boolean']>;
   searchStr?: Maybe<Scalars['String']>;
+  ignoreInvalidDimensions?: Maybe<Scalars['Boolean']>;
 };
 
 
@@ -861,7 +892,10 @@ export type Mutation = {
   createMqlQuery?: Maybe<CreateMqlQueryPayload>;
   /** Initiate an MQL Query based on just the DB id. We'll build out the parameters from the DB record. */
   createMqlQueryFromDbId?: Maybe<CreateMqlQueryFromDbIdPayload>;
-  /** @deprecated Moving to async implementation (CreateMqlMaterializationNew) */
+  /**
+   * Deprecated in favor of CreateMaterializationNew!
+   * @deprecated Moving to async implementation (CreateMqlMaterializationNew)
+   */
   materialize?: Maybe<Materialize>;
   /** Drop the MQL dynamic cache. Please avoid doing this unless there's a cache corruption issue. */
   dropCache?: Maybe<DropCache>;
@@ -1137,6 +1171,7 @@ export type CreateMqlQueryFromDbIdInput = {
   clientMutationId?: Maybe<Scalars['String']>;
 };
 
+/** Deprecated in favor of CreateMaterializationNew! */
 export type Materialize = {
   __typename?: 'Materialize';
   schema?: Maybe<Scalars['String']>;
@@ -1284,6 +1319,7 @@ export type FetchDimensionNamesMultihopQuery = (
 export type FetchDimensionValuesQueryVariables = Exact<{
   metricName: Scalars['String'];
   dimensionName: Scalars['String'];
+  ignoreInvalidDimensions?: Maybe<Scalars['Boolean']>;
   searchStr?: Maybe<Scalars['String']>;
   pageNumber?: Maybe<Scalars['Int']>;
   pageSize?: Maybe<Scalars['Int']>;

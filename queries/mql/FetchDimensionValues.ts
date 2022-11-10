@@ -1,9 +1,10 @@
-import { gql } from "urql";
+import { gql } from 'urql';
 
 const query = gql`
   query FetchDimensionValues(
     $metricName: String!
     $dimensionName: String!
+    $ignoreInvalidDimensions: Boolean
     $searchStr: String
     $pageNumber: Int
     $pageSize: Int
@@ -11,12 +12,14 @@ const query = gql`
     metricByName(name: $metricName) {
       dimensionValues(
         dimensionName: $dimensionName
+        ignoreInvalidDimensions: $ignoreInvalidDimensions
         searchStr: $searchStr
         pageNumber: $pageNumber
         pageSize: $pageSize
       )
       totalDimensionValues(
         dimensionName: $dimensionName
+        ignoreInvalidDimensions: $ignoreInvalidDimensions
       )
     }
   }
