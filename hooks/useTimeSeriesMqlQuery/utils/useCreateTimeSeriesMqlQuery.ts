@@ -85,6 +85,8 @@ const useCreateTimeSeriesMqlQuery = ({
       trimIncompletePeriods: formState.trimIncompletePeriods,
       where: clearEmptyConstraints(formState.where),
     }).then(({ data, error }) => {
+      console.log('data', data);
+      console.log('error', error);
       if (data?.createMqlQuery?.query?.status === MqlQueryStatus.Successful) {
         dispatch({
           type: 'postQueryCachedResultsSuccess',

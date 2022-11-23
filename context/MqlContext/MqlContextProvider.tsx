@@ -1,24 +1,30 @@
-import React, { useEffect, useState, ReactNode, useCallback } from "react";
-import { useQuery, useMutation, CombinedError, Provider } from "urql";
-
-import buildMqlUrqlClient from "../../utils/builMqlUrqlClient";
-import MqlServerUrlQuery from "../../queries/core/MqlServerUrlQuery";
-import { MqlServerUrlQuery as MqlServerUrlQueryType } from "../../queries/core/CoreApiQueryTypes";
-import SetMqlServerMutation from "../../mutations/core/SetMqlServer";
+import React, { useEffect, useState, ReactNode, useCallback } from 'react';
+import { useQuery, useMutation, CombinedError, Provider } from 'urql';
+import getUserIdFromAuthToken from './utils/getUserIdFromAuthToken';
 import {
   SetMqlServerMutation as SetMqlServerMutationType,
   SetMqlServerMutationVariables,
-} from "../../mutations/core/CoreApiMutationTypes";
-import MqlContext, { HandleCombinedErrorContext, MqlContextType, CORE_API_URL } from "./MqlContext";
-import getUserIdFromAuthToken from "./utils/getUserIdFromAuthToken";
+} from '../../mutations/core/CoreApiMutationTypes';
+import SetMqlServerMutation from '../../mutations/core/SetMqlServer';
+import { MqlServerUrlQuery as MqlServerUrlQueryType } from '../../queries/core/CoreApiQueryTypes';
+import MqlServerUrlQuery from '../../queries/core/MqlServerUrlQuery';
+import buildMqlUrqlClient from '../../utils/builMqlUrqlClient';
+import MqlContext, {
+  HandleCombinedErrorContext,
+  MqlContextType,
+  CORE_API_URL,
+} from './MqlContext';
 
 export interface AcceptedHeaders {
-  'model-id'?: string; 
+  'model-id'?: string;
 }
 
 type Props = {
   isAuthenticated: boolean;
-  captureException?: (e: CombinedError, context: HandleCombinedErrorContext) => void;
+  captureException?: (
+    e: CombinedError,
+    context: HandleCombinedErrorContext
+  ) => void;
   children: ReactNode;
   clientVersion: string;
   coreApiUrl?: string;
@@ -29,6 +35,7 @@ type Props = {
   };
   mqlServerUrlOverride?: string;
   token?: string;
+  serviceUserApiKey?: string;
 };
 
 /*
@@ -43,9 +50,15 @@ function MqlContextProvider({
   clientVersion,
   coreApiUrl,
   externalConfig,
-  mqlServerUrlOverride
+  mqlServerUrlOverride,
+  serviceUserApiKey,
 }: Props) {
-  const coreApiClient = buildMqlUrqlClient({clientVersion, mqlUrl: coreApiUrl || CORE_API_URL, token});
+  const coreApiClient = buildMqlUrqlClient({
+    clientVersion,
+    mqlUrl: coreApiUrl || CORE_API_URL,
+    token: token || serviceUserApiKey,
+  });
+
   return (
     <Provider value={coreApiClient}>
       <MqlContextProviderInternal
@@ -56,6 +69,7 @@ function MqlContextProvider({
         coreApiUrl={coreApiUrl || CORE_API_URL}
         externalConfig={externalConfig}
         mqlServerUrlOverride={mqlServerUrlOverride}
+        serviceUserApiKey={serviceUserApiKey}
       >
         {children}
       </MqlContextProviderInternal>
@@ -71,7 +85,8 @@ function MqlContextProviderInternal({
   clientVersion,
   coreApiUrl,
   externalConfig,
-  mqlServerUrlOverride
+  mqlServerUrlOverride,
+  serviceUserApiKey,
 }: Props) {
   // We do this because we want to allow the parent to provide a bespoke error handling function.
   const handleCombinedError = useCallback(
@@ -86,6 +101,8 @@ function MqlContextProviderInternal({
     },
     [captureException]
   );
+
+  const authToken = token || serviceUserApiKey;
 
   /*
     Until recently, making a request to the MQL Server would require:
@@ -105,8 +122,10 @@ function MqlContextProviderInternal({
     refetchMqlServerUrl,
   ] = useQuery<MqlServerUrlQueryType>({
     query: MqlServerUrlQuery,
-    pause: Boolean(externalConfig) || !isAuthenticated || !token,
+    pause:
+      Boolean(externalConfig?.mqlServerUrl) || !isAuthenticated || !authToken,
   });
+
   if (mqlServerUrlError) handleCombinedError(mqlServerUrlError);
 
   const [{ fetching }, setMqlServer] = useMutation<
@@ -130,7 +149,7 @@ function MqlContextProviderInternal({
       }
     },
 
-    [externalConfig, setMqlServer, refetchMqlServerUrl]
+    [externalConfig, setMqlServer, refetchMqlServerUrl, token]
   );
 
   /*
@@ -140,26 +159,47 @@ function MqlContextProviderInternal({
   */
   const mqlClient = buildMqlUrqlClient({
     clientVersion,
-    mqlUrl: externalConfig?.mqlServerUrl || mqlServerUrlData?.myUser?.mqlServerUrl || coreApiUrl || CORE_API_URL,
-    token,
+    mqlUrl:
+      externalConfig?.mqlServerUrl ||
+      mqlServerUrlData?.myUser?.mqlServerUrl ||
+      coreApiUrl ||
+      CORE_API_URL,
+    token: authToken,
     headers: externalConfig?.headers,
   });
 
   const [mqlContext, setMqlContext] = useState<MqlContextType>({
     coreApiUrl: coreApiUrl || CORE_API_URL,
-    mqlServerUrl: externalConfig?.mqlServerUrl || mqlServerUrlData?.myUser?.mqlServerUrl,
-    mqlServerUrlLoading: !externalConfig?.mqlServerUrl && !mqlServerUrlData?.myUser?.mqlServerUrl && !mqlServerUrlOverride,
+    mqlServerUrl:
+      externalConfig?.mqlServerUrl || mqlServerUrlData?.myUser?.mqlServerUrl,
+    mqlServerUrlLoading:
+      !externalConfig?.mqlServerUrl &&
+      !mqlServerUrlData?.myUser?.mqlServerUrl &&
+      !mqlServerUrlOverride,
     setMqlServer: setMqlServerThenRefetch,
     mqlServerOverrideLoading: fetching,
     modelKey: null,
     setModelKey: () => Promise.resolve(),
     modalKeyOverrideLoading: false,
     mqlClient,
-    token,
+    token: authToken,
     useQuery,
     useMutation,
     handleCombinedError,
   });
+
+  useEffect(() => {
+    if (
+      !mqlContext.mqlServerUrl &&
+      mqlServerUrlData?.myUser?.mqlServerUrl &&
+      mqlContext.mqlServerUrl !== mqlServerUrlData?.myUser?.mqlServerUrl
+    ) {
+      setMqlContext((prev) => ({
+        ...prev,
+        mqlServerUrl: mqlServerUrlData?.myUser?.mqlServerUrl,
+      }));
+    }
+  }, [mqlContext, mqlServerUrlData]);
 
   useEffect(() => {
     const stateToUpdate: Partial<MqlContextType> = {};
@@ -176,20 +216,23 @@ function MqlContextProviderInternal({
         stateToUpdate.mqlClient = buildMqlUrqlClient({
           clientVersion,
           mqlUrl: mqlServerUrlOverride,
-          token,
+          token: authToken,
           headers: externalConfig?.headers,
         });
       }
-    } else if (externalConfig) {
+    } else if (externalConfig?.mqlServerUrl) {
       if (externalConfig?.mqlServerUrl !== mqlContext.mqlServerUrl) {
         stateToUpdate.mqlServerUrl = externalConfig?.mqlServerUrl;
         stateToUpdate.mqlServerUrlLoading = false;
       }
-      if (externalConfig?.mqlServerUrl && externalConfig?.mqlServerUrl !== mqlContext.mqlServerUrl) {
+      if (
+        externalConfig?.mqlServerUrl &&
+        externalConfig?.mqlServerUrl !== mqlContext.mqlServerUrl
+      ) {
         stateToUpdate.mqlClient = buildMqlUrqlClient({
           clientVersion,
           mqlUrl: externalConfig?.mqlServerUrl,
-          token,
+          token: authToken,
           headers: externalConfig?.headers,
         });
       }
@@ -205,7 +248,7 @@ function MqlContextProviderInternal({
         stateToUpdate.mqlClient = buildMqlUrqlClient({
           clientVersion,
           mqlUrl: mqlServerUrlData?.myUser?.mqlServerUrl,
-          token,
+          token: authToken,
         });
       }
     }
@@ -215,12 +258,20 @@ function MqlContextProviderInternal({
     */
 
     if (Object.keys(stateToUpdate).length > 0) {
-      setMqlContext({
-        ...mqlContext,
+      setMqlContext((prev) => ({
+        ...prev,
         ...stateToUpdate,
-      });
+      }));
     }
-  }, [externalConfig, mqlServerUrlData, token, mqlContext, mqlServerUrlOverride]);
+  }, [
+    externalConfig,
+    mqlServerUrlData,
+    mqlContext,
+    mqlServerUrlOverride,
+    clientVersion,
+    isAuthenticated,
+    authToken,
+  ]);
 
   return (
     <Provider value={mqlContext.mqlClient}>
