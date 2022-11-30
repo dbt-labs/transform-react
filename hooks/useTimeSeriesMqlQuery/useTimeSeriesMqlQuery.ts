@@ -79,7 +79,7 @@ export default function useTimeSeriesMqlQuery({
       retries,
       doRefetchMqlQuery,
     }),
-    [metricName, queryInput, dispatch, retries]
+    [metricName, queryInput, dispatch, retries, doRefetchMqlQuery]
   );
 
   const useCreateTimeSeriesMqlQueryArgsMultiple = useMemo(
@@ -90,7 +90,7 @@ export default function useTimeSeriesMqlQuery({
       retries,
       doRefetchMqlQuery,
     }),
-    [metricNames, queryInput, dispatch, retries]
+    [metricNames, queryInput, dispatch, retries, doRefetchMqlQuery]
   );
 
   const { createTimeSeriesMqlQuery } = useCreateTimeSeriesMqlQuery(
