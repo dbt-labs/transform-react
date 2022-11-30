@@ -4,6 +4,7 @@ const mutation = gql`
   mutation CreateMqlQuery(
     $addTimeSeries: Boolean
     $attemptNum: Int!
+    $cacheMode: CacheMode
     $daysLimit: Int
     $endTime: String
     $groupBy: [String!]
@@ -24,6 +25,7 @@ const mutation = gql`
       input: {
         addTimeSeries: $addTimeSeries
         attemptNum: $attemptNum
+        cacheMode: $cacheMode
         daysLimit: $daysLimit
         endTime: $endTime
         groupBy: $groupBy

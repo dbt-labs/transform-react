@@ -431,7 +431,7 @@ export type MqlQueryResultTabularArgs = {
   paginate?: Maybe<Scalars['Boolean']>;
   gzip?: Maybe<Scalars['Boolean']>;
   encodingType?: Maybe<Scalars['String']>;
-  paginateSize?: Maybe<Scalars['Boolean']>;
+  paginateSize?: Maybe<Scalars['Int']>;
 };
 
 
@@ -463,7 +463,8 @@ export enum MqlQueryStatus {
   Successful = 'SUCCESSFUL',
   Failed = 'FAILED',
   UnhandledException = 'UNHANDLED_EXCEPTION',
-  Unknown = 'UNKNOWN'
+  Unknown = 'UNKNOWN',
+  Killed = 'KILLED'
 }
 
 /** This is the canonical shape for chart-ready data. */
@@ -494,6 +495,8 @@ export type MqlQueryTabularResult = {
   nextCursor?: Maybe<Scalars['String']>;
   /** Columns that have a value format associated with them. Used for displaying table view in the UI. */
   valueFormattedColumns?: Maybe<Array<Maybe<ValueFormattedColumn>>>;
+  /** Number of rows in the whole result set, useful when paginating through results */
+  totalRowCount?: Maybe<Scalars['Int']>;
 };
 
 /** Value formats to be applied to columns, like percent or dollar. */
@@ -569,9 +572,9 @@ export type SingleConstraint = {
   __typename?: 'SingleConstraint';
   constraintType?: Maybe<AtomicConstraintType>;
   dimensionName?: Maybe<Scalars['String']>;
-  values?: Maybe<Array<Maybe<Scalars['String']>>>;
-  start?: Maybe<Scalars['String']>;
-  stop?: Maybe<Scalars['String']>;
+  values?: Maybe<Array<Maybe<Scalars['GenericScalar']>>>;
+  start?: Maybe<Scalars['GenericScalar']>;
+  stop?: Maybe<Scalars['GenericScalar']>;
 };
 
 /** Current possible values for constraints */
@@ -658,7 +661,7 @@ export enum QueryType {
 /** GQL class for DimensionValuesQueryResult. */
 export type DimensionValuesQueryResult = {
   __typename?: 'DimensionValuesQueryResult';
-  values?: Maybe<Array<Maybe<Scalars['String']>>>;
+  values?: Maybe<Array<Maybe<Scalars['GenericScalar']>>>;
   totalValues?: Maybe<Scalars['Int']>;
 };
 
@@ -687,7 +690,7 @@ export type Metric = {
   constraint?: Maybe<Scalars['String']>;
   dimensions?: Maybe<Array<Scalars['String']>>;
   dimensionObjects?: Maybe<Array<Dimension>>;
-  dimensionValues?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dimensionValues?: Maybe<Array<Maybe<Scalars['GenericScalar']>>>;
   totalDimensionValues?: Maybe<Scalars['Int']>;
   maxGranularity?: Maybe<TimeGranularity>;
   newDataIsAvailable?: Maybe<Scalars['Boolean']>;
@@ -758,7 +761,7 @@ export type Dimension = {
   type?: Maybe<DimensionTypeForDescription>;
   isPrimaryTime?: Maybe<Scalars['Boolean']>;
   timeGranularity?: Maybe<TimeGranularity>;
-  values?: Maybe<Array<Scalars['String']>>;
+  values?: Maybe<Array<Scalars['GenericScalar']>>;
   cardinality?: Maybe<Scalars['Int']>;
 };
 
@@ -1119,19 +1122,19 @@ export type CreateMqlQueryInput = {
   clientMutationId?: Maybe<Scalars['String']>;
 };
 
-/** Container class for inputs to allow for and/or wrappers on the `where` clause */
+/** GQL container class for inputs to allow for and/or wrappers on the `where` clause */
 export type ConstraintInput = {
   And?: Maybe<Array<SingleConstraintInput>>;
   constraint?: Maybe<SingleConstraintInput>;
 };
 
-/** Actual `where` clauses to be applied */
+/** Input structure for GQL query constraints. */
 export type SingleConstraintInput = {
   constraintType?: Maybe<AtomicConstraintType>;
   dimensionName?: Maybe<Scalars['String']>;
-  values?: Maybe<Array<Maybe<Scalars['String']>>>;
-  start?: Maybe<Scalars['String']>;
-  stop?: Maybe<Scalars['String']>;
+  values?: Maybe<Array<Maybe<Scalars['GenericScalar']>>>;
+  start?: Maybe<Scalars['GenericScalar']>;
+  stop?: Maybe<Scalars['GenericScalar']>;
 };
 
 

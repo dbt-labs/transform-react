@@ -90,8 +90,8 @@ type Organization {
   totalQuestions: Int
   totalAnnotations: Int
   metrics(names: [String], tiers: [MetricTier], tags: [Int], types: [MetricType], modelId: Int, userIsSubscribed: Boolean, ownedByTeamIds: [Int], ownedByUserIds: [Int], createdAtOrBefore: DateTime, createdAtOrAfter: DateTime, searchStr: String, searchColumns: [OrgMetricStrColumns], orderBy: OrgMetricOrderBy, desc: Boolean, orderBys: [OrgMetricOrderByInput], pageNumber: Int, pageSize: Int): [OrgMetric]
-  totalOrgMetrics(searchStr: String, searchColumns: [MetricVersionStrColumns], names: [String], tiers: [MetricTier], tags: [Int], types: [MetricType], modelId: Int, userIsSubscribed: Boolean, ownedByTeamIds: [Int], ownedByUserIds: [Int], createdAtOrBefore: DateTime, createdAtOrAfter: DateTime): Int
-  totalMetrics(searchStr: String, searchColumns: [MetricVersionStrColumns], names: [String], tiers: [MetricTier], tags: [Int], types: [MetricType], modelId: Int, userIsSubscribed: Boolean, ownedByTeamIds: [Int], ownedByUserIds: [Int], createdAtOrBefore: DateTime, createdAtOrAfter: DateTime): Int
+  totalOrgMetrics(searchStr: String, searchColumns: [OrgMetricStrColumns], names: [String], tiers: [MetricTier], tags: [Int], types: [MetricType], modelId: Int, userIsSubscribed: Boolean, ownedByTeamIds: [Int], ownedByUserIds: [Int], createdAtOrBefore: DateTime, createdAtOrAfter: DateTime): Int
+  totalMetrics(searchStr: String, searchColumns: [OrgMetricStrColumns], names: [String], tiers: [MetricTier], tags: [Int], types: [MetricType], modelId: Int, userIsSubscribed: Boolean, ownedByTeamIds: [Int], ownedByUserIds: [Int], createdAtOrBefore: DateTime, createdAtOrAfter: DateTime): Int
   supportedMetricFilters: [MetricFilter]
   latestMqlHeartbeat: MqlHeartbeat
   totalUsers(activeOnly: Boolean, searchStr: String, searchColumns: [UserStrColumns]): Int
@@ -194,6 +194,8 @@ type User {
   boardsV2(searchStr: String, searchColumns: [BoardStrColumns], orderBy: BoardOrderBy, desc: Boolean, orderBys: [BoardOrderByInput], pageNumber: Int, pageSize: Int): [Board]
   favoriteBoards(searchStr: String, searchColumns: [BoardStrColumns], orderBy: BoardOrderBy, desc: Boolean, orderBys: [BoardOrderByInput], pageNumber: Int, pageSize: Int): [Board]
   totalFavoriteBoards(searchStr: String, searchColumns: [BoardStrColumns], excludeNotViewed: Boolean): Int
+  favoriteFilteredViews(searchStr: String, searchColumns: [BoardFilteredViewStrColumns], orderBy: BoardFilteredViewOrderBy, desc: Boolean, orderBys: [BoardFilteredViewOrderByInput], pageNumber: Int, pageSize: Int): [BoardFilteredView]
+  totalFavoriteFilteredViews(searchStr: String, searchColumns: [BoardFilteredViewStrColumns], excludeNotViewed: Boolean): Int
   totalBoardsV2(searchStr: String, searchColumns: [BoardStrColumns], excludeNotViewed: Boolean): Int
   boardsWithSubscribedMetricsV2(searchStr: String, searchColumns: [BoardStrColumns], orderBy: BoardOrderBy, desc: Boolean, orderBys: [BoardOrderByInput], pageNumber: Int, pageSize: Int): [Board]
   totalBoardsWithSubscribedMetricsV2(searchStr: String, searchColumns: [BoardStrColumns], excludeNotViewed: Boolean): Int
@@ -1134,7 +1136,7 @@ type Board {
   totalViews: Int
   myViews: Int
   totalFavorites: Int
-  isFavoritedByUser: Boolean
+  isFavoritedByUser(userId: Int): Boolean
   lastWeekViews: Int
   filteredViews(mineOnly: Boolean, searchStr: String, searchColumns: [BoardFilteredViewStrColumns], orderBy: BoardFilteredViewOrderBy, desc: Boolean, orderBys: [BoardFilteredViewOrderByInput], pageNumber: Int, pageSize: Int): [BoardFilteredView]
   totalFilteredViews(searchStr: String, searchColumns: [BoardFilteredViewStrColumns], excludeNotViewed: Boolean, mineOnly: Boolean): Int
@@ -1209,10 +1211,11 @@ type BoardFilteredView {
   creator: User
   where: Constraint
   userCanEditContent: Boolean
+  userCanDeactivate: Boolean
   userHasAccess: Boolean
-  userCanDelete: Boolean
   totalViews: Int
   myViews: Int
+  isFavoritedByUser(userId: Int): Boolean
 }
 
 """Represents a where constraint used in a query."""
@@ -1225,9 +1228,9 @@ type Constraint {
 type SingleConstraint {
   constraintType: AtomicConstraintType
   dimensionName: String
-  values: [String]
-  start: String
-  stop: String
+  values: [GenericScalar]
+  start: GenericScalar
+  stop: GenericScalar
 }
 
 """Current possible values for constraints"""
@@ -1253,6 +1256,7 @@ enum BoardFilteredViewOrderBy {
   CREATED_BY
   DESCRIPTION
   END_TIME
+  FAVORITES
   ID
   IS_PRIVATE
   LATEST_X_DAYS
@@ -1409,6 +1413,7 @@ enum MqlQueryStatus {
   FAILED
   UNHANDLED_EXCEPTION
   UNKNOWN
+  KILLED
 }
 
 """
@@ -1749,19 +1754,6 @@ enum ModelOrderBy {
 input ModelOrderByInput {
   orderBy: ModelOrderBy!
   desc: Boolean
-}
-
-"""An enumeration."""
-enum MetricVersionStrColumns {
-  DESCRIPTION
-  DISPLAY_NAME
-  HASH
-  METRIC_TYPE_STR
-  MetricMetadata__DESCRIPTION
-  MetricMetadata__DISPLAY_NAME
-  MetricMetadata__UNIT
-  MetricMetadata__VALUE_FORMAT
-  OrgMetric__NAME
 }
 
 """Filters supported for metric search."""
@@ -2182,6 +2174,8 @@ type Mutation {
   boardsFilteredViewDelete(filteredViewId: Int!): BoardFilteredView
   boardsFilteredViewChangeVisability(filteredViewId: Int!, isPrivate: Boolean!): BoardFilteredView
   boardsFilteredViewLogView(filteredViewId: Int!): BoardFilteredViewView
+  boardsFilteredViewFavorite(filteredViewId: ID!): BoardFilteredView
+  boardsFilteredViewUnfavorite(filteredViewId: ID!): BoardFilteredView
   testSlackMessage(message: String!, fromUsername: String, fromImgUrl: String): String
   sendSlackMessages(message: String!, channelNames: [String]!, fromUsername: String, fromImgUrl: String): String
 }
@@ -2416,20 +2410,20 @@ input MetricQueryInput {
 }
 
 """
-Container class for inputs to allow for and/or wrappers on the `where` clause
+GQL container class for inputs to allow for and/or wrappers on the `where` clause
 """
 input ConstraintInput {
   And: [SingleConstraintInput!]
   constraint: SingleConstraintInput
 }
 
-"""Actual `where` clauses to be applied"""
+"""Input structure for GQL query constraints."""
 input SingleConstraintInput {
   constraintType: AtomicConstraintType
   dimensionName: String
-  values: [String]
-  start: String
-  stop: String
+  values: [GenericScalar]
+  start: GenericScalar
+  stop: GenericScalar
 }
 
 enum PercentChange {
