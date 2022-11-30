@@ -78,7 +78,7 @@ type MqlQuery {
   """
   The Tabular Results are Base 64-encoded JSON of a subset of rows from the query results Data Frame.
   """
-  resultTabular(cursor: Int, orient: PandasJsonOrient, paginate: Boolean, gzip: Boolean = false, encodingType: String = "base64", paginateSize: Boolean): MqlQueryTabularResult
+  resultTabular(cursor: Int, orient: PandasJsonOrient, paginate: Boolean, gzip: Boolean = false, encodingType: String = "base64", paginateSize: Int): MqlQueryTabularResult
   totalResultRows: Int
 
   """
@@ -144,6 +144,7 @@ enum MqlQueryStatus {
   FAILED
   UNHANDLED_EXCEPTION
   UNKNOWN
+  KILLED
 }
 
 """This is the canonical shape for chart-ready data."""
@@ -192,6 +193,11 @@ type MqlQueryTabularResult {
   Columns that have a value format associated with them. Used for displaying table view in the UI.
   """
   valueFormattedColumns: [ValueFormattedColumn]
+
+  """
+  Number of rows in the whole result set, useful when paginating through results
+  """
+  totalRowCount: Int
 }
 
 """Value formats to be applied to columns, like percent or dollar."""
@@ -267,9 +273,9 @@ type Constraint {
 type SingleConstraint {
   constraintType: AtomicConstraintType
   dimensionName: String
-  values: [String]
-  start: String
-  stop: String
+  values: [GenericScalar]
+  start: GenericScalar
+  stop: GenericScalar
 }
 
 """Current possible values for constraints"""
@@ -360,7 +366,7 @@ enum QueryType {
 
 """GQL class for DimensionValuesQueryResult."""
 type DimensionValuesQueryResult {
-  values: [String]
+  values: [GenericScalar]
   totalValues: Int
 }
 
@@ -387,7 +393,7 @@ type Metric {
   constraint: String
   dimensions: [String!]
   dimensionObjects(modelKey: ModelKeyInput): [Dimension!]
-  dimensionValues(modelKey: ModelKeyInput, dimensionName: String!, startTime: String, endTime: String, allowDynamicCache: Boolean, pageNumber: Int, pageSize: Int, searchStr: String, ignoreInvalidDimensions: Boolean): [String]
+  dimensionValues(modelKey: ModelKeyInput, dimensionName: String!, startTime: String, endTime: String, allowDynamicCache: Boolean, pageNumber: Int, pageSize: Int, searchStr: String, ignoreInvalidDimensions: Boolean): [GenericScalar]
   totalDimensionValues(modelKey: ModelKeyInput, dimensionName: String!, startTime: String, endTime: String, allowDynamicCache: Boolean, searchStr: String, ignoreInvalidDimensions: Boolean): Int
   maxGranularity(modelKey: ModelKeyInput): TimeGranularity
   newDataIsAvailable(afterDatetime: DateTime!, modelKey: ModelKeyInput): Boolean
@@ -413,7 +419,7 @@ type Dimension {
   type: DimensionTypeForDescription
   isPrimaryTime: Boolean
   timeGranularity: TimeGranularity
-  values: [String!]
+  values: [GenericScalar!]
   cardinality: Int
 }
 
@@ -710,20 +716,20 @@ input CreateMqlQueryInput {
 }
 
 """
-Container class for inputs to allow for and/or wrappers on the `where` clause
+GQL container class for inputs to allow for and/or wrappers on the `where` clause
 """
 input ConstraintInput {
   And: [SingleConstraintInput!]
   constraint: SingleConstraintInput
 }
 
-"""Actual `where` clauses to be applied"""
+"""Input structure for GQL query constraints."""
 input SingleConstraintInput {
   constraintType: AtomicConstraintType
   dimensionName: String
-  values: [String]
-  start: String
-  stop: String
+  values: [GenericScalar]
+  start: GenericScalar
+  stop: GenericScalar
 }
 
 """

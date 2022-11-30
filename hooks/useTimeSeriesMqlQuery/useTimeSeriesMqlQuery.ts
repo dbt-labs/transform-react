@@ -77,6 +77,7 @@ export default function useTimeSeriesMqlQuery({
       formState: queryInput,
       dispatch,
       retries,
+      doRefetchMqlQuery,
     }),
     [metricName, queryInput, dispatch, retries]
   );
@@ -87,6 +88,7 @@ export default function useTimeSeriesMqlQuery({
       formState: queryInput,
       dispatch,
       retries,
+      doRefetchMqlQuery,
     }),
     [metricNames, queryInput, dispatch, retries]
   );

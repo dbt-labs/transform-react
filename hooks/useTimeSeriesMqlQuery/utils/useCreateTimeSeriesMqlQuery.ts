@@ -6,6 +6,7 @@ import {
   CreateMqlQueryMutationVariables,
 } from '../../../mutations/mql/MqlMutationTypes';
 import {
+  CacheMode,
   FetchMqlTimeSeriesQuery,
   MqlQueryStatus,
 } from '../../../queries/mql/MqlQueryTypes';
@@ -26,6 +27,7 @@ interface CommonUseCreateMqlQueryArgs {
   dispatch: Dispatch<
     UseMqlQueryAction<CreateMqlQueryMutation, FetchMqlTimeSeriesQuery>
   >;
+  doRefetchMqlQuery?: boolean;
 }
 
 export interface SingleMetricUserCreateMqlQueryArgs
@@ -53,6 +55,7 @@ const useCreateTimeSeriesMqlQuery = ({
   formState = {},
   dispatch,
   retries,
+  doRefetchMqlQuery,
 }: UseCreateMqlQueryArgs): UseCreateMqlQuery => {
   const { useMutation, handleCombinedError } = useContext(MqlContext);
 
@@ -70,6 +73,7 @@ const useCreateTimeSeriesMqlQuery = ({
     createMqlQueryMutation({
       addTimeSeries: true,
       attemptNum: stateRetries,
+      cacheMode: doRefetchMqlQuery ? CacheMode.Ignore : undefined,
       daysLimit: formState.daysLimit,
       endTime: formState.latestXDays ? null : formState.endTime,
       groupBy: formState.groupBy || [],

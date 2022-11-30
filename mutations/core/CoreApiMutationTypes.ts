@@ -457,7 +457,7 @@ export type OrganizationMetricsArgs = {
 
 export type OrganizationTotalOrgMetricsArgs = {
   searchStr?: Maybe<Scalars['String']>;
-  searchColumns?: Maybe<Array<Maybe<MetricVersionStrColumns>>>;
+  searchColumns?: Maybe<Array<Maybe<OrgMetricStrColumns>>>;
   names?: Maybe<Array<Maybe<Scalars['String']>>>;
   tiers?: Maybe<Array<Maybe<MetricTier>>>;
   tags?: Maybe<Array<Maybe<Scalars['Int']>>>;
@@ -473,7 +473,7 @@ export type OrganizationTotalOrgMetricsArgs = {
 
 export type OrganizationTotalMetricsArgs = {
   searchStr?: Maybe<Scalars['String']>;
-  searchColumns?: Maybe<Array<Maybe<MetricVersionStrColumns>>>;
+  searchColumns?: Maybe<Array<Maybe<OrgMetricStrColumns>>>;
   names?: Maybe<Array<Maybe<Scalars['String']>>>;
   tiers?: Maybe<Array<Maybe<MetricTier>>>;
   tags?: Maybe<Array<Maybe<Scalars['Int']>>>;
@@ -706,6 +706,8 @@ export type User = {
   boardsV2?: Maybe<Array<Maybe<Board>>>;
   favoriteBoards?: Maybe<Array<Maybe<Board>>>;
   totalFavoriteBoards?: Maybe<Scalars['Int']>;
+  favoriteFilteredViews?: Maybe<Array<Maybe<BoardFilteredView>>>;
+  totalFavoriteFilteredViews?: Maybe<Scalars['Int']>;
   totalBoardsV2?: Maybe<Scalars['Int']>;
   boardsWithSubscribedMetricsV2?: Maybe<Array<Maybe<Board>>>;
   totalBoardsWithSubscribedMetricsV2?: Maybe<Scalars['Int']>;
@@ -785,6 +787,24 @@ export type UserFavoriteBoardsArgs = {
 export type UserTotalFavoriteBoardsArgs = {
   searchStr?: Maybe<Scalars['String']>;
   searchColumns?: Maybe<Array<Maybe<BoardStrColumns>>>;
+  excludeNotViewed?: Maybe<Scalars['Boolean']>;
+};
+
+
+export type UserFavoriteFilteredViewsArgs = {
+  searchStr?: Maybe<Scalars['String']>;
+  searchColumns?: Maybe<Array<Maybe<BoardFilteredViewStrColumns>>>;
+  orderBy?: Maybe<BoardFilteredViewOrderBy>;
+  desc?: Maybe<Scalars['Boolean']>;
+  orderBys?: Maybe<Array<Maybe<BoardFilteredViewOrderByInput>>>;
+  pageNumber?: Maybe<Scalars['Int']>;
+  pageSize?: Maybe<Scalars['Int']>;
+};
+
+
+export type UserTotalFavoriteFilteredViewsArgs = {
+  searchStr?: Maybe<Scalars['String']>;
+  searchColumns?: Maybe<Array<Maybe<BoardFilteredViewStrColumns>>>;
   excludeNotViewed?: Maybe<Scalars['Boolean']>;
 };
 
@@ -2066,6 +2086,11 @@ export type BoardTeamOwnersArgs = {
 };
 
 
+export type BoardIsFavoritedByUserArgs = {
+  userId?: Maybe<Scalars['Int']>;
+};
+
+
 export type BoardFilteredViewsArgs = {
   mineOnly?: Maybe<Scalars['Boolean']>;
   searchStr?: Maybe<Scalars['String']>;
@@ -2160,10 +2185,16 @@ export type BoardFilteredView = {
   creator?: Maybe<User>;
   where?: Maybe<Constraint>;
   userCanEditContent?: Maybe<Scalars['Boolean']>;
+  userCanDeactivate?: Maybe<Scalars['Boolean']>;
   userHasAccess?: Maybe<Scalars['Boolean']>;
-  userCanDelete?: Maybe<Scalars['Boolean']>;
   totalViews?: Maybe<Scalars['Int']>;
   myViews?: Maybe<Scalars['Int']>;
+  isFavoritedByUser?: Maybe<Scalars['Boolean']>;
+};
+
+
+export type BoardFilteredViewIsFavoritedByUserArgs = {
+  userId?: Maybe<Scalars['Int']>;
 };
 
 /** Represents a where constraint used in a query. */
@@ -2178,9 +2209,9 @@ export type SingleConstraint = {
   __typename?: 'SingleConstraint';
   constraintType?: Maybe<AtomicConstraintType>;
   dimensionName?: Maybe<Scalars['String']>;
-  values?: Maybe<Array<Maybe<Scalars['String']>>>;
-  start?: Maybe<Scalars['String']>;
-  stop?: Maybe<Scalars['String']>;
+  values?: Maybe<Array<Maybe<Scalars['GenericScalar']>>>;
+  start?: Maybe<Scalars['GenericScalar']>;
+  stop?: Maybe<Scalars['GenericScalar']>;
 };
 
 /** Current possible values for constraints */
@@ -2206,6 +2237,7 @@ export enum BoardFilteredViewOrderBy {
   CreatedBy = 'CREATED_BY',
   Description = 'DESCRIPTION',
   EndTime = 'END_TIME',
+  Favorites = 'FAVORITES',
   Id = 'ID',
   IsPrivate = 'IS_PRIVATE',
   LatestXDays = 'LATEST_X_DAYS',
@@ -2361,7 +2393,8 @@ export enum MqlQueryStatus {
   Successful = 'SUCCESSFUL',
   Failed = 'FAILED',
   UnhandledException = 'UNHANDLED_EXCEPTION',
-  Unknown = 'UNKNOWN'
+  Unknown = 'UNKNOWN',
+  Killed = 'KILLED'
 }
 
 /**
@@ -2745,19 +2778,6 @@ export type ModelOrderByInput = {
   orderBy: ModelOrderBy;
   desc?: Maybe<Scalars['Boolean']>;
 };
-
-/** An enumeration. */
-export enum MetricVersionStrColumns {
-  Description = 'DESCRIPTION',
-  DisplayName = 'DISPLAY_NAME',
-  Hash = 'HASH',
-  MetricTypeStr = 'METRIC_TYPE_STR',
-  MetricMetadataDescription = 'MetricMetadata__DESCRIPTION',
-  MetricMetadataDisplayName = 'MetricMetadata__DISPLAY_NAME',
-  MetricMetadataUnit = 'MetricMetadata__UNIT',
-  MetricMetadataValueFormat = 'MetricMetadata__VALUE_FORMAT',
-  OrgMetricName = 'OrgMetric__NAME'
-}
 
 /** Filters supported for metric search. */
 export type MetricFilter = {
@@ -3161,6 +3181,8 @@ export type Mutation = {
   boardsFilteredViewDelete?: Maybe<BoardFilteredView>;
   boardsFilteredViewChangeVisability?: Maybe<BoardFilteredView>;
   boardsFilteredViewLogView?: Maybe<BoardFilteredViewView>;
+  boardsFilteredViewFavorite?: Maybe<BoardFilteredView>;
+  boardsFilteredViewUnfavorite?: Maybe<BoardFilteredView>;
   testSlackMessage?: Maybe<Scalars['String']>;
   sendSlackMessages?: Maybe<Scalars['String']>;
 };
@@ -4865,6 +4887,28 @@ export type MutationBoardsFilteredViewLogViewArgs = {
  * Mutation names will be converted from snake_case to camelCase automatically
  * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
  */
+export type MutationBoardsFilteredViewFavoriteArgs = {
+  filteredViewId: Scalars['ID'];
+};
+
+
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
+export type MutationBoardsFilteredViewUnfavoriteArgs = {
+  filteredViewId: Scalars['ID'];
+};
+
+
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
 export type MutationTestSlackMessageArgs = {
   message: Scalars['String'];
   fromUsername?: Maybe<Scalars['String']>;
@@ -5117,19 +5161,19 @@ export type MetricQueryInput = {
   maxDimensionValues?: Maybe<Scalars['Int']>;
 };
 
-/** Container class for inputs to allow for and/or wrappers on the `where` clause */
+/** GQL container class for inputs to allow for and/or wrappers on the `where` clause */
 export type ConstraintInput = {
   And?: Maybe<Array<SingleConstraintInput>>;
   constraint?: Maybe<SingleConstraintInput>;
 };
 
-/** Actual `where` clauses to be applied */
+/** Input structure for GQL query constraints. */
 export type SingleConstraintInput = {
   constraintType?: Maybe<AtomicConstraintType>;
   dimensionName?: Maybe<Scalars['String']>;
-  values?: Maybe<Array<Maybe<Scalars['String']>>>;
-  start?: Maybe<Scalars['String']>;
-  stop?: Maybe<Scalars['String']>;
+  values?: Maybe<Array<Maybe<Scalars['GenericScalar']>>>;
+  start?: Maybe<Scalars['GenericScalar']>;
+  stop?: Maybe<Scalars['GenericScalar']>;
 };
 
 export enum PercentChange {
