@@ -27,7 +27,7 @@ export type UseMqlQueryFromDbIdParams = {
   // queryInput?: Omit<CreateMqlQueryFromDbIdMutationVariables, 'attemptNum'>;
   skip?: boolean;
   retries?: number;
-  refetchMqlQueryAttempt?: boolean;
+  refetchMqlQueryAttempt?: number;
 };
 
 export type UseMqlQueryFromDbIdQuery = UseMqlQueryState<FetchMqlTimeSeriesQuery>
