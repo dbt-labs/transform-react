@@ -264,6 +264,7 @@ export type Organization = {
   samlConnectionId?: Maybe<Scalars['String']>;
   samlSignatureCert?: Maybe<Scalars['String']>;
   integrationConfigurationTableau?: Maybe<IntegrationConfigurationTableau>;
+  integrationConfigurationDbtCloud?: Maybe<IntegrationConfigurationDbtCloud>;
   dbUtcTimezoneOffsetHours?: Maybe<Scalars['Int']>;
   dbArrearsHours?: Maybe<Scalars['Int']>;
   allIntegrations?: Maybe<Array<Maybe<Integration>>>;
@@ -2813,6 +2814,19 @@ export type IntegrationConfigurationTableau = {
   organization?: Maybe<Organization>;
 };
 
+export type IntegrationConfigurationDbtCloud = {
+  __typename?: 'IntegrationConfigurationDbtCloud';
+  id: Scalars['ID'];
+  createdAt: Scalars['DateTime'];
+  updatedAt: Scalars['DateTime'];
+  deletedAt?: Maybe<Scalars['DateTime']>;
+  accountId?: Maybe<Scalars['String']>;
+  projectId?: Maybe<Scalars['String']>;
+  jobId?: Maybe<Scalars['String']>;
+  isFullyConfigured?: Maybe<Scalars['String']>;
+  organization?: Maybe<Organization>;
+};
+
 export type Integration = {
   __typename?: 'Integration';
   id: Scalars['ID'];
@@ -3020,7 +3034,8 @@ export type AlertRuleDefinitionParameter = {
 
 /** Supported parameter types for an alert rule config */
 export enum ParameterType {
-  Number = 'NUMBER',
+  Float = 'FLOAT',
+  Int = 'INT',
   String = 'STRING',
   Bool = 'BOOL',
   Enum = 'ENUM'
@@ -3038,6 +3053,7 @@ export type Mutation = {
   createOrganizationTest?: Maybe<Organization>;
   setOrgMqlServerConfigSecret?: Maybe<SetOrgMqlServerConfigSecretId>;
   setIntegrationConfigurationTableau?: Maybe<SetIntegrationConfigurationTableau>;
+  setIntegrationConfigurationDbtCloud?: Maybe<SetIntegrationConfigurationDbtCloud>;
   removeIntegrationConfigurationTableau?: Maybe<RemoveIntegrationConfigurationTableau>;
   sendMqlHeartbeat?: Maybe<SendMqlHeartbeat>;
   createAnnotationTest?: Maybe<CreateAnnotation>;
@@ -3242,6 +3258,17 @@ export type MutationSetOrgMqlServerConfigSecretArgs = {
  */
 export type MutationSetIntegrationConfigurationTableauArgs = {
   configuration?: Maybe<GIntegrationConfigurationTableauInput>;
+};
+
+
+/**
+ * Base mutation object exposed by GraphQL.
+ *
+ * Mutation names will be converted from snake_case to camelCase automatically
+ * (e.g., log_mql_log will show up as logMqlLog in the GQL schema).
+ */
+export type MutationSetIntegrationConfigurationDbtCloudArgs = {
+  configuration?: Maybe<GIntegrationConfigurationDbtCloudInput>;
 };
 
 
@@ -4955,6 +4982,21 @@ export type GIntegrationConfigurationTableauInput = {
   site?: Maybe<Scalars['String']>;
   useServerVersion: Scalars['Boolean'];
   serverAddress: Scalars['String'];
+};
+
+export type SetIntegrationConfigurationDbtCloud = {
+  __typename?: 'SetIntegrationConfigurationDbtCloud';
+  accountId?: Maybe<Scalars['String']>;
+  projectId?: Maybe<Scalars['String']>;
+  jobId?: Maybe<Scalars['String']>;
+  isFullyConfigured?: Maybe<Scalars['Boolean']>;
+};
+
+export type GIntegrationConfigurationDbtCloudInput = {
+  secretAccessToken?: Maybe<Scalars['String']>;
+  accountId?: Maybe<Scalars['String']>;
+  projectId?: Maybe<Scalars['String']>;
+  jobId?: Maybe<Scalars['String']>;
 };
 
 export type RemoveIntegrationConfigurationTableau = {

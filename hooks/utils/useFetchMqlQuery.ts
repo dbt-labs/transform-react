@@ -43,7 +43,7 @@ const useFetchMqlQuery = <CreateQueryDataType, FetchDataType extends {mqlQuery?:
   >({
     query: fetchDataQuery, //FetchMqlQueryTimeSeries,
     variables: {
-      queryId: doRefetchMqlQuery ? "" : state.queryId || "",
+      queryId: state.queryId || "",
       attemptNum: retries
     },
     pause: skip,
