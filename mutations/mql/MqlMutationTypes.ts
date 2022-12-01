@@ -696,6 +696,7 @@ export type Metric = {
   newDataIsAvailable?: Maybe<Scalars['Boolean']>;
   canLimitDimensionValues?: Maybe<Scalars['Boolean']>;
   valueFormat?: Maybe<Scalars['String']>;
+  queryingRequiresTimeDim?: Maybe<Scalars['Boolean']>;
 };
 
 
@@ -750,6 +751,7 @@ export type MetricTypeParams = {
   denominator?: Maybe<Scalars['String']>;
   expr?: Maybe<Scalars['String']>;
   window?: Maybe<Scalars['String']>;
+  grainToDate?: Maybe<TimeGranularity>;
 };
 
 export type Dimension = {
