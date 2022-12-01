@@ -1,10 +1,7 @@
-import { useEffect, useReducer, useContext } from "react";
+import { useEffect, useReducer, useContext, useMemo } from "react";
 // import { CombinedError } from "urql";
 import MqlContext from "../../context/MqlContext/MqlContext";
-import {
-  CreateMqlQueryFromDbIdMutation,
-  CreateMqlQueryFromDbIdMutationVariables,
-} from "../../mutations/mql/MqlMutationTypes";
+import { CreateMqlQueryFromDbIdMutation } from "../../mutations/mql/MqlMutationTypes";
 import {
   FetchMqlTimeSeriesQuery,
 } from "../../queries/mql/MqlQueryTypes";
@@ -30,7 +27,7 @@ export type UseMqlQueryFromDbIdParams = {
   // queryInput?: Omit<CreateMqlQueryFromDbIdMutationVariables, 'attemptNum'>;
   skip?: boolean;
   retries?: number;
-  doRefetchMqlQuery?: boolean;
+  refetchMqlQueryAttempt?: number;
 };
 
 export type UseMqlQueryFromDbIdQuery = UseMqlQueryState<FetchMqlTimeSeriesQuery>
@@ -43,13 +40,17 @@ export default function useMqlQueryFromDbId({
   mqlQueryId,
   skip,
   retries = 5,
-  doRefetchMqlQuery,
+  refetchMqlQueryAttempt,
 }: UseMqlQueryFromDbIdParams) {
   const {
     mqlServerUrl,
   } = useContext(MqlContext);
   const dataAccr = (data: CreateMqlQueryFromDbIdMutation) => data?.createMqlQueryFromDbId?.query;
 
+  const doRefetchMqlQuery = useMemo(
+    () => Boolean(refetchMqlQueryAttempt),
+    [refetchMqlQueryAttempt]
+  );
   const reducer = mqlQueryReducer<CreateMqlQueryFromDbIdMutation, FetchMqlTimeSeriesQuery>(dataAccr);
   const [state, dispatch] = useReducer(reducer, initialState);
   const {createMqlQueryFromDbId} = useCreateMqlQueryFromDbId({mqlQueryId, dispatch, retries})

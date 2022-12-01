@@ -21,8 +21,7 @@ interface CommonMqlQueryParams {
   queryInput?: Omit<CreateMqlQueryMutationVariables, 'attemptNum'>;
   skip?: boolean;
   retries?: number;
-  doRefetchMqlQuery?: boolean;
-  ignoreCache?: boolean;
+  refetchMqlQueryAttempt?: number;
 }
 
 interface SingleMetricMqlQueryParams extends CommonMqlQueryParams {
@@ -60,12 +59,16 @@ export default function useTimeSeriesMqlQuery({
   metricNames,
   skip,
   retries = 5,
-  doRefetchMqlQuery,
-  ignoreCache,
+  refetchMqlQueryAttempt,
 }: UseMqlQueryParams) {
   const { mqlServerUrl } = useContext(MqlContext);
   const dataAccr = (data: CreateMqlQueryMutation) =>
     data?.createMqlQuery?.query;
+
+  const doRefetchMqlQuery = useMemo(
+    () => Boolean(refetchMqlQueryAttempt),
+    [refetchMqlQueryAttempt]
+  );
 
   const reducer = mqlQueryReducer<
     CreateMqlQueryMutation,
@@ -79,9 +82,9 @@ export default function useTimeSeriesMqlQuery({
       formState: queryInput,
       dispatch,
       retries,
-      ignoreCache,
+      ignoreCache: doRefetchMqlQuery,
     }),
-    [metricName, queryInput, dispatch, retries, ignoreCache]
+    [metricName, queryInput, dispatch, retries, doRefetchMqlQuery]
   );
 
   const useCreateTimeSeriesMqlQueryArgsMultiple = useMemo(
@@ -90,9 +93,9 @@ export default function useTimeSeriesMqlQuery({
       formState: queryInput,
       dispatch,
       retries,
-      ignoreCache,
+      ignoreCache: doRefetchMqlQuery,
     }),
-    [metricNames, queryInput, dispatch, retries, ignoreCache]
+    [metricNames, queryInput, dispatch, retries, doRefetchMqlQuery]
   );
 
   const { createTimeSeriesMqlQuery } = useCreateTimeSeriesMqlQuery(

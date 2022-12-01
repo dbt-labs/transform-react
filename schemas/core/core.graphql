@@ -123,6 +123,7 @@ type Organization {
   samlConnectionId: String
   samlSignatureCert: String
   integrationConfigurationTableau: IntegrationConfigurationTableau
+  integrationConfigurationDbtCloud: IntegrationConfigurationDbtCloud
   dbUtcTimezoneOffsetHours: Int
   dbArrearsHours: Int
   allIntegrations(searchStr: String, searchColumns: [IntegrationStrColumns], orderBy: IntegrationOrderBy, desc: Boolean, orderBys: [IntegrationOrderByInput], pageNumber: Int, pageSize: Int): [Integration]
@@ -1787,6 +1788,18 @@ type IntegrationConfigurationTableau {
   organization: Organization
 }
 
+type IntegrationConfigurationDbtCloud {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  deletedAt: DateTime
+  accountId: String
+  projectId: String
+  jobId: String
+  isFullyConfigured: String
+  organization: Organization
+}
+
 type Integration {
   id: ID!
   organizationId: Int!
@@ -1992,7 +2005,8 @@ type AlertRuleDefinitionParameter {
 
 """Supported parameter types for an alert rule config"""
 enum ParameterType {
-  NUMBER
+  FLOAT
+  INT
   STRING
   BOOL
   ENUM
@@ -2009,6 +2023,7 @@ type Mutation {
   createOrganizationTest(name: String!, primaryConfigRepo: String, primaryConfigBranch: String, mqlServerUrl: String, sourceControlUrl: String, mqlServerLogs: String, isHosted: Boolean, dwEngine: String, mqlServerName: String, requireMfa: Boolean, allowMfaRememberBrowser: Boolean, allowedEmailDomains: [String], orgType: GOrgType): Organization
   setOrgMqlServerConfigSecret(clientConfigSecretId: String, mqlServerId: Int): SetOrgMqlServerConfigSecretId
   setIntegrationConfigurationTableau(configuration: GIntegrationConfigurationTableauInput): SetIntegrationConfigurationTableau
+  setIntegrationConfigurationDbtCloud(configuration: GIntegrationConfigurationDbtCloudInput): SetIntegrationConfigurationDbtCloud
   removeIntegrationConfigurationTableau: RemoveIntegrationConfigurationTableau
   sendMqlHeartbeat(mqlServerId: Int, sha: String!): SendMqlHeartbeat
   createAnnotationTest(dateEndedAt: Date!, dateStartedAt: Date!, expectedImpact: String!, metricInputs: [GMetricAnnotationInput]!, priority: Priority!, text: String!, title: String!): CreateAnnotation
@@ -2204,6 +2219,20 @@ input GIntegrationConfigurationTableauInput {
   site: String
   useServerVersion: Boolean!
   serverAddress: String!
+}
+
+type SetIntegrationConfigurationDbtCloud {
+  accountId: String
+  projectId: String
+  jobId: String
+  isFullyConfigured: Boolean
+}
+
+input GIntegrationConfigurationDbtCloudInput {
+  secretAccessToken: String
+  accountId: String
+  projectId: String
+  jobId: String
 }
 
 type RemoveIntegrationConfigurationTableau {
