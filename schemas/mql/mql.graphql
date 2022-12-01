@@ -399,6 +399,7 @@ type Metric {
   newDataIsAvailable(afterDatetime: DateTime!, modelKey: ModelKeyInput): Boolean
   canLimitDimensionValues(modelKey: ModelKeyInput): Boolean
   valueFormat: String
+  queryingRequiresTimeDim: Boolean
 }
 
 """
@@ -409,6 +410,7 @@ type MetricTypeParams {
   denominator: String
   expr: String
   window: String
+  grainToDate: TimeGranularity
 }
 
 type Dimension {
