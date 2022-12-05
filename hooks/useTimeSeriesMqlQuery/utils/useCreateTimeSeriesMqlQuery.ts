@@ -83,9 +83,9 @@ const useCreateTimeSeriesMqlQuery = ({
       maxDimensionValues: formState.maxDimensionValues,
       metrics: metrics as string[],
       order: formState.order,
-      pctChange: formState.pctChange,
+      pctChange: formState.pctChange || null,
       startTime: formState.latestXDays ? null : formState.startTime,
-      timeGranularity: formState.timeGranularity,
+      timeGranularity: formState.timeGranularity || null,
       trimIncompletePeriods: formState.trimIncompletePeriods,
       where: clearEmptyConstraints(formState.where),
     }).then(({ data, error }) => {

@@ -72,18 +72,29 @@ export default function useTimeSeriesMqlQuery({
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const useCreateTimeSeriesMqlQueryArgs = useMemo(
-    (): SingleMetricUserCreateMqlQueryArgs | MultipleMetricsUserCreateMqlQueryArgs => ({
-      ...(metricName ? {
-        metricName: metricName as string,
-      } : {
-        metricNames: metricNames as string[],
-      }),
+    ():
+      | SingleMetricUserCreateMqlQueryArgs
+      | MultipleMetricsUserCreateMqlQueryArgs => ({
+      ...(metricName
+        ? {
+            metricName: metricName as string,
+          }
+        : {
+            metricNames: metricNames as string[],
+          }),
       formState: queryInput,
       dispatch,
       retries,
       refetchMqlQueryAttempt,
     }),
-    [metricName, metricNames, queryInput, dispatch, retries, refetchMqlQueryAttempt]
+    [
+      metricName,
+      metricNames,
+      queryInput,
+      dispatch,
+      retries,
+      refetchMqlQueryAttempt,
+    ]
   );
 
   const { createTimeSeriesMqlQuery } = useCreateTimeSeriesMqlQuery(
@@ -94,7 +105,10 @@ export default function useTimeSeriesMqlQuery({
     if ((!metricName && !metricNames) || !mqlServerUrl || skip) {
       return;
     }
-    dispatch({ type: 'postQueryStart', doRefetchMqlQuery: Boolean(refetchMqlQueryAttempt) });
+    dispatch({
+      type: 'postQueryStart',
+      doRefetchMqlQuery: Boolean(refetchMqlQueryAttempt),
+    });
     createTimeSeriesMqlQuery({ stateRetries: state.retries });
   }, [
     queryInput,
