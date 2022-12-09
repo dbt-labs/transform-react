@@ -1,10 +1,7 @@
 import { useEffect, useReducer, useContext } from "react";
 // import { CombinedError } from "urql";
 import MqlContext from "../../context/MqlContext/MqlContext";
-import {
-  CreateMqlQueryFromDbIdMutation,
-  CreateMqlQueryFromDbIdMutationVariables,
-} from "../../mutations/mql/MqlMutationTypes";
+import { CreateMqlQueryFromDbIdMutation } from "../../mutations/mql/MqlMutationTypes";
 import {
   FetchMqlTimeSeriesQuery,
 } from "../../queries/mql/MqlQueryTypes";
@@ -30,7 +27,7 @@ export type UseMqlQueryFromDbIdParams = {
   // queryInput?: Omit<CreateMqlQueryFromDbIdMutationVariables, 'attemptNum'>;
   skip?: boolean;
   retries?: number;
-  doRefetchMqlQuery?: boolean;
+  refetchMqlQueryAttempt?: number;
 };
 
 export type UseMqlQueryFromDbIdQuery = UseMqlQueryState<FetchMqlTimeSeriesQuery>
@@ -43,7 +40,7 @@ export default function useMqlQueryFromDbId({
   mqlQueryId,
   skip,
   retries = 5,
-  doRefetchMqlQuery,
+  refetchMqlQueryAttempt,
 }: UseMqlQueryFromDbIdParams) {
   const {
     mqlServerUrl,
@@ -58,9 +55,9 @@ export default function useMqlQueryFromDbId({
     if (!mqlQueryId || !mqlServerUrl || skip) {
       return;
     }
-    dispatch({ type: "postQueryStart", doRefetchMqlQuery });
+    dispatch({ type: "postQueryStart", doRefetchMqlQuery: Boolean(refetchMqlQueryAttempt) });
     createMqlQueryFromDbId({stateRetries: state.retries});
-  }, [mqlQueryId, mqlServerUrl, skip, doRefetchMqlQuery]);
+  }, [mqlQueryId, mqlServerUrl, skip, refetchMqlQueryAttempt]);
 
   const _skip =
     skip ||
@@ -74,7 +71,7 @@ export default function useMqlQueryFromDbId({
     createQueryIdQuery: createMqlQueryFromDbId,
     retries,
     fetchDataQuery: FetchMqlQueryTimeSeries,
-    doRefetchMqlQuery,
+    refetchMqlQueryAttempt,
   });
 
   return state;

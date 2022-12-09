@@ -27,7 +27,7 @@ interface CommonUseCreateMqlQueryArgs {
   dispatch: Dispatch<
     UseMqlQueryAction<CreateMqlQueryMutation, FetchMqlTimeSeriesQuery>
   >;
-  doRefetchMqlQuery?: boolean;
+  refetchMqlQueryAttempt?: number;
 }
 
 export interface SingleMetricUserCreateMqlQueryArgs
@@ -55,7 +55,7 @@ const useCreateTimeSeriesMqlQuery = ({
   formState = {},
   dispatch,
   retries,
-  doRefetchMqlQuery,
+  refetchMqlQueryAttempt,
 }: UseCreateMqlQueryArgs): UseCreateMqlQuery => {
   const { useMutation, handleCombinedError } = useContext(MqlContext);
 
@@ -74,7 +74,7 @@ const useCreateTimeSeriesMqlQuery = ({
       addTimeSeries:
         formState?.addTimeSeries === undefined ? true : formState.addTimeSeries,
       attemptNum: stateRetries,
-      cacheMode: doRefetchMqlQuery ? CacheMode.Ignore : undefined,
+      cacheMode: refetchMqlQueryAttempt ? CacheMode.Ignore : undefined,
       daysLimit: formState.daysLimit,
       endTime: formState.latestXDays ? null : formState.endTime,
       groupBy: formState.groupBy || [],
@@ -84,9 +84,9 @@ const useCreateTimeSeriesMqlQuery = ({
       maxDimensionValues: formState.maxDimensionValues,
       metrics: metrics as string[],
       order: formState.order,
-      pctChange: formState.pctChange,
+      pctChange: formState.pctChange || null,
       startTime: formState.latestXDays ? null : formState.startTime,
-      timeGranularity: formState.timeGranularity,
+      timeGranularity: formState.timeGranularity || null,
       trimIncompletePeriods: formState.trimIncompletePeriods,
       where: clearEmptyConstraints(formState.where),
     }).then(({ data, error }) => {
