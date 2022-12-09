@@ -71,7 +71,8 @@ const useCreateTimeSeriesMqlQuery = ({
 
   const createTimeSeriesMqlQuery = ({ stateRetries }: DoCreateMqlQueryArgs) => {
     createMqlQueryMutation({
-      addTimeSeries: true,
+      addTimeSeries:
+        formState?.addTimeSeries !== false,
       attemptNum: stateRetries,
       cacheMode: refetchMqlQueryAttempt ? CacheMode.Ignore : undefined,
       daysLimit: formState.daysLimit,
