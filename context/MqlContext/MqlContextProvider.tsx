@@ -17,6 +17,7 @@ import MqlContext, {
 
 export interface AcceptedHeaders {
   'model-id'?: string;
+  'Content-Security-Policy': string;
 }
 
 type Props = {
